@@ -1,0 +1,102 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font: var(--text-xs);
+  color: var(--lv6);
+}
+
+.input {
+  font: var(--text-xs);
+  padding: 10px;
+  height: 30px;
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--lv7);
+}
+
+.input:not(:disabled):hover {
+  border-color: var(--lv5);
+}
+
+.input:not(:disabled):active {
+  border-color: var(--lv5);
+}
+
+/* Remove outline on focus, keep border change */
+.input:focus {
+  outline: none;
+  border-color: var(--lv5);
+}
+
+.input::placeholder {
+  color: var(--lv5);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.input::selection {
+  background: var(--lv3);
+}
+
+/* Hide number input spinners */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.error {
+  border-color: var(--CSignal);
+}
+
+.error:focus {
+  border-color: var(--CSignal);
+}
+
+.errorText {
+  font: var(--text-2xs);
+  color: var(--CSignal);
+}
+
+/* Border Bottom Variant */
+.borderBottom {
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--lv3);
+  border-radius: 0;
+}
+
+.borderBottom:not(:disabled):hover {
+  border-bottom-color: var(--lv5);
+}
+
+.borderBottom:not(:disabled):active {
+  border-bottom-color: var(--lv5);
+}
+
+/* Remove outline on focus, keep border change */
+.borderBottom:focus {
+  border-bottom-color: var(--lv5);
+  outline: none;
+}
+
+.borderBottom.error {
+  border-bottom-color: var(--CSignal);
+}
+
+.borderBottom.error:focus {
+  border-bottom-color: var(--CSignal);
+}

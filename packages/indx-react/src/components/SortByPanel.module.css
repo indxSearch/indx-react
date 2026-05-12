@@ -1,0 +1,10 @@
+.select {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

@@ -1,0 +1,14 @@
+.container {
+    border-radius: var(--radius);
+    height: 100%;
+}
+.default {
+    background: var(--lv2);
+    padding: var(--spacing);
+}
+
+@media (prefers-color-scheme: dark) {
+    .default {
+        background: var(--lv1);
+    }
+}

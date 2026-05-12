@@ -1,0 +1,51 @@
+.container {
+    background: var(--lv0);
+    border-radius: var(--radius);
+    padding: calc(var(--spacing) * 3);
+    margin-bottom: var(--spacing);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    --lv5: var(--lv4);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+}
+
+/* Focus indicator for keyboard navigation */
+.header:focus-visible {
+    outline: 2px solid var(--lv5);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+}
+
+.title {
+    font: var(--text-sm);
+    color: var(--lv7);
+    display: flex;
+    align-items: center;
+}
+
+.toggleButton {
+  all: unset;               /* strip default button styles */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ensure the var is in scope for the icon */
+  color: inherit;
+}
+
+.body {
+    gap: 10px;
+}

@@ -1,0 +1,92 @@
+.label {
+  font: var(--text-xs);
+  color: var(--lv6);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.basetrack {
+    position: relative;
+    height: 5px;
+    width: 100%;
+    border-radius: 1px;
+}
+
+.basetrack::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: var(--pattern-checkerboard-light);
+    background-repeat: repeat;
+    background-size: 2px 2px;
+    border-radius: 1px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .basetrack::before {
+        background-image: var(--pattern-checkerboard-dark);
+    }
+}
+.selectedtrack {
+    position: absolute;
+    height: 100%;
+    background-color: var(--lv5);
+    pointer-events: none;
+    border-radius: 1px;
+}
+.livetrack {
+    position: absolute;
+    height: 100%;
+    pointer-events: none;
+    border-radius: 1px;
+}
+.livetrackFaceted {
+  background-color: var(--lv5);
+}
+.livetrackDefault {
+  background-color: var(--lv5);
+}
+.thumbs {
+  height: 13px;
+  width: 18px;
+  border-radius: 1px;
+  background-color: var(--lv7);
+  cursor: grab;
+  outline: none;
+  position: relative;
+}
+
+/* Larger invisible hit area for easier dragging */
+.thumbs::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 19px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Uncomment to visualize the hit area during development */
+  /* background-color: rgba(255, 0, 0, 0.2); */
+}
+
+/* Remove default outline but add custom focus indicator */
+.thumbs:focus {
+  outline: none;
+}
+
+/* Focus indicator for keyboard navigation */
+.thumbs:focus-visible {
+  outline: 2px solid var(--lv5);
+  outline-offset: 2px;
+}
+
+.thumbs.disabled {
+  background-color: var(--lv5);
+  cursor: not-allowed;
+}

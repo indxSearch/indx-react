@@ -1,0 +1,60 @@
+:root {
+
+  --spacing: 5px;
+  --radius: 1px;
+
+  --lv0: #FFFFFF;
+  --lv1: #FBFBFB;
+  --lv2: #EFEFEF;
+  --lv3: #CFCFCF;
+  --lv4: #757575;
+  --lv5: #4A4A50;
+  --lv6: #1A1A21;
+  --lv7: #121215;
+  --lv8: #080809;
+
+  --CSignal: #FF4238;
+  --CTeal: #72F5C6;
+  --CPureBlue: #0000ff;
+
+  /* FONT FAMILY */
+  --font-family: 'Inter', sans-serif;
+
+  /* TEXT */
+  --text-2xs: 350 10px/1 var(--font-family);
+  --text-xs: 350 11px/1 var(--font-family);
+  --text-sm: 350 13px/1 var(--font-family);
+  --text-base: 350 15px/1 var(--font-family);
+  --text-lg: 350 17px/1 var(--font-family);
+  --text-xl: 350 19px/1 var(--font-family);
+  --text-2xl: 350 24px/1 var(--font-family);
+  --text-3xl: 350 30px/1 var(--font-family);
+  --text-4xl: 350 36px/1 var(--font-family);
+
+  --light: 300;
+  --book: 350;
+  --reg: 400;
+  --med: 500;
+  --semi: 600;
+  --bold: 700;
+}
+
+/* Dark mode via system preference (automatic) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lv0: #080809;
+    --lv1: #121215;
+    --lv2: #1A1A21;
+    --lv3: #393941;
+    --lv4: #565661;
+    --lv5: #8F8F97;
+    --lv6: #EFEFEF;
+    --lv7: #FBFBFB;
+    --lv8: #FFFFFF;
+  }
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

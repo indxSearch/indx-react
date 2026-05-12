@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationDir": "dist",
+    "outDir": "dist",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@indxsearch/indx-types": ["../indx-types/src"],
+      "@indxsearch/systm": ["../indx-systm/src"],
+      "@indxsearch/pixl": ["../../node_modules/@indxsearch/pixl"]
+    }
+  },
+  "include": ["src"]
+}
