@@ -1,4 +1,4 @@
-# Indx Interface
+# Indx React
 
 **A complete React UI kit for building search interfaces with Indx.** Everything you need to add full-text search, faceted filtering, and dynamic results to your React application.
 
@@ -17,7 +17,7 @@
 </SearchProvider>
 ```
 
-## Why Indx Interface?
+## Why Indx React?
 
 - **Just Works** - Drop in components, connect to your IndxCloudApi server, done
 - **Real-time Facets** - Dynamic filter counts that update as users search
