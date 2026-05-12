@@ -1,5 +1,7 @@
 # Search Logic Documentation
 
+> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+
 ## Overview
 
 The `SearchContext` manages search state and coordinates search requests to minimize API calls while providing responsive UX.

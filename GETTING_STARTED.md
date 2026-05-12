@@ -1,5 +1,7 @@
 # Getting Started with INDX Search Interface
 
+> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+
 This guide walks you through setting up the INDX search interface for the first time, from installation to seeing your first search results.
 
 ## What You'll Need

@@ -1,5 +1,7 @@
 # INDX Search API - Implementation Guide
 
+> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+
 ## Project Overview
 
 This is a React/TypeScript search interface library (`@indxsearch/react`) that provides components for interacting with the INDX Search API. The library is built as a monorepo with workspace packages and a demo application.

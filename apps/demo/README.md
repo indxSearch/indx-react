@@ -1,5 +1,7 @@
 # indx-react Demo App
 
+> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+
 A showcase application demonstrating the `@indxsearch/react` component library for building powerful search interfaces with [INDX](https://indx.co).
 
 This demo uses the Pokemon dataset to demonstrate various search features including:

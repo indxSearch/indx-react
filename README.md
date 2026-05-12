@@ -62,7 +62,7 @@ This library is designed to work with the **Indx Search** platform:
 - **[IndxNodeLoader](https://github.com/indxSearch/IndxNodeLoader)** - Node.js console app for loading JSON datasets
 - **indx-react** (this repo) - React UI components for building search interfaces
 
-**Compatibility:** This version is compatible with **IndxCloudApi v1.0**.
+**Compatibility:** This version targets **IndxCloudApi v2** (powered by **IndxSearchLib v5 alpha**).
 
 ## Repository Structure
 
