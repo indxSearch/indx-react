@@ -16,12 +16,12 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 
 | Package | Version |
 |---------|---------|
-| **IndxCloudApi** | `1.0.2` |
+| **IndxCloudApi** | `2.0` |
 | **React** | `^19.0.0` |
 | **React DOM** | `^19.0.0` |
 | **Node.js** | `>=16.0.0` |
 
-> **Note:** This library is designed specifically for IndxCloudApi version 1.0.2. Different API versions may have incompatible changes.
+> **Note:** This library targets IndxCloudApi v2.0 (powered by IndxSearchLib v5 alpha). Different API versions may have incompatible changes.
 
 ## Installation
 

@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@indxsearch/indx-types": "^1.0.0",
-    "@indxsearch/systm": "^1.2.0",
-    "@indxsearch/react": "^1.0.5",
+    "@indxsearch/indx-types": "*",
+    "@indxsearch/systm": "*",
+    "@indxsearch/react": "*",
     "@indxsearch/pixl": "^1.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

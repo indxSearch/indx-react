@@ -1,6 +1,6 @@
 # @indxsearch/indx-types
 
-TypeScript type definitions for **IndxCloudApi v1.0.2**. This package provides complete, strongly-typed interfaces for search queries, filters, boosts, results, and system status based on the official [Swagger specification](https://cloud.indx.co/swagger/v1/swagger.json).
+TypeScript type definitions for **IndxCloudApi v2.0**. This package provides complete, strongly-typed interfaces for search queries, filters, boosts, results, and system status.
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm install @indxsearch/indx-types
 
 ## Features
 
-- Complete TypeScript type definitions for IndxCloudApi v1.0.2
+- Complete TypeScript type definitions for IndxCloudApi v2.0
 - Zero runtime dependencies (types-only package)
 - Matches official Swagger API specification exactly
 - Full IntelliSense support in VS Code and other IDEs
@@ -18,7 +18,7 @@ npm install @indxsearch/indx-types
 
 ## Version Compatibility
 
-This package (`@indxsearch/indx-types` v1.0.0) provides types for **IndxCloudApi v1.0.2**. The types are generated directly from the Swagger specification to ensure accuracy and completeness.
+This package (`@indxsearch/indx-types` v2.0.0) provides types for **IndxCloudApi v2.0** (IndxSearchLib v5 alpha).
 
 ## Usage
 
