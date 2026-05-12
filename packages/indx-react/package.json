@@ -64,7 +64,7 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.umd.js"
     },
-    "./styles.css": "./dist/intrface.css"
+    "./styles.css": "./dist/react.css"
   },
   "dependencies": {
     "@indxsearch/indx-types": "^2.0.0",
