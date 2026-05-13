@@ -410,12 +410,12 @@ The `SearchContext.tsx` file in `packages/indx-react/src/context/` implements th
 ### Required Environment Variables (.env.local)
 ```bash
 # For Vite apps (demo, components)
-VITE_INDX_URL=http://localhost:5001
+VITE_INDX_URL=https://localhost:5001
 VITE_INDX_EMAIL=your-email@example.com
 VITE_INDX_PASSWORD=your-password
 
 # For Next.js apps
-NEXT_PUBLIC_INDX_URL=http://localhost:5001
+NEXT_PUBLIC_INDX_URL=https://localhost:5001
 NEXT_PUBLIC_INDX_EMAIL=your-email@example.com
 NEXT_PUBLIC_INDX_PASSWORD=your-password
 ```

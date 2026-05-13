@@ -52,7 +52,7 @@ VITE_INDX_PASSWORD=yourpassword
 
 **For local development:**
 ```bash
-VITE_INDX_URL=http://localhost:5001
+VITE_INDX_URL=https://localhost:5001
 # Then add either token or email/password as shown above
 ```
 
@@ -450,7 +450,7 @@ export default function AdvancedSearch() {
 
 **Solutions:**
 1. Verify the server URL is correct
-2. Check if the server is running (for local: `http://localhost:5001`)
+2. Check if the server is running (for local: `https://localhost:5001`)
 3. Ensure CORS is configured on the server
 4. Check browser console for detailed error
 

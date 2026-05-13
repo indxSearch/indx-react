@@ -45,7 +45,7 @@ VITE_INDX_PASSWORD=your-password
 ```
 
 **Common URLs:**
-- Local INDX Cloud API: `http://localhost:5001`
+- Local INDX Cloud API: `https://localhost:5001`
 - Hosted INDX instance: `https://your-indx-url.website.com`
 
 **Note:** These credentials are exposed in the browser. Use read-only search credentials only.
