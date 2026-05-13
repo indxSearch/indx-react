@@ -89,6 +89,13 @@ export function useSearchExecution({
       const currentRequestId = ++latestRequestId.current;
       setState(prev => ({ ...prev, isLoading: true }));
 
+      // Backend rejects empty text + enableFacets=false
+      const isEmptyQuery = state.query.trim() === '';
+      if (isEmptyQuery) {
+        if (!allowEmptySearch) return; // should not reach here, but guard defensively
+        enableFacets = true;           // backend requires facets=true for empty searches
+      }
+
       try {
         // 1) Build combined filter proxy
         const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, dataset, authenticatedFetch);
