@@ -14,3 +14,4 @@ export { Select, type SelectOption, type SelectProps } from './components/Select
 export { Popover, type PopoverProps } from './components/Popover';
 export { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon } from './components/Table';
 export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
+export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';

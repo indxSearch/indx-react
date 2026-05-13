@@ -15,6 +15,7 @@ export default function Home() {
     { name: 'Table', path: '/table', desc: 'Composable table component system' },
     { name: 'Base', path: '/base', desc: 'Base container component' },
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
+    { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
   ]
 

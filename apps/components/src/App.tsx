@@ -23,6 +23,7 @@ import SortByPanelPage from './sort-by-panel/page';
 import ActiveFiltersPanelPage from './active-filters-panel/page';
 import TablePage from './table/page';
 import TabsPage from './tabs/page';
+import ProgressBarPage from './progress-bar/page';
 import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
 
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
+        <Route path="/progress-bar" element={<ProgressBarPage />} />
         <Route path="/icons" element={<IconsPage />} />
         <Route path="/search-input" element={<SearchInputPage />} />
         <Route path="/value-filter-panel" element={<ValueFilterPanelPage />} />
