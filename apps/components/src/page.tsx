@@ -14,6 +14,7 @@ export default function Home() {
     { name: 'Popover', path: '/popover', desc: 'Radix UI popover component' },
     { name: 'Table', path: '/table', desc: 'Composable table component system' },
     { name: 'Base', path: '/base', desc: 'Base container component' },
+    { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
   ]
 

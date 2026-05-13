@@ -1,0 +1,36 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font: var(--text-2xl);
+  margin-bottom: 0.5rem;
+}
+
+.desc {
+  font: var(--text-base);
+  color: var(--lv5);
+}
+
+.heading {
+  font: var(--text-lg);
+  margin-bottom: 1rem;
+}
+
+.active {
+  font: var(--text-xs);
+  color: var(--lv5);
+  margin-top: 0.75rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}

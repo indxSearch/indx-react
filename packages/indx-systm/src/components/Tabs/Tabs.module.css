@@ -1,0 +1,48 @@
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--lv3);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  font-weight: var(--med);
+  color: var(--lv5);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--lv7);
+}
+
+.active {
+  color: var(--lv7);
+  border-bottom-color: var(--lv7);
+}
+
+/* Sizes */
+.micro {
+  font: var(--text-xs);
+  font-weight: var(--med);
+  height: 30px;
+  padding: 0 10px;
+}
+
+.default {
+  font: var(--text-sm);
+  font-weight: var(--med);
+  height: 40px;
+  padding: 0 15px;
+}
+
+.large {
+  font: var(--text-base);
+  font-weight: var(--med);
+  height: 50px;
+  padding: 0 20px;
+}
