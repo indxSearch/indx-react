@@ -190,7 +190,7 @@ For monorepo development with path mapping:
 
 ## Related Packages
 
-- [@indxsearch/react](https://www.npmjs.com/package/@indxsearch/react) - React search UI components
+- [@indxsearch/intrface](https://www.npmjs.com/package/@indxsearch/intrface) - React search UI components
 - [@indxsearch/systm](https://www.npmjs.com/package/@indxsearch/systm) - Core search system
 - [@indxsearch/pixl](https://www.npmjs.com/package/@indxsearch/pixl) - UI component library
 

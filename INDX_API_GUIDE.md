@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This is a React/TypeScript search interface library (`@indxsearch/react`) that provides components for interacting with the INDX Search API. The library is built as a monorepo with workspace packages and a demo application.
+This is a React/TypeScript search interface library (`@indxsearch/intrface`) that provides components for interacting with the INDX Search API. The library is built as a monorepo with workspace packages and a demo application.
 
 ### Repository Structure
 
@@ -14,7 +14,7 @@ indx-react/
 │   ├── demo/              # Vite demo application (port 3000)
 │   └── components/        # Vite component showcase (port 3001)
 ├── packages/
-│   ├── indx-react/     # Main search components library
+│   ├── indx-intrface/  # Main search components library
 │   │   └── src/
 │   │       └── context/
 │   │           └── SearchContext.tsx  # Core API integration
@@ -390,7 +390,7 @@ const documents = await docsRes.json();
 
 ## SearchContext Implementation
 
-The `SearchContext.tsx` file in `packages/indx-react/src/context/` implements this API as a React Context provider with the following pattern:
+The `SearchContext.tsx` file in `packages/indx-intrface/src/context/` implements this API as a React Context provider with the following pattern:
 
 1. **Login on mount** - Authenticates and stores token
 2. **Fetch field configurations** - Gets filterable/facetable/sortable fields

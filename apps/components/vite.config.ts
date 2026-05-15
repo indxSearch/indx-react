@@ -13,7 +13,7 @@ export default defineConfig({
     preserveSymlinks: false,
   },
   optimizeDeps: {
-    exclude: ['@indxsearch/systm', '@indxsearch/react', '@indxsearch/pixl', '@indxsearch/indx-types'],
+    exclude: ['@indxsearch/systm', '@indxsearch/intrface', '@indxsearch/pixl', '@indxsearch/indx-types'],
     include: [],
   },
 });

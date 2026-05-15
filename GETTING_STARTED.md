@@ -13,7 +13,7 @@ This guide walks you through setting up the INDX search interface for the first 
 ## Step 1: Install the Package
 
 ```bash
-npm install @indxsearch/react @indxsearch/systm @indxsearch/pixl
+npm install @indxsearch/intrface @indxsearch/systm @indxsearch/pixl
 ```
 
 This will install the search interface library and its required dependencies.
@@ -54,7 +54,7 @@ VITE_INDX_PASSWORD=yourpassword
 In your app's main file (e.g., `src/main.tsx` or `src/index.tsx`):
 
 ```typescript
-import '@indxsearch/react/styles.css';
+import '@indxsearch/intrface/styles.css';
 ```
 
 ## Step 4: Create a Search Page
@@ -62,7 +62,7 @@ import '@indxsearch/react/styles.css';
 Create a new file for your search interface:
 
 ```typescript
-import { SearchProvider, SearchInput, SearchResults } from '@indxsearch/react';
+import { SearchProvider, SearchInput, SearchResults } from '@indxsearch/intrface';
 
 export default function SearchPage() {
   return (
@@ -232,14 +232,14 @@ Open your browser and navigate to your search page. You should see a working sea
 
 Now that you have a basic search working:
 
-1. **Add filters** - See the [README](packages/indx-react/README.md#adding-filters) for filter examples
+1. **Add filters** - See the [README](packages/indx-intrface/README.md#adding-filters) for filter examples
 2. **Customize styling** - Override the CSS or use custom render functions
 3. **Configure search behavior** - Adjust `coverageDepth`, `removeDuplicates`, etc.
 4. **Add multiple datasets** - Use different `dataset` names on different pages
 
 ## Need More Help?
 
-- **Full API Reference:** See [README.md](packages/indx-react/README.md)
+- **Full API Reference:** See [README.md](packages/indx-intrface/README.md)
 - **API Documentation:** See [INDX_API_GUIDE.md](INDX_API_GUIDE.md)
 - **Issues:** Open an issue on GitHub
 - **Questions:** Check our documentation at [docs.indx.co](https://docs.indx.co)

@@ -1,4 +1,4 @@
-import '@indxsearch/react/styles.css';
+import '@indxsearch/intrface/styles.css';
 import './globals.css';
 import React, { useState } from 'react';
 import { SearchClient } from './SearchClient';
@@ -8,7 +8,7 @@ import {
   RangeFilterPanel,
   SortByPanel,
   SearchSettingsPanel
-} from '@indxsearch/react';
+} from '@indxsearch/intrface';
 import { Spark } from '@indxsearch/pixl';
 
 const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack', 'abilities'];

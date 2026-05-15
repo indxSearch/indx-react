@@ -47,7 +47,7 @@
 
 ---
 
-**📖 [README →](./packages/indx-react/README.md)**
+**📖 [README →](./packages/indx-intrface/README.md)**
 
 Complete API reference, examples, authentication methods, troubleshooting, and more.
 
@@ -70,7 +70,7 @@ This is a monorepo containing multiple packages:
 
 | Package | Description | License | npm |
 |---------|-------------|---------|-----|
-| **[@indxsearch/react](./packages/indx-react)** | Search UI components (featured above) | Apache-2.0 | `npm i @indxsearch/react` |
+| **[@indxsearch/intrface](./packages/indx-intrface)** | Search UI components (featured above) | Apache-2.0 | `npm i @indxsearch/intrface` |
 | **[@indxsearch/systm](./packages/indx-systm)** | Design system with tokens, UI components, patterns, cursors | [Custom¹](#licensing) | `npm i @indxsearch/systm` |
 | **[@indxsearch/pixl](https://www.npmjs.com/package/@indxsearch/pixl)** | Icon library (separate package) | Custom | `npm i @indxsearch/pixl` |
 
@@ -80,7 +80,7 @@ This is a monorepo containing multiple packages:
 
 This repository uses **multiple licenses**:
 
-- **@indxsearch/react** - Apache License 2.0
+- **@indxsearch/intrface** - Apache License 2.0
   - ✅ Free for commercial use
   - ✅ Modify and redistribute
   - ✅ Use in your products

@@ -6,7 +6,7 @@
 
 The `SearchContext` manages search state and coordinates search requests to minimize API calls while providing responsive UX.
 
-> **Note:** Code snippets in this document are illustrative examples of the implementation patterns. Refer to the actual source code in `packages/indx-react/src/context/SearchContext.tsx` for current implementation details.
+> **Note:** Code snippets in this document are illustrative examples of the implementation patterns. Refer to the actual source code in `packages/indx-intrface/src/context/SearchContext.tsx` for current implementation details.
 
 ## Search Request Strategy
 

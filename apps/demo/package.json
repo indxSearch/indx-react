@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "@indxsearch/react": "*",
+    "@indxsearch/intrface": "*",
     "@indxsearch/systm": "*",
     "@indxsearch/pixl": "^1.2.0"
   },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import '@indxsearch/react/styles.css';
+import '@indxsearch/intrface/styles.css';
 import styles from './SearchClient.module.css';
 import { Indx, Sliders_horizontal } from '@indxsearch/pixl';
 import {
@@ -7,7 +7,7 @@ import {
   SearchInput,
   SearchResults,
   SearchProvider
-} from '@indxsearch/react';
+} from '@indxsearch/intrface';
 import { Base, Button, Popover } from '@indxsearch/systm';
 import { HybridDemo } from './HybridDemo';
 

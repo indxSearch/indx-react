@@ -32,7 +32,7 @@ export default function Home() {
       <div className={styles.hero}>
         <h1 className={styles.title}>Component Library</h1>
         <p className={styles.subtitle}>
-          Browse and test components from @indxsearch/systm and @indxsearch/react
+          Browse and test components from @indxsearch/systm and @indxsearch/intrface
         </p>
       </div>
 

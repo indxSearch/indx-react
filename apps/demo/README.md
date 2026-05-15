@@ -2,7 +2,7 @@
 
 > **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
 
-A showcase application demonstrating the `@indxsearch/react` component library for building powerful search interfaces with [INDX](https://indx.co).
+A showcase application demonstrating the `@indxsearch/intrface` component library for building powerful search interfaces with [INDX](https://indx.co).
 
 This demo uses the Pokemon dataset to demonstrate various search features including:
 - Real-time search with faceted filtering
@@ -16,7 +16,7 @@ This demo uses the Pokemon dataset to demonstrate various search features includ
 - **Vite** - Fast build tool and dev server
 - **React 19** - UI framework
 - **TypeScript** - Type safety
-- **@indxsearch/react** - Search UI components
+- **@indxsearch/intrface** - Search UI components
 - **@indxsearch/systm** - Design system
 - **@indxsearch/pixl** - Icon library
 

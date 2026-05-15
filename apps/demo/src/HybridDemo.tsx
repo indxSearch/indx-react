@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHybridSearch, useVectorSearch } from '@indxsearch/react';
+import { useHybridSearch, useVectorSearch } from '@indxsearch/intrface';
 import { InputField, Button } from '@indxsearch/systm';
 
 // Replace with a real embedding function for actual testing.

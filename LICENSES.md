@@ -9,7 +9,7 @@ Please review the license in each package directory before use.
 
 | Package | Description | License | Commercial Use |
 |---------|-------------|---------|----------------|
-| indx-react | Headless / lightly styled React UI components | Apache License 2.0 | ✔ Allowed |
+| indx-intrface | Headless / lightly styled React UI components | Apache License 2.0 | ✔ Allowed |
 | indx-systm | Indx design system, branded UI components, tokens | Indx Design System License | ❌ Not allowed |
 | demo (app) | Example application using Indx UI | Apache License 2.0 | ✔ Allowed |
 | components (app) | Component showcase application | Apache License 2.0 | ✔ Allowed |
