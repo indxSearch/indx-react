@@ -7,9 +7,10 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run build:packages && concurrently --names \"types,systm,intrface,demo,components\" -c \"blue,magenta,cyan,green,yellow\" \"npm run dev:types\" \"npm run dev:systm\" \"npm run dev:intrface\" \"sleep 2 && npm run dev:demo\" \"sleep 2 && npm run dev:components\"",
+    "dev": "npm run build:packages && concurrently --names \"types,systm,intrface,demo,components,millum\" -c \"blue,magenta,cyan,green,yellow,red\" \"npm run dev:types\" \"npm run dev:systm\" \"npm run dev:intrface\" \"sleep 2 && npm run dev:demo\" \"sleep 2 && npm run dev:components\" \"sleep 2 && npm run dev:millum\"",
     "dev:demo": "npm run dev --workspace=demo",
     "dev:components": "npm run dev --workspace=components-viewer",
+    "dev:millum": "npm run dev --workspace=millum",
     "dev:packages": "concurrently \"npm run dev:types\" \"npm run dev:systm\" \"npm run dev:intrface\"",
     "dev:types": "npm run dev --workspace=@indxsearch/indx-types",
     "dev:systm": "npm run dev --workspace=@indxsearch/systm",
@@ -22,7 +23,8 @@
     "build:packages": "npm run build:types && npm run build:systm && npm run build:intrface",
     "build:demo": "npm run build --workspace=demo",
     "build:components": "npm run build --workspace=components-viewer",
-    "build": "npm run build:packages && npm run build:demo && npm run build:components",
+    "build:millum": "npm run build --workspace=millum",
+    "build": "npm run build:packages && npm run build:demo && npm run build:components && npm run build:millum",
     "start:demo": "npm run preview --workspace=demo",
     "preview:demo": "npm run preview --workspace=demo"
   },
