@@ -41,9 +41,13 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   const queryMax = queryBounds.max;
 
   // 2) Live data bounds (reflects all active filters, used for active region visualization)
-  const liveDataBounds = facetStats?.[field] ?? queryBounds;
-  const liveDataMin = liveDataBounds.min;
-  const liveDataMax = liveDataBounds.max;
+  // Clamp to [queryMin, queryMax]: facetStats and rangeBounds can briefly diverge after a
+  // query change (e.g. facetStats falls back to the full-dataset initialFacetStats when a
+  // field is missing from a search response). Without clamping, the live overlay can
+  // visually extend past the slider track until both state slices settle.
+  const rawLiveBounds = facetStats?.[field] ?? queryBounds;
+  const liveDataMin = Math.max(queryMin, Math.min(queryMax, rawLiveBounds.min));
+  const liveDataMax = Math.max(queryMin, Math.min(queryMax, rawLiveBounds.max));
 
   // 3) If query bounds are equal, disable slider (no range to filter)
   // Only disable if we have real bounds data (not just defaults)
