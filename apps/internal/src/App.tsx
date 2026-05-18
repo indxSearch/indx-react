@@ -10,7 +10,7 @@ import {
   SearchSettingsPanel
 } from '@indxsearch/intrface';
 
-type DatasetKey = 'millum' | 'millum2025';
+type DatasetKey = 'millum' | 'millum2025' | 'legemidler';
 
 type DatasetSchema = {
   label: string;
@@ -104,6 +104,34 @@ const millum2025Render = (item: any) => (
   </div>
 );
 
+// ── legemidler ────────────────────────────────────────────────────────────────
+const legemidlerFilters = (
+  <>
+    <ActiveFiltersPanel />
+    <SortByPanel displayType="radio" />
+    <ValueFilterPanel
+      label="Form"
+      field="form"
+      displayType="checkbox"
+      sortFacetsBy="histogram"
+      limit={20}
+    />
+    <SearchSettingsPanel />
+  </>
+);
+
+const legemidlerRender = (item: any) => (
+  <div>
+    <div style={{ font: 'var(--text-base)', color: 'var(--lv8)', marginBottom: '0.25rem' }}>
+      {item['navnFormStyrke']}
+    </div>
+    <div style={{ font: 'var(--text-xs)', color: 'var(--lv5)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+      {item['virkestoffMedStyrke.navn'] && <span>Virkestoff: {item['virkestoffMedStyrke.navn']}</span>}
+      {item['form'] && <span>Form: {item['form']}</span>}
+    </div>
+  </div>
+);
+
 const schemas: Record<DatasetKey, DatasetSchema> = {
   millum: {
     label: 'Millum',
@@ -117,9 +145,15 @@ const schemas: Record<DatasetKey, DatasetSchema> = {
     filters: millum2025Filters,
     renderResult: millum2025Render,
   },
+  legemidler: {
+    label: 'Legemidler',
+    fields: ['navnFormStyrke', 'virkestoffMedStyrke.navn', 'form'],
+    filters: legemidlerFilters,
+    renderResult: legemidlerRender,
+  },
 };
 
-const datasetOrder: DatasetKey[] = ['millum', 'millum2025'];
+const datasetOrder: DatasetKey[] = ['millum', 'millum2025', 'legemidler'];
 
 export default function App() {
   const [dataset, setDataset] = useState<DatasetKey>('millum');
