@@ -34,7 +34,7 @@ const filters = (
     />
     <ValueFilterPanel label="Legendary" field="is_legendary" preserveBlankFacetState={true} displayType="toggle" />
     <RangeFilterPanel label="Speed" field="speed" displayType="slider" expectedMin={5} expectedMax={180} />
-    <RangeFilterPanel label="Attack" field="attack" displayType="slider" startCollapsed={true} />
+    <RangeFilterPanel label="Attack" field="attack" displayType="slider" startCollapsed={true} showHistogram />
     <RangeFilterPanel label="HP" field="hp" displayType="slider" startCollapsed={true} />
     <ValueFilterPanel label="Speed" field="speed" displayType="button" preserveBlankFacetStateOrder={false} sortFacetsBy="numeric" startCollapsed={true} />
     <ValueFilterPanel label="Attack" field="attack" layout="grid" startCollapsed={true} showCount={true} />
