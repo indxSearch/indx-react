@@ -1,0 +1,20 @@
+.disabledMessage {
+  font: var(--text-2xs);
+  margin-bottom: 10px;
+}
+
+.histogram {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 20px;
+  padding: 0 10px;
+  margin-bottom: 2px;
+}
+
+.histogramBar {
+  flex: 1;
+  min-width: 0;
+  border-radius: 1px 1px 0 0;
+  transition: background 0.15s;
+}
