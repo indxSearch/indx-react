@@ -215,21 +215,33 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   }, [sliderValue, liveDataMin, queryMax]);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Histogram: snapshot facet distribution when query bounds change
+  // Histogram: snapshot facet distribution when query changes.
+  //
+  // The snapshot is keyed on `queryMin:queryMax`. When those bounds change it
+  // means a new query arrived, so we update. We also update when facets first
+  // become available for the initial blank-search case: rangeBounds is not
+  // populated for empty queries, so queryMin/queryMax stay at their prop
+  // defaults — the ref lets us detect "facets arrived but no snapshot yet".
   const [histogramSnapshot, setHistogramSnapshot] = React.useState<Array<{ key: string; value: number }> | null>(null);
+  const snapshotBoundsRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (!showHistogram) return;
+    const boundsKey = `${queryMin}:${queryMax}`;
+    const isNewBounds = boundsKey !== snapshotBoundsRef.current;
+    // Skip if same bounds and we already have a snapshot (i.e. a filter changed, not the query)
+    if (!isNewBounds && snapshotBoundsRef.current !== null) return;
+
     const rawFacets = facets?.[field];
-    if (!Array.isArray(rawFacets)) {
-      setHistogramSnapshot(null);
-      return;
-    }
+    if (!Array.isArray(rawFacets) || rawFacets.length === 0) return;
     const snapshot = rawFacets
       .filter((f: any) => f.value != null && !isNaN(Number(f.key)))
       .map((f: any) => ({ key: f.key as string, value: f.value as number }));
-    setHistogramSnapshot(snapshot.length > 0 ? snapshot : null);
-  }, [queryMin, queryMax, field, showHistogram]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (snapshot.length > 0) {
+      snapshotBoundsRef.current = boundsKey;
+      setHistogramSnapshot(snapshot);
+    }
+  }, [queryMin, queryMax, facets, field, showHistogram]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const histogramBuckets = React.useMemo(() => {
     if (!showHistogram || !histogramSnapshot || histogramSnapshot.length === 0) return [];
@@ -279,22 +291,32 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         )}
         {showHistogram && histogramBuckets.length > 0 && (
           <div className={styles.histogram}>
-            {histogramBuckets.map((bucket, i) => {
-              const height = Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20));
-              const isActive = bucket.bucketEnd > finalMin && bucket.bucketStart < finalMax;
-              return (
-                <div
-                  key={i}
-                  className={styles.histogramBar}
-                  data-testid="histogram-bar"
-                  data-active={isActive}
-                  style={{
-                    height: `${height}px`,
-                    background: isActive ? 'var(--lv5)' : 'var(--lv3)',
-                  }}
-                />
-              );
-            })}
+            {(() => {
+              const hasLiveOverlay =
+                typeof liveDataMin === 'number' &&
+                typeof liveDataMax === 'number' &&
+                liveDataMax > liveDataMin &&
+                (liveDataMin > queryMin || liveDataMax < queryMax);
+
+              return histogramBuckets.map((bucket, i) => {
+                const height = Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20));
+                const isActive = hasLiveOverlay
+                  ? bucket.bucketEnd > liveDataMin && bucket.bucketStart < liveDataMax
+                  : bucket.bucketEnd > finalMin && bucket.bucketStart < finalMax;
+                return (
+                  <div
+                    key={i}
+                    className={styles.histogramBar}
+                    data-testid="histogram-bar"
+                    data-active={isActive}
+                    style={{
+                      height: `${height}px`,
+                      background: isActive ? 'var(--lv5)' : 'var(--lv3)',
+                    }}
+                  />
+                );
+              });
+            })()}
           </div>
         )}
         <div style={{ padding: '10px 10px 20px 10px' }}>
