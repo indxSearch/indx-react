@@ -34,6 +34,9 @@ const categoryFacets = {
     { key: 'common', value: 85 }, { key: 'uncommon', value: 42 },
     { key: 'rare', value: 18 }, { key: 'legendary', value: 5 },
   ],
+  is_legendary: [
+    { key: 'true', value: 20 }, { key: 'false', value: 130 },
+  ],
 };
 
 const rangeBounds = {
@@ -46,7 +49,7 @@ const rangeBounds = {
 const noop = () => {};
 const noopFetch = () => Promise.resolve(new Response());
 
-export function MockSearchProvider({ children }: { children: ReactNode }) {
+export function MockSearchProvider({ children, isFetchingInitial = false }: { children: ReactNode; isFetchingInitial?: boolean }) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string[]>>({});
   const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>({});
@@ -88,8 +91,8 @@ export function MockSearchProvider({ children }: { children: ReactNode }) {
         speed:  { min: 5,  max: 200 },
       },
       facetDebounceDelayMillis: 300,
-      filterableFields: ['type', 'rarity', 'hp', 'attack', 'defense', 'speed'],
-      facetableFields:  ['type', 'rarity', 'hp', 'attack', 'defense', 'speed'],
+      filterableFields: ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+      facetableFields:  ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
       sortableFields:   ['name', 'hp', 'attack', 'defense', 'speed'],
       sortBy: sortBy ?? undefined,
       sortAscending,
@@ -109,7 +112,7 @@ export function MockSearchProvider({ children }: { children: ReactNode }) {
         placeholderText: 'Search…',
       },
     },
-    isFetchingInitial: false,
+    isFetchingInitial,
     allowEmptySearch: true,
     url: '',
     dataset: 'mock',

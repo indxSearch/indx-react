@@ -1,3 +1,4 @@
+import '@indxsearch/systm/styles.css';
 import '@indxsearch/intrface/styles.css';
 import './globals.css';
 import React, { useState } from 'react';
@@ -7,7 +8,8 @@ import {
   ValueFilterPanel,
   RangeFilterPanel,
   SortByPanel,
-  SearchSettingsPanel
+  SearchSettingsPanel,
+  SearchResultRow,
 } from '@indxsearch/intrface';
 import { Tag } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
@@ -44,35 +46,29 @@ const filters = (
   </>
 );
 
-// Rich renderResult
-const renderResult = (item: any) => {
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', font: 'var(--text-base)', color: 'var(--lv8)', marginBottom: '0.5rem' }}>
-        {item.name}
-        {item.is_legendary && <Spark color="gold" size={14} />}
-        {item.type1 && <Tag>{item.type1}</Tag>}
-        {item.type2 && <Tag>{item.type2}</Tag>}
-      </div>
-
-      {Array.isArray(item.abilities) && item.abilities.length > 0 && (
-        <div>
-          Abilities:{' '}
-          {item.abilities.map((ability: string, idx: number) => (
-            <Tag key={`${ability}-${idx}`}>{ability}</Tag>
-          ))}
-        </div>
-      )}
-
-      <div>
-        Stats:{' '}
-        {typeof item.hp === 'number' && <Tag>HP: {item.hp}</Tag>}
-        {typeof item.speed === 'number' && <Tag>Speed: {item.speed}</Tag>}
-        {typeof item.attack === 'number' && <Tag>Attack: {item.attack}</Tag>}
-      </div>
-    </div>
-  );
-};
+const renderResult = (item: any) => (
+  <>
+    <SearchResultRow variant="title">
+      {item.name}
+      {item.is_legendary && <Spark color="gold" size={14} />}
+      {item.type1 && <Tag>{item.type1}</Tag>}
+      {item.type2 && <Tag>{item.type2}</Tag>}
+    </SearchResultRow>
+    {Array.isArray(item.abilities) && item.abilities.length > 0 && (
+      <SearchResultRow>
+        Abilities:{' '}
+        {item.abilities.map((ability: string, idx: number) => (
+          <Tag key={`${ability}-${idx}`}>{ability}</Tag>
+        ))}
+      </SearchResultRow>
+    )}
+    <SearchResultRow>
+      {typeof item.hp === 'number' && <Tag>HP: {item.hp}</Tag>}
+      {typeof item.speed === 'number' && <Tag>Speed: {item.speed}</Tag>}
+      {typeof item.attack === 'number' && <Tag>Attack: {item.attack}</Tag>}
+    </SearchResultRow>
+  </>
+);
 
 export default function App() {
   const [tab, setTab] = useState<'text' | 'hybrid'>('text');

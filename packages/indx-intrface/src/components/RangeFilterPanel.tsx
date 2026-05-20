@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { Slider, InputField, FilterPanelBase } from '@indxsearch/systm';
 import styles from './RangeFilterPanel.module.css';
+import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 export interface RangeFilterPanelProps {
   field: string;
@@ -275,7 +276,14 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // Don't show until data is loaded
   // (Must come after all hooks to follow Rules of Hooks)
   if (isFetchingInitial) {
-    return null;
+    return (
+      <FilterPanelSkeleton
+        title={label}
+        variant="slider"
+        collapsible={collapsible}
+        startCollapsed={startCollapsed}
+      />
+    );
   }
 
   // Don't show if query is empty and allowEmptySearch is false

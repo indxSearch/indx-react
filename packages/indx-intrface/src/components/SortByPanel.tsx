@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { FilterPanelBase, RadioButton, Select } from '@indxsearch/systm';
 import styles from './SortByPanel.module.css';
+import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 type SortByPanelProps = {
   displayType?: 'dropdown' | 'radio';
@@ -13,7 +14,19 @@ export const SortByPanel: React.FC<SortByPanelProps> = ({ displayType = 'dropdow
   const {
     state: { sortableFields, sortBy, sortAscending },
     setSort,
+    isFetchingInitial,
   } = useSearchContext();
+
+  if (isFetchingInitial) {
+    return (
+      <FilterPanelSkeleton
+        title="Sort by"
+        rows={displayType === 'radio' ? 3 : 1}
+        collapsible={collapsible}
+        startCollapsed={startCollapsed}
+      />
+    );
+  }
 
   if (!sortableFields || sortableFields.length === 0) return null;
 

@@ -25,15 +25,6 @@
   border-radius: 2px;
 }
 
-.resultTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font: var(--text-base);
-  color: var(--lv8);
-  margin-bottom: 0.5rem;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));

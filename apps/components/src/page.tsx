@@ -26,7 +26,8 @@ export default function Home() {
     { name: 'RangeFilterPanel', path: '/range-filter-panel', desc: 'Numeric range filter slider' },
     { name: 'SortByPanel', path: '/sort-by-panel', desc: 'Sort options panel' },
     { name: 'ActiveFiltersPanel', path: '/active-filters-panel', desc: 'Active filter chips' },
-    { name: 'SearchResult', path: '/search-result', desc: 'Single result row with skeleton loading state' },
+    { name: 'SearchResult + SearchResultRow', path: '/search-result', desc: 'Composable result rows with skeleton loading' },
+    { name: 'FilterPanelSkeleton', path: '/filter-panel-skeleton', desc: 'Skeleton placeholder for filter panels during initial fetch' },
   ]
 
   return (

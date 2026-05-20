@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './ValueFilterPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import { Checkbox, Button, ToggleSwitch, FilterPanelBase } from '@indxsearch/systm';
+import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 export interface ValueFilterPanelProps {
   field: string;
@@ -62,7 +63,16 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     return null;
   }
 
-  if (isFetchingInitial || !facets) return null;
+  if (isFetchingInitial || !facets) {
+    return (
+      <FilterPanelSkeleton
+        title={label}
+        rows={Math.min(limit, 6)}
+        collapsible={collapsible}
+        startCollapsed={startCollapsed}
+      />
+    );
+  }
 
   if (!displayCondition({ query: query ?? "", filters, facets })) {
     return null;

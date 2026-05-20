@@ -1,33 +1,35 @@
-import { SearchResult, SearchResultsSkeleton } from '@indxsearch/intrface';
+import { SearchResult, SearchResultRow, SearchResultsSkeleton } from '@indxsearch/intrface';
 import { Tag, Base } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 const results = [
-  { name: 'Charizard', is_legendary: false, type1: 'fire', type2: 'flying', abilities: ['blaze', 'solar-power'], hp: 78, speed: 100, attack: 84 },
-  { name: 'Bulbasaur', is_legendary: false, type1: 'grass', type2: 'poison', abilities: ['overgrow', 'chlorophyll'], hp: 45, speed: 45, attack: 49 },
-  { name: 'Mewtwo', is_legendary: true, type1: 'psychic', type2: '', abilities: ['pressure', 'unnerve'], hp: 106, speed: 130, attack: 110 },
+  { name: 'Charizard', is_legendary: false, type1: 'fire', type2: 'flying', abilities: ['blaze', 'solar-power'], hp: 78, speed: 100, attack: 84, description: 'Spits fire that is hot enough to melt boulders.' },
+  { name: 'Bulbasaur', is_legendary: false, type1: 'grass', type2: 'poison', abilities: ['overgrow', 'chlorophyll'], hp: 45, speed: 45, attack: 49, description: 'A strange seed was planted on its back at birth.' },
+  { name: 'Mewtwo', is_legendary: true, type1: 'psychic', type2: '', abilities: ['pressure', 'unnerve'], hp: 106, speed: 130, attack: 110, description: 'A Pokémon created by recombinating Mew\'s genes.' },
 ];
 
 function ResultCard({ item }: { item: typeof results[0] }) {
   return (
-    <div>
-      <div className={styles.resultTitle}>
+    <>
+      <SearchResultRow variant="title">
         {item.name}
         {item.is_legendary && <Spark color="gold" size={14} />}
         {item.type1 && <Tag>{item.type1}</Tag>}
         {item.type2 && <Tag>{item.type2}</Tag>}
-      </div>
+      </SearchResultRow>
       {item.abilities.length > 0 && (
-        <div>
-          Abilities:{' '}
-          {item.abilities.map((a) => <Tag key={a}>{a}</Tag>)}
-        </div>
+        <SearchResultRow>
+          Abilities: {item.abilities.map((a) => <Tag key={a}>{a}</Tag>)}
+        </SearchResultRow>
       )}
-      <div>
-        Stats: <Tag>HP: {item.hp}</Tag><Tag>Speed: {item.speed}</Tag><Tag>Attack: {item.attack}</Tag>
-      </div>
-    </div>
+      <SearchResultRow>
+        <Tag>HP: {item.hp}</Tag>
+        <Tag>Speed: {item.speed}</Tag>
+        <Tag>Attack: {item.attack}</Tag>
+      </SearchResultRow>
+      <SearchResultRow>{item.description}</SearchResultRow>
+    </>
   );
 }
 
@@ -35,10 +37,11 @@ export default function SearchResultPage() {
   return (
     <main className={styles.main}>
       <div className={styles.section}>
-        <h1 className={styles.title}>SearchResult</h1>
+        <h1 className={styles.title}>SearchResult + SearchResultRow</h1>
         <p className={styles.desc}>
-          Single result row. Use <code>skeleton</code> for the loading state.
-          <code>SearchResultsSkeleton</code> renders multiple skeleton rows.
+          <code>SearchResult</code> is the row wrapper (padding, border, index, score, skeleton).{' '}
+          <code>SearchResultRow</code> composes the content inside — use <code>variant="title"</code> for
+          the name line and default for tags, description, or any other row.
         </p>
       </div>
 
@@ -51,6 +54,17 @@ export default function SearchResultPage() {
                 <ResultCard item={item} />
               </SearchResult>
             ))}
+          </Base>
+        </div>
+
+        <div className={styles.demo}>
+          <h2 className={styles.heading}>SearchResultRow variants</h2>
+          <Base>
+            <SearchResult>
+              <SearchResultRow variant="title">Title row — text-base, lv8</SearchResultRow>
+              <SearchResultRow>Default row — text-xs, lv5 — tags fit here: <Tag>one</Tag><Tag>two</Tag></SearchResultRow>
+              <SearchResultRow>Description row — plain text, same default style</SearchResultRow>
+            </SearchResult>
           </Base>
         </div>
 

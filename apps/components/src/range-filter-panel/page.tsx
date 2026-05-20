@@ -88,7 +88,21 @@ export default function RangeFilterPanelPage() {
             />
           </div>
 
+        <div className={styles.demo}>
+          <h2 className={styles.heading}>Skeleton — expanded</h2>
+          <MockSearchProvider isFetchingInitial={true}>
+            <RangeFilterPanel label="HP" field="hp" displayType="slider" expectedMin={0} expectedMax={255} />
+          </MockSearchProvider>
         </div>
+
+        <div className={styles.demo}>
+          <h2 className={styles.heading}>Skeleton — starts collapsed</h2>
+          <MockSearchProvider isFetchingInitial={true}>
+            <RangeFilterPanel label="HP" field="hp" displayType="slider" expectedMin={0} expectedMax={255} startCollapsed />
+          </MockSearchProvider>
+        </div>
+
+      </div>
       </main>
     </MockSearchProvider>
   );

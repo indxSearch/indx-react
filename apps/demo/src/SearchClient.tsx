@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import '@indxsearch/systm/styles.css';
 import '@indxsearch/intrface/styles.css';
 import styles from './SearchClient.module.css';
 import { Indx, Sliders_horizontal } from '@indxsearch/pixl';

@@ -19,6 +19,13 @@
   margin-bottom: 0.5rem;
 }
 
+.desc code {
+  font-family: monospace;
+  background: var(--lv2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
 .note {
   font: var(--text-sm);
   color: var(--lv3);

@@ -1,6 +1,7 @@
-
 import { useState } from 'react';
 import { Checkbox, Button, FilterPanelBase } from '@indxsearch/systm';
+import { ValueFilterPanel } from '@indxsearch/intrface';
+import { MockSearchProvider } from '../mock/MockSearchProvider';
 import styles from './page.module.css';
 
 const pokemonTypes = [
@@ -147,6 +148,46 @@ export default function ValueFilterPanelPage() {
             </ul>
           </FilterPanelBase>
         </div>
+      </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.title} style={{ fontSize: '1.25rem' }}>Toggle (boolean facet)</h2>
+        <p className={styles.desc}>Use <code>displayType="toggle"</code> for fields with two boolean values.</p>
+      </div>
+
+      <div className={styles.grid}>
+        <MockSearchProvider>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Toggle — on/off</h2>
+            <ValueFilterPanel label="Legendary" field="is_legendary" displayType="toggle" />
+          </div>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Toggle — with count</h2>
+            <ValueFilterPanel label="Legendary" field="is_legendary" displayType="toggle" showCount />
+          </div>
+        </MockSearchProvider>
+      </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.title} style={{ fontSize: '1.25rem' }}>Skeleton loading</h2>
+        <p className={styles.desc}>Shown during <code>isFetchingInitial</code> — before the first search result arrives.</p>
+      </div>
+
+      <div className={styles.grid}>
+        <MockSearchProvider isFetchingInitial={true}>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Checkbox list (default)</h2>
+            <ValueFilterPanel label="Pokemon Type" field="type" />
+          </div>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>5 rows</h2>
+            <ValueFilterPanel label="Rarity" field="rarity" limit={5} />
+          </div>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Starts collapsed</h2>
+            <ValueFilterPanel label="Attack" field="attack" startCollapsed />
+          </div>
+        </MockSearchProvider>
       </div>
     </main>
   );
