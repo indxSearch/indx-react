@@ -64,6 +64,9 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   }
 
   if (isFetchingInitial || !facets) {
+    if (displayType === 'toggle') {
+      return <FilterPanelSkeleton rows={1} collapsible={false} />;
+    }
     return (
       <FilterPanelSkeleton
         title={label}

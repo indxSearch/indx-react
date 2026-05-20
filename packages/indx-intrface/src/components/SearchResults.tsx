@@ -50,7 +50,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   if (isFetchingInitial) {
     return allowEmptySearch
-      ? <SearchResultsSkeleton />
+      ? <SearchResultsSkeleton rows={pageSize} />
       : <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
   }
 

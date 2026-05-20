@@ -7,10 +7,32 @@ import {
   useSearchContext,
   SearchInput,
   SearchResults,
-  SearchProvider
+  SearchProvider,
+  SearchContext,
 } from '@indxsearch/intrface';
 import { Base, Button, Popover } from '@indxsearch/systm';
 import { HybridDemo } from './HybridDemo';
+
+const simulateDelayMs = Number(import.meta.env.VITE_SIMULATE_INITIAL_DELAY_MS ?? 0);
+
+function SimulateLoadingProvider({ children }: { children: React.ReactNode }) {
+  const ctx = useSearchContext();
+  const [simulating, setSimulating] = useState(simulateDelayMs > 0);
+
+  useEffect(() => {
+    if (!simulating) return;
+    const t = setTimeout(() => setSimulating(false), simulateDelayMs);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!simulating) return <>{children}</>;
+
+  return (
+    <SearchContext.Provider value={{ ...ctx, isFetchingInitial: true }}>
+      {children}
+    </SearchContext.Provider>
+  );
+}
 
 type SearchClientProps = {
   dataset: string;
@@ -43,16 +65,18 @@ export function SearchClient({
       facetDebounceDelayMillis={100}
       enableDebugLogs={true}
     >
-      {activeTab === 'text' ? (
-        <SearchLayout
-          fields={fields}
-          renderResult={renderResult}
-          filters={filters}
-          showFilters={showFilters}
-        />
-      ) : (
-        <HybridDemo />
-      )}
+      <SimulateLoadingProvider>
+        {activeTab === 'text' ? (
+          <SearchLayout
+            fields={fields}
+            renderResult={renderResult}
+            filters={filters}
+            showFilters={showFilters}
+          />
+        ) : (
+          <HybridDemo />
+        )}
+      </SimulateLoadingProvider>
     </SearchProvider>
   );
 }
