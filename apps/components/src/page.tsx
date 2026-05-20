@@ -17,6 +17,7 @@ export default function Home() {
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
+    { name: 'Tag', path: '/tag', desc: 'Pill-shaped label for categories and attributes' },
   ]
 
   const intrfaceComponents = [
@@ -25,6 +26,7 @@ export default function Home() {
     { name: 'RangeFilterPanel', path: '/range-filter-panel', desc: 'Numeric range filter slider' },
     { name: 'SortByPanel', path: '/sort-by-panel', desc: 'Sort options panel' },
     { name: 'ActiveFiltersPanel', path: '/active-filters-panel', desc: 'Active filter chips' },
+    { name: 'SearchResult', path: '/search-result', desc: 'Single result row with skeleton loading state' },
   ]
 
   return (

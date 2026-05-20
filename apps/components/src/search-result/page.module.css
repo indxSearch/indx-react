@@ -1,0 +1,54 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font: var(--text-2xl);
+  margin-bottom: 0.5rem;
+}
+
+.desc {
+  font: var(--text-base);
+  color: var(--lv5);
+}
+
+.desc code {
+  font-family: monospace;
+  background: var(--lv2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.resultTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: var(--text-base);
+  color: var(--lv8);
+  margin-bottom: 0.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  padding-bottom: 4rem;
+}
+
+.demo {
+  padding: 1.5rem;
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+}
+
+.heading {
+  font: var(--text-lg);
+  margin-bottom: 1rem;
+  color: var(--lv4);
+}

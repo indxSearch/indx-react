@@ -1,0 +1,75 @@
+@keyframes shimmer {
+    0% { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+
+.row {
+    padding: 20px 25px 20px 30px;
+    border-bottom: 1px solid var(--lv0);
+    font: var(--text-xs);
+    position: relative;
+    color: var(--lv5);
+}
+
+@media (prefers-color-scheme: dark) {
+    .row {
+        border-color: var(--lv2);
+    }
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    line-height: 1.8;
+}
+
+/* Tags inside a result row sit on a Base (lv2) surface — override to lv0 so they read as elevated pills */
+.content span {
+    background-color: var(--lv0);
+    margin-inline-end: 5px;
+    margin-bottom: 2px;
+}
+
+.indexNumber {
+    position: absolute;
+    top: 25px;
+    left: 5px;
+    font: var(--text-2xs);
+    color: var(--lv4);
+}
+
+.scoreNumber {
+    position: absolute;
+    top: 25px;
+    right: 5px;
+    font: var(--text-2xs);
+    color: var(--lv4);
+}
+
+/* Skeleton bars — on Base (lv2), use lv3 so they're visibly darker than the surface */
+.skeletonBars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeletonBarLg {
+    height: 15px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--lv2) 25%, var(--lv3) 50%, var(--lv2) 75%);
+    background-size: 1200px 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.skeletonBarSm {
+    height: 11px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--lv2) 25%, var(--lv3) 50%, var(--lv2) 75%);
+    background-size: 1200px 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+}

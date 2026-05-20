@@ -9,6 +9,7 @@ import {
   SortByPanel,
   SearchSettingsPanel
 } from '@indxsearch/intrface';
+import { Tag } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
 
 const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack', 'abilities'];
@@ -41,11 +42,6 @@ const filters = (
     <ValueFilterPanel label="HP" startCollapsed={true} field="hp" />
     <SearchSettingsPanel />
   </>
-);
-
-// Tag component
-const Tag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span>{children}</span>
 );
 
 // Rich renderResult

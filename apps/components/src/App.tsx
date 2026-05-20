@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from './page';
 import Nav from './Nav';
 import styles from './page.module.css';
@@ -15,12 +15,14 @@ import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
+import TagPage from './tag/page';
 import IconsPage from './icons/page';
 import SearchInputPage from './search-input/page';
 import ValueFilterPanelPage from './value-filter-panel/page';
 import RangeFilterPanelPage from './range-filter-panel/page';
 import SortByPanelPage from './sort-by-panel/page';
 import ActiveFiltersPanelPage from './active-filters-panel/page';
+import SearchResultPage from './search-result/page';
 import TablePage from './table/page';
 import TabsPage from './tabs/page';
 import ProgressBarPage from './progress-bar/page';
@@ -44,6 +46,7 @@ export default function App() {
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
+        <Route path="/tag" element={<TagPage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
         <Route path="/progress-bar" element={<ProgressBarPage />} />
@@ -53,6 +56,7 @@ export default function App() {
         <Route path="/range-filter-panel" element={<RangeFilterPanelPage />} />
         <Route path="/sort-by-panel" element={<SortByPanelPage />} />
         <Route path="/active-filters-panel" element={<ActiveFiltersPanelPage />} />
+        <Route path="/search-result" element={<SearchResultPage />} />
         <Route path="/cursors" element={<CursorsPage />} />
         <Route path="/patterns" element={<PatternsPage />} />
       </Routes>
