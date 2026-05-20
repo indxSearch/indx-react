@@ -21,9 +21,6 @@ export {
 // Boost
 export { BoostProxy } from './boost';
 
-// BM25F
-export { BM25FFieldProxy } from './bm25f';
-
 // Vector / Hybrid search
 export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
 
