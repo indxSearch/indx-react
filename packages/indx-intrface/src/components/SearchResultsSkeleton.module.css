@@ -1,0 +1,8 @@
+@keyframes skeletonAppear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wrapper {
+  animation: skeletonAppear 0.2s ease 0.15s both;
+}

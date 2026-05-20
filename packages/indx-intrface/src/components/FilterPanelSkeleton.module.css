@@ -1,13 +1,19 @@
+@keyframes skeletonAppear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @keyframes fade {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
 }
 
+
 .bar {
   height: 10px;
   border-radius: 1px;
   background: var(--lv2);
-  animation: fade 2.4s ease-in-out infinite;
+  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
 }
 
 .listRows {
@@ -28,7 +34,7 @@
   border-radius: 1px;
   width: 100%;
   background: var(--lv2);
-  animation: fade 2.4s ease-in-out infinite;
+  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
 }
 
 .inputRow {
@@ -41,5 +47,5 @@
   width: 40px;
   border-radius: 1px;
   background: var(--lv2);
-  animation: fade 2.4s ease-in-out infinite;
+  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
 }

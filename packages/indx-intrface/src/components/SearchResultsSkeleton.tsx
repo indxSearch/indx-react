@@ -1,5 +1,6 @@
 import React from 'react';
 import { SearchResult } from './SearchResult';
+import styles from './SearchResultsSkeleton.module.css';
 
 export interface SearchResultsSkeletonProps {
   rows?: number;
@@ -11,7 +12,7 @@ const widthPairs: Array<[number, number]> = [
 ];
 
 export const SearchResultsSkeleton: React.FC<SearchResultsSkeletonProps> = ({ rows = 6 }) => (
-  <div>
+  <div className={styles.wrapper}>
     {Array.from({ length: rows }).map((_, i) => (
       <SearchResult
         key={i}
