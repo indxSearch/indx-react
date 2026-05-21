@@ -15,7 +15,7 @@ import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
-import TagPage from './tag/page';
+import ChipPage from './chip/page';
 import IconsPage from './icons/page';
 import SearchInputPage from './search-input/page';
 import ValueFilterPanelPage from './value-filter-panel/page';
@@ -47,7 +47,7 @@ export default function App() {
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
-        <Route path="/tag" element={<TagPage />} />
+        <Route path="/chip" element={<ChipPage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
         <Route path="/progress-bar" element={<ProgressBarPage />} />

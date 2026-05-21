@@ -17,7 +17,7 @@ export default function Home() {
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
-    { name: 'Tag', path: '/tag', desc: 'Pill-shaped label for categories and attributes' },
+    { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
   ]
 
   const intrfaceComponents = [

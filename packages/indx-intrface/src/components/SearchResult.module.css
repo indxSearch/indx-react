@@ -23,7 +23,7 @@
     line-height: 1.8;
 }
 
-/* Tags inside a result row sit on a Base (lv2) surface — override to lv0 so they read as elevated pills */
+/* Chips inside a result row sit on a Base (lv2) surface — override to lv0 so they read as elevated pills */
 .content span {
     background-color: var(--lv0);
 }

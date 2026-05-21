@@ -11,7 +11,7 @@ import {
   SearchSettingsPanel,
   SearchResultRow,
 } from '@indxsearch/intrface';
-import { Tag } from '@indxsearch/systm';
+import { Chip } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
 
 const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack', 'abilities'];
@@ -51,21 +51,21 @@ const renderResult = (item: any) => (
     <SearchResultRow variant="title">
       {item.name}
       {item.is_legendary && <Spark color="gold" size={14} />}
-      {item.type1 && <Tag>{item.type1}</Tag>}
-      {item.type2 && <Tag>{item.type2}</Tag>}
+      {item.type1 && <Chip>{item.type1}</Chip>}
+      {item.type2 && <Chip>{item.type2}</Chip>}
     </SearchResultRow>
     {Array.isArray(item.abilities) && item.abilities.length > 0 && (
       <SearchResultRow>
         Abilities:{' '}
         {item.abilities.map((ability: string, idx: number) => (
-          <Tag key={`${ability}-${idx}`}>{ability}</Tag>
+          <Chip key={`${ability}-${idx}`}>{ability}</Chip>
         ))}
       </SearchResultRow>
     )}
     <SearchResultRow>
-      {typeof item.hp === 'number' && <Tag>HP: {item.hp}</Tag>}
-      {typeof item.speed === 'number' && <Tag>Speed: {item.speed}</Tag>}
-      {typeof item.attack === 'number' && <Tag>Attack: {item.attack}</Tag>}
+      {typeof item.hp === 'number' && <Chip>HP: {item.hp}</Chip>}
+      {typeof item.speed === 'number' && <Chip>Speed: {item.speed}</Chip>}
+      {typeof item.attack === 'number' && <Chip>Attack: {item.attack}</Chip>}
     </SearchResultRow>
   </>
 );

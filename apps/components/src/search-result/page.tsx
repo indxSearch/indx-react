@@ -1,5 +1,5 @@
 import { SearchResult, SearchResultRow, SearchResultsSkeleton } from '@indxsearch/intrface';
-import { Tag, Base } from '@indxsearch/systm';
+import { Chip, Base } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
@@ -15,18 +15,18 @@ function ResultCard({ item }: { item: typeof results[0] }) {
       <SearchResultRow variant="title">
         {item.name}
         {item.is_legendary && <Spark color="gold" size={14} />}
-        {item.type1 && <Tag>{item.type1}</Tag>}
-        {item.type2 && <Tag>{item.type2}</Tag>}
+        {item.type1 && <Chip>{item.type1}</Chip>}
+        {item.type2 && <Chip>{item.type2}</Chip>}
       </SearchResultRow>
       {item.abilities.length > 0 && (
         <SearchResultRow>
-          Abilities: {item.abilities.map((a) => <Tag key={a}>{a}</Tag>)}
+          Abilities: {item.abilities.map((a) => <Chip key={a}>{a}</Chip>)}
         </SearchResultRow>
       )}
       <SearchResultRow>
-        <Tag>HP: {item.hp}</Tag>
-        <Tag>Speed: {item.speed}</Tag>
-        <Tag>Attack: {item.attack}</Tag>
+        <Chip>HP: {item.hp}</Chip>
+        <Chip>Speed: {item.speed}</Chip>
+        <Chip>Attack: {item.attack}</Chip>
       </SearchResultRow>
       <SearchResultRow>{item.description}</SearchResultRow>
     </>
@@ -62,7 +62,7 @@ export default function SearchResultPage() {
           <Base>
             <SearchResult>
               <SearchResultRow variant="title">Title row — text-base, lv8</SearchResultRow>
-              <SearchResultRow>Default row — text-xs, lv5 — tags fit here: <Tag>one</Tag><Tag>two</Tag></SearchResultRow>
+              <SearchResultRow>Default row — text-xs, lv5 — tags fit here: <Chip>one</Chip><Chip>two</Chip></SearchResultRow>
               <SearchResultRow>Description row — plain text, same default style</SearchResultRow>
             </SearchResult>
           </Base>
