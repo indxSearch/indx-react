@@ -66,7 +66,7 @@
     "./patterns.css": "./dist/patterns.css"
   },
   "dependencies": {
-    "@indxsearch/pixl": "^1.2.0",
+    "@indxsearch/pixl": "^1.4.0",
     "@radix-ui/react-select": "^2.2.6",
     "react-range": "^1.10.0"
   },

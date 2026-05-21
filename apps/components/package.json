@@ -13,7 +13,7 @@
     "@indxsearch/indx-types": "*",
     "@indxsearch/systm": "*",
     "@indxsearch/intrface": "*",
-    "@indxsearch/pixl": "^1.2.0",
+    "@indxsearch/pixl": "^1.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1"

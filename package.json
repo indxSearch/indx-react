@@ -32,7 +32,7 @@
     "concurrently": "^9.2.1"
   },
   "dependencies": {
-    "@indxsearch/pixl": "^1.2.0",
+    "@indxsearch/pixl": "^1.4.0",
     "@radix-ui/react-popover": "^1.1.15"
   }
 }
