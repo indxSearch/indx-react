@@ -4,7 +4,7 @@ import * as Pixl from '@indxsearch/pixl';
 import { Slider } from '@indxsearch/systm';
 import styles from './page.module.css';
 
-const ICON_NAMES = [
+export const ICON_NAMES = [
   "Ai_agent", "Align_center", "Align_justify", "Align_left", "Align_right", "Alt", "Analytics", "Anchor", "Api", "Array",
   "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowUp", "Arrow_down_left", "Arrow_down_right", "Arrow_left_down", "Arrow_left_up",
   "Arrow_right_down", "Arrow_right_up", "Arrow_up_left", "Arrow_up_right", "Azure", "Bar_code", "Battery", "Bell", "Big_eyes_oops",

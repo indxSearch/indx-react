@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ICON_NAMES } from './icons/page';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -41,7 +42,7 @@ export default function Home() {
 
       <div style={{ marginBottom: '2rem' }}>
         <h2 className={styles.sectionTitle}>Pixl Icons</h2>
-        <p className={styles.sectionDesc}>Icon library with 212 icons</p>
+        <p className={styles.sectionDesc}>Icon library with {ICON_NAMES.length} icons</p>
       </div>
 
       <div className={styles.grid}>
