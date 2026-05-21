@@ -31,4 +31,6 @@ export interface SystemStatus {
   version?: string | null;
   timeOfInstanceCreation: string;
   timeOfLastIndexBuild: string;
+  shadowBuildInProgress: boolean;
+  shadowBuildStartedUtc?: string | null;
 }

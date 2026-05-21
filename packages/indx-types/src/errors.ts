@@ -1,11 +1,11 @@
 export enum JsonErrorType {
   None = 0,
-  InvalidJson = 1,
-  MissingField = 2,
-  InvalidValue = 3,
-  DuplicateKey = 4,
-  Sanitized = 5,
-  Other = 6
+  ControlCharacters = 1,
+  TrailingComma = 2,
+  UnescapedQuotes = 3,
+  UnescapedBackslash = 4,
+  StructuralError = 5,
+  UnknownError = 6
 }
 
 export interface ParseResult {

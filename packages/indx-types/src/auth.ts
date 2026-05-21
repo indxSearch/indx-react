@@ -3,7 +3,12 @@ export interface LoginInfo {
   userPassWord: string;
 }
 
+export interface LoginResponse {
+  token: string;
+  mustChangePassword: boolean;
+}
+
 export interface ChangePasswordRequest {
-  currentPassword?: string | null;
-  newPassword?: string | null;
+  currentPassword: string;
+  newPassword: string;
 }

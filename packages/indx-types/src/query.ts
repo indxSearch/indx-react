@@ -30,5 +30,6 @@ export interface CloudQuery {
   timeOutLimitMilliseconds?: number;
   filter?: FilterProxy | null;
   boosts?: BoostProxy[] | null;
+  fieldBoosts?: Record<string, number> | null;
   logPrefix?: string | null;
 }

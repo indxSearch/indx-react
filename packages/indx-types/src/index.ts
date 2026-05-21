@@ -3,7 +3,7 @@ export { SystemState, BoostStrength } from './enums';
 export { JsonErrorType } from './errors';
 
 // Auth
-export { LoginInfo, ChangePasswordRequest } from './auth';
+export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth';
 
 // Query
 export { CloudQuery, CoverageSetup } from './query';
@@ -32,6 +32,12 @@ export { SystemStatus, LicenseInfo } from './status';
 
 // Errors
 export { ParseResult, ProcessError, ProcessErrorCount } from './errors';
+
+// Fields
+export { FieldProxy } from './fields';
+
+// Access / sharing
+export { DataSetListDto, AccessGrantDto, GrantAccessRequest, TransferOwnershipRequest } from './access';
 
 // Common
 export { StringInt32KeyValuePair, StringSingleValueTuple } from './common';
