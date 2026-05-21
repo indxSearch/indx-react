@@ -21,7 +21,7 @@ export const ICON_NAMES = [
   "Json_query", "Json_result", "Key", "Lab_experiment", "Layout_align_bottom", "Layout_align_left", "Layout_align_right",
   "Layout_align_top", "Light_bulb", "Linear", "Link", "List", "Lock", "Login", "Logout", "Loop", "Mail", "Maximize", "Meh",
   "Menu", "Microphone", "Microsoft", "Minimize", "Minus", "Money", "Motor_boat", "Move", "Nested_object", "Next", "Nodes", "Npm",
-  "Nuget", "Number", "Object", "Open_smile", "Options_menu", "Panel_add", "Panel_delete", "Pattern_recognition", "Pause", "Pc",
+  "Nuget", "Number", "Object", "Open_smile", "Options_menu", "Ostehøvel", "Panel_add", "Panel_delete", "Pattern_recognition", "Pause", "Pc",
   "Percent", "Person_fishing", "Personalise", "Play", "Plus", "Point_left", "Point_right", "Point_up", "Power", "Presentation",
   "Prev", "Puzzle_piece", "Rag_search", "Ram", "Recorder", "Refresh", "Resize_col", "Resize_ew", "Resize_nesw", "Resize_nwse",
   "Rowing_boat", "Rss_feed", "Rubber_boat", "Rubber_boot", "Sad", "Save", "Search", "Search_as_you_type", "Search_or_ask",
