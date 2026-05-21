@@ -26,6 +26,7 @@ apps/demo/.env.local
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+pnpm-lock.yaml
 
 # Vercel
 .vercel
