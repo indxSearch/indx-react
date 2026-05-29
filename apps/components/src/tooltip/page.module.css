@@ -54,12 +54,6 @@
   justify-content: center;
 }
 
-.collisionRow {
-  display: flex;
-  justify-content: space-between;
-  padding: 3rem 0 1rem;
-}
-
 .toolbar {
   display: inline-flex;
   align-items: center;

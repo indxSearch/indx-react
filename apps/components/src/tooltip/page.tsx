@@ -53,7 +53,7 @@ export default function TooltipPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>Positions</h2>
-        <p className={styles.subdesc}>Four directions — all default to top. Radix will flip automatically if the preferred side would clip the viewport.</p>
+        <p className={styles.subdesc}>Four directions — all default to top. Viewport collision detection is automatic — if the preferred side would clip, Radix flips it. This works in production but can't be demonstrated in a centred story layout.</p>
         <div className={styles.positionGrid}>
           <div className={styles.positionCell}>
             <Tooltip content="Tooltip top" position="top">
@@ -90,19 +90,6 @@ export default function TooltipPage() {
           </Tooltip>
           <Tooltip content="Re-indexes all documents with current field config" position="bottom">
             <Button size="micro" variant="secondary">Re-index</Button>
-          </Tooltip>
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.heading}>Collision avoidance</h2>
-        <p className={styles.subdesc}>These request <code>position="top"</code> but are placed near the left and right edges — Radix flips the side automatically.</p>
-        <div className={styles.collisionRow}>
-          <Tooltip content="Flips right when too close to left edge" position="top">
-            <Button size="micro" variant="secondary">Near left edge</Button>
-          </Tooltip>
-          <Tooltip content="Flips left when too close to right edge" position="top">
-            <Button size="micro" variant="secondary">Near right edge</Button>
           </Tooltip>
         </div>
       </div>
