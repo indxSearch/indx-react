@@ -1,4 +1,4 @@
-import React from 'react';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import styles from './Tooltip.module.css';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -12,11 +12,22 @@ export type TooltipProps = {
 
 export function Tooltip({ content, position = 'top', children, className }: TooltipProps) {
   return (
-    <span className={[styles.wrapper, styles[position], className].filter(Boolean).join(' ')}>
-      {children}
-      <span className={styles.tooltip} role="tooltip">
-        {content}
-      </span>
-    </span>
+    <TooltipPrimitive.Provider delayDuration={80}>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>
+          {children}
+        </TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <TooltipPrimitive.Content
+            side={position}
+            sideOffset={7}
+            className={[styles.tooltip, className].filter(Boolean).join(' ')}
+          >
+            {content}
+            <TooltipPrimitive.Arrow className={styles.arrow} />
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 }

@@ -68,6 +68,7 @@
   "dependencies": {
     "@indxsearch/pixl": "^1.4.0",
     "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "react-range": "^1.10.0"
   },
   "publishConfig": {
