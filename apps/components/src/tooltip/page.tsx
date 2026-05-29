@@ -9,7 +9,8 @@ export default function TooltipPage() {
         <h1 className={styles.title}>Tooltip</h1>
         <p className={styles.desc}>
           Lightweight label that appears on hover or focus. Designed for icon-only buttons and
-          any control where a visible label would be too heavy.
+          any control where a visible label would be too heavy. Built on Radix UI — viewport
+          collision detection is automatic, so tooltips near screen edges flip rather than clip.
         </p>
       </div>
 
@@ -52,7 +53,7 @@ export default function TooltipPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>Positions</h2>
-        <p className={styles.subdesc}>Four directions — all default to top.</p>
+        <p className={styles.subdesc}>Four directions — all default to top. Radix will flip automatically if the preferred side would clip the viewport.</p>
         <div className={styles.positionGrid}>
           <div className={styles.positionCell}>
             <Tooltip content="Tooltip top" position="top">
@@ -89,6 +90,19 @@ export default function TooltipPage() {
           </Tooltip>
           <Tooltip content="Re-indexes all documents with current field config" position="bottom">
             <Button size="micro" variant="secondary">Re-index</Button>
+          </Tooltip>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Collision avoidance</h2>
+        <p className={styles.subdesc}>These request <code>position="top"</code> but are placed near the left and right edges — Radix flips the side automatically.</p>
+        <div className={styles.collisionRow}>
+          <Tooltip content="Flips right when too close to left edge" position="top">
+            <Button size="micro" variant="secondary">Near left edge</Button>
+          </Tooltip>
+          <Tooltip content="Flips left when too close to right edge" position="top">
+            <Button size="micro" variant="secondary">Near right edge</Button>
           </Tooltip>
         </div>
       </div>
