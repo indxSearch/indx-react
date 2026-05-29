@@ -1,0 +1,90 @@
+.wrapper {
+  display: inline-flex;
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 100;
+  background: var(--lv3);
+  color: var(--lv6);
+  font: var(--text-xs);
+  font-weight: var(--med);
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms ease;
+  transition-delay: 0ms;
+}
+
+/* Arrow shared */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  border: 4px solid transparent;
+}
+
+/* ── top ── */
+.top .tooltip {
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top .tooltip::after {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: var(--lv3);
+}
+
+/* ── bottom ── */
+.bottom .tooltip {
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom .tooltip::after {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: var(--lv3);
+}
+
+/* ── left ── */
+.left .tooltip {
+  right: calc(100% + 7px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.left .tooltip::after {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left-color: var(--lv3);
+}
+
+/* ── right ── */
+.right .tooltip {
+  left: calc(100% + 7px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.right .tooltip::after {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-right-color: var(--lv3);
+}
+
+/* Show on hover and keyboard focus */
+.wrapper:hover .tooltip,
+.wrapper:focus-within .tooltip {
+  opacity: 1;
+  transition-delay: 80ms;
+}

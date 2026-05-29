@@ -16,3 +16,4 @@ export { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon } from '
 export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';
 export { Chip, type ChipProps } from './components/Chip/Chip';
+export { Tooltip, type TooltipProps, type TooltipPosition } from './components/Tooltip/Tooltip';

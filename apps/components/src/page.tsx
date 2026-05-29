@@ -19,6 +19,7 @@ export default function Home() {
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
+    { name: 'Tooltip', path: '/tooltip', desc: 'Hover/focus label for icon-only buttons and truncated controls' },
   ]
 
   const intrfaceComponents = [

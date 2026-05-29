@@ -1,0 +1,71 @@
+.main {
+  padding: 2rem;
+  max-width: 800px;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font: var(--text-2xl);
+  font-weight: var(--semi);
+  margin: 0 0 0.5rem;
+}
+
+.desc {
+  font: var(--text-sm);
+  color: var(--lv5);
+  margin: 0;
+}
+
+.subdesc {
+  font: var(--text-xs);
+  color: var(--lv5);
+  margin: 0 0 1rem;
+}
+
+.heading {
+  font: var(--text-base);
+  font-weight: var(--med);
+  margin: 0 0 1rem;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+/* Extra space so tooltips are not clipped by the section edge */
+.positionGrid {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 3rem 1rem;
+  align-items: center;
+}
+
+.positionCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--lv3);
+  padding: 4px;
+  margin-top: 0.5rem;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--lv3);
+  margin: 0 4px;
+}
