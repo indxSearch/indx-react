@@ -30,6 +30,7 @@ import TabsPage from './tabs/page';
 import ProgressBarPage from './progress-bar/page';
 import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
+import ChartPage from './chart/page';
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/search-result" element={<SearchResultPage />} />
         <Route path="/cursors" element={<CursorsPage />} />
         <Route path="/patterns" element={<PatternsPage />} />
+        <Route path="/chart" element={<ChartPage />} />
       </Routes>
     </>
   );

@@ -17,6 +17,7 @@ export default function Home() {
     { name: 'Base', path: '/base', desc: 'Base container component' },
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
+    { name: 'Chart', path: '/chart', desc: 'Line and bar charts with 12×12 dot grid background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
     { name: 'Tooltip', path: '/tooltip', desc: 'Hover/focus label for icon-only buttons and truncated controls' },
@@ -28,7 +29,7 @@ export default function Home() {
     { name: 'RangeFilterPanel', path: '/range-filter-panel', desc: 'Numeric range filter slider' },
     { name: 'SortByPanel', path: '/sort-by-panel', desc: 'Sort options panel' },
     { name: 'ActiveFiltersPanel', path: '/active-filters-panel', desc: 'Active filter chips' },
-    { name: 'SearchResult + SearchResultRow', path: '/search-result', desc: 'Composable result rows with skeleton loading' },
+    { name: 'SearchResult', path: '/search-result', desc: 'Composable result rows with skeleton loading' },
     { name: 'FilterPanelSkeleton', path: '/filter-panel-skeleton', desc: 'Skeleton placeholder for filter panels during initial fetch' },
   ]
 

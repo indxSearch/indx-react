@@ -37,11 +37,10 @@ export default function SearchResultPage() {
   return (
     <main className={styles.main}>
       <div className={styles.section}>
-        <h1 className={styles.title}>SearchResult + SearchResultRow</h1>
+        <h1 className={styles.title}>SearchResult</h1>
         <p className={styles.desc}>
-          <code>SearchResult</code> is the row wrapper (padding, border, index, score, skeleton).{' '}
-          <code>SearchResultRow</code> composes the content inside — use <code>variant="title"</code> for
-          the name line and default for tags, description, or any other row.
+          Row wrapper with padding, border, index, score, and skeleton support.
+          Use <code>SearchResultRow</code> inside to compose title, tags, and body rows.
         </p>
       </div>
 

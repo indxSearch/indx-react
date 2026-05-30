@@ -1,0 +1,50 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font: var(--text-2xl);
+  margin-bottom: 0.5rem;
+}
+
+.desc {
+  font: var(--text-base);
+  color: var(--lv5);
+  margin-bottom: 0;
+}
+
+.heading {
+  font: var(--text-lg);
+  margin-bottom: 0.5rem;
+}
+
+.subdesc {
+  font: var(--text-sm);
+  color: var(--lv5);
+  margin-bottom: 1rem;
+}
+
+.label {
+  font: var(--text-xs);
+  color: var(--lv4);
+  margin-bottom: 0.4rem;
+}
+
+/* Layouts */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
