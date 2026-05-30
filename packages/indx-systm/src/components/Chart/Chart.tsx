@@ -218,7 +218,11 @@ export function Chart({
     return (
       <div
         className={styles.tooltip}
-        style={{ left: tipX, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }}
+        style={
+          tooltip.y < 80
+            ? { left: tipX, top: tooltip.y + 12, transform: 'translate(-50%, 0)' }
+            : { left: tipX, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }
+        }
       >
         <div className={styles.tooltipLabel}>{label}</div>
         {series.map((s, si) => (
