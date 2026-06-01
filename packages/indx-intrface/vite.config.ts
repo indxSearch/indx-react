@@ -19,24 +19,19 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.tsx',
-      name: 'IndxIntrface',
+      formats: ['es', 'cjs'],
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
+      // Externalize React (incl. sub-paths like react/jsx-runtime) and every runtime
+      // dependency, including @indxsearch/* (systm + its /styles.css subpath, pixl, types).
       external: [
-        'react',
-        'react-dom',
-        '@indxsearch/systm',
-        '@indxsearch/systm/styles.css', // Externalize systm CSS
+        /^react($|\/)/,
+        /^react-dom($|\/)/,
+        /^@radix-ui\//,
+        /^react-range($|\/)/,
+        /^@indxsearch\//,
       ],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          '@indxsearch/systm': 'systm'
-        },
-      },
     },
-
   },
 });

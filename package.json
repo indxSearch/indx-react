@@ -26,11 +26,13 @@
     "start:demo": "npm run preview --workspace=demo",
     "preview:demo": "npm run preview --workspace=demo"
   },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^10.0.1"
   },
   "dependencies": {
-    "@indxsearch/pixl": "^1.4.0",
-    "@radix-ui/react-popover": "^1.1.15"
+    "@indxsearch/pixl": "^1.4.0"
   }
 }

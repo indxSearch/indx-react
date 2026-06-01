@@ -26,7 +26,7 @@
     "directory": "packages/indx-systm"
   },
   "type": "module",
-  "main": "dist/index.umd.js",
+  "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -35,8 +35,11 @@
   ],
   "sideEffects": true,
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.json",
+    "build": "vite build",
     "dev": "vite build --watch"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -45,21 +48,21 @@
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.5.0",
+    "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.4.22",
     "esbuild-css-modules-plugin": "^3.1.4",
     "postcss": "^8.5.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.4"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vite-plugin-dts": "^5.0.2"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js"
+      "require": "./dist/index.cjs.js"
     },
     "./styles.css": "./dist/systm.css",
     "./cursors.css": "./dist/cursors.css",
@@ -67,6 +70,7 @@
   },
   "dependencies": {
     "@indxsearch/pixl": "^1.4.0",
+    "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tooltip": "^1.2.8",
     "react-range": "^1.10.0"
