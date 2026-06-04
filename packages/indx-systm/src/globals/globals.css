@@ -20,16 +20,19 @@
   /* FONT FAMILY */
   --font-family: 'Inter', sans-serif;
 
-  /* TEXT */
-  --text-2xs: 350 10px/1 var(--font-family);
-  --text-xs: 350 11px/1 var(--font-family);
-  --text-sm: 350 13px/1 var(--font-family);
-  --text-base: 350 15px/1 var(--font-family);
-  --text-lg: 350 17px/1 var(--font-family);
-  --text-xl: 350 19px/1 var(--font-family);
-  --text-2xl: 350 24px/1 var(--font-family);
-  --text-3xl: 350 30px/1 var(--font-family);
-  --text-4xl: 350 36px/1 var(--font-family);
+  /* TEXT — line-height tuned per scale: looser for body (wraps to multiple lines),
+     tighter for large display sizes. Controls (buttons/inputs) use fixed heights with
+     centered text, so the body bump doesn't change their metrics.
+     Kept in sync with Indx.Systm.Blazor/wwwroot/indx-systm.css. */
+  --text-2xs: 350 10px/1.5 var(--font-family);
+  --text-xs: 350 11px/1.5 var(--font-family);
+  --text-sm: 350 13px/1.5 var(--font-family);
+  --text-base: 350 15px/1.5 var(--font-family);
+  --text-lg: 350 17px/1.4 var(--font-family);
+  --text-xl: 350 19px/1.4 var(--font-family);
+  --text-2xl: 350 24px/1.25 var(--font-family);
+  --text-3xl: 350 30px/1.2 var(--font-family);
+  --text-4xl: 350 36px/1.15 var(--font-family);
 
   --light: 300;
   --book: 350;
