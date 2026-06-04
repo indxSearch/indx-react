@@ -12,10 +12,7 @@ node_modules/
 coverage/
 
 # Environment
-apps/demo/.env.local
-apps/demo/node_modules/
 .env*
-apps/demo/.env.local
 
 # Misc
 .DS_Store
@@ -34,6 +31,10 @@ pnpm-lock.yaml
 
 packages/**/dist
 dist/
+
+# Only the root lockfile is authoritative (npm workspaces)
+**/package-lock.json
+!/package-lock.json
 
 # Claude Code configuration
 .claude/
