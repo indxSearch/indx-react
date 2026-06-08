@@ -19,7 +19,7 @@ export function useVectorSearch(
   embeddingFn: (text: string) => Promise<number[]>,
   options: UseVectorSearchOptions
 ) {
-  const { url, dataset, authenticatedFetch } = useSearchContext();
+  const { url, team, dataset, authenticatedFetch } = useSearchContext();
   const [results, setResults] = useState<EmbeddingResult[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -37,7 +37,7 @@ export function useVectorSearch(
       };
       if (options.filter) body.filter = options.filter;
 
-      const response = await authenticatedFetch(`${url}/api/VectorSearch/${dataset}`, {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/VectorSearch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -52,7 +52,7 @@ export function useVectorSearch(
       }
 
       const keys = entries.map(e => e.documentKey);
-      const jsonResponse = await authenticatedFetch(`${url}/api/GetJson/${dataset}`, {
+      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(keys),
@@ -72,7 +72,7 @@ export function useVectorSearch(
     } finally {
       setIsLoading(false);
     }
-  }, [embeddingFn, options.fieldName, options.maxResults, options.filter, url, dataset, authenticatedFetch]);
+  }, [embeddingFn, options.fieldName, options.maxResults, options.filter, url, team, dataset, authenticatedFetch]);
 
   return { results, isLoading, error, search };
 }

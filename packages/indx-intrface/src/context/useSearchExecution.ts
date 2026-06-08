@@ -19,6 +19,7 @@ export interface UseSearchExecutionOptions {
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
   auth: IndxAuthResult;
   url: string;
+  team: string;
   dataset: string;
   allowEmptySearch: boolean;
   facetsEnabled: boolean;
@@ -35,6 +36,7 @@ export function useSearchExecution({
   authenticatedFetch,
   auth,
   url,
+  team,
   dataset,
   allowEmptySearch,
   facetsEnabled,
@@ -98,7 +100,7 @@ export function useSearchExecution({
 
       try {
         // 1) Build combined filter proxy
-        const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, dataset, authenticatedFetch);
+        const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch);
 
         // 2) Determine if we should fetch results
         const shouldFetchResults = allowEmptySearch || state.query.trim() !== '';
@@ -120,7 +122,7 @@ export function useSearchExecution({
         }
 
         // 3) Execute the search
-        const searchResponse = await authenticatedFetch(`${url}/api/Search/${dataset}`, {
+        const searchResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/Search`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(searchBody),
@@ -135,7 +137,7 @@ export function useSearchExecution({
 
         let combinedResults: any[] = [];
         if (shouldFetchResults && keys.length > 0) {
-          const jsonResponse = await authenticatedFetch(`${url}/api/GetJson/${dataset}`, {
+          const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(keys),
@@ -266,6 +268,7 @@ export function useSearchExecution({
       lastRangeBoundsQuery,
       state.rangeBounds,
       url,
+      team,
       dataset,
       allowEmptySearch,
       enableDebugLogs,

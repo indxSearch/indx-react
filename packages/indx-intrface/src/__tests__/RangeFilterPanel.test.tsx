@@ -28,6 +28,7 @@ function renderPanel(props: Partial<React.ComponentProps<typeof RangeFilterPanel
   return render(
     <SearchProvider
       url="http://localhost"
+      team="team"
       dataset="test"
       preAuthenticatedToken="test-token"
       allowEmptySearch={true}
@@ -158,7 +159,7 @@ describe('histogram snapshot', () => {
     };
     let callCount = 0;
     server.use(
-      http.post('http://localhost/api/Search/test', () => {
+      http.post('http://localhost/api/teams/team/datasets/test/Search', () => {
         callCount++;
         const facets = callCount <= 1 ? FACETS : narrowFacets;
         return HttpResponse.json({ records: [], facets, truncationIndex: -1 });
@@ -180,6 +181,7 @@ describe('histogram snapshot', () => {
     render(
       <SearchProvider
         url="http://localhost"
+        team="team"
         dataset="test"
         preAuthenticatedToken="test-token"
         allowEmptySearch={true}

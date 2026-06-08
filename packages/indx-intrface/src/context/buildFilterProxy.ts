@@ -3,6 +3,7 @@ type AuthenticatedFetch = (url: string, options?: RequestInit) => Promise<Respon
 async function combineAll(
   filters: any[],
   url: string,
+  team: string,
   dataset: string,
   authenticatedFetch: AuthenticatedFetch
 ): Promise<any> {
@@ -11,7 +12,7 @@ async function combineAll(
 
   let current = filters[0];
   for (let i = 1; i < filters.length; i++) {
-    const response = await authenticatedFetch(`${url}/api/CombineFilters/${dataset}`, {
+    const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CombineFilters`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ a: current, b: filters[i], useAndOperation: true }),
@@ -30,6 +31,7 @@ export async function buildFilterProxy(
   filters: Record<string, string[]>,
   rangeFilters: Record<string, { min: number; max: number }>,
   url: string,
+  team: string,
   dataset: string,
   authenticatedFetch: AuthenticatedFetch
 ): Promise<any> {
@@ -41,7 +43,7 @@ export async function buildFilterProxy(
       filterEntries.map(([field, values]) =>
         Promise.all(
           values.map(value =>
-            authenticatedFetch(`${url}/api/CreateValueFilter/${dataset}`, {
+            authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateValueFilter`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ fieldName: field, value }),
@@ -52,7 +54,7 @@ export async function buildFilterProxy(
     ),
     Promise.all(
       rangeFilterEntries.map(([field, { min, max }]) =>
-        authenticatedFetch(`${url}/api/CreateRangeFilter/${dataset}`, {
+        authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateRangeFilter`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fieldName: field, lowerLimit: min, upperLimit: max }),
@@ -65,5 +67,5 @@ export async function buildFilterProxy(
     f => f && typeof f.hashString === 'string'
   );
 
-  return combineAll(allFilters, url, dataset, authenticatedFetch);
+  return combineAll(allFilters, url, team, dataset, authenticatedFetch);
 }

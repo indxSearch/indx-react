@@ -50,6 +50,7 @@ export interface SearchContextType {
   isFetchingInitial: boolean; // Whether the initial data (fields, facets) is still being loaded
   allowEmptySearch: boolean; // Whether empty searches are allowed
   url: string;
+  team: string;
   dataset: string;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
   setQuery: (query: string) => void; // Updates the search query text
@@ -71,6 +72,7 @@ export const SearchContext = createContext<SearchContextType | undefined>(undefi
 export const SearchProvider: React.FC<{
   children: React.ReactNode;
   url: string;
+  team: string;
   dataset: string;
   allowEmptySearch?: boolean;
   maxResults?: number;
@@ -85,6 +87,7 @@ export const SearchProvider: React.FC<{
 }> = ({
   children,
   url,
+  team,
   dataset,
   allowEmptySearch = false,
   maxResults = 10,
@@ -155,7 +158,7 @@ export const SearchProvider: React.FC<{
 
   const [facetsEnabled] = useState(enableFacets);
 
-  const auth = useIndxAuth({ url, dataset, preAuthenticatedToken, enableDebugLogs });
+  const auth = useIndxAuth({ url, team, dataset, preAuthenticatedToken, enableDebugLogs });
 
   // Authenticated fetch wrapper
   const authenticatedFetch = useCallback((url: string, options: RequestInit = {}) => {
@@ -178,6 +181,7 @@ export const SearchProvider: React.FC<{
     authenticatedFetch,
     auth,
     url,
+    team,
     dataset,
     allowEmptySearch,
     facetsEnabled,
@@ -332,6 +336,7 @@ export const SearchProvider: React.FC<{
         isFetchingInitial: auth.isFetchingInitial,
         allowEmptySearch,
         url,
+        team,
         dataset,
         authenticatedFetch,
         setQuery,

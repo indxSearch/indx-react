@@ -15,7 +15,7 @@ export function useHybridSearch(
   embeddingFn: (text: string) => Promise<number[]>,
   options: UseHybridSearchOptions
 ) {
-  const { url, dataset, authenticatedFetch } = useSearchContext();
+  const { url, team, dataset, authenticatedFetch } = useSearchContext();
   const [results, setResults] = useState<EmbeddingResult[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -36,7 +36,7 @@ export function useHybridSearch(
       if (options.filter) body.filter = options.filter;
       if (options.timeoutMs) body.timeOutLimitMilliseconds = options.timeoutMs;
 
-      const response = await authenticatedFetch(`${url}/api/HybridSearch/${dataset}`, {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/HybridSearch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -51,7 +51,7 @@ export function useHybridSearch(
       }
 
       const keys = entries.map(e => e.documentKey);
-      const jsonResponse = await authenticatedFetch(`${url}/api/GetJson/${dataset}`, {
+      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(keys),
@@ -71,7 +71,7 @@ export function useHybridSearch(
     } finally {
       setIsLoading(false);
     }
-  }, [embeddingFn, options.fieldName, options.alpha, options.maxResults, options.filter, options.timeoutMs, url, dataset, authenticatedFetch]);
+  }, [embeddingFn, options.fieldName, options.alpha, options.maxResults, options.filter, options.timeoutMs, url, team, dataset, authenticatedFetch]);
 
   return { results, isLoading, error, search };
 }

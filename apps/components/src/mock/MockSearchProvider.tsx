@@ -115,6 +115,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
     isFetchingInitial,
     allowEmptySearch: true,
     url: '',
+    team: 'mock',
     dataset: 'mock',
     authenticatedFetch: noopFetch,
     setQuery,

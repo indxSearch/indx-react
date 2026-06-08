@@ -14,6 +14,7 @@ export interface IndxAuthResult {
 
 interface UseIndxAuthOptions {
   url: string;
+  team: string;
   dataset: string;
   preAuthenticatedToken?: string;
   enableDebugLogs?: boolean;
@@ -21,6 +22,7 @@ interface UseIndxAuthOptions {
 
 export function useIndxAuth({
   url,
+  team,
   dataset,
   preAuthenticatedToken,
   enableDebugLogs = false,
@@ -58,7 +60,7 @@ export function useIndxAuth({
 
         // Establish dataset session
         if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
-        const createOrOpenRes = await fetch(`${url}/api/CreateOrOpen/${dataset}/400`, {
+        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateOrOpen/400`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -84,7 +86,7 @@ export function useIndxAuth({
 
         // Check dataset status
         if (enableDebugLogs) console.log('[Auth] 🔍 Checking dataset status...');
-        const statusRes = await authFetch(`${url}/api/GetStatus/${dataset}`);
+        const statusRes = await authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetStatus`);
 
         if (!statusRes.ok) {
           if (statusRes.status === 401) {
@@ -124,9 +126,9 @@ export function useIndxAuth({
 
         // Fetch field metadata in parallel
         const [filterableRes, facetableRes, sortableRes] = await Promise.all([
-          authFetch(`${url}/api/GetFilterableFields/${dataset}`),
-          authFetch(`${url}/api/GetFacetableFields/${dataset}`),
-          authFetch(`${url}/api/GetSortableFields/${dataset}`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetFilterableFields`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetFacetableFields`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetSortableFields`),
         ]);
 
         if (!filterableRes.ok) {
@@ -155,7 +157,7 @@ export function useIndxAuth({
         // Initial blank search to get global facet bounds
         let blankSearchData: any = { facets: {} };
         try {
-          const blankSearchResponse = await fetch(`${url}/api/Search/${dataset}`, {
+          const blankSearchResponse = await fetch(`${url}/api/teams/${team}/datasets/${dataset}/Search`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -232,7 +234,7 @@ export function useIndxAuth({
     };
 
     authenticate();
-  }, [url, dataset]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
+  }, [url, team, dataset]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
 
   return {
     token,

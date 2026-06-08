@@ -2,40 +2,42 @@ import { http, HttpResponse } from 'msw';
 import { DOCUMENTS, FACETS, SEARCH_RESPONSE } from './fixtures';
 
 const BASE = 'http://localhost';
+const TEAM = 'team';
 const DS = 'test';
+const DS_BASE = `${BASE}/api/teams/${TEAM}/datasets/${DS}`;
 
 export const handlers = [
-  http.put(`${BASE}/api/CreateOrOpen/${DS}/:timeout`, () =>
+  http.put(`${DS_BASE}/CreateOrOpen/:timeout`, () =>
     HttpResponse.json({})),
 
-  http.get(`${BASE}/api/GetStatus/${DS}`, () =>
+  http.get(`${DS_BASE}/GetStatus`, () =>
     HttpResponse.json({ systemState: 4 /* Ready */, documentCount: 100 })),
 
   // Field metadata
-  http.get(`${BASE}/api/GetFilterableFields/${DS}`, () =>
+  http.get(`${DS_BASE}/GetFilterableFields`, () =>
     HttpResponse.json(['price', 'category'])),
 
-  http.get(`${BASE}/api/GetFacetableFields/${DS}`, () =>
+  http.get(`${DS_BASE}/GetFacetableFields`, () =>
     HttpResponse.json(['price', 'category'])),
 
-  http.get(`${BASE}/api/GetSortableFields/${DS}`, () =>
+  http.get(`${DS_BASE}/GetSortableFields`, () =>
     HttpResponse.json(['price', 'title'])),
 
   // Search — returns facets always so rangeBounds / facetStats tests work
-  http.post(`${BASE}/api/Search/${DS}`, () =>
+  http.post(`${DS_BASE}/Search`, () =>
     HttpResponse.json(SEARCH_RESPONSE)),
 
   // Document fetch
-  http.post(`${BASE}/api/GetJson/${DS}`, () =>
+  http.post(`${DS_BASE}/GetJson`, () =>
     HttpResponse.json(DOCUMENTS)),
 
   // Filter proxy builders
-  http.put(`${BASE}/api/CreateValueFilter/${DS}`, () =>
+  http.put(`${DS_BASE}/CreateValueFilter`, () =>
     HttpResponse.json({ hashString: 'vf-1' })),
 
-  http.put(`${BASE}/api/CreateRangeFilter/${DS}`, () =>
+  http.put(`${DS_BASE}/CreateRangeFilter`, () =>
     HttpResponse.json({ hashString: 'rf-1' })),
 
-  http.put(`${BASE}/api/CombineFilters/${DS}`, () =>
+  http.put(`${DS_BASE}/CombineFilters`, () =>
     HttpResponse.json({ hashString: 'combined-1' })),
 ];

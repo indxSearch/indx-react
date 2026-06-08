@@ -50,10 +50,12 @@ export function SearchClient({
 }: SearchClientProps) {
   const url = import.meta.env.VITE_INDX_URL;
   const token = import.meta.env.VITE_INDX_TOKEN;
+  const team = import.meta.env.VITE_INDX_TEAM;
 
   return (
     <SearchProvider
       url={url}
+      team={team}
       dataset={dataset}
       preAuthenticatedToken={token}
       allowEmptySearch={true}
