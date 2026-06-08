@@ -133,13 +133,24 @@ if (status.systemState === SystemState.Ready) {
 - `RangeFilterProxy` - Numeric range filter
 - `ValueFilterProxy` - Value-based filter
 - `CombinedFilterProxy` - Combined filter with AND/OR operations
+- `UpdateFieldProxy` - Field value update payload (`fieldName`, `value`)
+- `FilterFieldUpdateProxy` - Field update applied to documents matching a filter
 
 #### Result Types
 - `Result` - Search result interface
 - `ScoreEntry` - Individual result entry with score
 
+#### Field Types
+- `FieldProxy` - Field metadata and indexing flags (searchable, filterable, weight, BM25 params)
+
 #### Boost Types
 - `BoostProxy` - Search result boost configuration
+- `CloudQuery.fieldBoosts` - Per-field boost map (`Record<string, number>`) on `CloudQuery`
+
+#### Vector / Hybrid Types
+- `VectorQueryProxy` - Embedding vector search query (field, vector, max results, filter)
+- `HybridQueryProxy` - Combined text + vector search query with `alpha` blend
+- `EmbeddingResultEntry` - Single vector match (`documentKey`, `score`)
 
 #### Status Types
 - `SystemStatus` - System status and health information
@@ -147,6 +158,23 @@ if (status.systemState === SystemState.Ready) {
 
 #### Authentication
 - `LoginInfo` - Login credentials interface
+- `LoginResponse` - Login result (`token`, `mustChangePassword`)
+- `ChangePasswordRequest` - Password change payload (`currentPassword`, `newPassword`)
+
+#### Error Types
+- `ParseResult` - JSON parse outcome for a token (progress, record index, error info)
+- `ProcessError` - A processing error (`source`, `message`, optional `parseError`)
+- `ProcessErrorCount` - A `ProcessError` paired with its occurrence `count`
+
+#### Access / Sharing Types
+- `DataSetListDto` - Data set entry with the caller's `role` ("owner" | "editor" | "viewer")
+- `AccessGrantDto` - Granted access entry (`email`, `role`)
+- `GrantAccessRequest` - Grant access to a user (`granteeEmail`, `role`)
+- `TransferOwnershipRequest` - Transfer ownership (`newOwnerEmail`)
+
+#### Common Types
+- `StringInt32KeyValuePair` - `{ key: string; value: number }` pair
+- `StringSingleValueTuple` - `{ Item1: string; Item2: number }` tuple
 
 ### Enums
 
@@ -163,6 +191,15 @@ if (status.systemState === SystemState.Ready) {
 - `Low = 1`
 - `Medium = 2`
 - `High = 3`
+
+#### JsonErrorType
+- `None = 0`
+- `ControlCharacters = 1`
+- `TrailingComma = 2`
+- `UnescapedQuotes = 3`
+- `UnescapedBackslash = 4`
+- `StructuralError = 5`
+- `UnknownError = 6`
 
 ## TypeScript Configuration
 

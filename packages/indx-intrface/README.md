@@ -19,7 +19,7 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 | **IndxCloudApi** | `2.0` |
 | **React** | `^19.0.0` |
 | **React DOM** | `^19.0.0` |
-| **Node.js** | `>=16.0.0` |
+| **Node.js** | `^20.19.0 \|\| >=22.12.0` |
 
 > **Note:** This library targets IndxCloudApi v2.0 (powered by IndxSearchLib v5 alpha). Different API versions may have incompatible changes.
 
@@ -82,7 +82,7 @@ export default function SearchPage() {
       password={import.meta.env.VITE_INDX_PASSWORD}
       dataset="products"
     >
-      <SearchInput placeholder="Search products..." />
+      <SearchInput />
 
       <SearchResults
         fields={['name', 'description', 'category']}
@@ -290,8 +290,8 @@ import { RangeFilterPanel } from '@indxsearch/intrface';
 <RangeFilterPanel
   field="price"
   label="Price Range"
-  min={0}
-  max={1000}
+  expectedMin={0}
+  expectedMax={1000}
 />
 ```
 
@@ -339,7 +339,7 @@ export default function AdvancedSearch() {
 
         {/* Main content */}
         <main style={{ flex: 1 }}>
-          <SearchInput placeholder="Search products..." showFocus={true} />
+          <SearchInput showFocus={true} />
 
           <SearchResults
             fields={['name', 'description', 'price', 'category', 'brand']}
@@ -387,10 +387,11 @@ export default function AdvancedSearch() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `placeholder` | `string` | `'Search...'` | Input placeholder text |
 | `showClear` | `boolean` | `true` | Show clear button |
 | `showFocus` | `boolean` | `false` | Show focus ring |
 | `inputSize` | `'micro' \| 'default'` | `'default'` | Input size |
+
+> The placeholder text is configured on the provider via `searchSettings.placeholderText` (default `'Type to search'`), not as a prop on `SearchInput`.
 
 ### SearchResults Props
 
@@ -406,7 +407,7 @@ export default function AdvancedSearch() {
 |------|------|---------|-------------|
 | `field` | `string` | ✅ | Field name to filter on |
 | `label` | `string` | ❌ | Display label |
-| `displayType` | `'checkbox' \| 'button'` | `'checkbox'` | Filter UI style |
+| `displayType` | `'checkbox' \| 'button' \| 'toggle'` | `'checkbox'` | Filter UI style |
 | `layout` | `'list' \| 'grid'` | `'list'` | Layout style |
 | `limit` | `number` | `undefined` | Max filters to show |
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
@@ -418,8 +419,83 @@ export default function AdvancedSearch() {
 |------|------|----------|-------------|
 | `field` | `string` | ✅ | Field name to filter on |
 | `label` | `string` | ❌ | Display label |
-| `min` | `number` | ❌ | Minimum value |
-| `max` | `number` | ❌ | Maximum value |
+| `displayType` | `'slider' \| 'input'` | ❌ | Filter UI style (default `'input'`) |
+| `expectedMin` | `number` | ❌ | Expected lower bound (default `0`) |
+| `expectedMax` | `number` | ❌ | Expected upper bound (default `1000`) |
+| `showHistogram` | `boolean` | ❌ | Show a histogram above the slider (requires the field to be facetable; default `false`) |
+| `resolution` | `number` | ❌ | Value-range per histogram bucket (e.g. `200` → 5 bars over 0–1000). Auto-derived (~20 bars) if omitted |
+| `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |
+| `startCollapsed` | `boolean` | ❌ | Start collapsed (default `false`) |
+
+### SortByPanel Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `displayType` | `'dropdown' \| 'radio'` | `'dropdown'` | Sort UI style |
+| `collapsible` | `boolean` | `true` | Allow the panel to collapse |
+| `startCollapsed` | `boolean` | `false` | Start collapsed |
+
+## Hooks
+
+All hooks must be used within a `SearchProvider`.
+
+### useSearch / useSearchContext
+
+Access the search state and actions (query, filters, results, facets, etc.) from anywhere in the tree. `useSearch` is an alias for `useSearchContext`.
+
+```typescript
+import { useSearch } from '@indxsearch/intrface';
+
+const { state, setQuery } = useSearch();
+// state.query, state.filters, state.facets, state.searchSettings, ...
+```
+
+### useVectorSearch
+
+Embedding-based vector search against the `VectorSearch` endpoint. You supply an `embeddingFn` that turns query text into a vector; the hook posts it and resolves the matching documents.
+
+```typescript
+import { useVectorSearch } from '@indxsearch/intrface';
+
+const { results, isLoading, error, search } = useVectorSearch(embeddingFn, {
+  fieldName: 'embedding', // embedding field
+  maxResults: 10,         // optional, default 10
+  filter,                 // optional FilterProxy
+  timeoutMs,              // optional
+});
+
+await search('comfortable running shoes');
+// results: Array<{ document, documentKey, score }> | null
+```
+
+### useHybridSearch
+
+Combines full-text and vector scoring via the `HybridSearch` endpoint. Same shape as `useVectorSearch`, plus an `alpha` blend factor.
+
+```typescript
+import { useHybridSearch } from '@indxsearch/intrface';
+
+const { results, isLoading, error, search } = useHybridSearch(embeddingFn, {
+  fieldName: 'embedding',
+  alpha: 0.5,       // optional, default 0.5 — blend of text vs. vector score
+  maxResults: 10,   // optional, default 10
+  filter,           // optional FilterProxy
+  timeoutMs,        // optional
+});
+
+await search('comfortable running shoes');
+// results: Array<{ document, documentKey, score }> | null
+```
+
+## Additional Components
+
+These components are also exported and can be used for custom layouts:
+
+- `SearchResult` — a single result row; renders `children`, an optional index/score, and a skeleton state.
+- `SearchResultRow` — a lightweight row wrapper with `'title' | 'default'` variants for laying out result fields.
+- `SearchResultsSkeleton` — placeholder rows shown while results load (`rows` prop).
+- `FilterPanelSkeleton` — placeholder for a filter panel while facets load (`list` or `slider` variant).
+- `SearchSettingsPanel` — a ready-made panel for editing `searchSettings` (max results, coverage depth, placeholder text, coverage setup, etc.).
 
 ## Troubleshooting
 
@@ -480,12 +556,12 @@ export default function AdvancedSearch() {
 ```typescript
 <SearchProvider url={url} email={email} password={password} dataset="products">
   <div className="search-page">
-    <SearchInput placeholder="Search products..." />
+    <SearchInput />
 
     <div className="filters">
       <ValueFilterPanel field="category" label="Category" />
       <ValueFilterPanel field="brand" label="Brand" displayType="button" />
-      <RangeFilterPanel field="price" label="Price" min={0} max={1000} />
+      <RangeFilterPanel field="price" label="Price" expectedMin={0} expectedMax={1000} />
       <ValueFilterPanel field="inStock" label="In Stock" />
     </div>
 
@@ -506,7 +582,7 @@ export default function AdvancedSearch() {
 
 ```typescript
 <SearchProvider url={url} email={email} password={password} dataset="documents">
-  <SearchInput placeholder="Search documents..." />
+  <SearchInput />
 
   <ValueFilterPanel field="docType" label="Type" />
   <ValueFilterPanel field="author" label="Author" />

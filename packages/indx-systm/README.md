@@ -38,12 +38,18 @@ function App() {
 - **Slider** - Range slider component
 - **ToggleSwitch** - Toggle switch input
 - **Popover** - Radix UI popover component
+- **Table** - Composable table (TableHeader, TableRow, TableCell, TableValue, TableIcon)
+- **Tabs** - Tab list for switching between views
+- **ProgressBar** - Progress indicator with optional label
+- **Chip** - Compact label/tag with custom colors
+- **Tooltip** - Radix UI tooltip with positioning
+- **Chart** - Line and bar chart component
 - **Base** - Base container component
 - **FilterPanelBase** - Filter panel container
 
 ## Custom Cursors (Optional)
 
-Systm includes an optional custom cursor system with 13 cursor utilities. Import the cursors stylesheet to enable:
+Systm includes an optional custom cursor system with 12 cursor utilities. Import the cursors stylesheet to enable:
 
 ```tsx
 import '@indxsearch/systm/styles.css';
@@ -72,6 +78,7 @@ Systm includes SVG patterns as CSS custom properties, automatically bundled in `
 
 ```tsx
 import '@indxsearch/systm/styles.css'; // Patterns included by default
+import '@indxsearch/systm/patterns.css'; // Or import patterns standalone
 ```
 
 **Available patterns:**
@@ -102,7 +109,9 @@ import '@indxsearch/systm/styles.css'; // Patterns included by default
 ## Dependencies
 
 - `@indxsearch/pixl` - Icon library
+- `@radix-ui/react-popover` - Popover component primitives
 - `@radix-ui/react-select` - Select component primitives
+- `@radix-ui/react-tooltip` - Tooltip component primitives
 - `react-range` - Range slider component
 
 ## Peer Dependencies
