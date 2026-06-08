@@ -11,7 +11,6 @@ import {
   SearchContext,
 } from '@indxsearch/intrface';
 import { Base, Button, Popover } from '@indxsearch/systm';
-import { HybridDemo } from './HybridDemo';
 
 const simulateDelayMs = Number(import.meta.env.VITE_SIMULATE_INITIAL_DELAY_MS ?? 0);
 
@@ -40,7 +39,6 @@ type SearchClientProps = {
   renderResult: (item: any) => React.ReactNode;
   filters: React.ReactNode;
   showFilters?: boolean;
-  activeTab?: 'text' | 'hybrid';
 };
 
 export function SearchClient({
@@ -49,7 +47,6 @@ export function SearchClient({
   renderResult,
   filters,
   showFilters = true,
-  activeTab = 'text',
 }: SearchClientProps) {
   const url = import.meta.env.VITE_INDX_URL;
   const token = import.meta.env.VITE_INDX_TOKEN;
@@ -66,16 +63,12 @@ export function SearchClient({
       enableDebugLogs={true}
     >
       <SimulateLoadingProvider>
-        {activeTab === 'text' ? (
-          <SearchLayout
-            fields={fields}
-            renderResult={renderResult}
-            filters={filters}
-            showFilters={showFilters}
-          />
-        ) : (
-          <HybridDemo />
-        )}
+        <SearchLayout
+          fields={fields}
+          renderResult={renderResult}
+          filters={filters}
+          showFilters={showFilters}
+        />
       </SimulateLoadingProvider>
     </SearchProvider>
   );
