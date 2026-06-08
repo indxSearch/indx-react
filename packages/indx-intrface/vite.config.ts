@@ -8,10 +8,12 @@ export default defineConfig({
     dts({
       // Tell it to emit declarations into dist/
       outDir: 'dist',
-      // And create a dist/index.d.ts entrypoint for the package.json "types"
+      // And create a dist/index.d.ts entrypoint for the package.json "types".
+      // tsconfig.build.json sets rootDir: 'src' so declarations flatten to dist/*.d.ts
+      // (not dist/src/*.d.ts) — matching the package.json "types" path.
       insertTypesEntry: true,
-      // Don't re-process the dist folder itself
-      exclude: ['dist/**', 'node_modules/**'],
+      // Don't re-process the dist folder, and never emit declarations for tests/mocks.
+      exclude: ['dist/**', 'node_modules/**', 'src/**/__tests__/**', 'src/**/*.test.*'],
       // Use build tsconfig to avoid path mapping issues
       tsconfigPath: './tsconfig.build.json',
     }),

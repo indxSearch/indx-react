@@ -37,7 +37,8 @@
     "build": "vite build",
     "dev": "vite build --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
