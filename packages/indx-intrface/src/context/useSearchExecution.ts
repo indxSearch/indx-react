@@ -225,8 +225,7 @@ export function useSearchExecution({
         } else if (error instanceof Error) {
           if (error.message.includes('401')) {
             console.error('[Search] ❌ Authentication failed');
-            console.error('[Search] 💡 Your token may have expired. Get a fresh token with:');
-            console.error('[Search] 💡 curl -X POST "' + url + '/api/Login" -H "Content-Type: application/json" -d \'{"userEmail":"your@email.com","userPassWord":"yourpassword"}\'');
+            console.error('[Search] 💡 Your token may have expired. Create or refresh it on the IndxCloudApi website.');
           } else if (error.message.includes('404')) {
             console.error('[Search] ❌ Dataset not found');
             console.error('[Search] 💡 Check that dataset "' + dataset + '" exists');

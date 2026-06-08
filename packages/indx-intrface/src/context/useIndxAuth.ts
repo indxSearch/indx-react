@@ -13,8 +13,6 @@ export interface IndxAuthResult {
 }
 
 interface UseIndxAuthOptions {
-  email?: string;
-  password?: string;
   url: string;
   dataset: string;
   preAuthenticatedToken?: string;
@@ -22,8 +20,6 @@ interface UseIndxAuthOptions {
 }
 
 export function useIndxAuth({
-  email,
-  password,
   url,
   dataset,
   preAuthenticatedToken,
@@ -41,62 +37,24 @@ export function useIndxAuth({
   useEffect(() => {
     const authenticate = async () => {
       try {
-        let sessionToken: string;
-
-        if (preAuthenticatedToken) {
-          if (enableDebugLogs) console.log('[Auth] ✅ Using pre-authenticated token');
-          sessionToken = preAuthenticatedToken;
-        } else {
-          if (!email || !password) {
-            console.error('[Auth] ❌ Missing credentials');
-            if (!email) {
-              console.error('[Auth] ❌ Missing email');
-              console.error('[Auth] 💡 Pass email="your@email.com" to SearchProvider');
-            }
-            if (!password) {
-              console.error('[Auth] ❌ Missing password');
-              console.error('[Auth] 💡 Pass password="yourpassword" to SearchProvider');
-            }
-            throw new Error('Email and password are required. Check console for instructions.');
-          }
-
-          if (!url) {
-            console.error('[Auth] ❌ Missing INDX server URL');
-            console.error('[Auth] 💡 Pass a url to SearchProvider');
-            throw new Error('INDX server URL is required. Check console for instructions.');
-          }
-
-          if (!dataset) {
-            console.error('[Auth] ❌ Missing dataset name');
-            console.error('[Auth] 💡 Pass dataset="your-dataset-name" to SearchProvider');
-            throw new Error('Dataset name is required. Check console for instructions.');
-          }
-
-          if (enableDebugLogs) console.log('[Auth] 🔐 Logging in to get session token...');
-          const loginRes = await fetch(`${url}/api/Login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', accept: '*/*' },
-            credentials: 'include',
-            body: JSON.stringify({ userEmail: email, userPassWord: password }),
-          });
-
-          if (!loginRes.ok) {
-            console.error('[Auth] ❌ Login failed:', loginRes.status, await loginRes.text());
-            throw new Error('Login failed. Check your email and password.');
-          }
-
-          const loginData = await loginRes.json();
-          sessionToken = loginData.token;
-
-          if (!sessionToken) {
-            console.error('[Auth] ❌ No token received from login response');
-            throw new Error('No token received from login.');
-          }
-
-          if (enableDebugLogs) {
-            console.log('[Auth] ✅ Login successful, bearer token received (length:', sessionToken.length, ')');
-          }
+        if (!preAuthenticatedToken) {
+          console.error('[Auth] ❌ Missing bearer token');
+          console.error('[Auth] 💡 Pass preAuthenticatedToken to SearchProvider (create a token on the IndxCloudApi website)');
+          throw new Error('A bearer token is required. Check console for instructions.');
         }
+        if (!url) {
+          console.error('[Auth] ❌ Missing INDX server URL');
+          console.error('[Auth] 💡 Pass a url to SearchProvider');
+          throw new Error('INDX server URL is required. Check console for instructions.');
+        }
+        if (!dataset) {
+          console.error('[Auth] ❌ Missing dataset name');
+          console.error('[Auth] 💡 Pass dataset="your-dataset-name" to SearchProvider');
+          throw new Error('Dataset name is required. Check console for instructions.');
+        }
+
+        if (enableDebugLogs) console.log('[Auth] ✅ Using bearer token');
+        const sessionToken = preAuthenticatedToken;
 
         // Establish dataset session
         if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
@@ -132,7 +90,7 @@ export function useIndxAuth({
           if (statusRes.status === 401) {
             console.error('[Auth] ❌ Authentication failed (401 Unauthorized)');
             console.error('[Auth] 💡 Your token may be expired or invalid');
-            console.error('[Auth] 💡 Get a fresh token with: curl -X POST "' + url + '/api/Login" -H "Content-Type: application/json" -d \'{"userEmail":"your@email.com","userPassWord":"yourpassword"}\'');
+            console.error('[Auth] 💡 Create or refresh your token on the IndxCloudApi website');
             throw new Error('Authentication failed (401). Token may be expired. Check console for instructions.');
           } else if (statusRes.status === 404) {
             console.error('[Auth] ❌ Dataset "' + dataset + '" not found (404)');
@@ -274,7 +232,7 @@ export function useIndxAuth({
     };
 
     authenticate();
-  }, [email, password, url, dataset]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
+  }, [url, dataset]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
 
   return {
     token,

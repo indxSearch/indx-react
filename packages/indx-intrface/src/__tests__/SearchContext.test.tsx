@@ -52,16 +52,6 @@ describe('initialisation', () => {
       price: { min: 10, max: 200 },
     });
   });
-
-  it('uses full login flow when email/password are provided', async () => {
-    const { result } = setup({
-      preAuthenticatedToken: undefined,
-      email: 'user@example.com',
-      password: 'secret',
-    });
-    await waitForAuth(result);
-    expect(result.current.state.filterableFields).toEqual(['price', 'category']);
-  });
 });
 
 // ─── Empty search behaviour ──────────────────────────────────────────────────

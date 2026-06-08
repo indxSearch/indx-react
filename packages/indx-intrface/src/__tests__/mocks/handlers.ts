@@ -5,10 +5,6 @@ const BASE = 'http://localhost';
 const DS = 'test';
 
 export const handlers = [
-  // Auth
-  http.post(`${BASE}/api/Login`, () =>
-    HttpResponse.json({ token: 'test-token' })),
-
   http.put(`${BASE}/api/CreateOrOpen/${DS}/:timeout`, () =>
     HttpResponse.json({})),
 

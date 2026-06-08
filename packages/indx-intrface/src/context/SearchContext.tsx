@@ -70,8 +70,6 @@ export const SearchContext = createContext<SearchContextType | undefined>(undefi
 // SearchProvider component that manages the search state and provides the search context
 export const SearchProvider: React.FC<{
   children: React.ReactNode;
-  email?: string;
-  password?: string;
   url: string;
   dataset: string;
   allowEmptySearch?: boolean;
@@ -83,11 +81,9 @@ export const SearchProvider: React.FC<{
   enableCoverage?: boolean;
   initialCoverageSetup?: Partial<CoverageSetup>;
   enableDebugLogs?: boolean;
-  preAuthenticatedToken?: string; // Optional: if provided, skips login and uses this token
+  preAuthenticatedToken?: string; // Bearer token used for all requests
 }> = ({
   children,
-  email,
-  password,
   url,
   dataset,
   allowEmptySearch = false,
@@ -159,7 +155,7 @@ export const SearchProvider: React.FC<{
 
   const [facetsEnabled] = useState(enableFacets);
 
-  const auth = useIndxAuth({ email, password, url, dataset, preAuthenticatedToken, enableDebugLogs });
+  const auth = useIndxAuth({ url, dataset, preAuthenticatedToken, enableDebugLogs });
 
   // Authenticated fetch wrapper
   const authenticatedFetch = useCallback((url: string, options: RequestInit = {}) => {
