@@ -62,7 +62,7 @@ export function useIndxAuth({
 
           if (!url) {
             console.error('[Auth] ❌ Missing INDX server URL');
-            console.error('[Auth] 💡 Add NEXT_PUBLIC_INDX_URL to your .env.local file');
+            console.error('[Auth] 💡 Pass a url to SearchProvider');
             throw new Error('INDX server URL is required. Check console for instructions.');
           }
 
@@ -263,7 +263,7 @@ export function useIndxAuth({
         if (err instanceof TypeError && err.message.includes('fetch')) {
           console.error('[Auth] ❌ Network error - cannot connect to INDX server');
           console.error('[Auth] 💡 Check if the server is running at:', url);
-          console.error('[Auth] 💡 Check your NEXT_PUBLIC_INDX_URL in .env.local');
+          console.error('[Auth] 💡 Check the url you passed to SearchProvider');
           console.error('[Auth] 💡 For local development, it should be: http://localhost:5001');
         }
 

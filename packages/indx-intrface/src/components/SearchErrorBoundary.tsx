@@ -89,8 +89,8 @@ export class SearchErrorBoundary extends Component<Props, State> {
             <strong>💡 Common fixes:</strong>
             <ul style={{ marginBottom: 0, paddingLeft: '1.5rem' }}>
               <li>Check browser console for detailed error messages</li>
-              <li>Verify NEXT_PUBLIC_INDX_URL is correct in .env.local</li>
-              <li>Verify NEXT_PUBLIC_INDX_EMAIL and NEXT_PUBLIC_INDX_PASSWORD are correct</li>
+              <li>Verify the url passed to SearchProvider is correct</li>
+              <li>Verify your INDX credentials (bearer token, or email and password) are correct</li>
               <li>Ensure INDX server is running</li>
               <li>Check dataset name spelling</li>
             </ul>
