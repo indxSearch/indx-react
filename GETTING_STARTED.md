@@ -6,9 +6,9 @@ This guide walks you through setting up the INDX search interface for the first 
 
 ## What You'll Need
 
-- Node.js 18+ installed
+- Node.js `^20.19.0 || >=22.12.0` installed
 - An INDX server (cloud or local)
-- Your INDX account email and password
+- An INDX bearer token — create and monitor one on the IndxCloudApi website (use a read-only / scoped search token)
 
 ## Step 1: Install the Package
 
@@ -26,28 +26,21 @@ Create a file named `.env.local` in your project root:
 # INDX Server Configuration
 VITE_INDX_URL=https://localhost:5001
 
-# Authentication Credentials
-VITE_INDX_EMAIL=your@email.com
-VITE_INDX_PASSWORD=yourpassword
+# Authentication — bearer token
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **For production:**
 ```bash
 VITE_INDX_URL=https://your-indx-server.com
-VITE_INDX_EMAIL=your@email.com
-VITE_INDX_PASSWORD=yourpassword
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Important:**
-- Add `.env.local` to your `.gitignore` file to keep your credentials secure
-- The library automatically logs in when your app initializes
-- A fresh session token is obtained on every app load
-- No need to manually manage tokens
-
-**Note:** If you're using a different bundler (Next.js, Create React App, etc.), adjust the environment variable prefix:
-- Vite: `VITE_*`
-- Next.js: `NEXT_PUBLIC_*`
-- Create React App: `REACT_APP_*`
+- Create and monitor tokens on the IndxCloudApi website
+- Add `.env.local` to your `.gitignore` file to keep your token secure
+- The token is exposed in the browser — use a read-only / scoped search token only
+- The library uses the token directly; no login round-trip is performed
 
 ## Step 3: Import the Styles
 
@@ -68,11 +61,10 @@ export default function SearchPage() {
   return (
     <SearchProvider
       url={import.meta.env.VITE_INDX_URL}
-      email={import.meta.env.VITE_INDX_EMAIL}
-      password={import.meta.env.VITE_INDX_PASSWORD}
+      preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
       dataset="your-dataset-name"
     >
-      <SearchInput placeholder="Search..." />
+      <SearchInput />
 
       <SearchResults
         fields={['name', 'description']}
@@ -103,7 +95,7 @@ Open your browser and navigate to your search page. You should see a working sea
 ## Verification Checklist
 
 ✅ **Check the browser console for:**
-- `[Auth] ✅ Login successful` message
+- `[Auth] ✅ Using pre-authenticated token` message (with `enableDebugLogs`)
 - `[Auth] 📊 Dataset status:` with your dataset info
 - `[Auth] ✅ Dataset has X records` message
 - `[Auth] ✅ Initialization complete` message
@@ -124,38 +116,21 @@ Open your browser and navigate to your search page. You should see a working sea
 
 **💡 All errors show helpful messages in the browser console with specific instructions.**
 
-### "Login failed" / Authentication errors
+### Invalid or expired token (401 Unauthorized)
 
-**Problem:** Email or password is incorrect
-
-**Console shows:**
-```
-[Auth] ❌ Login failed - invalid credentials
-[Auth] 💡 Check your VITE_INDX_EMAIL and VITE_INDX_PASSWORD in .env.local
-[Auth] 💡 Verify your credentials match your INDX account
-```
-
-**Fix:**
-1. Verify your email and password are correct
-2. Check that the credentials match your INDX account
-3. Ensure the INDX server URL is correct
-4. Restart your dev server after updating `.env.local`
-
-### "401 Unauthorized" errors
-
-**Problem:** Authentication failed or session expired
+**Problem:** The bearer token is missing, wrong, or expired
 
 **Console shows:**
 ```
 [Auth] ❌ Authentication failed (401 Unauthorized)
-[Auth] 💡 Your credentials may be invalid
-[Auth] 💡 Check VITE_INDX_EMAIL and VITE_INDX_PASSWORD
+[Auth] 💡 Your token may be expired or invalid
 ```
 
 **Fix:**
-1. Verify your credentials in `.env.local`
-2. Refresh the page to get a new session token (automatic login)
-3. Check if the server is running and accessible
+1. Verify `VITE_INDX_TOKEN` in `.env.local` is correct and current
+2. Obtain a fresh token from your INDX account / server
+3. Ensure the INDX server URL is correct
+4. Restart your dev server after updating `.env.local`
 
 ### "Dataset not found (404)"
 
@@ -213,19 +188,18 @@ Open your browser and navigate to your search page. You should see a working sea
 2. Check the URL in `.env.local` is correct
 3. For local development, it should be `https://localhost:5001`
 
-### Missing credentials
+### Missing token
 
-**Problem:** Environment variables not found
+**Problem:** Environment variable not found
 
 **Console shows:**
 ```
-[Auth] ❌ Missing email or password
-[Auth] 💡 Add VITE_INDX_EMAIL and VITE_INDX_PASSWORD to your .env.local file
+[Auth] ❌ Missing credentials
 ```
 
 **Fix:**
 1. Create `.env.local` file in project root
-2. Add your INDX credentials
+2. Add `VITE_INDX_TOKEN` (and `VITE_INDX_URL`)
 3. Restart your dev server
 
 ## Next Steps
@@ -249,16 +223,14 @@ Now that you have a basic search working:
 ### Environment Variables Template
 ```bash
 VITE_INDX_URL=https://localhost:5001
-VITE_INDX_EMAIL=your@email.com
-VITE_INDX_PASSWORD=yourpassword
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 ### Minimal Working Example
 ```typescript
 <SearchProvider
   url={import.meta.env.VITE_INDX_URL}
-  email={import.meta.env.VITE_INDX_EMAIL}
-  password={import.meta.env.VITE_INDX_PASSWORD}
+  preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
   dataset="products"
 >
   <SearchInput />
@@ -266,27 +238,4 @@ VITE_INDX_PASSWORD=yourpassword
     {(item) => <div>{item.name}</div>}
   </SearchResults>
 </SearchProvider>
-```
-
-### Using with Different Bundlers
-
-**Vite:**
-```typescript
-url={import.meta.env.VITE_INDX_URL}
-email={import.meta.env.VITE_INDX_EMAIL}
-password={import.meta.env.VITE_INDX_PASSWORD}
-```
-
-**Next.js:**
-```typescript
-url={process.env.NEXT_PUBLIC_INDX_URL}
-email={process.env.NEXT_PUBLIC_INDX_EMAIL}
-password={process.env.NEXT_PUBLIC_INDX_PASSWORD}
-```
-
-**Create React App:**
-```typescript
-url={process.env.REACT_APP_INDX_URL}
-email={process.env.REACT_APP_INDX_EMAIL}
-password={process.env.REACT_APP_INDX_PASSWORD}
 ```

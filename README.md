@@ -5,11 +5,11 @@
  **[View live demo here](https://www.indx.co)** and **[View all components here](https://indx-components.vercel.app)**
 
 ```typescript
-<SearchProvider url={url} email={email} password={password} dataset="products">
-  <SearchInput placeholder="Search products..." />
+<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
+  <SearchInput />
 
   <ValueFilterPanel field="category" label="Category" />
-  <RangeFilterPanel field="price" label="Price" min={0} max={1000} />
+  <RangeFilterPanel field="price" label="Price" expectedMin={0} expectedMax={1000} />
 
   <SearchResults fields={['name', 'price']} resultsPerPage={20}>
     {(item) => <ProductCard {...item} />}
@@ -40,7 +40,7 @@
 - **Sort Options** - Configurable sorting with radio or dropdown
 
 ### Developer Experience
-- Automatic authentication (bearer token or email/password)
+- Bearer-token authentication
 - Comprehensive error messages with fix suggestions
 - TypeScript support with full type safety
 - React 19 compatible
@@ -72,6 +72,7 @@ This is a monorepo containing multiple packages:
 |---------|-------------|---------|-----|
 | **[@indxsearch/intrface](./packages/indx-intrface)** | Search UI components (featured above) | Apache-2.0 | `npm i @indxsearch/intrface` |
 | **[@indxsearch/systm](./packages/indx-systm)** | Design system with tokens, UI components, patterns, cursors | [Custom¹](#licensing) | `npm i @indxsearch/systm` |
+| **[@indxsearch/indx-types](./packages/indx-types)** | TypeScript types for IndxCloudApi v2 | Apache-2.0 | `npm i @indxsearch/indx-types` |
 | **[@indxsearch/pixl](https://www.npmjs.com/package/@indxsearch/pixl)** | Icon library (separate package) | Custom | `npm i @indxsearch/pixl` |
 
 **¹ See [Licensing](#licensing) below**

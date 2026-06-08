@@ -24,7 +24,7 @@ This demo uses the Pokemon dataset to demonstrate various search features includ
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js `^20.19.0 || >=22.12.0` and npm
 
 ### Installation
 
@@ -36,19 +36,22 @@ npm install
 
 ### Configuration
 
-Create a `.env.local` file in the `apps/demo` directory:
+Copy the example env file in the `apps/demo` directory and fill in your values:
+
+```bash
+cp .env.local.example .env.local
+```
 
 ```env
-VITE_INDX_URL=http://your-indx-url.website.com
-VITE_INDX_EMAIL=your-email@example.com
-VITE_INDX_PASSWORD=your-password
+VITE_INDX_URL=https://localhost:5001
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Common URLs:**
 - Local INDX Cloud API: `https://localhost:5001`
 - Hosted INDX instance: `https://your-indx-url.website.com`
 
-**Note:** These credentials are exposed in the browser. Use read-only search credentials only.
+**Note:** Create and monitor tokens on the IndxCloudApi website. The token is exposed in the browser, so use a read-only / scoped search token only.
 
 ### Development
 
@@ -81,13 +84,15 @@ npm run preview
 ```
 apps/demo/
 ├── src/
-│   ├── main.tsx          # Entry point
-│   ├── App.tsx           # Main app component
-│   ├── SearchClient.tsx  # Search client wrapper
-│   └── globals.css       # Global styles
-├── index.html            # HTML template
-├── vite.config.ts        # Vite configuration
-└── .env.local            # Environment variables (not committed)
+│   ├── main.tsx               # Entry point
+│   ├── App.tsx                # Main app component
+│   ├── SearchClient.tsx       # Search demo wrapper
+│   ├── SearchClient.module.css
+│   └── globals.css            # Global styles
+├── index.html                 # HTML template
+├── vite.config.ts             # Vite configuration (dev server on port 3000)
+├── .env.local.example         # Example environment variables
+└── .env.local                 # Your environment variables (not committed)
 ```
 
 ## Deployment
@@ -108,8 +113,7 @@ This app can be deployed to [Vercel](https://vercel.com):
 
 3. Add environment variables in the Vercel dashboard:
    - `VITE_INDX_URL`
-   - `VITE_INDX_EMAIL`
-   - `VITE_INDX_PASSWORD`
+   - `VITE_INDX_TOKEN`
 
 The build output is a static site in the `dist/` directory.
 

@@ -10,7 +10,7 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 - 📱 **Mobile-responsive** - Built-in responsive design
 - ⚡ **Debounced searches** - Optimized performance
 - 🎨 **Customizable rendering** - Full control over result display
-- 🔒 **Secure authentication** - Session-based authentication with automatic login
+- 🔒 **Secure authentication** - Bearer-token authentication
 
 ## Compatibility
 
@@ -37,29 +37,23 @@ npm install @indxsearch/intrface @indxsearch/systm @indxsearch/pixl
 
 Create a `.env.local` file in your project root:
 
-**Option A: Using Bearer Token (Recommended for Production)**
 ```bash
 VITE_INDX_URL=https://your-indx-server.com
-VITE_INDX_TOKEN=your-jwt-bearer-token-here
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
-**Option B: Using Email/Password (Quick Start)**
-```bash
-VITE_INDX_URL=https://your-indx-server.com
-VITE_INDX_EMAIL=your@email.com
-VITE_INDX_PASSWORD=yourpassword
-```
+Create and monitor your bearer token on the IndxCloudApi website.
 
 **For local development:**
 ```bash
 VITE_INDX_URL=https://localhost:5001
-# Then add either token or email/password as shown above
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Security Notes:**
 - Never commit `.env.local` to version control
-- Store credentials/tokens securely in environment variables
-- For production deployments, prefer bearer token authentication
+- The token is exposed in the browser — use a read-only / scoped search token
+- Store the token in environment variables; never hardcode it
 
 ### 2. Import Styles
 
@@ -78,8 +72,7 @@ export default function SearchPage() {
   return (
     <SearchProvider
       url={import.meta.env.VITE_INDX_URL}
-      email={import.meta.env.VITE_INDX_EMAIL}
-      password={import.meta.env.VITE_INDX_PASSWORD}
+      preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
       dataset="products"
     >
       <SearchInput />
@@ -104,28 +97,24 @@ export default function SearchPage() {
 
 ```typescript
 // products page
-<SearchProvider url={url} email={email} password={password} dataset="products">
+<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
   {/* ... */}
 </SearchProvider>
 
 // articles page
-<SearchProvider url={url} email={email} password={password} dataset="articles">
+<SearchProvider url={url} preAuthenticatedToken={token} dataset="articles">
   {/* ... */}
 </SearchProvider>
 ```
 
 ## Authentication
 
-The library supports **two authentication methods**: bearer token and email/password login.
-
-### Method 1: Bearer Token (Recommended for Production)
-
-Use a pre-authenticated JWT bearer token. This is ideal when you have a backend that generates tokens for your users.
+Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the IndxCloudApi website, then provide the token to `SearchProvider`.
 
 **Environment setup:**
 ```bash
 VITE_INDX_URL=https://your-indx-server.com
-VITE_INDX_TOKEN=your-jwt-bearer-token-here
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Usage:**
@@ -139,51 +128,11 @@ VITE_INDX_TOKEN=your-jwt-bearer-token-here
 </SearchProvider>
 ```
 
-**When to use:**
-- ✅ Production applications with backend authentication
-- ✅ When you have existing token infrastructure
-- ✅ For better security (tokens can have expiration, limited scope)
-- ✅ When you want to avoid storing passwords client-side
-
-### Method 2: Email/Password (Quick Start & Development)
-
-Automatically logs in when the app initializes using email and password.
-
-**Environment setup:**
-```bash
-VITE_INDX_URL=https://your-indx-server.com
-VITE_INDX_EMAIL=your@email.com
-VITE_INDX_PASSWORD=yourpassword
-```
-
-**Usage:**
-```typescript
-<SearchProvider
-  url={import.meta.env.VITE_INDX_URL}
-  email={import.meta.env.VITE_INDX_EMAIL}
-  password={import.meta.env.VITE_INDX_PASSWORD}
-  dataset="products"
->
-  {/* Your search UI */}
-</SearchProvider>
-```
-
-**How it works:**
-1. You provide email and password to `SearchProvider`
-2. On mount, the library automatically calls the Login API endpoint
-3. A fresh session token is obtained and used for all subsequent requests
-4. No manual token management required
-
-**When to use:**
-- ✅ Quick prototyping and development
-- ✅ Demo applications
-- ✅ When you don't have token infrastructure yet
-
-**Security Best Practices:**
-- Store credentials/tokens in environment variables (`.env.local`)
-- Never commit `.env.local` to version control
+**Security best practices:**
+- Create a read-only / scoped search token for client-side use
+- Store the token in environment variables (`.env.local`); never commit it
 - Use secure HTTPS connections in production
-- For production, prefer bearer token authentication
+- The token is exposed in the browser, so scope it to search only
 
 ## Error Handling
 
@@ -192,8 +141,7 @@ The library includes comprehensive error handling with helpful console messages:
 ### Automatic Error Detection
 
 The SearchProvider automatically validates:
-- ✅ Authentication (bearer token or email/password)
-- ✅ Login success and token retrieval (when using email/password)
+- ✅ Authentication (bearer token)
 - ✅ Dataset existence and status
 - ✅ Dataset readiness (indexing complete)
 - ✅ Empty dataset warnings
@@ -213,7 +161,7 @@ Wrap your search interface with `SearchErrorBoundary` for graceful error handlin
 import { SearchErrorBoundary, SearchProvider } from '@indxsearch/intrface';
 
 <SearchErrorBoundary>
-  <SearchProvider url={url} email={email} password={password} dataset={dataset}>
+  <SearchProvider url={url} preAuthenticatedToken={token} dataset={dataset}>
     {/* Your search UI */}
   </SearchProvider>
 </SearchErrorBoundary>
@@ -230,7 +178,7 @@ import { SearchErrorBoundary, SearchProvider } from '@indxsearch/intrface';
     </div>
   )}
 >
-  <SearchProvider url={url} email={email} password={password} dataset={dataset}>
+  <SearchProvider url={url} preAuthenticatedToken={token} dataset={dataset}>
     {children}
   </SearchProvider>
 </SearchErrorBoundary>
@@ -320,8 +268,7 @@ export default function AdvancedSearch() {
   return (
     <SearchProvider
       url={import.meta.env.VITE_INDX_URL}
-      email={import.meta.env.VITE_INDX_EMAIL}
-      password={import.meta.env.VITE_INDX_PASSWORD}
+      preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
       dataset="products"
       allowEmptySearch={true}
       enableFacets={true}
@@ -369,9 +316,7 @@ export default function AdvancedSearch() {
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `url` | `string` | ✅ | - | INDX server URL |
-| `preAuthenticatedToken` | `string` | ⚠️ | - | Bearer token for authentication (either this OR email/password) |
-| `email` | `string` | ⚠️ | - | User email for authentication (either this OR token) |
-| `password` | `string` | ⚠️ | - | User password for authentication (either this OR token) |
+| `preAuthenticatedToken` | `string` | ✅ | - | Bearer token created on the IndxCloudApi website |
 | `dataset` | `string` | ✅ | - | Dataset name |
 | `allowEmptySearch` | `boolean` | ❌ | `false` | Show results without query |
 | `enableFacets` | `boolean` | ❌ | `true` | Enable faceted search |
@@ -499,26 +444,15 @@ These components are also exported and can be used for custom layouts:
 
 ## Troubleshooting
 
-### "Login failed" error
-
-**Problem:** Authentication credentials are invalid
-
-**Solutions:**
-1. Verify your email and password are correct
-2. Check that the credentials match your INDX account
-3. Ensure the INDX server URL is correct
-4. Check browser console for detailed error messages
-
 ### "401 Unauthorized" errors
 
 **Problem:** Authentication failed or token is invalid
 
 **Solutions:**
-1. **If using bearer token:** Verify the token is valid and not expired. Generate a new token if needed.
-2. **If using email/password:** Refresh the page to get a new session token (automatic login)
-3. Check that the token/credentials are correctly set in your environment variables
-4. Verify the server is running and accessible
-5. Check server logs for authentication issues
+1. Verify the token is valid and not expired; create a fresh one on the IndxCloudApi website if needed
+2. Check that `VITE_INDX_TOKEN` is correctly set in your environment variables
+3. Verify the server is running and accessible
+4. Check server logs for authentication issues
 
 ### "Failed to fetch" errors
 
@@ -554,7 +488,7 @@ These components are also exported and can be used for custom layouts:
 ### Example 1: E-commerce Search
 
 ```typescript
-<SearchProvider url={url} email={email} password={password} dataset="products">
+<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
   <div className="search-page">
     <SearchInput />
 
@@ -581,7 +515,7 @@ These components are also exported and can be used for custom layouts:
 ### Example 2: Document Search
 
 ```typescript
-<SearchProvider url={url} email={email} password={password} dataset="documents">
+<SearchProvider url={url} preAuthenticatedToken={token} dataset="documents">
   <SearchInput />
 
   <ValueFilterPanel field="docType" label="Type" />

@@ -19,7 +19,7 @@ indx-react/
 │   │       └── context/
 │   │           └── SearchContext.tsx  # Core API integration
 │   ├── indx-systm/        # UI component system
-│   └── indx-pixl/         # Icon library
+│   └── indx-types/        # Shared TypeScript types (IndxCloudApi v2)
 ```
 
 ## INDX Search API
@@ -32,25 +32,14 @@ The INDX Search API is a .NET/C# backend service that provides full-text search 
 
 ### Authentication Pattern
 
-#### C# Pattern (Server)
-```csharp
-HttpClient client = new();
-var token = Login(client);  // Configures HttpClient with default Bearer token
-// All subsequent calls automatically include Bearer token
-```
+Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the IndxCloudApi website, then send the token as an `Authorization: Bearer {token}` header on every request. There is no client-side login step.
 
 #### TypeScript Pattern (Client)
 ```typescript
-// 1. Login once - get token
-const response = await fetch(`${url}/api/Login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ userEmail: email, userPassWord: password })
-});
-const data = await response.json();
-const token = data.token;
+// 1. Bring a token created on the IndxCloudApi website
+const token = import.meta.env.VITE_INDX_TOKEN;
 
-// 2. Create authenticated fetch wrapper
+// 2. Create an authenticated fetch wrapper
 const authenticatedFetch = (url, options) => fetch(url, {
   ...options,
   headers: {
@@ -62,18 +51,15 @@ const authenticatedFetch = (url, options) => fetch(url, {
 // 3. Use for all subsequent API calls
 ```
 
-**Key Insight:** Only Login requires no auth. All other endpoints require Bearer token.
+**Key Insight:** Every endpoint requires a Bearer token. Tokens are created and managed on the IndxCloudApi website.
+
+> **Note:** With the `@indxsearch/intrface` React library, pass the token to `SearchProvider` via `preAuthenticatedToken`.
 
 ## API Endpoints
 
 ### Authentication
 
-#### Login
-- **Endpoint:** `POST /api/Login`
-- **Body:** `{ "userEmail": "string", "userPassWord": "string" }`
-- **Auth Required:** No
-- **Returns:** `{ token: string }`
-- **Purpose:** Obtain JWT Bearer token for subsequent requests
+Authentication is via a **pre-issued bearer token**, created and monitored on the IndxCloudApi website. There is no login endpoint — send the token as `Authorization: Bearer {token}` on every request.
 
 ### Dataset Management
 
@@ -258,13 +244,8 @@ const authenticatedFetch = (url, options) => fetch(url, {
 ### 1. Setup New Dataset
 
 ```typescript
-// 1. Login
-const loginRes = await fetch(`${url}/api/Login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ userEmail: email, userPassWord: password })
-});
-const { token } = await loginRes.json();
+// 1. Use a bearer token created on the IndxCloudApi website
+const token = import.meta.env.VITE_INDX_TOKEN;
 
 // 2. Create/Open dataset
 await authenticatedFetch(`${url}/api/CreateOrOpen/${dataset}/400`, {
@@ -392,7 +373,7 @@ const documents = await docsRes.json();
 
 The `SearchContext.tsx` file in `packages/indx-intrface/src/context/` implements this API as a React Context provider with the following pattern:
 
-1. **Login on mount** - Authenticates and stores token
+1. **Authenticate on mount** - Uses the supplied bearer token (`preAuthenticatedToken`)
 2. **Fetch field configurations** - Gets filterable/facetable/sortable fields
 3. **Create authenticatedFetch wrapper** - Automatically includes Bearer token
 4. **Provide search state and methods** - Exposes search, filtering, sorting to components
@@ -409,15 +390,9 @@ The `SearchContext.tsx` file in `packages/indx-intrface/src/context/` implements
 
 ### Required Environment Variables (.env.local)
 ```bash
-# For Vite apps (demo, components)
+# For the Vite apps (demo, components)
 VITE_INDX_URL=https://localhost:5001
-VITE_INDX_EMAIL=your-email@example.com
-VITE_INDX_PASSWORD=your-password
-
-# For Next.js apps
-NEXT_PUBLIC_INDX_URL=https://localhost:5001
-NEXT_PUBLIC_INDX_EMAIL=your-email@example.com
-NEXT_PUBLIC_INDX_PASSWORD=your-password
+VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 ### Running the Project
@@ -446,7 +421,7 @@ npm run build:packages
 
 ### "401 Unauthorized"
 - Token may be expired or invalid
-- Verify login credentials are correct
+- Create or check your token on the IndxCloudApi website
 - Check token is being included in Authorization header
 
 ### "500 Internal Server Error"
