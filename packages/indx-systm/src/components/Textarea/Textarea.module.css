@@ -1,0 +1,59 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font: var(--text-xs);
+  color: var(--lv6);
+}
+
+.textarea {
+  font: var(--text-xs);
+  font-family: inherit;
+  padding: 10px;
+  min-height: 80px;
+  line-height: 1.5;
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--lv7);
+  resize: vertical;
+}
+
+.textarea:not(:disabled):hover {
+  border-color: var(--lv5);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--lv5);
+}
+
+.textarea::placeholder {
+  color: var(--lv5);
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  resize: none;
+}
+
+.textarea::selection {
+  background: var(--lv3);
+}
+
+.error {
+  border-color: var(--CSignal);
+}
+
+.error:focus {
+  border-color: var(--CSignal);
+}
+
+.errorText {
+  font: var(--text-2xs);
+  color: var(--CSignal);
+}

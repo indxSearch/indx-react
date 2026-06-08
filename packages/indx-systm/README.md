@@ -32,12 +32,15 @@ function App() {
 - **Button** - Customizable button with variants
 - **Checkbox** - Checkbox input component
 - **InputField** - Text input field
+- **Textarea** - Multi-line text input
 - **RadioButton** - Radio button input
 - **SearchField** - Search input with icon
 - **Select** - Radix UI select dropdown
 - **Slider** - Range slider component
 - **ToggleSwitch** - Toggle switch input
+- **DatePicker** - Single-date calendar picker in a popover
 - **Popover** - Radix UI popover component
+- **Modal** - Accessible dialog (Radix) with overlay, title, and close
 - **Table** - Composable table (TableHeader, TableRow, TableCell, TableValue, TableIcon)
 - **Tabs** - Tab list for switching between views
 - **ProgressBar** - Progress indicator with optional label
@@ -109,6 +112,7 @@ import '@indxsearch/systm/patterns.css'; // Or import patterns standalone
 ## Dependencies
 
 - `@indxsearch/pixl` - Icon library
+- `@radix-ui/react-dialog` - Modal/dialog primitives
 - `@radix-ui/react-popover` - Popover component primitives
 - `@radix-ui/react-select` - Select component primitives
 - `@radix-ui/react-tooltip` - Tooltip component primitives

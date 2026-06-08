@@ -18,3 +18,6 @@ export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/Pro
 export { Chip, type ChipProps } from './components/Chip/Chip';
 export { Tooltip, type TooltipProps, type TooltipPosition } from './components/Tooltip/Tooltip';
 export { Chart, type ChartProps, type ChartSeries } from './components/Chart/Chart';
+export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
+export { Modal, type ModalProps } from './components/Modal/Modal';
+export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';
