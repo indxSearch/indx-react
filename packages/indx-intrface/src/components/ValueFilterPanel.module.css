@@ -8,8 +8,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   font: var(--text-xs);
   color: var(--lv5);
+}
+
+/* count number keeps its size; the chip beside it absorbs the shrink */
+.countValue {
+  flex-shrink: 0;
+}
+
+/* button shrinks within its row instead of overflowing */
+.chip {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.chip svg {
+  flex-shrink: 0;
+}
+
+/* label truncates with an ellipsis; full text stays available via the title attr */
+.chipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 /* items flow left→right, wrapping to new rows as needed */
@@ -19,7 +43,9 @@
   gap: 10px;
 }
 
-/* if you want each item to size itself rather than stretch */
+/* items size to content, but may shrink (down to 0) so long chips don't overflow */
 .grid li {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
 }

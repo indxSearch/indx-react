@@ -6,7 +6,28 @@
   list-style: none;
 }
 
-/* if you want each item to size itself rather than stretch */
+/* items size to content, but may shrink (down to 0) so long chips don't overflow */
 .grid li {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* chip button shrinks within its li instead of pushing past the panel edge */
+.chip {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* keep the close icon at full size while the label absorbs the shrink */
+.chip svg {
+  flex-shrink: 0;
+}
+
+/* label truncates with an ellipsis; full text stays available via the title attr */
+.chipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }

@@ -276,10 +276,12 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
                 onClick={() => toggleFilter(field, key)}
                 disabled={disabled}
                 size="micro"
+                className={styles.chip}
+                title={key}
               >
-                {key}
+                <span className={styles.chipLabel}>{key}</span>
               </Button>
-              <span>{countNumber}</span>
+              <span className={styles.countValue}>{countNumber}</span>
             </div>
           );
         }
@@ -290,8 +292,10 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
             onClick={() => toggleFilter(field, key)}
             disabled={disabled}
             size="micro"
+            className={styles.chip}
+            title={`${key}${countDisplay}`}
           >
-            {`${key}${countDisplay}`}
+            <span className={styles.chipLabel}>{`${key}${countDisplay}`}</span>
           </Button>
         );
 

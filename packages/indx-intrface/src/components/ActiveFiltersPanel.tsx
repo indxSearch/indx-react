@@ -7,26 +7,30 @@ import { X_or_error } from '@indxsearch/pixl';
 
 const ValueFilterButton = memo(({ field, value, onReset }: { field: string, value: string, onReset: () => void }) => (
   <li>
-    <Button 
+    <Button
       onClick={onReset}
       iconRight={<X_or_error/>}
       variant='primary'
       size='micro'
+      className={styles.chip}
+      title={`${field}: ${value}`}
     >
-      {field}: {value}
+      <span className={styles.chipLabel}>{field}: {value}</span>
     </Button>
   </li>
 ));
 
 const RangeFilterButton = memo(({ field, min, max, onReset }: { field: string, min: number, max: number, onReset: () => void }) => (
   <li>
-    <Button 
+    <Button
       onClick={onReset}
       iconRight={<X_or_error />}
       variant='primary'
       size='micro'
+      className={styles.chip}
+      title={`${field}: ${min} – ${max}`}
     >
-      {field}: {min} – {max}
+      <span className={styles.chipLabel}>{field}: {min} – {max}</span>
     </Button>
   </li>
 ));
