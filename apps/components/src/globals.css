@@ -38,7 +38,6 @@ body {
     sans-serif;
   background: var(--lv0);
   color: var(--lv7);
-  padding-top: 60px !important;
 }
 
 /* Prevent Radix focus guards from causing layout shifts */

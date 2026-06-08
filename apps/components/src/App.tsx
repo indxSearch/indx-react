@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from './page';
-import Nav from './Nav';
-import styles from './page.module.css';
+import Layout from './Layout';
 
 // Import all component pages
 import ButtonPage from './button/page';
@@ -34,8 +33,7 @@ import ChartPage from './chart/page';
 
 export default function App() {
   return (
-    <>
-      <Nav />
+    <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/button" element={<ButtonPage />} />
@@ -66,6 +64,6 @@ export default function App() {
         <Route path="/patterns" element={<PatternsPage />} />
         <Route path="/chart" element={<ChartPage />} />
       </Routes>
-    </>
+    </Layout>
   );
 }
