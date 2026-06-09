@@ -63,10 +63,11 @@
   align-items: center;
 }
 
-/* Clean borderless base (var(--lv1) so ghost-item hover at var(--lv2) stays visible); no shadow. */
+/* Clean borderless base (one level up in light = lv2, lv1 in dark); no shadow.
+   Hover is kept one level above the base so it stays visible. */
 .content {
   overflow: hidden;
-  background: var(--lv1);
+  background: var(--lv2);
   border-radius: var(--radius);
   padding: 6px;
   z-index: 1000;
@@ -94,7 +95,7 @@
 
 .item[data-highlighted] {
   outline: none;
-  background-color: var(--lv2);
+  background-color: var(--lv3);
 }
 
 .item[data-state="checked"] {
@@ -104,4 +105,14 @@
 .itemIndicator {
   display: flex;
   align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .content {
+    background: var(--lv1);
+  }
+
+  .item[data-highlighted] {
+    background-color: var(--lv2);
+  }
 }
