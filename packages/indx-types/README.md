@@ -168,11 +168,8 @@ Auth is **bearer-token only** — create a token on the IndxCloudApi website and
 - `ProcessError` - A processing error (`source`, `message`, optional `parseError`)
 - `ProcessErrorCount` - A `ProcessError` paired with its occurrence `count`
 
-#### Access / Sharing Types
-- `DataSetListDto` - Data set entry with the caller's `role` ("owner" | "editor" | "viewer")
-- `AccessGrantDto` - Granted access entry (`email`, `role`)
-- `GrantAccessRequest` - Grant access to a user (`granteeEmail`, `role`)
-- `TransferOwnershipRequest` - Transfer ownership (`newOwnerEmail`)
+#### Dataset Types
+- `DataSetListDto` - A dataset from `GET /api/me/datasets`: its `name`, the owning `teamName`, and the caller's `role` ("Admin" | "Editor" | "Viewer")
 
 #### Common Types
 - `StringInt32KeyValuePair` - `{ key: string; value: number }` pair

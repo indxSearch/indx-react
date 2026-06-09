@@ -36,8 +36,8 @@ export { ParseResult, ProcessError, ProcessErrorCount } from './errors';
 // Fields
 export { FieldProxy } from './fields';
 
-// Access / sharing
-export { DataSetListDto, AccessGrantDto, GrantAccessRequest, TransferOwnershipRequest } from './access';
+// Datasets
+export { DataSetListDto } from './datasets';
 
 // Common
 export { StringInt32KeyValuePair, StringSingleValueTuple } from './common';
