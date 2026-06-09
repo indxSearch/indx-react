@@ -129,7 +129,8 @@
 }
 
 .today {
-  box-shadow: inset 0 0 0 1px var(--lv4);
+  outline: 1px solid var(--lv4);
+  outline-offset: -1px;
 }
 
 .selected,
