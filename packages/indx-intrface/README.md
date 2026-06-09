@@ -44,6 +44,8 @@ VITE_INDX_TOKEN=your-bearer-token-here
 
 Create and monitor your bearer token on the IndxCloudApi website.
 
+> Only the server URL and token come from the environment. Your **team** and **dataset** identify *what* you're searching, so they're passed directly as props on `SearchProvider` (shown below) — not as env vars.
+
 **For local development:**
 ```bash
 VITE_INDX_URL=https://localhost:5001
@@ -73,6 +75,7 @@ export default function SearchPage() {
     <SearchProvider
       url={import.meta.env.VITE_INDX_URL}
       preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
+      team="my-team"
       dataset="products"
     >
       <SearchInput />
@@ -97,12 +100,12 @@ export default function SearchPage() {
 
 ```typescript
 // products page
-<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
+<SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="products">
   {/* ... */}
 </SearchProvider>
 
 // articles page
-<SearchProvider url={url} preAuthenticatedToken={token} dataset="articles">
+<SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="articles">
   {/* ... */}
 </SearchProvider>
 ```
@@ -122,6 +125,7 @@ VITE_INDX_TOKEN=your-bearer-token-here
 <SearchProvider
   url={import.meta.env.VITE_INDX_URL}
   preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
+  team="my-team"
   dataset="products"
 >
   {/* Your search UI */}
@@ -161,7 +165,7 @@ Wrap your search interface with `SearchErrorBoundary` for graceful error handlin
 import { SearchErrorBoundary, SearchProvider } from '@indxsearch/intrface';
 
 <SearchErrorBoundary>
-  <SearchProvider url={url} preAuthenticatedToken={token} dataset={dataset}>
+  <SearchProvider url={url} preAuthenticatedToken={token} team={team} dataset={dataset}>
     {/* Your search UI */}
   </SearchProvider>
 </SearchErrorBoundary>
@@ -178,7 +182,7 @@ import { SearchErrorBoundary, SearchProvider } from '@indxsearch/intrface';
     </div>
   )}
 >
-  <SearchProvider url={url} preAuthenticatedToken={token} dataset={dataset}>
+  <SearchProvider url={url} preAuthenticatedToken={token} team={team} dataset={dataset}>
     {children}
   </SearchProvider>
 </SearchErrorBoundary>
@@ -269,6 +273,7 @@ export default function AdvancedSearch() {
     <SearchProvider
       url={import.meta.env.VITE_INDX_URL}
       preAuthenticatedToken={import.meta.env.VITE_INDX_TOKEN}
+      team="my-team"
       dataset="products"
       allowEmptySearch={true}
       enableFacets={true}
@@ -317,6 +322,7 @@ export default function AdvancedSearch() {
 |------|------|----------|---------|-------------|
 | `url` | `string` | ✅ | - | INDX server URL |
 | `preAuthenticatedToken` | `string` | ✅ | - | Bearer token created on the IndxCloudApi website |
+| `team` | `string` | ✅ | - | Team that owns the dataset — scopes requests to `/api/teams/{team}/datasets/{dataset}/…` |
 | `dataset` | `string` | ✅ | - | Dataset name |
 | `allowEmptySearch` | `boolean` | ❌ | `false` | Show results without query |
 | `enableFacets` | `boolean` | ❌ | `true` | Enable faceted search |
@@ -488,7 +494,7 @@ These components are also exported and can be used for custom layouts:
 ### Example 1: E-commerce Search
 
 ```typescript
-<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
+<SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="products">
   <div className="search-page">
     <SearchInput />
 
@@ -515,7 +521,7 @@ These components are also exported and can be used for custom layouts:
 ### Example 2: Document Search
 
 ```typescript
-<SearchProvider url={url} preAuthenticatedToken={token} dataset="documents">
+<SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="documents">
   <SearchInput />
 
   <ValueFilterPanel field="docType" label="Type" />

@@ -157,9 +157,11 @@ if (status.systemState === SystemState.Ready) {
 - `LicenseInfo` - License validation details
 
 #### Authentication
-- `LoginInfo` - Login credentials interface
-- `LoginResponse` - Login result (`token`, `mustChangePassword`)
+
+Auth is **bearer-token only** — create a token on the IndxCloudApi website and pass it as `preAuthenticatedToken`. The email/password login flow is deprecated and being removed.
+
 - `ChangePasswordRequest` - Password change payload (`currentPassword`, `newPassword`)
+- `LoginInfo` / `LoginResponse` - _Deprecated_ — legacy email/password login types, being removed in favour of token-only auth.
 
 #### Error Types
 - `ParseResult` - JSON parse outcome for a token (progress, record index, error info)

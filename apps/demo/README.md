@@ -53,6 +53,14 @@ VITE_INDX_TOKEN=your-bearer-token-here
 
 **Note:** Create and monitor tokens on the IndxCloudApi website. The token is exposed in the browser, so use a read-only / scoped search token only.
 
+**Team & dataset are not env vars** — only the URL and token are. They identify *what* you're searching, so they're passed as props on `<SearchClient>` in [`src/App.tsx`](src/App.tsx):
+
+```tsx
+<SearchClient team="your-team" dataset="pokedex" … />
+```
+
+Set `team` to the team that owns the dataset (the demo uses the `pokedex` dataset).
+
 ### Development
 
 Start the development server:

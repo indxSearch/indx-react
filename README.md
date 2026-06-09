@@ -5,7 +5,7 @@
  **[View live demo here](https://www.indx.co)** and **[View all components here](https://indx-components.vercel.app)**
 
 ```typescript
-<SearchProvider url={url} preAuthenticatedToken={token} dataset="products">
+<SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="products">
   <SearchInput />
 
   <ValueFilterPanel field="category" label="Category" />
