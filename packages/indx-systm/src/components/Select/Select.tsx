@@ -16,6 +16,7 @@ export interface SelectProps {
   className?: string;
   disabled?: boolean;
   label?: string;
+  size?: 'micro' | 'default' | 'large';
   'aria-label'?: string;
   id?: string;
 }
@@ -28,6 +29,7 @@ export const Select: React.FC<SelectProps> = ({
   className = '',
   disabled = false,
   label,
+  size = 'default',
   'aria-label': ariaLabel,
   id,
 }) => {
@@ -39,7 +41,7 @@ export const Select: React.FC<SelectProps> = ({
     <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <RadixSelect.Trigger
         id={selectId}
-        className={`${styles.trigger} ${className} cursor-pointer`}
+        className={`${styles.trigger} ${styles[size]} ${className} cursor-pointer`}
         {...(label ? { 'aria-labelledby': labelId } : ariaLabel ? { 'aria-label': ariaLabel } : {})}
       >
         <RadixSelect.Value placeholder={placeholder} />
