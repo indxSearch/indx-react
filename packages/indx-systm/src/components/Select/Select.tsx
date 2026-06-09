@@ -1,6 +1,6 @@
 import React from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
-import { Chevron_down } from '@indxsearch/pixl';
+import { Chevron_down, Check } from '@indxsearch/pixl';
 import styles from './Select.module.css';
 
 export interface SelectOption {
@@ -66,6 +66,9 @@ export const Select: React.FC<SelectProps> = ({
                 className={styles.item}
               >
                 <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                <RadixSelect.ItemIndicator className={styles.itemIndicator}>
+                  <Check size={12} color="currentColor" />
+                </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
             ))}
           </RadixSelect.Viewport>

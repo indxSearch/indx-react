@@ -63,27 +63,31 @@
   align-items: center;
 }
 
+/* Clean borderless base (var(--lv1) so ghost-item hover at var(--lv2) stays visible); no shadow. */
 .content {
   overflow: hidden;
-  background: var(--lv0);
-  border: 1px solid var(--lv3);
+  background: var(--lv1);
   border-radius: var(--radius);
+  padding: 6px;
   z-index: 1000;
 }
 
 .viewport {
-  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .item {
   all: unset;
   font: var(--text-sm);
-  color: var(--lv7);
+  color: var(--lv5);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  position: relative;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
   user-select: none;
   cursor: pointer;
 }
@@ -94,6 +98,10 @@
 }
 
 .item[data-state="checked"] {
-  background-color: var(--lv3);
-  color: var(--lv8);
+  color: var(--lv7);
+}
+
+.itemIndicator {
+  display: flex;
+  align-items: center;
 }
