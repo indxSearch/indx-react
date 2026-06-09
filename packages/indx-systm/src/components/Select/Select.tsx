@@ -46,7 +46,7 @@ export const Select: React.FC<SelectProps> = ({
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className={styles.icon} aria-hidden="true">
-          <Chevron_down size={14} color="currentColor" />
+          <Chevron_down size={size === 'large' ? 21 : 14} color="currentColor" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
 
