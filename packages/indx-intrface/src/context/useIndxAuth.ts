@@ -81,7 +81,6 @@ export function useIndxAuth({
           fetch(fetchUrl, {
             method: 'GET',
             headers: { accept: 'text/plain', 'Authorization': `Bearer ${sessionToken}` },
-            credentials: 'include',
           });
 
         // Check dataset status
@@ -163,7 +162,6 @@ export function useIndxAuth({
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${sessionToken}`,
             },
-            credentials: 'include',
             body: JSON.stringify({ text: '', maxNumberOfRecordsToReturn: 0, enableFacets: true }),
           });
 

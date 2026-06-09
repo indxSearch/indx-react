@@ -171,7 +171,6 @@ export const SearchProvider: React.FC<{
         ...options.headers,
         'Authorization': `Bearer ${auth.token}`,
       },
-      credentials: 'include',
     });
   }, [auth.token]);
 
