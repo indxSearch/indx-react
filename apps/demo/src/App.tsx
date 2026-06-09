@@ -72,7 +72,7 @@ const renderResult = (item: any) => (
 export default function App() {
   return (
     <SearchClient
-      team="another-one"
+      team="indx"
       dataset="pokedex"
       fields={fields}
       filters={filters}
