@@ -1,4 +1,5 @@
 import { Chip } from '@indxsearch/systm';
+import { Flag, Trolley, Hour_glass, Warning } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 export default function ChipPage() {
@@ -34,10 +35,10 @@ export default function ChipPage() {
         <div className={styles.demo}>
           <h2 className={styles.heading}>System states</h2>
           <div className={styles.row}>
-            <Chip color="var(--CTeal)" textColor="#080809">Ready</Chip>
-            <Chip color="#6B9EFF" textColor="#080809">Loading</Chip>
-            <Chip color="#FFC107" textColor="#080809">Indexing</Chip>
-            <Chip color="var(--CSignal)" textColor="var(--lv0)">Error</Chip>
+            <Chip color="var(--CTeal)" textColor="#080809" icon={<Flag />}>Ready</Chip>
+            <Chip color="#6B9EFF" textColor="#080809" icon={<Trolley />}>Loading</Chip>
+            <Chip color="#FFC107" textColor="#080809" icon={<Hour_glass />}>Indexing</Chip>
+            <Chip color="var(--CSignal)" textColor="var(--lv0)" icon={<Warning />}>Error</Chip>
             <Chip>Created</Chip>
             <Chip>Hibernated</Chip>
           </div>
