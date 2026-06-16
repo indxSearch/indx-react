@@ -17,4 +17,7 @@ export interface FieldProxy {
   bM25b?: number | null;
   /** Per-field term-frequency saturation parameter k1. Typical 1.0–2.0. */
   bM25k1?: number | null;
+  /** High-resolution indexing: also index/query N-grams with all delimiters removed, so a
+   *  run-together or split query matches across them. Only meaningful when searchable. */
+  highResolution?: boolean | null;
 }
