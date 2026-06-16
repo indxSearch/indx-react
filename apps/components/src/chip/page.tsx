@@ -1,5 +1,5 @@
 import { Chip } from '@indxsearch/systm';
-import { Flag, Trolley, Hour_glass, Warning } from '@indxsearch/pixl';
+import { Flag, Trolley, Hour_glass, Warning, Empty, Hibernate } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 export default function ChipPage() {
@@ -39,8 +39,8 @@ export default function ChipPage() {
             <Chip size="large" color="#6B9EFF" textColor="#080809" icon={<Trolley />}>Loading</Chip>
             <Chip size="large" color="#FFC107" textColor="#080809" icon={<Hour_glass />}>Indexing</Chip>
             <Chip size="large" color="var(--CSignal)" textColor="var(--lv0)" icon={<Warning />}>Error</Chip>
-            <Chip>Created</Chip>
-            <Chip>Hibernated</Chip>
+            <Chip size="large" icon={<Empty />}>Created</Chip>
+            <Chip size="large" color="var(--CLightBlue)" textColor="#080809" icon={<Hibernate />}>Hibernated</Chip>
           </div>
         </div>
 
