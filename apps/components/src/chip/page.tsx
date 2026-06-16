@@ -35,10 +35,10 @@ export default function ChipPage() {
         <div className={styles.demo}>
           <h2 className={styles.heading}>System states</h2>
           <div className={styles.row}>
-            <Chip color="var(--CTeal)" textColor="#080809" icon={<Flag />}>Ready</Chip>
-            <Chip color="#6B9EFF" textColor="#080809" icon={<Trolley />}>Loading</Chip>
-            <Chip color="#FFC107" textColor="#080809" icon={<Hour_glass />}>Indexing</Chip>
-            <Chip color="var(--CSignal)" textColor="var(--lv0)" icon={<Warning />}>Error</Chip>
+            <Chip size="large" color="var(--CTeal)" textColor="#080809" icon={<Flag />}>Ready</Chip>
+            <Chip size="large" color="#6B9EFF" textColor="#080809" icon={<Trolley />}>Loading</Chip>
+            <Chip size="large" color="#FFC107" textColor="#080809" icon={<Hour_glass />}>Indexing</Chip>
+            <Chip size="large" color="var(--CSignal)" textColor="var(--lv0)" icon={<Warning />}>Error</Chip>
             <Chip>Created</Chip>
             <Chip>Hibernated</Chip>
           </div>
