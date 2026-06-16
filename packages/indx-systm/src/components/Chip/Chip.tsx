@@ -22,7 +22,7 @@ export function Chip({ children, color, textColor, className, icon }: ChipProps)
 
   return (
     <span className={[styles.chip, className].filter(Boolean).join(' ')} style={style}>
-      {icon && React.cloneElement(icon, { size: 12, color: 'currentColor' })}
+      {icon && React.cloneElement(icon, { size: 14, color: 'currentColor' })}
       {children}
     </span>
   );
