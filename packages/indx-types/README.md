@@ -5,8 +5,11 @@ TypeScript type definitions for **IndxCloudApi v2.0**. This package provides com
 ## Installation
 
 ```bash
-npm install @indxsearch/indx-types
+npm install @indxsearch/indx-types@next
 ```
+
+> While v5 / IndxCloudApi v2 is in **alpha**, this package is published under the
+> **`next`** dist-tag. Use `@next` to get it; drop the tag once it graduates to `latest`.
 
 ## Features
 
@@ -18,7 +21,7 @@ npm install @indxsearch/indx-types
 
 ## Version Compatibility
 
-This package (`@indxsearch/indx-types` v2.0.0) provides types for **IndxCloudApi v2.0** (IndxSearchLib v5 alpha).
+This package (`@indxsearch/indx-types` 2.0.0-alpha) provides types for **IndxCloudApi v2.0-alpha** (IndxSearchLib v5). The shapes are generated from and verified against the live v5 OpenAPI spec.
 
 ## Usage
 

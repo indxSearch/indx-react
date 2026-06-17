@@ -26,8 +26,12 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 ## Installation
 
 ```bash
-npm install @indxsearch/intrface @indxsearch/systm @indxsearch/pixl
+npm install @indxsearch/intrface@next @indxsearch/systm @indxsearch/pixl
 ```
+
+> **Alpha:** this `3.x` line targets IndxCloudApi v2 (cloud v2) and is published under the
+> **`next`** dist-tag while in alpha — hence `@next`. `@indxsearch/systm` is a stable release
+> (`latest`), so it needs no tag. Drop `@next` once `intrface` graduates to `latest`.
 
 > **Note:** TypeScript type definitions for IndxCloudApi are automatically included via the `@indxsearch/indx-types` dependency.
 

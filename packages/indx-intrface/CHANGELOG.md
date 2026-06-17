@@ -5,16 +5,20 @@ All notable changes to `@indxsearch/intrface` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - 2026-05-12
+## [3.0.0-alpha.20260617] - 2026-06-17
+
+Pre-release of 3.0.0, published under the `next` tag for the v5 / IndxCloudApi v2 alpha.
 
 ### Changed
-- **BREAKING**: Package renamed from `@indxsearch/intrface` to `@indxsearch/intrface`
-- Targets Indx v5 and IndxCloudApi v2
+- **BREAKING**: All dataset operations now use the team-scoped IndxCloudApi v2 routes
+  (`/api/teams/{team}/datasets/{dataset}/…`). `SearchProvider` now takes a `team` prop
+  alongside `dataset`.
+- Targets IndxCloudApi v2.0-alpha (IndxSearchLib v5).
 
 ### Compatibility
-- Requires IndxCloudApi v2
-- React ^19.0.0
-- React DOM ^19.0.0
+- Requires IndxCloudApi v2 (cloud v2 — e.g. `v5.cloud.indx.co`)
+- `@indxsearch/systm` ^2.2.0
+- React ^19.0.0 · React DOM ^19.0.0
 
 ---
 
