@@ -25,6 +25,8 @@ export interface ProcessError {
   source?: string | null;
   message?: string | null;
   parseError?: ParseResult | null;
+  /** UTC timestamp (ISO 8601) when the error was recorded. */
+  timeStampUtc: string;
 }
 
 export interface ProcessErrorCount {

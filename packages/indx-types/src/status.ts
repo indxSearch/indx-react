@@ -11,6 +11,8 @@ export interface LicenseInfo {
   type?: string | null;
   description?: string | null;
   licenseFileName?: string | null;
+  /** True when a .license file was found on disk (independent of whether it validated). */
+  licenseFileFound: boolean;
 }
 
 export interface SystemStatus {
