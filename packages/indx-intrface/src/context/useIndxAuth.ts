@@ -95,7 +95,7 @@ export function useIndxAuth({
             throw new Error('Authentication failed (401). Token may be expired. Check console for instructions.');
           } else if (statusRes.status === 404) {
             console.error('[Auth] ❌ Dataset "' + dataset + '" not found (404)');
-            console.error('[Auth] 💡 Available datasets can be checked with: curl -X GET "' + url + '/api/GetUserDataSets" -H "Authorization: Bearer YOUR_TOKEN"');
+            console.error('[Auth] 💡 Available datasets can be checked with: curl -X GET "' + url + '/api/me/datasets" -H "Authorization: Bearer YOUR_TOKEN"');
             console.error('[Auth] 💡 Make sure you spelled the dataset name correctly');
             throw new Error('Dataset "' + dataset + '" not found. Check console for instructions.');
           } else {
