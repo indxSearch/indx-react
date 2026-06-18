@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Select } from '@indxsearch/systm';
+import { ArrowUp, ArrowDown, Coins, Clock } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 const fruitOptions = [
@@ -20,9 +21,17 @@ const sortOptions = [
   { label: 'Date (Oldest)', value: 'date-asc' },
 ];
 
+const iconOptions = [
+  { label: 'Name (A-Z)', value: 'name-asc', icon: <ArrowUp size={14} color="currentColor" /> },
+  { label: 'Name (Z-A)', value: 'name-desc', icon: <ArrowDown size={14} color="currentColor" /> },
+  { label: 'Price', value: 'price', icon: <Coins size={14} color="currentColor" /> },
+  { label: 'Date', value: 'date', icon: <Clock size={14} color="currentColor" /> },
+];
+
 export default function SelectPage() {
   const [fruit, setFruit] = useState('apple');
   const [sort, setSort] = useState('name-asc');
+  const [iconSort, setIconSort] = useState('name-asc');
   const [controlled, setControlled] = useState('');
 
   return (
@@ -57,6 +66,20 @@ export default function SelectPage() {
             placeholder="Sort by..."
           />
           <div className={styles.info}>Selected: {sort}</div>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>With Icons</h2>
+        <div className={styles.column}>
+          <Select
+            aria-label="Sort with icons"
+            value={iconSort}
+            onValueChange={setIconSort}
+            options={iconOptions}
+            placeholder="Sort by..."
+          />
+          <div className={styles.info}>Selected: {iconSort}</div>
         </div>
       </div>
 
