@@ -6,6 +6,8 @@ import styles from './Select.module.css';
 export interface SelectOption {
   label: string;
   value: string;
+  /** Optional leading icon, rendered in the trigger and the menu item. */
+  icon?: React.ReactNode;
 }
 
 export interface SelectProps {
@@ -36,6 +38,7 @@ export const Select: React.FC<SelectProps> = ({
   const generatedId = React.useId();
   const selectId = id || generatedId;
   const labelId = `${selectId}-label`;
+  const selectedOption = options.find((o) => o.value === value);
 
   const selectComponent = (
     <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
@@ -44,7 +47,10 @@ export const Select: React.FC<SelectProps> = ({
         className={`${styles.trigger} ${styles[size]} ${className} cursor-pointer`}
         {...(label ? { 'aria-labelledby': labelId } : ariaLabel ? { 'aria-label': ariaLabel } : {})}
       >
-        <RadixSelect.Value placeholder={placeholder} />
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          {selectedOption?.icon}
+          <RadixSelect.Value placeholder={placeholder} />
+        </span>
         <RadixSelect.Icon className={styles.icon} aria-hidden="true">
           <Chevron_down size={size === 'large' ? 21 : 14} color="currentColor" />
         </RadixSelect.Icon>
@@ -65,7 +71,10 @@ export const Select: React.FC<SelectProps> = ({
                 value={option.value}
                 className={styles.item}
               >
-                <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  {option.icon}
+                  <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+                </span>
                 <RadixSelect.ItemIndicator className={styles.itemIndicator}>
                   <Check size={12} color="currentColor" />
                 </RadixSelect.ItemIndicator>
