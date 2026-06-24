@@ -34,3 +34,15 @@
   flex-direction: column;
   gap: 2rem;
 }
+
+/* A resizable panel that mimics a constrained container (e.g. a dataset card). overflow:hidden is
+   required for the resize handle and makes the current clip-on-overflow behaviour obvious. */
+.constrained {
+  resize: horizontal;
+  overflow: hidden;
+  width: 680px;
+  min-width: 260px;
+  max-width: 100%;
+  border: 1px dashed var(--lv3);
+  border-radius: 6px;
+}
