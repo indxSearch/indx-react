@@ -3,6 +3,37 @@
   border-bottom: 1px solid var(--lv3);
 }
 
+/* Scrollable variant: when the tabs overflow, scroll horizontally instead of clipping. The
+   scrollbar is hidden and the edges fade (mask) to hint there's more — the design system uses
+   no shadows. Scroll with trackpad/touch, or the keyboard (focused tab scrolls into view).
+   The fade is scroll-aware: each edge only fades when there's content scrolled off that side
+   (set via data-overflow-start / data-overflow-end), so there's no left fade at rest. */
+.scrollable {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  --tabs-fade-start: 0px;
+  --tabs-fade-end: 0px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--tabs-fade-start), #000 calc(100% - var(--tabs-fade-end)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--tabs-fade-start), #000 calc(100% - var(--tabs-fade-end)), transparent 100%);
+}
+
+.scrollable[data-overflow-start] {
+  --tabs-fade-start: 22px;
+}
+
+.scrollable[data-overflow-end] {
+  --tabs-fade-end: 22px;
+}
+
+.scrollable::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.scrollable .tab {
+  flex-shrink: 0; /* keep full size; overflow scrolls rather than squishing tabs */
+}
+
 .tab {
   display: inline-flex;
   align-items: center;

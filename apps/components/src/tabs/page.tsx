@@ -57,25 +57,17 @@ export default function TabsPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.heading}>Many tabs &mdash; overflow</h2>
+        <h2 className={styles.heading}>Many tabs &mdash; scrollable</h2>
         <p className={styles.desc}>
-          {MANY_ITEMS.length} tabs in a width-constrained panel. Drag the bottom-right handle to resize
-          and watch what happens when the tabs no longer fit &mdash; today the row just overflows and
-          the trailing tabs are clipped (no scroll, wrap, or overflow menu).
+          {MANY_ITEMS.length} tabs with <code>scrollable</code>, in a width-constrained panel. Drag the
+          bottom-right handle narrower: the row scrolls horizontally instead of clipping, and the edges
+          fade to hint there's more (no shadows). The left edge only fades once you've scrolled right.
+          Scroll with trackpad/touch, or tab with the keyboard &mdash; the focused tab scrolls into view.
         </p>
         <div className={styles.constrained}>
-          <Tabs items={MANY_ITEMS} value={activeMany} onValueChange={setActiveMany} size="micro" />
+          <Tabs items={MANY_ITEMS} value={activeMany} onValueChange={setActiveMany} size="micro" scrollable />
         </div>
         <p className={styles.active}>Active: {activeMany}</p>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.heading}>Many tabs &mdash; full width</h2>
-        <p className={styles.desc}>
-          The same {MANY_ITEMS.length} tabs at the page width, to gauge how many fit before overflow on
-          a typical screen.
-        </p>
-        <Tabs items={MANY_ITEMS} value={activeMany} onValueChange={setActiveMany} size="default" />
       </div>
     </main>
   );
