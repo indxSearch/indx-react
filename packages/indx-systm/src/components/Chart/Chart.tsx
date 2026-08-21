@@ -4,10 +4,10 @@ import styles from './Chart.module.css';
 const DEFAULT_LINE_COLOR = 'var(--lv4)';
 
 const PAD_TOP = 12;
-const PAD_RIGHT = 8;
+const PAD_RIGHT = 20;
 const PAD_BOTTOM_BASE = 8;
 const PAD_BOTTOM_LABELS = 28;
-const PAD_LEFT = 8;
+const PAD_LEFT = 20;
 
 export interface ChartSeries {
   label: string;
