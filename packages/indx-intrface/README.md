@@ -407,7 +407,7 @@ const { state, setQuery } = useSearch();
 
 ### useVectorSearch
 
-Embedding-based vector search against the `VectorSearch` endpoint. You supply an `embeddingFn` that turns query text into a vector; the hook posts it and resolves the matching documents.
+Embedding-based vector search against the `search/vector` endpoint. You supply an `embeddingFn` that turns query text into a vector; the hook posts it and resolves the matching documents.
 
 ```typescript
 import { useVectorSearch } from '@indxsearch/intrface';
@@ -425,7 +425,7 @@ await search('comfortable running shoes');
 
 ### useHybridSearch
 
-Combines full-text and vector scoring via the `HybridSearch` endpoint. Same shape as `useVectorSearch`, plus an `alpha` blend factor.
+Combines full-text and vector scoring via the `search/hybrid` endpoint. Same shape as `useVectorSearch`, plus an `alpha` blend factor.
 
 ```typescript
 import { useHybridSearch } from '@indxsearch/intrface';
@@ -480,7 +480,7 @@ These components are also exported and can be used for custom layouts:
 
 **Solutions:**
 1. Verify dataset name is correct
-2. Check if dataset is indexed (use GetStatus endpoint)
+2. Check if dataset is indexed (`GET /api/teams/{team}/datasets/{dataset}/status`)
 3. Ensure fields are configured as indexable/facetable
 4. Try `allowEmptySearch={true}` to see all results
 

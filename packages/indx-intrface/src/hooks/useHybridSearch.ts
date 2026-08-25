@@ -36,7 +36,7 @@ export function useHybridSearch(
       if (options.filter) body.filter = options.filter;
       if (options.timeoutMs) body.timeOutLimitMilliseconds = options.timeoutMs;
 
-      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/HybridSearch`, {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search/hybrid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -51,7 +51,7 @@ export function useHybridSearch(
       }
 
       const keys = entries.map(e => e.documentKey);
-      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
+      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(keys),

@@ -28,7 +28,7 @@ indx-react/
 
 The INDX Search API is a .NET/C# backend service that provides full-text search with faceting, filtering, and advanced search features.
 
-**API Base Route:** `/api`
+**API Base Route:** `/api` — all dataset operations are scoped under `/api/teams/{teamName}/datasets/{dataSetName}`
 
 ### Authentication Pattern
 
@@ -63,122 +63,130 @@ Authentication is via a **pre-issued bearer token**, created and monitored on th
 
 ### Dataset Management
 
-#### CreateOrOpen
-- **Endpoint:** `PUT /api/CreateOrOpen/{dataSetName}/{configuration}`
+#### Create or open a dataset
+- **Endpoint:** `PUT /api/teams/{teamName}/datasets/{dataSetName}`
 - **Auth Required:** Yes
-- **Body:** Empty string
+- **Query:** Optional `?configuration=Production` (named profile) or `?configuration=400` (numeric)
 - **Purpose:** Create a new dataset or open an existing one
-- **Configuration:** Numeric value (e.g., 400)
+- **Returns:** `201 Created` if the dataset was created, `200 OK` if it already existed
 
-#### DeleteDataSet
-- **Endpoint:** `DELETE /api/DeleteDataSet/{dataSetName}`
+#### Delete a dataset
+- **Endpoint:** `DELETE /api/teams/{teamName}/datasets/{dataSetName}`
 - **Auth Required:** Yes
 - **Purpose:** Permanently delete a dataset
+- **Returns:** `204 No Content`
 
-#### GetUserDataSets
-- **Endpoint:** `GET /api/GetUserDataSets`
+#### List my datasets
+- **Endpoint:** `GET /api/me/datasets`
 - **Auth Required:** Yes
-- **Returns:** `string[]` - Array of dataset names
-- **Purpose:** List all datasets owned by the authenticated user
+- **Returns:** Array of datasets the authenticated user can access
+- **Purpose:** List all datasets available to the authenticated user
 
-#### GetStatus
-- **Endpoint:** `GET /api/GetStatus/{dataSetName}`
+#### Status
+- **Endpoint:** `GET /api/teams/{teamName}/datasets/{dataSetName}/status`
 - **Auth Required:** Yes
 - **Returns:** `SystemStatus` object
 - **Purpose:** Check dataset state (indexing progress, readiness, etc.)
 
 ### Data Loading & Analysis
 
-#### AnalyzeStream
-- **Endpoint:** `POST /api/AnalyzeStream/{dataSetName}`
+All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
+
+#### Analyze (stream)
+- **Endpoint:** `POST …/analyze`
 - **Auth Required:** Yes
-- **Body:** Stream (text/plain)
+- **Body:** JSON stream
 - **Purpose:** Analyze JSON structure from a stream to discover fields
 
-#### AnalyzeString
-- **Endpoint:** `POST /api/AnalyzeString/{dataSetName}`
+#### Analyze (text)
+- **Endpoint:** `POST …/analyze/text`
 - **Auth Required:** Yes
 - **Body:** String (text/plain)
 - **Purpose:** Analyze JSON structure from a string
 
-#### LoadStream
-- **Endpoint:** `PUT /api/LoadStream/{dataSetName}`
+#### Load (stream)
+- **Endpoint:** `POST …/load`
 - **Auth Required:** Yes
-- **Body:** Stream (text/plain)
+- **Body:** JSON stream
 - **Purpose:** Load JSON documents from a stream
+- **Returns:** `204 No Content`
 
-#### LoadString
-- **Endpoint:** `PUT /api/LoadString/{dataSetName}`
+#### Load (text)
+- **Endpoint:** `POST …/load/text`
 - **Auth Required:** Yes
 - **Body:** String (text/plain)
 - **Purpose:** Load JSON documents from a string
+- **Returns:** `204 No Content`
 
 ### Field Configuration
 
-#### GetAllFields
-- **Endpoint:** `GET /api/GetAllFields/{dataSetName}`
+All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
+
+#### Get all fields
+- **Endpoint:** `GET …/fields`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### GetIndexableFields
-- **Endpoint:** `GET /api/GetIndexableFields/{dataSetName}`
+#### Get searchable fields
+- **Endpoint:** `GET …/fields/searchable`
 - **Auth Required:** Yes
-- **Returns:** Array of field configurations
+- **Returns:** `string[]`
 
-#### SetIndexableFields
-- **Endpoint:** `PUT /api/SetIndexableFields/{dataSetName}`
+#### Set searchable fields
+- **Endpoint:** `PUT …/fields/searchable`
 - **Auth Required:** Yes
 - **Body:** `Array<[fieldName: string, weight: number]>`
 - **Example:** `[["name", 100], ["type1", 50]]`
+- **Returns:** `204 No Content`
 
-#### GetFilterableFields
-- **Endpoint:** `GET /api/GetFilterableFields/{dataSetName}`
+#### Get filterable fields
+- **Endpoint:** `GET …/fields/filterable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### SetFilterableFields
-- **Endpoint:** `PUT /api/SetFilterableFields/{dataSetName}`
+#### Set filterable fields
+- **Endpoint:** `PUT …/fields/filterable`
 - **Auth Required:** Yes
 - **Body:** `string[]` - Array of field names
+- **Returns:** `204 No Content`
 
-#### GetFacetableFields
-- **Endpoint:** `GET /api/GetFacetableFields/{dataSetName}`
+#### Get facetable fields
+- **Endpoint:** `GET …/fields/facetable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### SetFacetableFields
-- **Endpoint:** `PUT /api/SetFacetableFields/{dataSetName}`
+#### Set facetable fields
+- **Endpoint:** `PUT …/fields/facetable`
 - **Auth Required:** Yes
 - **Body:** `string[]` - Array of field names
+- **Returns:** `204 No Content`
 
-#### GetSortableFields
-- **Endpoint:** `GET /api/GetSortableFields/{dataSetName}`
+#### Get sortable fields
+- **Endpoint:** `GET …/fields/sortable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### SetSortableFields
-- **Endpoint:** `PUT /api/SetSortableFields/{dataSetName}`
+#### Set sortable fields
+- **Endpoint:** `PUT …/fields/sortable`
 - **Auth Required:** Yes
 - **Body:** `string[]` - Array of field names
-
-#### ClearFieldSettings
-- **Endpoint:** `PUT /api/ClearFieldSettings/{dataSetName}`
-- **Auth Required:** Yes
-- **Body:** `string[]` - Array of field names
-- **Purpose:** Reset all field properties (indexable, sortable, facetable, filterable) to false
+- **Returns:** `204 No Content`
 
 ### Indexing
 
-#### IndexDataSet
-- **Endpoint:** `GET /api/IndexDataSet/{dataSetName}`
+#### Index
+- **Endpoint:** `POST /api/teams/{teamName}/datasets/{dataSetName}/index`
 - **Auth Required:** Yes
 - **Purpose:** Start indexing process (runs asynchronously)
-- **Note:** Use GetStatus to monitor progress
+- **Returns:** `202 Accepted`
+- **Note:** Poll `GET …/status` to monitor progress
 
 ### Search & Filtering
 
+All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
+
 #### Search
-- **Endpoint:** `POST /api/Search/{dataSetName}`
+- **Endpoint:** `POST …/search`
 - **Auth Required:** Yes
 - **Body:** SearchQuery object
 ```typescript
@@ -204,36 +212,36 @@ Authentication is via a **pre-issued bearer token**, created and monitored on th
 }
 ```
 
-#### GetJson
-- **Endpoint:** `POST /api/GetJson/{dataSetName}`
+#### Document lookup
+- **Endpoint:** `POST …/documents/lookup`
 - **Auth Required:** Yes
 - **Body:** `number[]` - Array of document keys
 - **Returns:** `string[]` - Array of JSON document strings
 - **Purpose:** Retrieve full documents by their keys
 
-#### CreateValueFilter
-- **Endpoint:** `PUT /api/CreateValueFilter/{dataSetName}`
+#### Create value filter
+- **Endpoint:** `POST …/filters/value`
 - **Auth Required:** Yes
 - **Body:** `{ FieldName: string, Value: any }`
 - **Returns:** `FilterProxy` object with `hashString`
 - **Purpose:** Create a filter for exact value matching
 
-#### CreateRangeFilter
-- **Endpoint:** `PUT /api/CreateRangeFilter/{dataSetName}`
+#### Create range filter
+- **Endpoint:** `POST …/filters/range`
 - **Auth Required:** Yes
 - **Body:** `{ FieldName: string, LowerLimit: number, UpperLimit: number }`
 - **Returns:** `FilterProxy` object with `hashString`
 - **Purpose:** Create a filter for numeric ranges
 
-#### CombineFilters
-- **Endpoint:** `PUT /api/CombineFilters/{dataSetName}`
+#### Combine filters
+- **Endpoint:** `POST …/filters/combine`
 - **Auth Required:** Yes
 - **Body:** `{ A: FilterProxy, B: FilterProxy, useAndOperation: boolean }`
 - **Returns:** Combined `FilterProxy` object
 - **Purpose:** Combine two filters with AND/OR logic
 
-#### CreateBoost
-- **Endpoint:** `PUT /api/CreateBoost/{dataSetName}`
+#### Create boost from filter
+- **Endpoint:** `POST …/boosts/from-filter`
 - **Auth Required:** Yes
 - **Body:** `{ FilterProxy: FilterProxy, BoostStrength: number }`
 - **Returns:** `BoostProxy` object
@@ -247,51 +255,53 @@ Authentication is via a **pre-issued bearer token**, created and monitored on th
 // 1. Use a bearer token created on the IndxCloudApi website
 const token = import.meta.env.VITE_INDX_TOKEN;
 
-// 2. Create/Open dataset
-await authenticatedFetch(`${url}/api/CreateOrOpen/${dataset}/400`, {
-  method: 'PUT',
-  body: JSON.stringify('')
+// All dataset routes are team-scoped
+const base = `${url}/api/teams/${team}/datasets/${dataset}`;
+
+// 2. Create/Open dataset (201 = created, 200 = already existed)
+await authenticatedFetch(`${base}?configuration=400`, {
+  method: 'PUT'
 });
 
 // 3. Analyze data structure
-await authenticatedFetch(`${url}/api/AnalyzeStream/${dataset}`, {
+await authenticatedFetch(`${base}/analyze`, {
   method: 'POST',
-  headers: { 'Content-Type': 'text/plain' },
+  headers: { 'Content-Type': 'application/json' },
   body: fileStream
 });
 
-// 4. Configure fields
-await authenticatedFetch(`${url}/api/SetIndexableFields/${dataset}`, {
+// 4. Configure fields (each returns 204 No Content)
+await authenticatedFetch(`${base}/fields/searchable`, {
   method: 'PUT',
   body: JSON.stringify([["name", 100], ["description", 50]])
 });
 
-await authenticatedFetch(`${url}/api/SetFilterableFields/${dataset}`, {
+await authenticatedFetch(`${base}/fields/filterable`, {
   method: 'PUT',
   body: JSON.stringify(["category", "price"])
 });
 
-await authenticatedFetch(`${url}/api/SetFacetableFields/${dataset}`, {
+await authenticatedFetch(`${base}/fields/facetable`, {
   method: 'PUT',
   body: JSON.stringify(["category", "brand"])
 });
 
-// 5. Load data
-await authenticatedFetch(`${url}/api/LoadStream/${dataset}`, {
-  method: 'PUT',
-  headers: { 'Content-Type': 'text/plain' },
+// 5. Load data (204 No Content)
+await authenticatedFetch(`${base}/load`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
   body: dataStream
 });
 
-// 6. Index
-await authenticatedFetch(`${url}/api/IndexDataSet/${dataset}`, {
-  method: 'GET'
+// 6. Index (202 Accepted — indexing runs asynchronously)
+await authenticatedFetch(`${base}/index`, {
+  method: 'POST'
 });
 
 // 7. Monitor progress
 let status;
 do {
-  const res = await authenticatedFetch(`${url}/api/GetStatus/${dataset}`);
+  const res = await authenticatedFetch(`${base}/status`);
   status = await res.json();
   await delay(200);
 } while (status.systemState !== 'Ready');
@@ -300,28 +310,30 @@ do {
 ### 2. Search with Filters
 
 ```typescript
+const base = `${url}/api/teams/${team}/datasets/${dataset}`;
+
 // 1. Create filters
-const filter1Res = await authenticatedFetch(`${url}/api/CreateValueFilter/${dataset}`, {
-  method: 'PUT',
+const filter1Res = await authenticatedFetch(`${base}/filters/value`, {
+  method: 'POST',
   body: JSON.stringify({ FieldName: "category", Value: "electronics" })
 });
 const filter1 = await filter1Res.json();
 
-const filter2Res = await authenticatedFetch(`${url}/api/CreateRangeFilter/${dataset}`, {
-  method: 'PUT',
+const filter2Res = await authenticatedFetch(`${base}/filters/range`, {
+  method: 'POST',
   body: JSON.stringify({ FieldName: "price", LowerLimit: 0, UpperLimit: 100 })
 });
 const filter2 = await filter2Res.json();
 
 // 2. Combine filters
-const combinedRes = await authenticatedFetch(`${url}/api/CombineFilters/${dataset}`, {
-  method: 'PUT',
+const combinedRes = await authenticatedFetch(`${base}/filters/combine`, {
+  method: 'POST',
   body: JSON.stringify({ A: filter1, B: filter2, useAndOperation: true })
 });
 const combinedFilter = await combinedRes.json();
 
 // 3. Search
-const searchRes = await authenticatedFetch(`${url}/api/Search/${dataset}`, {
+const searchRes = await authenticatedFetch(`${base}/search`, {
   method: 'POST',
   body: JSON.stringify({
     text: "laptop",
@@ -334,7 +346,7 @@ const searchData = await searchRes.json();
 
 // 4. Get full documents
 const keys = searchData.records.map(r => r.documentKey);
-const docsRes = await authenticatedFetch(`${url}/api/GetJson/${dataset}`, {
+const docsRes = await authenticatedFetch(`${base}/documents/lookup`, {
   method: 'POST',
   body: JSON.stringify(keys)
 });
@@ -426,7 +438,7 @@ npm run build:packages
 
 ### "500 Internal Server Error"
 - Dataset may not be fully indexed
-- Check dataset exists with GetUserDataSets
+- Check dataset exists with `GET /api/me/datasets`
 - Verify field configurations are set correctly
 - Check server logs for specific error
 

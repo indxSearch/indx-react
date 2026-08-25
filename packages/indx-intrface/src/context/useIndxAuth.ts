@@ -60,7 +60,7 @@ export function useIndxAuth({
 
         // Establish dataset session
         if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
-        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateOrOpen/400`, {
+        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}?configuration=400`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export function useIndxAuth({
 
         // Check dataset status
         if (enableDebugLogs) console.log('[Auth] 🔍 Checking dataset status...');
-        const statusRes = await authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetStatus`);
+        const statusRes = await authFetch(`${url}/api/teams/${team}/datasets/${dataset}/status`);
 
         if (!statusRes.ok) {
           if (statusRes.status === 401) {
@@ -125,9 +125,9 @@ export function useIndxAuth({
 
         // Fetch field metadata in parallel
         const [filterableRes, facetableRes, sortableRes] = await Promise.all([
-          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetFilterableFields`),
-          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetFacetableFields`),
-          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetSortableFields`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/filterable`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/facetable`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/sortable`),
         ]);
 
         if (!filterableRes.ok) {
@@ -156,7 +156,7 @@ export function useIndxAuth({
         // Initial blank search to get global facet bounds
         let blankSearchData: any = { facets: {} };
         try {
-          const blankSearchResponse = await fetch(`${url}/api/teams/${team}/datasets/${dataset}/Search`, {
+          const blankSearchResponse = await fetch(`${url}/api/teams/${team}/datasets/${dataset}/search`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

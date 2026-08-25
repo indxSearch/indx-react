@@ -122,7 +122,7 @@ export function useSearchExecution({
         }
 
         // 3) Execute the search
-        const searchResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/Search`, {
+        const searchResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(searchBody),
@@ -137,7 +137,7 @@ export function useSearchExecution({
 
         let combinedResults: any[] = [];
         if (shouldFetchResults && keys.length > 0) {
-          const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
+          const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(keys),

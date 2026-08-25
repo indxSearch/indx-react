@@ -12,8 +12,8 @@ async function combineAll(
 
   let current = filters[0];
   for (let i = 1; i < filters.length; i++) {
-    const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CombineFilters`, {
-      method: 'PUT',
+    const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/filters/combine`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ a: current, b: filters[i], useAndOperation: true }),
     });
@@ -43,8 +43,8 @@ export async function buildFilterProxy(
       filterEntries.map(([field, values]) =>
         Promise.all(
           values.map(value =>
-            authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateValueFilter`, {
-              method: 'PUT',
+            authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/filters/value`, {
+              method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ fieldName: field, value }),
             }).then(res => res.json())
@@ -54,8 +54,8 @@ export async function buildFilterProxy(
     ),
     Promise.all(
       rangeFilterEntries.map(([field, { min, max }]) =>
-        authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/CreateRangeFilter`, {
-          method: 'PUT',
+        authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/filters/range`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fieldName: field, lowerLimit: min, upperLimit: max }),
         }).then(res => res.json())

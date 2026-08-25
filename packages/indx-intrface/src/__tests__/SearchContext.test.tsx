@@ -90,7 +90,7 @@ describe('search', () => {
 
   it('shows isLoading while a search is in flight', async () => {
     server.use(
-      http.post('http://localhost/api/teams/team/datasets/test/Search', async () => {
+      http.post('http://localhost/api/teams/team/datasets/test/search', async () => {
         await delay(50);
         return HttpResponse.json(SEARCH_RESPONSE);
       })
@@ -121,7 +121,7 @@ describe('search', () => {
   it('fires a new search when a filter is toggled', async () => {
     let searchCount = 0;
     server.use(
-      http.post('http://localhost/api/teams/team/datasets/test/Search', () => {
+      http.post('http://localhost/api/teams/team/datasets/test/search', () => {
         searchCount++;
         return HttpResponse.json(SEARCH_RESPONSE);
       })
@@ -195,7 +195,7 @@ describe('race condition protection', () => {
     const slowBlocked = new Promise<void>(r => { unblockSlow = r; });
 
     server.use(
-      http.post('http://localhost/api/teams/team/datasets/test/Search', async ({ request }) => {
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
         const body = await request.json() as { text: string };
         if (body.text === 'slow') {
           await slowBlocked;
@@ -237,7 +237,7 @@ describe('fetchMoreResults', () => {
   it('triggers a new search with an increased maxNumberOfRecordsToReturn', async () => {
     const searchBodies: { maxNumberOfRecordsToReturn: number }[] = [];
     server.use(
-      http.post('http://localhost/api/teams/team/datasets/test/Search', async ({ request }) => {
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
         const body = await request.json() as { maxNumberOfRecordsToReturn: number };
         searchBodies.push(body);
         return HttpResponse.json(SEARCH_RESPONSE);

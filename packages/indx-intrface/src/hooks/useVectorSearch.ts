@@ -37,7 +37,7 @@ export function useVectorSearch(
       };
       if (options.filter) body.filter = options.filter;
 
-      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/VectorSearch`, {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search/vector`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -52,7 +52,7 @@ export function useVectorSearch(
       }
 
       const keys = entries.map(e => e.documentKey);
-      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/GetJson`, {
+      const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(keys),

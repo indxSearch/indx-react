@@ -159,7 +159,7 @@ describe('histogram snapshot', () => {
     };
     let callCount = 0;
     server.use(
-      http.post('http://localhost/api/teams/team/datasets/test/Search', () => {
+      http.post('http://localhost/api/teams/team/datasets/test/search', () => {
         callCount++;
         const facets = callCount <= 1 ? FACETS : narrowFacets;
         return HttpResponse.json({ records: [], facets, truncationIndex: -1 });
