@@ -1,6 +1,6 @@
 # INDX Search API - Implementation Guide
 
-> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5.
 
 ## Project Overview
 
@@ -356,9 +356,9 @@ const documents = await docsRes.json();
 ## Important Notes
 
 ### Authentication
-- **CRITICAL:** All endpoints except Login require Bearer token
-- Token is JWT-based and returned from Login endpoint
-- Include token as `Authorization: Bearer {token}` header
+- **CRITICAL:** All endpoints require a Bearer token
+- Tokens are created on the IndxCloudApi portal's **API Key** page (there is no login endpoint)
+- Include the token as `Authorization: Bearer {token}` header
 
 ### CORS
 - API server must have CORS configured to allow requests from your frontend origin
