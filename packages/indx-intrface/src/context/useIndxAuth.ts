@@ -36,8 +36,11 @@ export function useIndxAuth({
   const [initialFacetKeys, setInitialFacetKeys] = useState<Record<string, string[]>>({});
   const [totalDocumentCount, setTotalDocumentCount] = useState(0);
 
+  const [authError, setAuthError] = useState<string | null>(null);
+
   useEffect(() => {
     const authenticate = async () => {
+      setAuthError(null);
       try {
         if (!preAuthenticatedToken) {
           console.error('[Auth] ❌ Missing bearer token');
@@ -58,32 +61,15 @@ export function useIndxAuth({
         if (enableDebugLogs) console.log('[Auth] ✅ Using bearer token');
         const sessionToken = preAuthenticatedToken;
 
-        // Establish dataset session
-        if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
-        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}?configuration=400`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: '""',
-        });
-
-        if (!createOrOpenRes.ok) {
-          console.error('[Auth] ❌ CreateOrOpen failed:', createOrOpenRes.status, await createOrOpenRes.text());
-          throw new Error('Failed to open dataset session.');
-        }
-
-        setToken(sessionToken);
-        if (enableDebugLogs) console.log('[Auth] ✅ Dataset session established');
-
         const authFetch = (fetchUrl: string) =>
           fetch(fetchUrl, {
             method: 'GET',
             headers: { accept: 'text/plain', 'Authorization': `Bearer ${sessionToken}` },
           });
 
-        // Check dataset status
+        // Check dataset status FIRST. The server's CreateOrOpen creates a dataset that
+        // does not exist, so probing status before opening is what turns a typo'd dataset
+        // name into a clear 404 instead of a silently created, empty dataset.
         if (enableDebugLogs) console.log('[Auth] 🔍 Checking dataset status...');
         const statusRes = await authFetch(`${url}/api/teams/${team}/datasets/${dataset}/status`);
 
@@ -108,6 +94,25 @@ export function useIndxAuth({
 
         const statusData = await statusRes.json();
         if (enableDebugLogs) console.log('[Auth] 📊 Dataset status:', statusData);
+
+        // Dataset exists - now open the session (wakes/loads it server-side if needed).
+        if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
+        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}?configuration=400`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: '""',
+        });
+
+        if (!createOrOpenRes.ok) {
+          console.error('[Auth] ❌ CreateOrOpen failed:', createOrOpenRes.status, await createOrOpenRes.text());
+          throw new Error('Failed to open dataset session.');
+        }
+
+        setToken(sessionToken);
+        if (enableDebugLogs) console.log('[Auth] ✅ Dataset session established');
 
         if (statusData.systemState !== undefined && statusData.systemState !== SystemState.Ready) {
           console.warn('[Auth] ⚠️ Dataset is not ready yet. Current state:', SystemState[statusData.systemState]);
@@ -225,7 +230,10 @@ export function useIndxAuth({
           console.error('[Auth] 💡 For local development, it should be: http://localhost:5001');
         }
 
-        throw err;
+        // Store the failure instead of rethrowing: authenticate() runs fire-and-forget
+        // from the effect, so a rethrow here is an unhandled promise rejection - the
+        // consumer could never catch it. authError is the supported signal.
+        setAuthError(err instanceof Error ? err.message : String(err));
       } finally {
         setIsFetchingInitial(false);
       }
@@ -237,6 +245,7 @@ export function useIndxAuth({
   return {
     token,
     isFetchingInitial,
+    authError,
     initialFacetStats,
     initialFacetKeys,
     filterableFields,

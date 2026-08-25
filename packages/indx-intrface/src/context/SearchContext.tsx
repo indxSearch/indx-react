@@ -30,6 +30,7 @@ export interface SearchState {
   resultsSuppressed?: boolean; // Whether results should be hidden (e.g. when query is empty and allowEmptySearch is false)
   facetDebounceDelayMillis?: number; // The delay in milliseconds before performing a faceted search after typing stops
   error?: string; // Any error message that occurred during the last search
+  authError?: string; // Set when initialization failed (bad token, unknown dataset, server unreachable)
   facets?: any | null; // The current facet counts and values for each facetable field
   filterableFields: string[]; // List of fields that can be used for filtering
   facetableFields: string[]; // List of fields that can be used for faceting
@@ -333,6 +334,7 @@ export const SearchProvider: React.FC<{
       value={{
         state,
         isFetchingInitial: auth.isFetchingInitial,
+        authError: auth.authError ?? undefined,
         allowEmptySearch,
         url,
         team,

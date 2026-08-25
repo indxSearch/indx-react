@@ -5,21 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-alpha.20260617] - 2026-06-17
+## [2.0.0] - 2026-08-25
 
-Pre-release of 2.0.0, published under the `next` tag for the v5 / IndxCloudApi v2 alpha.
-
-### Added
-- `LicenseInfo.licenseFileFound` and `ProcessError.timeStampUtc`, to match the
-  IndxCloudApi v2.0-alpha OpenAPI schema exactly (verified field-by-field).
+First stable release of the v2 line, targeting IndxCloudApi v2 (IndxSearchLib v5).
+(Consolidates the unpublished 2026-05-12 draft and the `2.0.0-alpha.20260617`
+pre-release that shipped under the `next` tag.)
 
 ### Changed
+- **BREAKING**: Type definitions target IndxCloudApi v2 (Indx v5).
 - `DataSetListDto` reflects the team model (`name`, `teamName`, `role`).
 
-## [2.0.0] - 2026-05-12
-
-### Changed
-- Updated type definitions to target IndxCloudApi v2 (Indx v5)
+### Added
+- `LicenseInfo.licenseFileFound` and `ProcessError.timeStampUtc`, matching the
+  IndxCloudApi v2 OpenAPI schema exactly (verified field-by-field).
 
 ### Compatibility
 - Requires IndxCloudApi v2

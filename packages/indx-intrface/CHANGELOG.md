@@ -5,19 +5,30 @@ All notable changes to `@indxsearch/intrface` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0-alpha.20260617] - 2026-06-17
+## [3.0.0] - 2026-08-25
 
-Pre-release of 3.0.0, published under the `next` tag for the v5 / IndxCloudApi v2 alpha.
+First stable release of the v3 line, for IndxCloudApi v2 (IndxSearchLib v5).
+(Supersedes `3.0.0-alpha.20260617`, previously published under the `next` tag.)
 
 ### Changed
-- **BREAKING**: All dataset operations now use the team-scoped IndxCloudApi v2 routes
-  (`/api/teams/{team}/datasets/{dataset}/…`). `SearchProvider` now takes a `team` prop
-  alongside `dataset`.
-- Targets IndxCloudApi v2.0-alpha (IndxSearchLib v5).
+- **BREAKING**: All dataset operations use the team-scoped IndxCloudApi v2 routes
+  (`/api/teams/{team}/datasets/{dataset}/…`). `SearchProvider` takes a required
+  `team` prop alongside `dataset`.
+- **BREAKING**: Authentication is token-only. The `email`/`password` props and the
+  login flow are removed — pass `preAuthenticatedToken` (create a token on the
+  IndxCloudApi API-Key page).
+- Initialization now probes dataset **status before** opening the session, so a
+  mistyped dataset name fails with a clear "not found" error instead of silently
+  creating an empty dataset on the server.
+
+### Added
+- `authError` on the search context — set when initialization fails (bad token,
+  unknown dataset, unreachable server). Previously such failures surfaced only as
+  an unhandled promise rejection in the console.
 
 ### Compatibility
-- Requires IndxCloudApi v2 (cloud v2 — e.g. `v5.cloud.indx.co`)
-- `@indxsearch/systm` ^2.2.0
+- Requires IndxCloudApi v2
+- `@indxsearch/indx-types` ^2.0.0 · `@indxsearch/systm` ^2.2.0
 - React ^19.0.0 · React DOM ^19.0.0
 
 ---

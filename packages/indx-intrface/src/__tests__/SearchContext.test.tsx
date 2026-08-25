@@ -34,6 +34,28 @@ async function waitForAuth(result: ReturnType<typeof setup>['result']) {
 
 // ─── Initialisation ─────────────────────────────────────────────────────────
 
+describe('missing dataset', () => {
+  it('fails on the status 404 and never calls CreateOrOpen', async () => {
+    // CreateOrOpen creates a dataset that does not exist, so calling it before
+    // the status probe would silently create an empty dataset from a typo'd
+    // name. This pins the status-first order introduced in 3.0.0.
+    let createOrOpenCalls = 0;
+    const MISSING = 'http://localhost/api/teams/team/datasets/typo';
+    server.use(
+      http.get(`${MISSING}/status`, () => new HttpResponse(null, { status: 404 })),
+      http.put(MISSING, () => {
+        createOrOpenCalls++;
+        return HttpResponse.json({});
+      }),
+    );
+
+    const { result } = setup({ dataset: 'typo' });
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    expect(createOrOpenCalls).toBe(0);
+    expect(result.current.authError).toMatch(/not found/i);
+  });
+});
+
 describe('initialisation', () => {
   it('completes auth and populates field lists', async () => {
     const { result } = setup();
