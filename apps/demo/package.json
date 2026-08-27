@@ -13,7 +13,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "@indxsearch/intrface": "*",
-    "@indxsearch/systm": "*",
+    "@indxsearch/systm": "^2.4.0",
     "@indxsearch/pixl": "^1.4.0"
   },
   "devDependencies": {
