@@ -30,7 +30,6 @@ export interface SearchState {
   resultsSuppressed?: boolean; // Whether results should be hidden (e.g. when query is empty and allowEmptySearch is false)
   facetDebounceDelayMillis?: number; // The delay in milliseconds before performing a faceted search after typing stops
   error?: string; // Any error message that occurred during the last search
-  authError?: string; // Set when initialization failed (bad token, unknown dataset, server unreachable)
   facets?: any | null; // The current facet counts and values for each facetable field
   filterableFields: string[]; // List of fields that can be used for filtering
   facetableFields: string[]; // List of fields that can be used for faceting
@@ -49,6 +48,7 @@ export interface SearchState {
 export interface SearchContextType {
   state: SearchState; // The current search state containing all search-related data
   isFetchingInitial: boolean; // Whether the initial data (fields, facets) is still being loaded
+  authError?: string; // Set when initialization failed (bad token, unknown dataset, unreachable server)
   allowEmptySearch: boolean; // Whether empty searches are allowed
   url: string;
   team: string;

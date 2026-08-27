@@ -4,6 +4,8 @@ import { SystemState } from '@indxsearch/indx-types';
 export interface IndxAuthResult {
   token: string | null;
   isFetchingInitial: boolean;
+  /** Set when initialization failed (bad token, unknown dataset, unreachable server). */
+  authError: string | null;
   initialFacetStats: Record<string, { min: number; max: number }>;
   initialFacetKeys: Record<string, string[]>;
   filterableFields: string[];
