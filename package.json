@@ -34,6 +34,6 @@
     "concurrently": "^10.0.1"
   },
   "dependencies": {
-    "@indxsearch/pixl": "^1.4.0"
+    "@indxsearch/pixl": "^1.5.0"
   }
 }

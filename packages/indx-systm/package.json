@@ -71,7 +71,7 @@
     "./patterns.css": "./dist/patterns.css"
   },
   "dependencies": {
-    "@indxsearch/pixl": "^1.4.0",
+    "@indxsearch/pixl": "^1.5.0",
     "@radix-ui/react-dialog": "^1.1.16",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
