@@ -27,6 +27,7 @@ import SearchResultPage from './search-result/page';
 import TablePage from './table/page';
 import TabsPage from './tabs/page';
 import ProgressBarPage from './progress-bar/page';
+import SpinnersPage from './spinners/page';
 import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
 import ChartPage from './chart/page';
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
         <Route path="/progress-bar" element={<ProgressBarPage />} />
+        <Route path="/spinners" element={<SpinnersPage />} />
         <Route path="/icons" element={<IconsPage />} />
         <Route path="/search-input" element={<SearchInputPage />} />
         <Route path="/value-filter-panel" element={<ValueFilterPanelPage />} />

@@ -1,0 +1,20 @@
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Frames are invisible by default; the generated keyframes flash each one on
+   for its slot of the cycle, staggered via negative animation-delays. */
+.frame {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    animation: none !important;
+  }
+
+  .frame:first-of-type {
+    opacity: 1;
+  }
+}

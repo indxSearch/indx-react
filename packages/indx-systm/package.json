@@ -36,6 +36,8 @@
   ],
   "sideEffects": true,
   "scripts": {
+    "generate:spinners": "node scripts/generate-spinners.mjs",
+    "prebuild": "npm run generate:spinners",
     "build": "vite build",
     "dev": "vite build --watch",
     "prepublishOnly": "npm run build"

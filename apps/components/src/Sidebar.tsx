@@ -46,6 +46,7 @@ export const navGroups: NavGroup[] = [
   {
     title: 'Systm Assets',
     items: [
+      { label: 'Spinners', path: '/spinners' },
       { label: 'Custom Cursors', path: '/cursors' },
       { label: 'Patterns', path: '/patterns' },
     ],

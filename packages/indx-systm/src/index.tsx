@@ -21,3 +21,5 @@ export { Chart, type ChartProps, type ChartSeries } from './components/Chart/Cha
 export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
 export { Modal, type ModalProps } from './components/Modal/Modal';
 export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';
+export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
+export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
