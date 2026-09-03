@@ -5,6 +5,18 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-09-03
+
+### Added
+- `Spinner`: preloaders on the pixl 7x5 grid, played as hard-cut keyframes
+  (terminal-spinner style). Ships `grow`, `pulse`, `rotate`, `rowing`; props
+  `name`, `size` (number or CSS length, pixl 7:5 ratio), `color` (defaults to
+  `currentColor`), `delay` (ms per frame override). Works as Button
+  `iconLeft`/`iconRight`. Honors `prefers-reduced-motion` by freezing on the
+  first frame. `spinnerNames` exports the available names.
+- Spinner keyframes are authored as SVG files in `spinners/<name>/keyframes/`
+  and compiled by `npm run generate:spinners` (runs automatically on build).
+
 ## [2.4.0] - 2026-08-27
 
 ### Added
