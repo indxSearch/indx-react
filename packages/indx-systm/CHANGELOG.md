@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.6.0] - 2026-09-04
 
 ### Added
-- `Spinner`: eighteen new animations — accordion, circle-open-close,
-  circle-rotate, clock, coffee, hourglass, loop, pacman, pong, sliders,
-  smile-wink, snake, snake-eight, spark, spectrum, speedometer, terminal,
-  wi-fi (all listed in `spinnerNames`).
+- `Spinner`: nineteen new animations — accelerate, accordion,
+  circle-open-close, circle-rotate, clock, coffee, hourglass, loop, pacman,
+  pong, sliders, smile-wink, snake, snake-eight, spark, spectrum,
+  speedometer, terminal, wi-fi (all listed in `spinnerNames`).
 - Keyframe generator understands Figma export quirks: `<defs>`/clipPath
   rects and white cutouts are stripped, and `rotate()`/axis-aligned
   `matrix()` rect transforms are folded into grid coordinates.

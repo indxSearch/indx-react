@@ -11,6 +11,32 @@ export interface SpinnerDef {
 }
 
 export const spinners = {
+  "accelerate": {
+    viewBox: "0 0 7 5",
+    delay: 50,
+    frames: [
+      "M0 2H1V3H0V2Z",
+      "M0 2H1V3H0V2Z",
+      "M0 2H1V3H0V2Z",
+      "M1 2H2V3H1V2Z M2 2H3V3H2V2Z",
+      "M1 2H2V3H1V2Z M2 2H3V3H2V2Z",
+      "M2 2H3V3H2V2Z M3 2H4V3H3V2Z M4 2H5V3H4V2Z",
+      "M4 2H5V3H4V2Z M5 2H6V3H5V2Z",
+      "M4 2H5V3H4V2Z M5 2H6V3H5V2Z",
+      "M6 2H7V3H6V2Z",
+      "M6 2H7V3H6V2Z",
+      "M6 2H7V3H6V2Z",
+      "M6 2H7V3H6V2Z",
+      "M6 2H7V3H6V2Z",
+      "M4 2H5V3H4V2Z M5 2H6V3H5V2Z",
+      "M4 2H5V3H4V2Z M5 2H6V3H5V2Z",
+      "M2 2H3V3H2V2Z M3 2H4V3H3V2Z M4 2H5V3H4V2Z",
+      "M1 2H2V3H1V2Z M2 2H3V3H2V2Z",
+      "M1 2H2V3H1V2Z M2 2H3V3H2V2Z",
+      "M0 2H1V3H0V2Z",
+      "M0 2H1V3H0V2Z",
+    ],
+  },
   "accordion": {
     viewBox: "0 0 7 5",
     delay: 100,
