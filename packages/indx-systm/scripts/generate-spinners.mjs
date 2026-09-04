@@ -37,13 +37,36 @@ const spinners = new Map();
 
 // Figma exports pixels either as one merged <path> or as individual <rect>s;
 // rects are rewritten as equivalent path segments so a frame is always one path.
+// Figma also likes to express bars as rotated rects (transform="rotate(90 x y)"),
+// so quarter/half-turn rotations are folded into the coordinates.
 function rectToPath(attrs) {
   const attr = (key) => {
     const m = attrs.match(new RegExp(`\\b${key}="([^"]+)"`));
     return m ? parseFloat(m[1]) : 0;
   };
-  const [x, y, w, h] = [attr('x'), attr('y'), attr('width'), attr('height')];
+  let [x, y, w, h] = [attr('x'), attr('y'), attr('width'), attr('height')];
   if (!w || !h) return '';
+
+  const rot = attrs.match(/transform="rotate\((-?\d+(?:\.\d+)?)(?:[ ,]+(-?\d+(?:\.\d+)?)[ ,]+(-?\d+(?:\.\d+)?))?\)"/);
+  if (rot) {
+    const angle = ((parseFloat(rot[1]) % 360) + 360) % 360;
+    const a = rot[2] !== undefined ? parseFloat(rot[2]) : 0;
+    const b = rot[3] !== undefined ? parseFloat(rot[3]) : 0;
+    if (angle === 90) {
+      [x, y, w, h] = [a - (y - b) - h, b + (x - a), h, w];
+    } else if (angle === 180) {
+      [x, y] = [2 * a - x - w, 2 * b - y - h];
+    } else if (angle === 270) {
+      [x, y, w, h] = [a + (y - b), b - (x - a) - w, h, w];
+    } else if (angle !== 0) {
+      console.warn(`Skipping rect with unsupported rotation ${rot[1]}° — pixl frames are axis-aligned.`);
+      return '';
+    }
+  } else if (/transform="/.test(attrs)) {
+    console.warn('Skipping rect with unsupported transform — only rotate() is understood.');
+    return '';
+  }
+
   return `M${x} ${y}H${x + w}V${y + h}H${x}V${y}Z`;
 }
 
@@ -62,13 +85,22 @@ for (const name of names) {
 
   let viewBox = DEFAULT_VIEWBOX;
   const frames = files.map((file) => {
-    const svg = readFileSync(join(keyframesDir, file), 'utf8');
+    let svg = readFileSync(join(keyframesDir, file), 'utf8');
     const vb = svg.match(/viewBox="([^"]+)"/);
     if (vb) viewBox = vb[1];
-    // Frames are pixl-style unions of axis-aligned squares; every <path d> and
-    // <rect> in the file is merged into one frame drawn with a single fill.
-    const paths = [...svg.matchAll(/\bd="([^"]+)"/g)].map((m) => m[1]);
-    const rects = [...svg.matchAll(/<rect\b([^/>]*)\/?>/g)].map((m) => rectToPath(m[1]));
+    // Figma exports carry a <defs><clipPath> holding a full-canvas rect — scraping
+    // that would paint the whole frame. Defs never contain visible pixels; drop them.
+    svg = svg.replace(/<defs>[\s\S]*?<\/defs>/g, '');
+    // Frames are pixl-style unions of axis-aligned squares; every visible <path d>
+    // and <rect> is merged into one frame drawn with a single fill. White-filled
+    // shapes are export artifacts (cutouts/backgrounds), not pixels — skip them.
+    const isWhite = (attrs) => /fill="(?:white|#f{3}(?:f{3})?)"/i.test(attrs);
+    const paths = [...svg.matchAll(/<path\b([^>]*)>/g)]
+      .filter((m) => !isWhite(m[1]))
+      .map((m) => m[1].match(/\bd="([^"]+)"/)?.[1] ?? '');
+    const rects = [...svg.matchAll(/<rect\b([^/>]*)\/?>/g)]
+      .filter((m) => !isWhite(m[1]))
+      .map((m) => rectToPath(m[1]));
     return [...paths, ...rects].filter(Boolean).join(' ');
   });
 
