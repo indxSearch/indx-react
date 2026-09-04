@@ -47,6 +47,23 @@ function rectToPath(attrs) {
   let [x, y, w, h] = [attr('x'), attr('y'), attr('width'), attr('height')];
   if (!w || !h) return '';
 
+  // matrix(a b c d e f): x' = ax + cy + e, y' = bx + dy + f. Figma uses pure
+  // flips (e.g. matrix(1 0 0 -1 tx ty)) and quarter turns; anything axis-aligned
+  // ((b,c) or (a,d) zero) maps a rect to a rect — transform two opposite corners
+  // and take the bounding box. Skews are not representable on the pixel grid.
+  const mat = attrs.match(/transform="matrix\(([-\d. ,]+)\)"/);
+  if (mat) {
+    const [a, b, c, d, e, f] = mat[1].split(/[ ,]+/).map(parseFloat);
+    if ((b === 0 && c === 0) || (a === 0 && d === 0)) {
+      const px = (px_, py_) => a * px_ + c * py_ + e;
+      const py = (px_, py_) => b * px_ + d * py_ + f;
+      const [x1, y1, x2, y2] = [px(x, y), py(x, y), px(x + w, y + h), py(x + w, y + h)];
+      return `M${Math.min(x1, x2)} ${Math.min(y1, y2)}H${Math.max(x1, x2)}V${Math.max(y1, y2)}H${Math.min(x1, x2)}V${Math.min(y1, y2)}Z`;
+    }
+    console.warn(`Skipping rect with non-axis-aligned matrix transform — pixl frames are axis-aligned.`);
+    return '';
+  }
+
   const rot = attrs.match(/transform="rotate\((-?\d+(?:\.\d+)?)(?:[ ,]+(-?\d+(?:\.\d+)?)[ ,]+(-?\d+(?:\.\d+)?))?\)"/);
   if (rot) {
     const angle = ((parseFloat(rot[1]) % 360) + 360) % 360;
