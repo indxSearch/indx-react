@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { spinnerNames } from '@indxsearch/systm';
 import { ICON_NAMES } from './icons/page';
 import styles from './page.module.css';
 
@@ -81,6 +82,10 @@ export default function Home() {
       </div>
 
       <div className={styles.grid}>
+        <Link to="/spinners" className={styles.card}>
+          <h3 className={styles.cardTitle}>Spinners</h3>
+          <p className={styles.cardDesc}>{spinnerNames.length} preloaders on the pixl 7x5 grid, hard-cut keyframes</p>
+        </Link>
         <Link to="/cursors" className={styles.card}>
           <h3 className={styles.cardTitle}>Custom Cursors</h3>
           <p className={styles.cardDesc}>Demo of custom cursor styles for all interactions</p>
