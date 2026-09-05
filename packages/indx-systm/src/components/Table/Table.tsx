@@ -9,7 +9,7 @@ interface TableProps {
 
 export function Table({ children, caption, 'aria-label': ariaLabel }: TableProps) {
   // Warn in development if there's no caption or aria-label
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.DEV) {
     if (!caption && !ariaLabel) {
       console.warn('Table: Component should have either a caption or aria-label for accessibility.');
     }

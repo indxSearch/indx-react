@@ -66,6 +66,42 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const initial = value ?? today;
   const [viewYear, setViewYear] = useState(initial.getFullYear());
   const [viewMonth, setViewMonth] = useState(initial.getMonth());
+  const [focusedDate, setFocusedDate] = useState(initial);
+  const dayRefs = React.useRef(new Map<string, HTMLButtonElement>());
+  const pendingFocus = React.useRef(false);
+  const changeOpen = (next: boolean) => {
+    if (next) {
+      const date = value ?? new Date();
+      setFocusedDate(date);
+      setViewYear(date.getFullYear());
+      setViewMonth(date.getMonth());
+    }
+    setOpen(next);
+  };
+  React.useEffect(() => {
+    if (pendingFocus.current) {
+      dayRefs.current.get(isoFormat(focusedDate))?.focus();
+      pendingFocus.current = false;
+    }
+  }, [focusedDate]);
+  const navigateDay = (event: React.KeyboardEvent, date: Date) => {
+    const next = new Date(date);
+    const offset = ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 } as Record<string, number>)[event.key];
+    if (offset !== undefined) next.setDate(next.getDate() + offset);
+    else if (event.key === 'Home') next.setDate(next.getDate() - (next.getDay() + 6) % 7);
+    else if (event.key === 'End') next.setDate(next.getDate() + 6 - (next.getDay() + 6) % 7);
+    else if (event.key === 'PageUp' || event.key === 'PageDown') {
+      const day = next.getDate();
+      next.setDate(1);
+      next.setMonth(next.getMonth() + (event.key === 'PageUp' ? -1 : 1) * (event.shiftKey ? 12 : 1));
+      next.setDate(Math.min(day, new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate()));
+    } else return;
+    event.preventDefault();
+    pendingFocus.current = true;
+    setFocusedDate(next);
+    setViewYear(next.getFullYear());
+    setViewMonth(next.getMonth());
+  };
 
   // When opening, jump the calendar to the selected month.
   React.useEffect(() => {
@@ -95,24 +131,30 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   return (
     <div className={`${styles.wrapper} ${className}`}>
-      {label && <span className={styles.label}>{label}</span>}
-      <RadixPopover.Root open={open} onOpenChange={setOpen}>
+      {label && <span id={`${generatedId}-label`} className={styles.label}>{label}</span>}
+      <RadixPopover.Root open={open} onOpenChange={changeOpen}>
         <RadixPopover.Trigger asChild>
           <button
             type="button"
             className={`${styles.trigger} ${hasError ? styles.error : ''}`}
             disabled={disabled}
+            aria-labelledby={label ? `${generatedId}-label ${generatedId}-value` : undefined}
             aria-invalid={hasError ? 'true' : 'false'}
             aria-describedby={error ? errorId : undefined}
           >
-            <span className={value ? styles.valueText : styles.placeholder}>
+            <span id={`${generatedId}-value`} className={value ? styles.valueText : styles.placeholder}>
               {value ? formatDate(value) : placeholder}
             </span>
             <Chevron_down size={14} color="currentColor" />
           </button>
         </RadixPopover.Trigger>
         <RadixPopover.Portal>
-          <RadixPopover.Content className={styles.calendar} align="start" sideOffset={5}>
+          <RadixPopover.Content className={styles.calendar} align="start" sideOffset={5}
+            aria-label={label ? `${label} calendar` : 'Choose a date'}
+            onOpenAutoFocus={(event) => {
+              event.preventDefault();
+              dayRefs.current.get(isoFormat(focusedDate))?.focus();
+            }}>
             <div className={styles.header}>
               <button type="button" className={styles.navButton} onClick={prevMonth} aria-label="Previous month">
                 <Chevron_left size={14} color="currentColor" />
@@ -137,7 +179,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                   isToday && !selected ? styles.today : '',
                 ].filter(Boolean).join(' ');
                 return (
-                  <button key={d.toISOString()} type="button" className={dayClass} onClick={() => selectDay(d)}>
+                  <button key={d.toISOString()} type="button" className={dayClass} onClick={() => selectDay(d)}
+                    ref={(element) => {
+                      if (element) dayRefs.current.set(isoFormat(d), element);
+                      else dayRefs.current.delete(isoFormat(d));
+                    }}
+                    aria-label={d.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    aria-pressed={selected}
+                    aria-current={isToday ? 'date' : undefined}
+                    tabIndex={sameDay(d, focusedDate) || (focusedDate.getMonth() !== viewMonth && d.getDate() === 1 && !outside) ? 0 : -1}
+                    onKeyDown={(event) => navigateDay(event, d)}>
                     {d.getDate()}
                   </button>
                 );

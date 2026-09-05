@@ -49,10 +49,25 @@ export const Slider: React.FC<SliderProps> = (props) => {
   const sliderId = id || generatedId;
 
   // Warn in development if there's no label or aria-label
-  if (process.env.NODE_ENV !== 'production') {
+  if (import.meta.env.DEV) {
     if (!label && !ariaLabel) {
       console.warn('Slider: Component should have either a label or aria-label for accessibility.');
     }
+  }
+
+  const hasValidRange = Number.isFinite(min) && Number.isFinite(max) && max > min;
+
+  if (!hasValidRange) {
+    if (import.meta.env.DEV) {
+      console.warn('Slider: max must be greater than min. Rendering a disabled track.');
+    }
+
+    return (
+      <div className={className}>
+        {label && <span className={styles.label}>{label}</span>}
+        <div className={`${styles.basetrack} ${styles.disabled}`} aria-hidden="true" />
+      </div>
+    );
   }
 
   if ('isRange' in props && props.isRange) {
