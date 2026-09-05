@@ -251,6 +251,55 @@ describe('race condition protection', () => {
     expect(result.current.state.results).toHaveLength(2);
     expect(result.current.state.results![0].documentKey).toBe(1);
   });
+
+  it('does not let a stale facet response overwrite range bounds or the facet layer', async () => {
+    let unblockSlow!: () => void;
+    const slowBlocked = new Promise<void>(r => { unblockSlow = r; });
+
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        const body = await request.json() as { text: string; enableFacets: boolean };
+        if (body.text === 'slow' && body.enableFacets) {
+          await slowBlocked;
+          // Older query with a narrower price range — must never reach rangeBounds
+          return HttpResponse.json({
+            records: [{ documentKey: 99, score: 100 }],
+            facets: { price: [{ key: '500', value: 1 }, { key: '600', value: 1 }] },
+            truncationIndex: -1,
+          });
+        }
+        return HttpResponse.json(SEARCH_RESPONSE); // price 10–200
+      })
+    );
+
+    // Facets on so range bounds are maintained; no debounce so each setQuery is one facet search.
+    const { result } = setup({ enableFacets: true, facetDebounceDelayMillis: 0 });
+    await waitForAuth(result);
+
+    // Let the debounced facet search for 'slow' actually go out before superseding it.
+    await act(async () => {
+      result.current.setQuery('slow');
+      await new Promise(r => setTimeout(r, 20));
+    });
+    act(() => result.current.setQuery('fast'));
+
+    await waitFor(() => expect(result.current.state.rangeBounds.price).toEqual({ min: 10, max: 200 }));
+    await waitFor(() => expect(result.current.state.results).toHaveLength(2));
+
+    await act(async () => {
+      unblockSlow();
+      await new Promise(r => setTimeout(r, 50));
+    });
+
+    expect(result.current.state.rangeBounds.price).toEqual({ min: 10, max: 200 });
+    expect(result.current.state.facetStats?.price).toEqual({ min: 10, max: 200 });
+
+    // A follow-up search for the live query must still see it as the current query:
+    // the global layer stays at the query's own bounds, not the stale 500–600.
+    act(() => result.current.toggleFilter('category', 'running'));
+    await new Promise(r => setTimeout(r, 50));
+    expect(result.current.state.rangeBounds.price).toEqual({ min: 10, max: 200 });
+  });
 });
 
 // ─── fetchMoreResults ─────────────────────────────────────────────────────────

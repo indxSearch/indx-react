@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.2
+
+### Patch Changes
+
+- A superseded search response can no longer overwrite range slider bounds or the per-query facet layer. The request-id guard in `performSearch` now runs before any state write, so when an older, slower response lands after a newer one, nothing from it reaches the UI. Previously its results were discarded but its bounds were not, leaving sliders and histograms scaled to an earlier query. No timing or request changes.
+
 ## 3.1.1
 
 ### Patch Changes

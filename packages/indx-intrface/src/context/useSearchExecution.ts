@@ -174,11 +174,16 @@ export function useSearchExecution({
           }
         }
 
-        // 6) Determine if query changed
+        // 6) Discard if a newer request has arrived. This must come before any
+        //    state write below: a slow, superseded response must not leave the
+        //    range rails or the per-query bounds layer at its own (older) query.
+        if (currentRequestId !== latestRequestId.current) return;
+
+        // 7) Determine if query changed
         const queryChanged = state.query !== lastQueryText;
         const rangeBoundsNeedsUpdate = state.query !== lastRangeBoundsQuery;
 
-        // 7) Merge facetStats: global bounds layer + live narrowed stats on top
+        // 8) Merge facetStats: global bounds layer + live narrowed stats on top
         let mergedFacetStats = state.facetStats ?? {};
         if (queryChanged) {
           mergedFacetStats = { ...auth.initialFacetStats, ...newFacetStats };
@@ -188,7 +193,7 @@ export function useSearchExecution({
           mergedFacetStats = { ...fixedFacetStats, ...newFacetStats };
         }
 
-        // 8) Update rangeBounds when query changes
+        // 9) Update rangeBounds when query changes
         if (rangeBoundsNeedsUpdate && enableFacets) {
           const updatedBounds = { ...state.rangeBounds };
           for (const [field, stats] of Object.entries(newFacetStats)) {
@@ -198,7 +203,7 @@ export function useSearchExecution({
           setLastRangeBoundsQuery(state.query);
         }
 
-        // 9) Prepare displayFacets (fallback to initial keys for non-coverage fields)
+        // 10) Prepare displayFacets (fallback to initial keys for non-coverage fields)
         let displayFacets: any = searchData.facets;
         if (enableFacets && (!displayFacets || Object.keys(displayFacets).length === 0)) {
           displayFacets = {};
@@ -207,8 +212,7 @@ export function useSearchExecution({
           }
         }
 
-        // 10) Final state update — discard if a newer request has arrived
-        if (currentRequestId !== latestRequestId.current) return;
+        // 11) Final state update
 
         const filteredResults = combinedResults.filter(result => {
           const query = state.query.trim();
