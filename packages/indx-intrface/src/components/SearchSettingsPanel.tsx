@@ -90,8 +90,8 @@ export function SearchSettingsPanel() {
                 <Slider
                     min={0}
                     max={65535}
-                    step={5000}
-                    value={searchSettings.minimumScore}
+                    step={1}
+                    value={Math.max(0, Math.min(65535, Math.round(searchSettings.minimumScore)))}
                     onChange={(val: number | number[]) => {
                     setSearchSettings({ minimumScore: val as number });
                     }}

@@ -58,13 +58,18 @@ async function combineAll(
   return current;
 }
 
+export type ValueMatch = 'all' | 'any';
+
 /**
  * Builds the server-side filter token for the current selection.
  *
- * Semantics: several selected values on the *same* field are ORed (a document
- * matches if it has any of them), and the per-field results are then ANDed with
- * each other and with every range filter. Any failed filter call throws — the
- * caller must not fall back to an unfiltered search.
+ * Several selected values on the *same* field are combined per that field's
+ * match mode: `'all'` (default) ANDs them — a document must carry every value,
+ * which is the natural reading for multi-valued fields such as genres and
+ * narrows the result set with each click; `'any'` ORs them, for scalar fields
+ * where a document can only ever hold one of the values. The per-field results
+ * are then ANDed with each other and with every range filter. Any failed
+ * filter call throws — the caller must not fall back to an unfiltered search.
  */
 export async function buildFilterProxy(
   filters: Record<string, string[]>,
@@ -72,7 +77,8 @@ export async function buildFilterProxy(
   url: string,
   team: string,
   dataset: string,
-  authenticatedFetch: AuthenticatedFetch
+  authenticatedFetch: AuthenticatedFetch,
+  valueMatch: Record<string, ValueMatch> = {}
 ): Promise<any> {
   const filterEntries = Object.entries(filters ?? {}).filter(([, values]) => values.length > 0);
   const rangeFilterEntries = Object.entries(rangeFilters ?? {});
@@ -85,7 +91,8 @@ export async function buildFilterProxy(
             postFilter('value', { fieldName: field, value }, `Value filter '${field}'`, url, team, dataset, authenticatedFetch)
           )
         );
-        return combineAll(valueProxies, 'or', url, team, dataset, authenticatedFetch);
+        const operator = valueMatch[field] === 'any' ? 'or' : 'and';
+        return combineAll(valueProxies, operator, url, team, dataset, authenticatedFetch);
       })
     ),
     Promise.all(

@@ -1,6 +1,6 @@
 {
   "name": "@indxsearch/intrface",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Indx Search interface components for React. Provides ready-to-use filter panels, search inputs, faceted navigation, and sorting components. Built on @indxsearch/systm.",
   "keywords": [
     "indx",
@@ -73,7 +73,7 @@
   "dependencies": {
     "@indxsearch/indx-types": "^2.0.0",
     "@indxsearch/pixl": "^1.5.0",
-    "@indxsearch/systm": "^2.2.0",
+    "@indxsearch/systm": "^2.6.0",
     "react-range": "^1.10.0"
   },
   "publishConfig": {

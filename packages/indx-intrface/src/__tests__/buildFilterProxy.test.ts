@@ -5,8 +5,11 @@ import { server } from './mocks/server';
 
 const URL = 'http://localhost';
 const fetchPlain = (url: string, options?: RequestInit) => fetch(url, options);
-const build = (filters: Record<string, string[]>, ranges: Record<string, { min: number; max: number }> = {}) =>
-  buildFilterProxy(filters, ranges, URL, 'team', 'test', fetchPlain);
+const build = (
+  filters: Record<string, string[]>,
+  ranges: Record<string, { min: number; max: number }> = {},
+  match: Record<string, 'all' | 'any'> = {}
+) => buildFilterProxy(filters, ranges, URL, 'team', 'test', fetchPlain, match);
 
 describe('buildFilterProxy', () => {
   it('returns null when nothing is selected', async () => {
@@ -18,17 +21,24 @@ describe('buildFilterProxy', () => {
     expect(proxy.hashString).toBe('category=running');
   });
 
-  it('ORs several values selected on the same field', async () => {
-    // Two boxes ticked in one panel must widen the result set, not intersect it
-    // (a scalar field can never equal both values at once).
-    const proxy = await build({ category: ['running', 'trail'] });
+  it('ANDs several values on the same field by default', async () => {
+    // Multi-valued fields (genres, tags): each extra tick narrows to documents
+    // carrying every selected value.
+    const proxy = await build({ genre: ['horror', 'comedy'] });
+    expect(proxy.hashString).toBe('(genre=horror AND genre=comedy)');
+  });
+
+  it("ORs values on a field registered with match 'any'", async () => {
+    // Scalar fields: a document can only equal one value, so AND would return nothing.
+    const proxy = await build({ category: ['running', 'trail'] }, {}, { category: 'any' });
     expect(proxy.hashString).toBe('(category=running OR category=trail)');
   });
 
   it('ANDs across fields and with range filters', async () => {
     const proxy = await build(
       { category: ['running', 'trail'], brand: ['acme'] },
-      { price: { min: 10, max: 50 } }
+      { price: { min: 10, max: 50 } },
+      { category: 'any' }
     );
     expect(proxy.hashString).toBe('(((category=running OR category=trail) AND brand=acme) AND range:price)');
   });

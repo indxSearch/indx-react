@@ -367,8 +367,9 @@ Initialisation failures (bad token, unknown dataset, unreachable server) and fai
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
 | `showCount` | `boolean` | `true` | Show facet counts |
 | `showNull` | `boolean` | `false` | List the `null` facet bucket (documents without the field) as an option |
+| `match` | `'all' \| 'any'` | `'all'` | How several selected values combine. `'all'` requires every selected value (right for multi-valued fields such as genres: each click narrows). `'any'` matches at least one (use on scalar fields, where a document holds a single value). |
 
-Selecting several values on one field widens the result set (they are ORed); different fields and range filters narrow it (ANDed). With `displayType="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
+Different fields and range filters always narrow the result set (ANDed). With `displayType="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
 
 ### RangeFilterPanel Props
 
@@ -379,6 +380,7 @@ Selecting several values on one field widens the result set (they are ORed); dif
 | `displayType` | `'slider' \| 'input'` | ❌ | Filter UI style (default `'input'`) |
 | `expectedMin` | `number` | ❌ | Expected lower bound (default `0`) |
 | `expectedMax` | `number` | ❌ | Expected upper bound (default `1000`) |
+| `step` | `number` | ❌ | Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …) |
 | `showHistogram` | `boolean` | ❌ | Show a histogram above the slider (requires the field to be facetable; default `false`) |
 | `resolution` | `number` | ❌ | Value-range per histogram bucket (e.g. `200` → 5 bars over 0–1000). Auto-derived (~20 bars) if omitted |
 | `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |

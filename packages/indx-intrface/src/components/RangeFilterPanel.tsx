@@ -14,6 +14,21 @@ export interface RangeFilterPanelProps {
   startCollapsed?: boolean; // If filter should display as collapsed from init
   showHistogram?: boolean; // Show a histogram above the slider (requires field to be facetable)
   resolution?: number; // Value-range per histogram bucket (e.g. 200 → 5 bars over 0–1000). Auto-derived if omitted (~20 bars)
+  step?: number; // Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …)
+}
+
+/** Number of decimals needed to represent `n` exactly (capped at 6). */
+function decimalsOf(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  const text = String(n);
+  const dot = text.indexOf('.');
+  return dot === -1 ? 0 : Math.min(6, text.length - dot - 1);
+}
+
+/** Snaps `value` onto the `min + k·step` grid react-range expects. */
+function snapToStep(value: number, min: number, step: number): number {
+  const snapped = min + Math.round((value - min) / step) * step;
+  return Number(snapped.toFixed(decimalsOf(step)));
 }
 
 export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
@@ -25,7 +40,8 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   collapsible = true,
   startCollapsed = false,
   showHistogram = false,
-  resolution
+  resolution,
+  step: stepProp
 }) => {
   const {
     state: { rangeFilters, rangeBounds, facetStats, facets, filterableFields, facetableFields, query, facetDebounceDelayMillis },
@@ -49,6 +65,19 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   const rawLiveBounds = facetStats?.[field] ?? queryBounds;
   const liveDataMin = Math.max(queryMin, Math.min(queryMax, rawLiveBounds.min));
   const liveDataMax = Math.max(queryMin, Math.min(queryMax, rawLiveBounds.max));
+
+  // Slider step: react-range warns when a value is not on the min + k·step grid,
+  // so for fields with fractional values (ratings, prices) derive the step from
+  // the precision seen in the bounds and facet keys instead of assuming integers.
+  const step = React.useMemo(() => {
+    if (stepProp) return stepProp;
+    let decimals = Math.max(decimalsOf(queryMin), decimalsOf(queryMax));
+    const keys = facets?.[field];
+    if (Array.isArray(keys)) {
+      for (const f of keys) decimals = Math.max(decimals, decimalsOf(Number(f.key)));
+    }
+    return decimals === 0 ? 1 : Number((10 ** -decimals).toFixed(decimals));
+  }, [stepProp, queryMin, queryMax, facets, field]);
 
   // 3) If query bounds are equal, disable slider (no range to filter)
   // Only disable if we have real bounds data (not just defaults)
@@ -351,7 +380,10 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
           <Slider
             min={displayQueryMin}
             max={displayQueryMax}
-            value={isDisabled ? [displayQueryMin, displayQueryMax] : [finalMin, finalMax]}
+            step={step}
+            value={isDisabled
+              ? [displayQueryMin, displayQueryMax]
+              : [snapToStep(finalMin, displayQueryMin, step), snapToStep(finalMax, displayQueryMin, step)]}
             isRange
             onChange={(vals: number | number[]) => handleSliderChange(vals as [number, number])}
             onFinalChange={(vals: number | number[]) => handleSliderCommit(vals as [number, number])}

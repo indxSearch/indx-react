@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import type { CoverageSetup } from '@indxsearch/indx-types';
 import { useIndxAuth } from './useIndxAuth';
 import { useSearchExecution } from './useSearchExecution';
+import type { ValueMatch } from './buildFilterProxy';
+
+export type { ValueMatch };
 
 // Internal type with all CoverageSetup properties required (SearchContext always provides defaults)
 export type RequiredCoverageSetup = Required<CoverageSetup>;
@@ -35,6 +38,7 @@ export interface SearchState {
   facetableFields: string[]; // List of fields that can be used for faceting
   sortableFields: string[]; // List of fields that can be used for sorting results
   filters: Record<string, string[]>; // Current active filters, mapping field names to arrays of selected values
+  valueMatch: Record<string, ValueMatch>; // Per field: 'all' (AND the selected values, default) or 'any' (OR them). Registered by ValueFilterPanel's `match` prop
   rangeFilters: Record<string, { min: number; max: number }>; // Current active range filters, mapping field names to min/max values
   facetStats?: Record<string, { min: number; max: number }>; // Current facet statistics (min/max values) for numeric fields, updated with each search
   rangeBounds: Record<string, { min: number; max: number }>; // Range bounds for numeric fields, updated when query or auth data changes
@@ -56,6 +60,7 @@ export interface SearchContextType {
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
   setQuery: (query: string) => void; // Updates the search query text
   toggleFilter: (field: string, value: string) => void; // Toggles a value filter on/off for a given field
+  setValueMatch: (field: string, match: ValueMatch) => void; // How several selected values on one field combine: 'all' (AND) or 'any' (OR)
   setRangeFilter: (field: string, min: number, max: number) => void; // Sets min/max values for a range filter
   resetFilters: () => void; // Clears all active filters and range filters
   resetSingleFilter: (field: string, value: string, isUserAction?: boolean) => void; // Removes a specific value from a value filter
@@ -118,6 +123,7 @@ export const SearchProvider: React.FC<{
     facetableFields: [],
     sortableFields: [],
     filters: {},
+    valueMatch: {},
     rangeFilters: {},
     facetStats: {},
     rangeBounds: {},
@@ -282,6 +288,13 @@ export const SearchProvider: React.FC<{
     });
   }, []);
 
+  const setValueMatch = useCallback((field: string, match: ValueMatch) => {
+    setState(prev => {
+      if (prev.valueMatch[field] === match) return prev;
+      return { ...prev, valueMatch: { ...prev.valueMatch, [field]: match } };
+    });
+  }, []);
+
   // Function to set min/max values for a range filter
   const setRangeFilter = useCallback((field: string, min: number, max: number) => {
     filtersChangedByUser.current = true; // User explicitly set a range filter
@@ -349,6 +362,7 @@ export const SearchProvider: React.FC<{
         authenticatedFetch,
         setQuery,
         toggleFilter,
+        setValueMatch,
         setRangeFilter,
         resetFilters,
         resetSingleFilter,

@@ -100,7 +100,7 @@ export function useSearchExecution({
 
       try {
         // 1) Build combined filter proxy
-        const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch);
+        const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch);
 
         // 2) Determine if we should fetch results
         const shouldFetchResults = allowEmptySearch || state.query.trim() !== '';
@@ -256,6 +256,7 @@ export function useSearchExecution({
     [
       state.query,
       state.filters,
+      state.valueMatch,
       state.rangeFilters,
       state.facetStats,
       sortBy,

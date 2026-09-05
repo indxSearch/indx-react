@@ -9,7 +9,7 @@ import { server } from './mocks/server';
 // Real-enough InputField: forwards value/onChange/onBlur/onKeyDown so typing can be exercised.
 vi.mock('@indxsearch/systm', () => ({
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => <div data-testid="filter-panel">{children}</div>,
-  Slider: ({ min, max }: { min: number; max: number }) => <div role="slider" data-min={min} data-max={max} />,
+  Slider: ({ min, max, step }: { min: number; max: number; step?: number }) => <div role="slider" data-min={min} data-max={max} data-step={step} />,
   InputField: ({ label, ...props }: any) => <input aria-label={label} {...props} />,
 }));
 
@@ -61,5 +61,26 @@ describe('field validation', () => {
     renderPanel({ displayType: 'slider' });
     await screen.findByText(/Cannot render filter for "price": missing filterable/);
     expect(screen.queryByRole('slider')).toBeNull();
+  });
+});
+
+describe('slider step', () => {
+  it('derives a fractional step from fractional bounds so values sit on the grid', async () => {
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', () => HttpResponse.json({
+        records: [], truncationIndex: -1,
+        facets: { price: [{ key: '6.5', value: 3 }, { key: '7.3', value: 4 }, { key: '9.25', value: 1 }] },
+      })),
+    );
+    renderPanel({ displayType: 'slider' });
+    const slider = await screen.findByRole('slider');
+    await waitFor(() => expect(slider.dataset.step).toBe('0.01'));
+  });
+
+  it('uses step 1 for integer data and honours an explicit step prop', async () => {
+    renderPanel({ displayType: 'slider' });
+    const slider = await screen.findByRole('slider');
+    await waitFor(() => expect(slider.dataset.min).toBe('10'));
+    expect(slider.dataset.step).toBe('1');
   });
 });

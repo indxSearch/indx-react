@@ -91,3 +91,38 @@ describe('null facet key', () => {
     expect(screen.queryByLabelText('false')).toBeNull();
   });
 });
+
+describe('match prop', () => {
+  it("registers 'any' for the field so its values are ORed; default is 'all'", async () => {
+    const combineOps: boolean[] = [];
+    server.use(
+      http.get('http://localhost/api/teams/team/datasets/test/fields/filterable', () => HttpResponse.json(FIELDS)),
+      http.get('http://localhost/api/teams/team/datasets/test/fields/facetable', () => HttpResponse.json(FIELDS)),
+      http.post(SEARCH, () => HttpResponse.json({
+        records: RECORDS,
+        facets: { color: [{ key: 'red', value: 5 }, { key: 'blue', value: 4 }], category: [{ key: 'a', value: 2 }, { key: 'b', value: 3 }] },
+        truncationIndex: -1,
+      })),
+      http.post('http://localhost/api/teams/team/datasets/test/filters/combine', async ({ request }) => {
+        const { useAndOperation } = await request.json() as { useAndOperation: boolean };
+        combineOps.push(useAndOperation);
+        return HttpResponse.json({ hashString: 'c' });
+      }),
+    );
+    render(
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token"
+        allowEmptySearch enableFacets facetDebounceDelayMillis={0}>
+        <ValueFilterPanel field="color" match="any" />
+        <ValueFilterPanel field="category" />
+      </SearchProvider>
+    );
+
+    fireEvent.click(await screen.findByLabelText('red'));
+    fireEvent.click(await screen.findByLabelText('blue'));
+    await waitFor(() => expect(combineOps).toContain(false)); // color: OR
+
+    fireEvent.click(await screen.findByLabelText('a'));
+    fireEvent.click(await screen.findByLabelText('b'));
+    await waitFor(() => expect(combineOps.filter(op => op === true).length).toBeGreaterThan(0)); // category: AND
+  });
+});

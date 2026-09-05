@@ -18,6 +18,14 @@ export interface ValueFilterPanelProps {
   showActivePanel?: boolean; // Change background color of panel when filtered
   showCount?: boolean; // Show histogram of filters
   showNull?: boolean; // If true, include entries with count === null
+  /**
+   * How several selected values combine. `'all'` (default) requires a document to
+   * carry every selected value — right for multi-valued fields such as genres,
+   * where each click narrows the results. `'any'` matches documents with at least
+   * one of them — use it on scalar fields, where a document can only hold one value
+   * and AND would always return nothing.
+   */
+  match?: 'all' | 'any';
   displayIfEmptyQuery?: boolean;
   displayCondition?: (context: {
     query: string;
@@ -40,15 +48,21 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   showActivePanel = false,
   showCount = true,
   showNull = false,
+  match = 'all',
   displayIfEmptyQuery = true,
   displayCondition = (_: { query: string; filters: any; facets: any }) => true
 }) => {
   const {
     state: { facets, filterableFields, facetableFields, filters, query },
     toggleFilter,
+    setValueMatch,
     isFetchingInitial,
     allowEmptySearch
   } = useSearchContext();
+
+  useEffect(() => {
+    setValueMatch(field, match);
+  }, [field, match, setValueMatch]);
 
   const preservedFacetValuesRef = useRef<Record<string, number | null> | null>(null);
   const [visibleCount, setVisibleCount] = useState(limit);
