@@ -279,3 +279,147 @@ describe('fetchMoreResults', () => {
     expect(searchBodies.at(-1)!.maxNumberOfRecordsToReturn).toBe(20);
   });
 });
+
+// ─── Errors ──────────────────────────────────────────────────────────────────
+
+describe('errors', () => {
+  it('stores a failed search as state.error and clears it on the next success', async () => {
+    let fail = true;
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', () =>
+        fail ? HttpResponse.json({ title: 'boom' }, { status: 500 }) : HttpResponse.json(SEARCH_RESPONSE))
+    );
+
+    const { result } = setup();
+    await waitForAuth(result);
+
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.error).toMatch(/HTTP 500/));
+    expect(result.current.state.results).toBeNull();
+
+    fail = false;
+    act(() => result.current.setQuery('shoes again'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+    expect(result.current.state.error).toBeUndefined();
+  });
+
+  it('surfaces a failed filter call as an error rather than searching unfiltered', async () => {
+    const searchBodies: any[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/filters/value', () =>
+        HttpResponse.json({ title: 'Invalid argument' }, { status: 400 })),
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        searchBodies.push(await request.json());
+        return HttpResponse.json(SEARCH_RESPONSE);
+      })
+    );
+
+    const { result } = setup();
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+
+    const before = searchBodies.length;
+    act(() => result.current.toggleFilter('category', 'running'));
+    await waitFor(() => expect(result.current.state.error).toMatch(/Value filter 'category' failed: HTTP 400/));
+    expect(searchBodies.length).toBe(before); // no unfiltered search went out
+  });
+});
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+describe('search settings', () => {
+  it('fires a new search when a search-affecting setting changes', async () => {
+    const searchBodies: any[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        searchBodies.push(await request.json());
+        return HttpResponse.json(SEARCH_RESPONSE);
+      })
+    );
+
+    const { result } = setup();
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+
+    const before = searchBodies.length;
+    act(() => result.current.setSearchSettings({ enableCoverage: false }));
+    await waitFor(() => expect(searchBodies.length).toBe(before + 1));
+    expect(searchBodies.at(-1).enableCoverage).toBe(false);
+  });
+
+  it('does not fire on display-only settings', async () => {
+    let searchCount = 0;
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', () => {
+        searchCount++;
+        return HttpResponse.json(SEARCH_RESPONSE);
+      })
+    );
+
+    const { result } = setup();
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+
+    const before = searchCount;
+    act(() => result.current.setSearchSettings({ showScore: false, placeholderText: 'x' }));
+    await new Promise(r => setTimeout(r, 50));
+    expect(searchCount).toBe(before);
+  });
+
+  it('keeps a user-chosen page size across query changes', async () => {
+    const searchBodies: any[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        searchBodies.push(await request.json());
+        return HttpResponse.json(SEARCH_RESPONSE);
+      })
+    );
+
+    const { result } = setup({ maxResults: 10 });
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+
+    act(() => result.current.setSearchSettings({ maxNumberOfRecordsToReturn: 50 }));
+    await waitFor(() => expect(searchBodies.at(-1).maxNumberOfRecordsToReturn).toBe(50));
+
+    // "Load more" grows the page, a new query resets to the chosen 50 — not the prop's 10.
+    act(() => result.current.fetchMoreResults(80));
+    await waitFor(() => expect(searchBodies.at(-1).maxNumberOfRecordsToReturn).toBe(80));
+
+    const before = searchBodies.length;
+    act(() => result.current.setQuery('boots'));
+    await waitFor(() => expect(searchBodies.length).toBe(before + 1));
+    expect(searchBodies.at(-1).maxNumberOfRecordsToReturn).toBe(50);
+    expect(result.current.state.searchSettings.maxNumberOfRecordsToReturn).toBe(50);
+  });
+
+  it('refreshes results on filter and sort changes even with facets disabled', async () => {
+    const searchBodies: any[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        searchBodies.push(await request.json());
+        return HttpResponse.json(SEARCH_RESPONSE);
+      })
+    );
+
+    const { result } = setup({ enableFacets: false });
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.results).not.toBeNull());
+
+    let before = searchBodies.length;
+    act(() => result.current.toggleFilter('category', 'running'));
+    await waitFor(() => expect(searchBodies.length).toBe(before + 1));
+    expect(searchBodies.at(-1).filter?.hashString).toBe('category=running');
+    expect(searchBodies.at(-1).enableFacets).toBe(false);
+
+    before = searchBodies.length;
+    act(() => result.current.setSort('price', true));
+    await waitFor(() => expect(searchBodies.length).toBe(before + 1));
+    expect(searchBodies.at(-1).sortBy).toBe('price');
+  });
+});

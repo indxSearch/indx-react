@@ -127,6 +127,9 @@ export function useSearchExecution({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(searchBody),
         });
+        if (!searchResponse.ok) {
+          throw new Error(`Search failed: HTTP ${searchResponse.status}`);
+        }
         const searchData = await searchResponse.json();
         const truncationIndex = searchData.truncationIndex ?? -1;
 
@@ -142,6 +145,9 @@ export function useSearchExecution({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(keys),
           });
+          if (!jsonResponse.ok) {
+            throw new Error(`Document lookup failed: HTTP ${jsonResponse.status}`);
+          }
           const documentsData = await jsonResponse.json();
           combinedResults = documentsData.map((doc: any, idx: number) => ({
             document: doc,
@@ -213,6 +219,7 @@ export function useSearchExecution({
         setState(prev => ({
           ...prev,
           results: filteredResults,
+          error: undefined,
           resultsSuppressed: !shouldFetchResults,
           ...(enableFacets ? { facets: displayFacets, facetStats: mergedFacetStats } : {}),
           isLoading: false,
@@ -342,8 +349,8 @@ export function useSearchExecution({
 
     const trimmedQuery = state.query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
-    if (facetsEnabled && !shouldSkipSearch) {
-      performSearchRef.current?.({ enableFacets: true });
+    if (!shouldSkipSearch) {
+      performSearchRef.current?.({ enableFacets: facetsEnabled });
     }
   }, [state.filters, state.rangeFilters]);
 
@@ -352,19 +359,50 @@ export function useSearchExecution({
     if (!hasInitialized.current || !auth.token) return;
     const trimmedQuery = state.query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
-    if (facetsEnabled && !shouldSkipSearch) {
-      performSearchRef.current?.({ enableFacets: true });
+    if (!shouldSkipSearch) {
+      performSearchRef.current?.({ enableFacets: facetsEnabled });
     }
   }, [sortBy, sortAscending]);
 
-  // Trigger: fetchMore
+  // Trigger: search-affecting settings changed (SearchSettingsPanel or
+  // setSearchSettings), or fetchMore raised maxNumberOfRecordsToReturn.
+  // Display-only settings (showScore, placeholderText) are deliberately not deps.
+  const isFirstSettingsRun = useRef(true);
+  const settingsQueryRef = useRef(state.query);
   useEffect(() => {
+    if (isFirstSettingsRun.current) {
+      isFirstSettingsRun.current = false;
+      return;
+    }
+    // setQuery resets maxNumberOfRecordsToReturn in the same commit that changes
+    // the query; the query trigger owns that search, so don't fire a second one.
+    if (settingsQueryRef.current !== state.query) return;
     if (!hasInitialized.current || !auth.token) return;
+
     if (shouldFetchMore.current) {
       shouldFetchMore.current = false;
       performSearchRef.current?.({ enableFacets: false });
+      return;
     }
-  }, [settingsMaxResults, auth.token]);
+
+    const trimmedQuery = state.query.trim();
+    const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
+    if (!shouldSkipSearch) {
+      performSearchRef.current?.({ enableFacets: facetsEnabled });
+    }
+  }, [
+    settingsMaxResults,
+    settingsEnableCoverage,
+    settingsRemoveDuplicates,
+    settingsCoverageDepth,
+    settingsCoverageSetup,
+    settingsMinimumScore,
+  ]);
+  // Declared after the settings trigger so that, within one commit, the trigger
+  // still sees the previous query and can tell a query-driven reset apart.
+  useEffect(() => {
+    settingsQueryRef.current = state.query;
+  }, [state.query]);
 
 }
 

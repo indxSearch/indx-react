@@ -28,7 +28,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   resolution
 }) => {
   const {
-    state: { rangeFilters, rangeBounds, facetStats, facets, facetableFields, query, facetDebounceDelayMillis },
+    state: { rangeFilters, rangeBounds, facetStats, facets, filterableFields, facetableFields, query, facetDebounceDelayMillis },
     setRangeFilter,
     resetRangeFilter,
     allowEmptySearch,
@@ -80,6 +80,16 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // Track if values are invalid with a delay
   const [isMinInvalid, setIsMinInvalid] = React.useState(false);
   const [isMaxInvalid, setIsMaxInvalid] = React.useState(false);
+
+  // What the user has typed in the Min/Max boxes. Kept as raw text so a cleared
+  // box or a half-typed number is not clamped on every keystroke; the value is
+  // parsed and committed to sliderValue on blur / Enter.
+  const [minText, setMinText] = React.useState(String(displayMin));
+  const [maxText, setMaxText] = React.useState(String(displayMax));
+  React.useEffect(() => {
+    setMinText(String(sliderValue[0]));
+    setMaxText(String(sliderValue[1]));
+  }, [sliderValue]);
 
   // Memoize clamped values calculation (clamp to query bounds, not live data bounds)
   const { finalMin, finalMax, isValidMin, isValidMax } = React.useMemo(() => {
@@ -172,52 +182,46 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     }
   }, [isDisabled, queryMin, queryMax, liveDataMin, liveDataMax, field, resetRangeFilter]);
 
-  // 8) Manual number‐input handlers
-  // Min can't exceed liveDataMax (can't filter above what exists)
-  // Max can't be below liveDataMin (can't filter below what exists)
-  const handleMinChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // 8) Manual number‐input handlers. Typing only updates the text; the number is
+  // committed on blur or Enter. Min can't exceed liveDataMax (can't filter above
+  // what exists), max can't be below liveDataMin.
+  const commitMin = React.useCallback(() => {
     if (isDisabled) return;
-    const value = Number(e.target.value);
-    if (!isNaN(value)) {
-      // Clamp to [queryMin, liveDataMax]
-      const clampedValue = Math.max(queryMin, Math.min(liveDataMax, value));
-      setSliderValue([clampedValue, sliderValue[1]]);
+    const trimmed = minText.trim();
+    const value = trimmed === '' ? NaN : Number(trimmed);
+    if (isNaN(value)) {
+      setMinText(String(sliderValue[0])); // revert
+      return;
     }
-  }, [isDisabled, sliderValue, queryMin, liveDataMax]);
-
-  const handleMaxChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isDisabled) return;
-    const value = Number(e.target.value);
-    if (!isNaN(value)) {
-      // Clamp to [liveDataMin, queryMax]
-      const clampedValue = Math.max(liveDataMin, Math.min(queryMax, value));
-      setSliderValue([sliderValue[0], clampedValue]);
-    }
-  }, [isDisabled, sliderValue, liveDataMin, queryMax]);
-
-  const handleMinBlur = React.useCallback(() => {
-    const value = sliderValue[0];
-    // Clamp to [queryMin, liveDataMax] and ensure it's less than max
     const clampedValue = Math.max(queryMin, Math.min(liveDataMax, value));
     if (clampedValue < sliderValue[1]) {
       setSliderValue([clampedValue, sliderValue[1]]);
     } else {
-      // Reset to queryMin if invalid
       setSliderValue([queryMin, sliderValue[1]]);
     }
-  }, [sliderValue, queryMin, liveDataMax]);
+    setMinText(String(clampedValue < sliderValue[1] ? clampedValue : queryMin));
+  }, [isDisabled, minText, sliderValue, queryMin, liveDataMax]);
 
-  const handleMaxBlur = React.useCallback(() => {
-    const value = sliderValue[1];
-    // Clamp to [liveDataMin, queryMax] and ensure it's greater than min
+  const commitMax = React.useCallback(() => {
+    if (isDisabled) return;
+    const trimmed = maxText.trim();
+    const value = trimmed === '' ? NaN : Number(trimmed);
+    if (isNaN(value)) {
+      setMaxText(String(sliderValue[1])); // revert
+      return;
+    }
     const clampedValue = Math.max(liveDataMin, Math.min(queryMax, value));
     if (clampedValue > sliderValue[0]) {
       setSliderValue([sliderValue[0], clampedValue]);
     } else {
-      // Reset to queryMax if invalid
       setSliderValue([sliderValue[0], queryMax]);
     }
-  }, [sliderValue, liveDataMin, queryMax]);
+    setMaxText(String(clampedValue > sliderValue[0] ? clampedValue : queryMax));
+  }, [isDisabled, maxText, sliderValue, liveDataMin, queryMax]);
+
+  const commitOnEnter = (commit: () => void) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') commit();
+  };
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Histogram: snapshot facet distribution when query changes.
@@ -291,6 +295,18 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     return null;
   }
 
+  // Field validation: /filters/range rejects a non-filterable field with 400, so
+  // say so here instead of showing a slider whose filter can never apply.
+  if (!filterableFields?.includes(field)) {
+    return (
+      <FilterPanelBase collapsible={false}>
+        <div style={{ color: 'red', fontSize: '12px' }}>
+          Cannot render filter for "{field}": missing filterable.
+        </div>
+      </FilterPanelBase>
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // 9) Render slider (rail at query bounds, active region shows live data bounds)
   if (displayType === 'slider') {
@@ -359,22 +375,24 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
           <InputField
             label="Min:"
             type="number"
-            value={isDisabled ? queryMin : sliderValue[0]}
+            value={isDisabled ? String(queryMin) : minText}
             min={queryMin}
             max={Math.min(liveDataMax, sliderValue[1] - 1)}
-            onChange={handleMinChange}
-            onBlur={handleMinBlur}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinText(e.target.value)}
+            onBlur={commitMin}
+            onKeyDown={commitOnEnter(commitMin)}
             disabled={isDisabled}
             isValid={isDisabled || !isMinInvalid}
           />
           <InputField
             label="Max:"
             type="number"
-            value={isDisabled ? queryMax : sliderValue[1]}
+            value={isDisabled ? String(queryMax) : maxText}
             min={Math.max(liveDataMin, sliderValue[0] + 1)}
             max={queryMax}
-            onChange={handleMaxChange}
-            onBlur={handleMaxBlur}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMaxText(e.target.value)}
+            onBlur={commitMax}
+            onKeyDown={commitOnEnter(commitMax)}
             disabled={isDisabled}
             isValid={isDisabled || !isMaxInvalid}
           />
@@ -396,22 +414,24 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         <InputField
           label="Min:"
           type="number"
-          value={isDisabled ? queryMin : sliderValue[0]}
+          value={isDisabled ? String(queryMin) : minText}
           min={queryMin}
           max={Math.min(liveDataMax, sliderValue[1] - 1)}
-          onChange={handleMinChange}
-          onBlur={handleMinBlur}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinText(e.target.value)}
+          onBlur={commitMin}
+          onKeyDown={commitOnEnter(commitMin)}
           disabled={isDisabled}
           isValid={isDisabled || !isMinInvalid}
         />
         <InputField
           label="Max:"
           type="number"
-          value={isDisabled ? queryMax : sliderValue[1]}
+          value={isDisabled ? String(queryMax) : maxText}
           min={Math.max(liveDataMin, sliderValue[0] + 1)}
           max={queryMax}
-          onChange={handleMaxChange}
-          onBlur={handleMaxBlur}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMaxText(e.target.value)}
+          onBlur={commitMax}
+          onKeyDown={commitOnEnter(commitMax)}
           disabled={isDisabled}
           isValid={isDisabled || !isMaxInvalid}
         />

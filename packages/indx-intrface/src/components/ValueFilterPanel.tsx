@@ -100,7 +100,10 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   }
 
   // 2) Get raw facet values & selected filters
-  const facetValues = facets?.[field];
+  // A toggle whose filter is on may get no facet entry back at all (every
+  // remaining document is 'true', or none are); keep rendering it so it can be
+  // switched off again.
+  const facetValues = facets?.[field] ?? (displayType === 'toggle' ? [] : undefined);
   if (!facetValues || !Array.isArray(facetValues)) return null;
   const selectedValues = filters?.[field] ?? [];
 
@@ -134,22 +137,25 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     });
   }
 
-  // 5) Boolean‐toggle special case + validation
+  // 5) Boolean‐toggle special case + validation.
+  // The server only returns facet keys present in the *filtered* result set, so
+  // once the toggle is on the response may contain just { true: n } — or nothing
+  // at all. A field is treated as boolean when every key it does have is a
+  // boolean-ish literal, or when the facet is empty but our own filter is active.
+  const BOOLEAN_KEYS = new Set(['true', 'false', 'null']);
+  const facetKeys = Array.from(mergedValuesMap.keys());
   const isBooleanFacet =
     displayType === 'toggle' &&
-    mergedValuesMap.size === 2 &&
-    mergedValuesMap.has('true') &&
-    (mergedValuesMap.has('false') || mergedValuesMap.has('null'));
+    ((facetKeys.length > 0 && facetKeys.every(k => BOOLEAN_KEYS.has(k))) ||
+      (facetKeys.length === 0 && selectedValues.length > 0));
 
-  // Treat "null" key as "false" for booleans
-  if (mergedValuesMap.has('null')) {
+  // For boolean toggles only: fold the "null" bucket into "false" so the
+  // off-state count is "everything that is not true". Checkbox/button panels keep
+  // the literal 'null' key so the showNull prop can decide whether to list it.
+  if (isBooleanFacet && mergedValuesMap.has('null')) {
     const nullCount = mergedValuesMap.get('null') ?? 0;
-
-    // Merge the count into the "false" key
     const existingFalseCount = mergedValuesMap.get('false') ?? 0;
-    mergedValuesMap.set('false', (existingFalseCount ?? 0) + nullCount);
-
-    // Remove the "null" key to avoid showing it separately
+    mergedValuesMap.set('false', existingFalseCount + nullCount);
     mergedValuesMap.delete('null');
   }
 
@@ -175,8 +181,9 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     const rawTrueCount = mergedValuesMap.get('true');
     const trueCount = typeof rawTrueCount === 'number' ? rawTrueCount : null;
     const isOn = selectedValues.includes('true');
-    // Disable only if count === 0. If count is null (unknown), leave enabled.
-    const disabled = trueCount === 0;
+    // Disable only when nothing would match — and never while the toggle is on,
+    // so the user can always switch an active filter back off.
+    const disabled = trueCount === 0 && !isOn;
     // Display just the number if > 0
     const countLabel = showCount && (trueCount ?? 0) > 0 ? `${trueCount}` : '';
 

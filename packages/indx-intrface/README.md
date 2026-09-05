@@ -350,7 +350,10 @@ export default function AdvancedSearch() {
 |------|------|----------|-------------|
 | `fields` | `string[]` | ✅ | Document fields to fetch |
 | `resultsPerPage` | `number` | ✅ | Results per page |
+| `parseArrayStrings` | `boolean` | ❌ | Convert string fields holding a JSON (`["a","b"]`) or Python-style (`['a', 'b']`) list literal into a `string[]` before `children` sees them. Default `false`; other strings are never altered. |
 | `children` | `(item: any) => ReactNode` | ✅ | Render function for each result |
+
+Initialisation failures (bad token, unknown dataset, unreachable server) and failed searches are stored in the context as `authError` / `state.error`, and `SearchResults` renders the message in place of the result list. `SearchErrorBoundary` only catches errors thrown while rendering.
 
 ### ValueFilterPanel Props
 
@@ -363,6 +366,9 @@ export default function AdvancedSearch() {
 | `limit` | `number` | `undefined` | Max filters to show |
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
 | `showCount` | `boolean` | `true` | Show facet counts |
+| `showNull` | `boolean` | `false` | List the `null` facet bucket (documents without the field) as an option |
+
+Selecting several values on one field widens the result set (they are ORed); different fields and range filters narrow it (ANDed). With `displayType="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
 
 ### RangeFilterPanel Props
 

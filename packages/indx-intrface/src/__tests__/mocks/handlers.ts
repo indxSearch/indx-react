@@ -34,13 +34,23 @@ export const handlers = [
   http.post(`${DS_BASE}/documents/lookup`, () =>
     HttpResponse.json(DOCUMENTS)),
 
-  // Filter proxy builders
-  http.post(`${DS_BASE}/filters/value`, () =>
-    HttpResponse.json({ hashString: 'vf-1' })),
+  // Filter proxy builders. The returned hashString encodes the request so tests
+  // can assert the AND/OR shape of the combined filter, e.g.
+  //   ((category=running OR category=trail) AND range:price)
+  http.post(`${DS_BASE}/filters/value`, async ({ request }) => {
+    const { fieldName, value } = await request.json() as { fieldName: string; value: string };
+    return HttpResponse.json({ hashString: `${fieldName}=${value}` });
+  }),
 
-  http.post(`${DS_BASE}/filters/range`, () =>
-    HttpResponse.json({ hashString: 'rf-1' })),
+  http.post(`${DS_BASE}/filters/range`, async ({ request }) => {
+    const { fieldName } = await request.json() as { fieldName: string };
+    return HttpResponse.json({ hashString: `range:${fieldName}` });
+  }),
 
-  http.post(`${DS_BASE}/filters/combine`, () =>
-    HttpResponse.json({ hashString: 'combined-1' })),
+  http.post(`${DS_BASE}/filters/combine`, async ({ request }) => {
+    const { a, b, useAndOperation } = await request.json() as {
+      a: { hashString: string }; b: { hashString: string }; useAndOperation: boolean;
+    };
+    return HttpResponse.json({ hashString: `(${a.hashString} ${useAndOperation ? 'AND' : 'OR'} ${b.hashString})` });
+  }),
 ];

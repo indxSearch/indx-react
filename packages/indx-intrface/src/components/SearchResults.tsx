@@ -10,13 +10,42 @@ import { Button } from '@indxsearch/systm';
 export interface SearchResultsProps {
   fields?: string[];
   resultsPerPage?: number;
+  /**
+   * Convert string fields that hold a serialised list — JSON (`["a","b"]`) or
+   * Python-style (`['a', 'b']`) — into a real string[] before they reach the
+   * render prop. Off by default: any other string, including ones that merely
+   * start with '[' such as "[Draft] Report", is passed through untouched.
+   */
+  parseArrayStrings?: boolean;
   children: (item: Record<string, any>) => React.ReactNode;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, children }) => {
+// Python-style list literal of single-quoted items: ['a', 'b c', ...] or [].
+const PYTHON_LIST = /^\[\s*(?:'[^']*'(?:\s*,\s*'[^']*')*)?\s*\]$/;
+
+/** Returns the list a string encodes, or undefined when it is not a list literal. */
+export function parseArrayString(value: string): string[] | undefined {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) return undefined;
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) return parsed.map(item => String(item));
+  } catch {
+    // not JSON — try the Python shape below
+  }
+  if (!PYTHON_LIST.test(trimmed)) return undefined;
+  const items: string[] = [];
+  const itemPattern = /'([^']*)'/g;
+  let match: RegExpExecArray | null;
+  while ((match = itemPattern.exec(trimmed)) !== null) items.push(match[1]);
+  return items;
+}
+
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, truncationIndex, query },
+    state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error },
     isFetchingInitial,
+    authError,
     allowEmptySearch,
     fetchMoreResults,
   } = useSearchContext();
@@ -52,6 +81,17 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     return allowEmptySearch
       ? <SearchResultsSkeleton rows={pageSize} />
       : <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
+  }
+
+  // Initialisation failures (bad token, unknown dataset) and failed searches are
+  // stored in context rather than thrown, so show them here instead of the idle logo.
+  const errorMessage = authError ?? error;
+  if (errorMessage) {
+    return (
+      <div className={styles.invalid} role="alert">
+        <p>{errorMessage}</p>
+      </div>
+    );
   }
 
   if (resultsSuppressed || results === null) {
@@ -91,15 +131,13 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
             displayData = { ...parsed };
           }
 
-          // Strip array-like strings into real string[]
-          for (const key in displayData) {
-            const val = displayData[key];
-            if (typeof val === 'string' && val.startsWith('[') && val.endsWith(']')) {
-              const inner = val.replace(/^\[|\]$/g, '');
-              displayData[key] = inner
-                .split(',')
-                .map(s => s.trim().replace(/^'|'$/g, ''))
-                .filter(s => s.length > 0);
+          if (parseArrayStrings) {
+            for (const key in displayData) {
+              const val = displayData[key];
+              if (typeof val === 'string') {
+                const list = parseArrayString(val);
+                if (list) displayData[key] = list;
+              }
             }
           }
 

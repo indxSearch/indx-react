@@ -103,6 +103,10 @@ export const SearchProvider: React.FC<{
 }) => {
   const filtersChangedByUser = useRef(false);
   const shouldFetchMore = useRef(false);
+  // The page size the user wants. Starts at the maxResults prop and follows
+  // setSearchSettings({ maxNumberOfRecordsToReturn }); a new query resets the
+  // "load more" expansion back to this value rather than to the prop.
+  const userMaxResultsRef = useRef(maxResults);
 
   const [state, setState] = useState<SearchState>({
     query: '',
@@ -205,11 +209,11 @@ export const SearchProvider: React.FC<{
         rangeFilters: hasRangeFilters ? {} : prev.rangeFilters,
         searchSettings: {
           ...prev.searchSettings,
-          maxNumberOfRecordsToReturn: maxResults,
+          maxNumberOfRecordsToReturn: userMaxResultsRef.current,
         },
       };
     });
-  }, [maxResults]);
+  }, []);
 
   // Function to update the debounce delay for faceted searches
   const setDebounceDelay = useCallback((ms: number) => {
@@ -220,6 +224,9 @@ export const SearchProvider: React.FC<{
   }, []);
 
   const setSearchSettings = useCallback((settings: Partial<SearchSettings>) => {
+    if (typeof settings.maxNumberOfRecordsToReturn === 'number') {
+      userMaxResultsRef.current = settings.maxNumberOfRecordsToReturn;
+    }
     setState(prev => {
       const newSettings = { ...prev.searchSettings, ...settings };
 

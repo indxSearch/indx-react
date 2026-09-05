@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Button } from '@indxsearch/systm';
 
 interface Props {
   children: ReactNode;
@@ -11,10 +12,13 @@ interface State {
 }
 
 /**
- * Error boundary component for graceful error handling in search components.
+ * Error boundary for the search components.
  *
- * Catches errors during initialization and search operations, displaying
- * user-friendly error messages with suggestions for fixing common issues.
+ * Catches errors thrown while *rendering* the tree below it (a render prop
+ * that throws, a misconfigured component). It does not see failed requests:
+ * initialisation failures (bad token, unknown dataset, unreachable server)
+ * and failed searches are stored in the search context as `authError` and
+ * `state.error`, and `SearchResults` renders them in place of the result list.
  *
  * @example
  * <SearchErrorBoundary>
@@ -95,20 +99,9 @@ export class SearchErrorBoundary extends Component<Props, State> {
               <li>Check dataset name spelling</li>
             </ul>
           </div>
-          <button
-            onClick={this.reset}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#c33',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
-          >
+          <Button variant="primary" size="micro" onClick={this.reset}>
             Try Again
-          </button>
+          </Button>
         </div>
       );
     }
