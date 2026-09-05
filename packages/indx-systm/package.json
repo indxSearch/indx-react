@@ -1,6 +1,6 @@
 {
   "name": "@indxsearch/systm",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Minimal design system and UI component library for React. Includes buttons, inputs, sliders, checkboxes, tables, and more. Built with CSS modules and customizable via CSS variables.",
   "keywords": [
     "indx",

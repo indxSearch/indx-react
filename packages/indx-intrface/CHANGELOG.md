@@ -6,7 +6,9 @@
 
 - Restore AND as the default for several selected values on one field. 3.1.0 switched this to OR, which broke narrowing on multi-valued fields (a movie tagged both "horror" and "comedy" must match both ticks). The OR behaviour is now opt-in per panel with `<ValueFilterPanel match="any" />` for scalar fields.
 
-  Also fixes react-range's "`values` property is in conflict with the current `step`, `min`, and `max`" warning: `RangeFilterPanel` derives its slider `step` from the precision of the field's values (new `step` prop to override) and snaps thumbs onto the grid, and the Minimum Score slider in `SearchSettingsPanel` uses step 1. Requires `@indxsearch/systm` ^2.6.0.
+  Also fixes react-range's "`values` property is in conflict with the current `step`, `min`, and `max`" warning: `RangeFilterPanel` derives its slider `step` from the precision of the field's values (new `step` prop to override) and snaps thumbs onto the grid, and the Minimum Score slider in `SearchSettingsPanel` uses step 1. Requires `@indxsearch/systm` ^2.6.1.
+
+  3.1.0 is deprecated on npm because of the OR default; upgrade to 3.1.1.
 
 All notable changes to `@indxsearch/intrface` will be documented in this file.
 
