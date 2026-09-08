@@ -1,5 +1,5 @@
 // Enums
-export { SystemState, BoostStrength } from './enums';
+export { SystemState, BoostStrength, SynonymDirection } from './enums';
 export { JsonErrorType } from './errors';
 
 // Auth
@@ -20,6 +20,9 @@ export {
 
 // Boost
 export { BoostProxy } from './boost';
+
+// Synonyms
+export { SynonymList, SynonymEntry } from './synonyms';
 
 // Vector / Hybrid search
 export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
