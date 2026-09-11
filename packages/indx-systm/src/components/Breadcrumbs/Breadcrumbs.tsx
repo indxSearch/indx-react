@@ -10,6 +10,7 @@ export interface BreadcrumbItem {
   label: string;
   href?: string;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+  /** Leading icon; icon components receive Button-compatible size and color props. */
   icon?: React.ReactNode;
   /** Supply a switcher to show an independent dropdown beside the page link. */
   switcher?: {
@@ -23,12 +24,18 @@ export interface BreadcrumbItem {
 
 export interface BreadcrumbsProps {
   items: BreadcrumbItem[];
-  size?: 'micro' | 'default' | 'large';
+  size?: 'micro' | 'default';
   className?: string;
   separator?: React.ReactNode;
   /** Return a router link, forwarding these anchor props to preserve styling and accessibility. */
   renderLink?: (item: BreadcrumbItem, props: React.ComponentPropsWithoutRef<'a'>) => React.ReactNode;
   'aria-label'?: string;
+}
+
+function renderStepIcon(icon: React.ReactNode) {
+  return React.isValidElement<{ size?: string | number; color?: string }>(icon)
+    ? React.cloneElement(icon, { size: '14px', color: 'currentColor' })
+    : icon;
 }
 
 /** Page navigation with independently controlled context switchers. */
@@ -54,7 +61,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                   onClick: item.onClick,
                   'aria-current': index === items.length - 1 ? 'page' : undefined,
                   children: <>
-                    {item.icon && <span className={styles.icon} aria-hidden="true">{item.icon}</span>}
+                    {item.icon && <span className={styles.icon} aria-hidden="true">{renderStepIcon(item.icon)}</span>}
                     <span className={styles.text}>{item.label}</span>
                   </>,
                 };
@@ -62,7 +69,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               })()
             ) : (
               <span className={styles.label} aria-current={index === items.length - 1 ? 'page' : undefined}>
-                {item.icon && <span className={styles.icon} aria-hidden="true">{item.icon}</span>}
+                {item.icon && <span className={styles.icon} aria-hidden="true">{renderStepIcon(item.icon)}</span>}
                 <span className={styles.text}>{item.label}</span>
               </span>
             )}

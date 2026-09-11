@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Breadcrumbs, type BreadcrumbItem } from '@indxsearch/systm';
+import { Database, Users } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 const teams = ['Acme', 'Design', 'Engineering'].map(label => ({ label, value: label }));
@@ -15,9 +16,9 @@ export default function BreadcrumbsPage() {
     onClick: event => { event.preventDefault(); setVisited(label); },
   });
   const items: BreadcrumbItem[] = [
-    { id: 'team', label: team, ...pageLink(`Team: ${team}`),
+    { id: 'team', label: team, icon: <Users />, ...pageLink(`Team: ${team}`),
       switcher: { label: 'Switch team', value: team, options: teams, onValueChange: setTeam } },
-    { id: 'dataset', label: dataset, ...pageLink(`Dataset: ${dataset}`),
+    { id: 'dataset', label: dataset, icon: <Database />, ...pageLink(`Dataset: ${dataset}`),
       switcher: { label: 'Switch dataset', value: dataset, options: datasets, onValueChange: setDataset } },
   ];
 
@@ -33,11 +34,14 @@ export default function BreadcrumbsPage() {
         <p className={styles.active} role="status">{visited ? `Page clicked: ${visited}` : 'Click a label to preview navigation. Dropdowns use mock options.'}</p>
       </div>
       <div className={styles.section}>
+        <h2 className={styles.heading}>Without icons</h2>
+        <Breadcrumbs items={items.map(item => ({ ...item, icon: undefined }))} />
+      </div>
+      <div className={styles.section}>
         <h2 className={styles.heading}>Sizes</h2>
         <div className={styles.stack}>
           <Breadcrumbs items={items} size="micro" aria-label="Micro breadcrumbs" />
           <Breadcrumbs items={items} size="default" aria-label="Default breadcrumbs" />
-          <Breadcrumbs items={items} size="large" aria-label="Large breadcrumbs" />
         </div>
       </div>
       <div className={styles.section}>
@@ -57,6 +61,7 @@ export default function BreadcrumbsPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Usage</h2>
         <p className={styles.desc}>Provide each step’s label and href, with an optional controlled switcher.
+          Pass an icon on any step to display it before the label.
           Use onClick to integrate a client-side router. Steps without an href render as text.
           The component leaves team and dataset relationships to the consuming application.</p>
       </div>
