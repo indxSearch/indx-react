@@ -79,21 +79,6 @@ export default function NavigationMenuPage() {
           </NavigationMenuList>
         </NavigationMenu>
       </section>
-      <section className={styles.section}>
-        <h2 className={styles.heading}>Usage</h2>
-        <pre className={styles.code}>{`<NavigationMenu size="default">
-  <NavigationMenuList>
-    <NavigationMenuItem>
-      <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
-      <NavigationMenuContent>
-        <NavigationMenuLink href="/docs">Documentation</NavigationMenuLink>
-      </NavigationMenuContent>
-    </NavigationMenuItem>
-  </NavigationMenuList>
-</NavigationMenu>`}</pre>
-        <p className={styles.intro}>Use asChild on links for your router. Use variant="navigation" for top-level links,
-          active for the current page, and icon on triggers for a leading Pixl icon.</p>
-      </section>
     </main>
   );
 }
