@@ -1,6 +1,6 @@
 import React from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
-import { Check, Chevron_right, Dropdown } from '@indxsearch/pixl';
+import { Check, Chevron_right, Dropdown, Plus } from '@indxsearch/pixl';
 import type { SelectOption } from '../Select/Select';
 import selectStyles from '../Select/Select.module.css';
 import styles from './Breadcrumbs.module.css';
@@ -19,6 +19,8 @@ export interface BreadcrumbItem {
     options: SelectOption[];
     onValueChange: (value: string) => void;
     disabled?: boolean;
+    /** Optional entry below the options — typically "New …" — that runs instead of selecting. */
+    action?: { label: string; onSelect: () => void };
   };
 }
 
@@ -37,6 +39,9 @@ function renderStepIcon(icon: React.ReactNode) {
     ? React.cloneElement(icon, { size: '14px', color: 'currentColor' })
     : icon;
 }
+
+/** Sentinel value for the switcher's action item; never reaches onValueChange. */
+const ACTION_VALUE = '\u0000action';
 
 /** Page navigation with independently controlled context switchers. */
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
@@ -74,8 +79,9 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               </span>
             )}
             {item.switcher && (
-              <RadixSelect.Root value={item.switcher.value} onValueChange={item.switcher.onValueChange}
-                disabled={item.switcher.disabled || item.switcher.options.length === 0}>
+              <RadixSelect.Root value={item.switcher.value}
+                onValueChange={value => value === ACTION_VALUE ? item.switcher!.action?.onSelect() : item.switcher!.onValueChange(value)}
+                disabled={item.switcher.disabled || (item.switcher.options.length === 0 && !item.switcher.action)}>
                 <RadixSelect.Trigger className={styles.trigger}
                   aria-label={`${item.switcher.label}: ${item.label}`}>
                   <RadixSelect.Icon aria-hidden="true" className={styles.icon}>
@@ -98,6 +104,17 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                           </RadixSelect.ItemIndicator>
                         </RadixSelect.Item>
                       ))}
+                      {item.switcher.action && (
+                        <>
+                          <RadixSelect.Separator className={styles.menuDivider} />
+                          <RadixSelect.Item value={ACTION_VALUE} className={selectStyles.item} textValue={item.switcher.action.label}>
+                            <span className={styles.option}>
+                              <span className={styles.icon} aria-hidden="true"><Plus size={14} color="currentColor" /></span>
+                              <RadixSelect.ItemText>{item.switcher.action.label}</RadixSelect.ItemText>
+                            </span>
+                          </RadixSelect.Item>
+                        </>
+                      )}
                     </RadixSelect.Viewport>
                   </RadixSelect.Content>
                 </RadixSelect.Portal>

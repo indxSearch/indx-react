@@ -16,3 +16,4 @@
 .icon { display: inline-flex; align-items: center; flex-shrink: 0; }
 .option { display: inline-flex; align-items: center; gap: 6px; overflow-wrap: anywhere; min-width: 0; }
 .menu { min-width: min(180px, var(--radix-select-content-available-width)); max-width: var(--radix-select-content-available-width); max-height: var(--radix-select-content-available-height); }
+.menuDivider { height: 1px; background: var(--lv3); margin: 4px 0; }
