@@ -1,0 +1,21 @@
+.root { width: fit-content; max-width: 100%; color: var(--lv7); background: var(--lv1); border-radius: var(--radius); }
+.micro { --step-height: 30px; font: var(--text-xs); }
+.default { --step-height: 40px; font: var(--text-sm); }
+.large { --step-height: 50px; font: var(--text-base); }
+.list { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
+.item { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; }
+.separator { display: inline-flex; align-items: center; flex-shrink: 0; color: var(--lv4); padding: 0 4px; }
+.step { position: relative; display: inline-flex; align-items: stretch; min-width: 0; max-width: 100%; border-radius: var(--radius); }
+.switchable:hover, .switchable:focus-within { background: var(--lv2); }
+.switchable .label { padding-inline-end: 36px; }
+.label { display: inline-flex; align-items: center; gap: 6px; min-width: 0; min-height: var(--step-height); padding: 0 10px; color: var(--lv6); text-decoration: none; border-radius: var(--radius); }
+.label[aria-current='page'] { color: var(--lv7); }
+.text { overflow-wrap: anywhere; }
+a.label:hover { background: var(--lv2); color: var(--lv7); }
+.trigger { all: unset; box-sizing: border-box; position: absolute; inset-block: 4px; inset-inline-end: 4px; display: inline-flex; align-items: center; justify-content: center; width: 26px; border-radius: var(--radius); color: var(--lv5); cursor: pointer; }
+.trigger:hover:not([data-disabled]), .trigger[data-state='open'] { background: var(--lv3); color: var(--lv5); }
+.trigger[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+.trigger:focus-visible, a.label:focus-visible { outline: 2px solid var(--lv5); outline-offset: 2px; }
+.icon { display: inline-flex; align-items: center; flex-shrink: 0; }
+.option { display: inline-flex; align-items: center; gap: 6px; overflow-wrap: anywhere; min-width: 0; }
+.menu { min-width: min(180px, var(--radix-select-content-available-width)); max-width: var(--radix-select-content-available-width); max-height: var(--radix-select-content-available-height); }
