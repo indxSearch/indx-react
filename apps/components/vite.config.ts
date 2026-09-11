@@ -26,6 +26,7 @@ export default defineConfig({
       'react-router-dom',
       'react-range',
       '@radix-ui/react-dialog',
+      '@radix-ui/react-navigation-menu',
       '@radix-ui/react-popover',
       '@radix-ui/react-select',
       '@radix-ui/react-tooltip',

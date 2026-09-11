@@ -109,7 +109,47 @@ import '@indxsearch/systm/patterns.css'; // Or import patterns standalone
 }
 ```
 
+## NavigationMenu
+
+Composable site navigation with direct links and dropdown panels, powered by
+Radix and styled with Systm colors, sharp corners, and Pixl dropdown icons.
+Use `micro` (30px, `--text-xs`) or `default` (40px, `--text-sm`). Leading trigger
+icons use 14px, with Button-matched gaps of 7px and 10px respectively.
+
+```tsx
+import {
+  NavigationMenu, NavigationMenuList, NavigationMenuItem,
+  NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink,
+} from '@indxsearch/systm';
+
+<NavigationMenu size="default" aria-label="Site navigation">
+  <NavigationMenuList>
+    <NavigationMenuItem>
+      <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <NavigationMenuLink href="/datasets">Datasets</NavigationMenuLink>
+        <NavigationMenuLink href="/teams">Teams</NavigationMenuLink>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+    <NavigationMenuItem>
+      <NavigationMenuLink variant="navigation" href="/" active>
+        Overview
+      </NavigationMenuLink>
+    </NavigationMenuItem>
+  </NavigationMenuList>
+</NavigationMenu>
+```
+
+Use `asChild` on links to wrap a router Link. Triggers accept an `icon` element
+and `disabled`; links accept `active` for the current page. Panels support custom
+layouts such as grids and descriptions. The shared dropdown viewport is included
+by the root and fits its width up to 560px. Radix root props such as `value`,
+`onValueChange`, and `delayDuration` are forwarded. See `/navigation-menu` in the
+component viewer for interactive examples.
+
 ## Dependencies
+
+- `@radix-ui/react-navigation-menu` - Site navigation primitives
 
 - `@indxsearch/pixl` - Icon library
 - `@radix-ui/react-dialog` - Modal/dialog primitives

@@ -24,3 +24,5 @@ export { Modal, type ModalProps } from './components/Modal/Modal';
 export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';
 export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
+
+export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink, type NavigationMenuProps, type NavigationMenuTriggerProps, type NavigationMenuLinkProps } from './components/NavigationMenu/NavigationMenu';

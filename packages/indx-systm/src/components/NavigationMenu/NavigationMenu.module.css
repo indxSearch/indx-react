@@ -1,0 +1,75 @@
+.root {
+  position: relative;
+  width: 100%;
+  color: var(--lv7);
+}
+
+.micro { --control-height: 30px; --control-padding: 10px; --icon-gap: 7px; font: var(--text-xs); }
+.default { --control-height: 40px; --control-padding: 15px; --icon-gap: 10px; font: var(--text-sm); }
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.control {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--icon-gap);
+  min-height: var(--control-height);
+  padding: 0 var(--control-padding);
+  font: inherit;
+  font-weight: var(--med);
+  color: var(--lv6);
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.control:hover:not(:disabled), .control[data-state='open'], .control[data-active] {
+  background: var(--lv2);
+  color: var(--lv7);
+}
+
+.control:disabled { opacity: 0.5; cursor: not-allowed; }
+.control:focus-visible, .link:focus-visible { outline: 2px solid var(--lv5); outline-offset: -2px; }
+.icon, .caret { display: inline-flex; align-items: center; flex-shrink: 0; }
+.caret { color: var(--lv4); }
+
+.viewportPosition {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 100%;
+  width: 100%;
+  padding-top: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.viewport {
+  position: relative;
+  width: min(560px, 100%);
+  height: calc(var(--radix-navigation-menu-viewport-height) + 2px);
+  max-height: min(480px, 70dvh);
+  overflow: auto;
+  background: var(--lv1);
+  border: 1px solid var(--lv3);
+  box-sizing: border-box;
+  border-radius: 0;
+  pointer-events: auto;
+}
+
+.viewport[data-state='closed'] { display: none; }
+.content { position: absolute; top: 0; inset-inline-start: 0; width: 100%; box-sizing: border-box; padding: 8px; }
+.link { display: flex; flex-direction: column; gap: 4px; padding: 12px; color: var(--lv6); font: inherit; text-decoration: none; border-radius: 0; }
+.link:hover, .link[data-active] { background: var(--lv2); color: var(--lv7); }
