@@ -1,3 +1,5 @@
+import { IndxApiError } from './IndxApiError';
+
 type AuthenticatedFetch = (url: string, options?: RequestInit) => Promise<Response>;
 
 async function postFilter(
@@ -15,14 +17,7 @@ async function postFilter(
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    let detail = '';
-    try {
-      const problem = await response.json();
-      detail = problem?.detail ?? problem?.title ?? '';
-    } catch {
-      // body not JSON — status alone is the message
-    }
-    throw new Error(`${label} failed: HTTP ${response.status}${detail ? ` — ${detail}` : ''}`);
+    throw await IndxApiError.fromResponse(label, response);
   }
   const proxy = await response.json();
   if (!proxy || typeof proxy.hashString !== 'string') {

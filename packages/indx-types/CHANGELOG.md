@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-09-11
+
+### Added
+
+- `IndxProblem` and `IndxProblemCode`: the RFC 9457 problem document every
+  error response carries, with its `code` extension typed as a union of the
+  documented codes (`unknownFilter`, `invalidState`, `shadowBusy`,
+  `datasetNotFound`, …) and the `invalidState` extras (`currentState`,
+  `allowedStates`, `retryable`, `errorMessage`). Switch on `code`, not on the
+  HTTP status. `unknownFilter` is new on the server: a filter token it cannot
+  honour is a 400 now, never a silently unfiltered search.
+
 ## [2.1.0] - 2026-09-08
 
 ### Added

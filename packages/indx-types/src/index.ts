@@ -35,6 +35,7 @@ export { SystemStatus, LicenseInfo } from './status';
 
 // Errors
 export { ParseResult, ProcessError, ProcessErrorCount } from './errors';
+export { IndxProblem, IndxProblemCode } from './problem';
 
 // Fields
 export { FieldProxy } from './fields';

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import type { SearchState } from './SearchContext';
 import type { IndxAuthResult } from './useIndxAuth';
 import { buildFilterProxy } from './buildFilterProxy';
+import { IndxApiError } from './IndxApiError';
 
 function debounce<F extends (...args: any[]) => void>(fn: F, delay: number) {
   let timer: ReturnType<typeof setTimeout>;
@@ -128,7 +129,7 @@ export function useSearchExecution({
           body: JSON.stringify(searchBody),
         });
         if (!searchResponse.ok) {
-          throw new Error(`Search failed: HTTP ${searchResponse.status}`);
+          throw await IndxApiError.fromResponse('Search', searchResponse);
         }
         const searchData = await searchResponse.json();
         const truncationIndex = searchData.truncationIndex ?? -1;
@@ -146,7 +147,7 @@ export function useSearchExecution({
             body: JSON.stringify(keys),
           });
           if (!jsonResponse.ok) {
-            throw new Error(`Document lookup failed: HTTP ${jsonResponse.status}`);
+            throw await IndxApiError.fromResponse('Document lookup', jsonResponse);
           }
           const documentsData = await jsonResponse.json();
           combinedResults = documentsData.map((doc: any, idx: number) => ({

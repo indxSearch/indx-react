@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import type { FilterProxy } from '@indxsearch/indx-types';
+import { IndxApiError } from '../context/IndxApiError';
 import type { EmbeddingResult } from './useVectorSearch';
 
 export interface UseHybridSearchOptions {
@@ -42,7 +43,7 @@ export function useHybridSearch(
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) throw new Error(`HybridSearch failed: ${response.status}`);
+      if (!response.ok) throw await IndxApiError.fromResponse('HybridSearch', response);
 
       const entries: Array<{ documentKey: number; score: number }> = await response.json();
       if (entries.length === 0) {
@@ -57,7 +58,7 @@ export function useHybridSearch(
         body: JSON.stringify(keys),
       });
 
-      if (!jsonResponse.ok) throw new Error(`GetJson failed: ${jsonResponse.status}`);
+      if (!jsonResponse.ok) throw await IndxApiError.fromResponse('GetJson', jsonResponse);
       const documents: any[] = await jsonResponse.json();
 
       setResults(documents.map((doc, idx) => ({

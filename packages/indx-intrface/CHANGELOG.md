@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.0
+
+### Minor Changes
+
+- Failed requests now throw `IndxApiError` (exported) instead of a bare `Error`. It carries the server's RFC 9457 problem document: `status`, `code` (typed via `IndxProblemCode` from `@indxsearch/indx-types` 2.2.0), `problem`, and for `invalidState` a `retryable` flag with `retryAfterSeconds` from the `Retry-After` header. The `message` keeps the previous `"<label> failed: HTTP <status>"` form, with the server's detail appended when there is one, so existing string matching keeps working. Applies to search, document lookup, filter creation, vector search and hybrid search.
+- Context: the server now answers a filter token it cannot honour with 400 `unknownFilter` rather than silently searching unfiltered. The text search path rebuilds its filter on every search and never holds a stale token, so this reaches consumers only through the `filter` option of `useVectorSearch` / `useHybridSearch`, where the token is the caller's own: on `unknownFilter`, re-create the filter and retry.
+
 ## 3.1.2
 
 ### Patch Changes

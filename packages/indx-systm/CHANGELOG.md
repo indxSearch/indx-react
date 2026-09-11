@@ -5,6 +5,18 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-09-11
+
+### Added
+
+- `Breadcrumbs`: page trail where each step is a link and may carry an
+  independent context switcher (`switcher`: current value, options, and an
+  optional `action` entry such as "New team…" that runs instead of selecting).
+  Sizes `micro` and `default`; step icons render at 14px. Ported to Blazor.
+- `NavigationMenu`: Radix navigation menu with Systm styling (`NavigationMenu`,
+  `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`,
+  `NavigationMenuContent`, `NavigationMenuLink`). Not yet in Blazor.
+
 ## [2.7.0] - 2026-09-08
 
 ### Added
