@@ -13,10 +13,12 @@ import styles from './page.module.css';
  * their name in the breadcrumb slot. Not wired to anything; navigation is state.
  */
 
-type Screen = 'dataset' | 'team' | 'account';
+type Screen = 'dataset' | 'team' | 'account' | 'admin';
 
 const teams = ['acme', 'design', 'engineering'].map(v => ({ label: v, value: v }));
 const datasets = ['products', 'customers', 'orders'].map(v => ({ label: v, value: v }));
+const adminPages = [['users', 'Users'], ['datasets', 'All datasets'], ['settings', 'Settings'], ['license', 'License']].map(([value, label]) => ({ label, value }));
+const accountPages = [['account', 'Account'], ['api-keys', 'API keys']].map(([value, label]) => ({ label, value }));
 const tabs = [
   { key: 'status', label: 'Status', icon: <Status /> },
   { key: 'fields', label: 'Field configuration', icon: <Field /> },
@@ -31,27 +33,41 @@ export default function AppShellPage() {
   const [team, setTeam] = useState('acme');
   const [dataset, setDataset] = useState('products');
   const [tab, setTab] = useState('status');
+  const [adminPage, setAdminPage] = useState('settings');
+  const [accountPage, setAccountPage] = useState('api-keys');
 
-  const crumbs: BreadcrumbItem[] = screen === 'account'
-    ? [{ id: 'page', label: 'API keys', icon: <Key /> }]
-    : [
-        { id: 'team', label: team, href: '#team', icon: <Users />, onClick: e => { e.preventDefault(); setScreen('team'); },
-          switcher: { label: 'Switch team', value: team, options: teams, onValueChange: v => { setTeam(v); setScreen('team'); },
-                      action: { label: 'New team…', onSelect: () => alert('New team dialog') } } },
-        ...(screen === 'dataset' ? [{ id: 'dataset', label: dataset, href: '#dataset', icon: <Database />, onClick: (e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault(),
-          switcher: { label: 'Switch dataset', value: dataset, options: datasets, onValueChange: setDataset,
-                      action: { label: 'New dataset…', onSelect: () => alert('New dataset dialog') } } } as BreadcrumbItem] : []),
-      ];
+  // The same grammar everywhere: the trail says where you are, and the last step's caret
+  // switches between siblings. The right-hand menu is only an entry point into a section.
+  const stop = (e: React.MouseEvent<HTMLAnchorElement>) => e.preventDefault();
+  const crumbs: BreadcrumbItem[] =
+    screen === 'admin' ? [
+      { id: 'admin', label: 'Admin', href: '#admin', icon: <Shield />, onClick: e => { stop(e); setAdminPage('users'); } },
+      { id: 'page', label: adminPages.find(p => p.value === adminPage)!.label, href: '#page', onClick: stop,
+        switcher: { label: 'Admin page', value: adminPage, options: adminPages, onValueChange: setAdminPage } },
+    ] :
+    screen === 'account' ? [
+      { id: 'me', label: 'anders', href: '#me', icon: <User_id />, onClick: e => { stop(e); setAccountPage('account'); } },
+      { id: 'page', label: accountPages.find(p => p.value === accountPage)!.label, href: '#page', onClick: stop,
+        switcher: { label: 'Account page', value: accountPage, options: accountPages, onValueChange: setAccountPage } },
+    ] : [
+      { id: 'team', label: team, href: '#team', icon: <Users />, onClick: e => { stop(e); setScreen('team'); },
+        switcher: { label: 'Switch team', value: team, options: teams, onValueChange: v => { setTeam(v); setScreen('team'); },
+                    action: { label: 'New team…', onSelect: () => alert('New team dialog') } } },
+      ...(screen === 'dataset' ? [{ id: 'dataset', label: dataset, href: '#dataset', icon: <Database />, onClick: stop,
+        switcher: { label: 'Switch dataset', value: dataset, options: datasets, onValueChange: setDataset,
+                    action: { label: 'New dataset…', onSelect: () => alert('New dataset dialog') } } } as BreadcrumbItem] : []),
+    ];
 
   return (
     <div className={styles.page}>
       <div className={styles.intro}>
         <h1 className={styles.title}>App shell — option A</h1>
-        <p className={styles.desc}>The breadcrumb is the header. Instance things (License, Admin) sit in one menu, personal things (Account, API keys, help, log out) in another. Click around: the crumbs, the switchers, the tabs and the menus all work.</p>
+        <p className={styles.desc}>The breadcrumb is the header, in every section: Team › Dataset, Admin › Settings, anders › API keys — and the last step's caret switches between siblings. The right side is down to the bell and one menu, which only <em>enters</em> a section (Admin, Account); once inside, the trail carries you. Click around: everything works.</p>
         <div className={styles.screens}>
           <Button size="micro" variant={screen === 'dataset' ? 'primary' : 'secondary'} onClick={() => setScreen('dataset')}>Dataset page</Button>
           <Button size="micro" variant={screen === 'team' ? 'primary' : 'secondary'} onClick={() => setScreen('team')}>Team page</Button>
-          <Button size="micro" variant={screen === 'account' ? 'primary' : 'secondary'} onClick={() => setScreen('account')}>A page outside the console</Button>
+          <Button size="micro" variant={screen === 'account' ? 'primary' : 'secondary'} onClick={() => setScreen('account')}>Account page</Button>
+          <Button size="micro" variant={screen === 'admin' ? 'primary' : 'secondary'} onClick={() => setScreen('admin')}>Admin page</Button>
         </div>
       </div>
 
@@ -64,25 +80,18 @@ export default function AppShellPage() {
           </a>
           <div className={styles.crumbs}><Breadcrumbs items={crumbs} size="micro" /></div>
           <div className={styles.right}>
-            <NavigationMenu size="micro" aria-label="Instance and account">
+            <NavigationMenu size="micro" aria-label="Account">
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger icon={<Shield />}>Instance</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <NavigationMenuLink href="#license"><span className={styles.mi}><Document_or_file size={14} />License</span></NavigationMenuLink>
-                    <NavigationMenuLink href="#admin-users"><span className={styles.mi}><Users size={14} />Users</span></NavigationMenuLink>
-                    <NavigationMenuLink href="#admin-datasets"><span className={styles.mi}><Database size={14} />All datasets</span></NavigationMenuLink>
-                    <NavigationMenuLink href="#admin-settings"><span className={styles.mi}><Sliders_horizontal size={14} />Settings</span></NavigationMenuLink>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink variant="navigation" href="#notifications" aria-label="Notifications"><span className={styles.bell}><Bell size={14} /><span className={styles.dot} /></span></NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger icon={<User_id />}>anders</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <NavigationMenuLink href="#account"><span className={styles.mi}><User_id size={14} />Account</span></NavigationMenuLink>
-                    <NavigationMenuLink href="#api-keys" onClick={e => { e.preventDefault(); setScreen('account'); }}><span className={styles.mi}><Key size={14} />API keys</span></NavigationMenuLink>
+                    <NavigationMenuLink href="#account" onClick={e => { e.preventDefault(); setAccountPage('account'); setScreen('account'); }}><span className={styles.mi}><User_id size={14} />Account</span></NavigationMenuLink>
+                    <NavigationMenuLink href="#api-keys" onClick={e => { e.preventDefault(); setAccountPage('api-keys'); setScreen('account'); }}><span className={styles.mi}><Key size={14} />API keys</span></NavigationMenuLink>
+                    <div className={styles.divider} />
+                    <NavigationMenuLink href="#admin" onClick={e => { e.preventDefault(); setAdminPage('users'); setScreen('admin'); }}><span className={styles.mi}><Shield size={14} />Admin</span></NavigationMenuLink>
                     <div className={styles.divider} />
                     <NavigationMenuLink href="https://v5.docs.indx.co"><span className={styles.mi}><Book size={14} />Docs ↗</span></NavigationMenuLink>
                     <NavigationMenuLink href="#swagger"><span className={styles.mi}><Api size={14} />Swagger ↗</span></NavigationMenuLink>
@@ -151,9 +160,28 @@ export default function AppShellPage() {
 
           {screen === 'account' && (
             <div className={styles.narrow}>
-              <h2 className={styles.h2}>API keys</h2>
-              <p className={styles.muted}>Keys are yours, not the team's: they call the instance as you, with your roles on every team.</p>
-              <Alert variant="info"><AlertTitle>One key expires in 3 days</AlertTitle><AlertDescription>Create a new one before it does; the old one keeps working until then.</AlertDescription></Alert>
+              <h2 className={styles.h2}>{accountPages.find(p => p.value === accountPage)!.label}</h2>
+              {accountPage === 'api-keys' ? (
+                <>
+                  <p className={styles.muted}>Keys are yours, not the team's: they call the instance as you, with your roles on every team.</p>
+                  <Alert variant="info"><AlertTitle>One key expires in 3 days</AlertTitle><AlertDescription>Create a new one before it does; the old one keeps working until then.</AlertDescription></Alert>
+                </>
+              ) : (
+                <p className={styles.muted}>Email, password, notification preferences — as today.</p>
+              )}
+            </div>
+          )}
+
+          {screen === 'admin' && (
+            <div className={styles.narrow}>
+              <h2 className={styles.h2}>{adminPages.find(p => p.value === adminPage)!.label}</h2>
+              <p className={styles.muted}>
+                {adminPage === 'users' && 'Every account on this instance, with roles and teams.'}
+                {adminPage === 'datasets' && 'Every dataset across all teams, with keep-alive policy and memory.'}
+                {adminPage === 'settings' && 'Registration mode, email provider, OAuth, instance name.'}
+                {adminPage === 'license' && 'License status and files; auto-fetch from the license portal.'}
+              </p>
+              <p className={styles.muted}>Switch between admin pages with the caret on the trail above — the same move as switching datasets.</p>
             </div>
           )}
         </main>
@@ -163,11 +191,10 @@ export default function AppShellPage() {
         <h2 className={styles.h2}>What moved where</h2>
         <table className={styles.table}><tbody>
           <tr><td>Datasets (top nav)</td><td>Gone — the breadcrumb is the nav; the logo is home</td></tr>
-          <tr><td>API key</td><td>Personal menu (keys are per user)</td></tr>
-          <tr><td>License</td><td>Instance menu (instance-wide, admins manage)</td></tr>
-          <tr><td>Admin</td><td>Instance menu: Users, All datasets, Settings — menu only shown to admins</td></tr>
+          <tr><td>API key, Account</td><td>Personal menu; inside, the trail reads <code>anders › API keys ▾</code></td></tr>
+          <tr><td>Admin, License</td><td>One "Admin" entry in the personal menu (admins only); inside, <code>Admin › Settings ▾</code> switches Users / All datasets / Settings / License</td></tr>
           <tr><td>Swagger, Docs</td><td>Personal menu, below a divider</td></tr>
-          <tr><td>Notifications, account</td><td>Stay, right cluster</td></tr>
+          <tr><td>Notifications</td><td>The bell, right cluster</td></tr>
           <tr><td>"Manage team"</td><td>Stays on the team page as a page action, not in the header</td></tr>
         </tbody></table>
       </div>
