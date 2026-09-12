@@ -94,7 +94,7 @@ export class SearchErrorBoundary extends Component<Props, State> {
             <ul style={{ marginBottom: 0, paddingLeft: '1.5rem' }}>
               <li>Check browser console for detailed error messages</li>
               <li>Verify the url passed to SearchProvider is correct</li>
-              <li>Verify your bearer token is valid (create or check it on the IndxCloudApi website)</li>
+              <li>Verify your bearer token is valid (create or check it on the Indx Dashboard)</li>
               <li>Ensure INDX server is running</li>
               <li>Check dataset name spelling</li>
             </ul>

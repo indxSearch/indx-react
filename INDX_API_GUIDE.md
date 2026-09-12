@@ -1,6 +1,6 @@
 # INDX Search API - Implementation Guide
 
-> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5.
+> **Target:** Indx v2, powered by IndxSearchLib v5.
 
 ## Project Overview
 
@@ -19,7 +19,7 @@ indx-react/
 │   │       └── context/
 │   │           └── SearchContext.tsx  # Core API integration
 │   ├── indx-systm/        # UI component system
-│   └── indx-types/        # Shared TypeScript types (IndxCloudApi v2)
+│   └── indx-types/        # Shared TypeScript types (Indx v2)
 ```
 
 ## INDX Search API
@@ -32,11 +32,11 @@ The INDX Search API is a .NET/C# backend service that provides full-text search 
 
 ### Authentication Pattern
 
-Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the IndxCloudApi website, then send the token as an `Authorization: Bearer {token}` header on every request. There is no client-side login step.
+Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the Indx Dashboard, then send the token as an `Authorization: Bearer {token}` header on every request. There is no client-side login step.
 
 #### TypeScript Pattern (Client)
 ```typescript
-// 1. Bring a token created on the IndxCloudApi website
+// 1. Bring a token created on the Indx Dashboard
 const token = import.meta.env.VITE_INDX_TOKEN;
 
 // 2. Create an authenticated fetch wrapper
@@ -51,7 +51,7 @@ const authenticatedFetch = (url, options) => fetch(url, {
 // 3. Use for all subsequent API calls
 ```
 
-**Key Insight:** Every endpoint requires a Bearer token. Tokens are created and managed on the IndxCloudApi website.
+**Key Insight:** Every endpoint requires a Bearer token. Tokens are created and managed on the Indx Dashboard.
 
 > **Note:** With the `@indxsearch/intrface` React library, pass the token to `SearchProvider` via `preAuthenticatedToken`.
 
@@ -59,7 +59,7 @@ const authenticatedFetch = (url, options) => fetch(url, {
 
 ### Authentication
 
-Authentication is via a **pre-issued bearer token**, created and monitored on the IndxCloudApi website. There is no login endpoint — send the token as `Authorization: Bearer {token}` on every request.
+Authentication is via a **pre-issued bearer token**, created and monitored on the Indx Dashboard. There is no login endpoint — send the token as `Authorization: Bearer {token}` on every request.
 
 ### Dataset Management
 
@@ -252,7 +252,7 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
 ### 1. Setup New Dataset
 
 ```typescript
-// 1. Use a bearer token created on the IndxCloudApi website
+// 1. Use a bearer token created on the Indx Dashboard
 const token = import.meta.env.VITE_INDX_TOKEN;
 
 // All dataset routes are team-scoped
@@ -357,7 +357,7 @@ const documents = await docsRes.json();
 
 ### Authentication
 - **CRITICAL:** All endpoints require a Bearer token
-- Tokens are created on the IndxCloudApi portal's **API Key** page (there is no login endpoint)
+- Tokens are created on the Indx portal's **API Key** page (there is no login endpoint)
 - Include the token as `Authorization: Bearer {token}` header
 
 ### CORS
@@ -433,7 +433,7 @@ npm run build:packages
 
 ### "401 Unauthorized"
 - Token may be expired or invalid
-- Create or check your token on the IndxCloudApi website
+- Create or check your token on the Indx Dashboard
 - Check token is being included in Authorization header
 
 ### "500 Internal Server Error"

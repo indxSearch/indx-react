@@ -46,7 +46,7 @@ export function useIndxAuth({
       try {
         if (!preAuthenticatedToken) {
           console.error('[Auth] ❌ Missing bearer token');
-          console.error('[Auth] 💡 Pass preAuthenticatedToken to SearchProvider (create a token on the IndxCloudApi website)');
+          console.error('[Auth] 💡 Pass preAuthenticatedToken to SearchProvider (create a token on the Indx Dashboard)');
           throw new Error('A bearer token is required. Check console for instructions.');
         }
         if (!url) {
@@ -79,7 +79,7 @@ export function useIndxAuth({
           if (statusRes.status === 401) {
             console.error('[Auth] ❌ Authentication failed (401 Unauthorized)');
             console.error('[Auth] 💡 Your token may be expired or invalid');
-            console.error('[Auth] 💡 Create or refresh your token on the IndxCloudApi website');
+            console.error('[Auth] 💡 Create or refresh your token on the Indx Dashboard');
             throw new Error('Authentication failed (401). Token may be expired. Check console for instructions.');
           } else if (statusRes.status === 404) {
             console.error('[Auth] ❌ Dataset "' + dataset + '" not found (404)');

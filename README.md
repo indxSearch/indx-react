@@ -19,7 +19,7 @@
 
 ## Why Indx React?
 
-- **Just Works** - Drop in components, connect to your IndxCloudApi server, done
+- **Just Works** - Drop in components, connect to your Indx server, done
 - **Real-time Facets** - Dynamic filter counts that update as users search
 - **Fuzzy Search** - Handles typos and finds relevant results automatically
 - **Fully Customizable** - Use our styles or bring your own
@@ -57,11 +57,11 @@ Complete API reference, examples, authentication methods, troubleshooting, and m
 
 This library is designed to work with the **Indx Search** platform:
 
-- **[IndxCloudApi](https://github.com/indxSearch/IndxCloudApi)** - Fast search server with fuzzy matching, facets, and aggregations
+- **[Indx](https://github.com/indxSearch/Indx)** - Fast search server with fuzzy matching, facets, and aggregations
 - **[IndxSearchLib](https://www.nuget.org/packages/IndxSearchLib)** - The embedded C# search engine the server is built on
 - **indx-react** (this repo) - React UI components for building search interfaces
 
-**Compatibility:** This version targets **IndxCloudApi v2** (powered by **IndxSearchLib v5**).
+**Compatibility:** This version targets **Indx v2** (powered by **IndxSearchLib v5**).
 
 ## Repository Structure
 
@@ -71,7 +71,7 @@ This is a monorepo containing multiple packages:
 |---------|-------------|---------|-----|
 | **[@indxsearch/intrface](./packages/indx-intrface)** | Search UI components (featured above) | Apache-2.0 | `npm i @indxsearch/intrface` |
 | **[@indxsearch/systm](./packages/indx-systm)** | Design system with tokens, UI components, patterns, cursors | [Custom¹](#licensing) | `npm i @indxsearch/systm` |
-| **[@indxsearch/indx-types](./packages/indx-types)** | TypeScript types for IndxCloudApi v2 | Apache-2.0 | `npm i @indxsearch/indx-types` |
+| **[@indxsearch/indx-types](./packages/indx-types)** | TypeScript types for Indx v2 | Apache-2.0 | `npm i @indxsearch/indx-types` |
 | **[@indxsearch/pixl](https://www.npmjs.com/package/@indxsearch/pixl)** | Icon library (separate package) | Custom | `npm i @indxsearch/pixl` |
 
 **¹ See [Licensing](#licensing) below**
@@ -108,7 +108,7 @@ npm run dev
 ## Additional Resources
 
 - **[Getting Started Guide](./GETTING_STARTED.md)** - Step-by-step tutorial for first-time setup
-- **[API Guide](./INDX_API_GUIDE.md)** - IndxCloudApi server API documentation
+- **[API Guide](./INDX_API_GUIDE.md)** - Indx server API documentation
 
 ---
 

@@ -1,6 +1,6 @@
 # Search Logic Documentation
 
-> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5 alpha.
+> **Target:** Indx v2, powered by IndxSearchLib v5 alpha.
 
 ## Overview
 

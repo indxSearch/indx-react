@@ -1,6 +1,6 @@
 # Getting Started with INDX Search Interface
 
-> **Target:** IndxCloudApi v2, powered by IndxSearchLib v5.
+> **Target:** Indx v2, powered by IndxSearchLib v5.
 
 This guide walks you through setting up the INDX search interface for the first time, from installation to seeing your first search results.
 
@@ -8,7 +8,7 @@ This guide walks you through setting up the INDX search interface for the first 
 
 - Node.js `^20.19.0 || >=22.12.0` installed
 - An INDX server (cloud or local)
-- An INDX bearer token — create and monitor one on the IndxCloudApi website (use a read-only / scoped search token)
+- An INDX bearer token — create and monitor one on the Indx Dashboard (use a read-only / scoped search token)
 
 ## Step 1: Install the Package
 
@@ -37,7 +37,7 @@ VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Important:**
-- Create and monitor tokens on the IndxCloudApi website
+- Create and monitor tokens on the Indx Dashboard
 - Add `.env.local` to your `.gitignore` file to keep your token secure
 - The token is exposed in the browser — use a read-only / scoped search token only
 - The library uses the token directly; no login round-trip is performed

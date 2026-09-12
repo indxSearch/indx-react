@@ -1,7 +1,7 @@
 import type { IndxProblem, IndxProblemCode } from '@indxsearch/indx-types';
 
 /**
- * A failed IndxCloudApi request, carrying the server's RFC 9457 problem document so a caller
+ * A failed Indx request, carrying the server's RFC 9457 problem document so a caller
  * can act on the machine-readable `code` rather than the HTTP status:
  *
  * - `unknownFilter` — the filter token could not be honoured; re-create the filter and retry.

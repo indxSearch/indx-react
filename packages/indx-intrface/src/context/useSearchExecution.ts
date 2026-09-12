@@ -239,7 +239,7 @@ export function useSearchExecution({
         } else if (error instanceof Error) {
           if (error.message.includes('401')) {
             console.error('[Search] ❌ Authentication failed');
-            console.error('[Search] 💡 Your token may have expired. Create or refresh it on the IndxCloudApi website.');
+            console.error('[Search] 💡 Your token may have expired. Create or refresh it on the Indx Dashboard.');
           } else if (error.message.includes('404')) {
             console.error('[Search] ❌ Dataset not found');
             console.error('[Search] 💡 Check that dataset "' + dataset + '" exists');

@@ -1,6 +1,6 @@
 # @indxsearch/intrface
 
-A powerful, flexible React search UI library for Indx Search with [IndxCloudApi](https://github.com/indxSearch/IndxCloudApi).
+A powerful, flexible React search UI library for Indx Search with [Indx](https://github.com/indxSearch/Indx).
 
 ## Features
 
@@ -16,12 +16,12 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 
 | Package | Version |
 |---------|---------|
-| **IndxCloudApi** | `2.0` |
+| **Indx** | `2.0` |
 | **React** | `^19.0.0` |
 | **React DOM** | `^19.0.0` |
 | **Node.js** | `^20.19.0 \|\| >=22.12.0` |
 
-> **Note:** This library targets IndxCloudApi v2.0 (powered by IndxSearchLib v5). Different API versions may have incompatible changes.
+> **Note:** This library targets Indx v2.0 (powered by IndxSearchLib v5). Different API versions may have incompatible changes.
 
 ## Installation
 
@@ -29,7 +29,7 @@ A powerful, flexible React search UI library for Indx Search with [IndxCloudApi]
 npm install @indxsearch/intrface @indxsearch/systm @indxsearch/pixl
 ```
 
-> **Note:** TypeScript type definitions for IndxCloudApi are automatically included via the `@indxsearch/indx-types` dependency.
+> **Note:** TypeScript type definitions for Indx are automatically included via the `@indxsearch/indx-types` dependency.
 
 ## Quick Start
 
@@ -42,7 +42,7 @@ VITE_INDX_URL=https://your-indx-server.com
 VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
-Create and monitor your bearer token on the IndxCloudApi website.
+Create and monitor your bearer token on the Indx Dashboard.
 
 > Only the server URL and token come from the environment. Your **team** and **dataset** identify *what* you're searching, so they're passed directly as props on `SearchProvider` (shown below) — not as env vars.
 
@@ -112,7 +112,7 @@ export default function SearchPage() {
 
 ## Authentication
 
-Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the IndxCloudApi website, then provide the token to `SearchProvider`.
+Authentication uses a **pre-issued bearer token**. Create and monitor tokens on the Indx Dashboard, then provide the token to `SearchProvider`.
 
 **Environment setup:**
 ```bash
@@ -321,7 +321,7 @@ export default function AdvancedSearch() {
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `url` | `string` | ✅ | - | INDX server URL |
-| `preAuthenticatedToken` | `string` | ✅ | - | Bearer token created on the IndxCloudApi website |
+| `preAuthenticatedToken` | `string` | ✅ | - | Bearer token created on the Indx Dashboard |
 | `team` | `string` | ✅ | - | Team that owns the dataset — scopes requests to `/api/teams/{team}/datasets/{dataset}/…` |
 | `dataset` | `string` | ✅ | - | Dataset name |
 | `allowEmptySearch` | `boolean` | ❌ | `false` | Show results without query |
@@ -463,7 +463,7 @@ These components are also exported and can be used for custom layouts:
 **Problem:** Authentication failed or token is invalid
 
 **Solutions:**
-1. Verify the token is valid and not expired; create a fresh one on the IndxCloudApi website if needed
+1. Verify the token is valid and not expired; create a fresh one on the Indx Dashboard if needed
 2. Check that `VITE_INDX_TOKEN` is correctly set in your environment variables
 3. Verify the server is running and accessible
 4. Check server logs for authentication issues

@@ -1,6 +1,6 @@
 # @indxsearch/indx-types
 
-TypeScript type definitions for **IndxCloudApi v2.0**. This package provides complete, strongly-typed interfaces for search queries, filters, boosts, results, and system status.
+TypeScript type definitions for **Indx v2.0**. This package provides complete, strongly-typed interfaces for search queries, filters, boosts, results, and system status.
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm install @indxsearch/indx-types
 
 ## Features
 
-- Complete TypeScript type definitions for IndxCloudApi v2.0
+- Complete TypeScript type definitions for Indx v2.0
 - Zero runtime dependencies (types-only package)
 - Matches official Swagger API specification exactly
 - Full IntelliSense support in VS Code and other IDEs
@@ -18,7 +18,7 @@ npm install @indxsearch/indx-types
 
 ## Version Compatibility
 
-This package (`@indxsearch/indx-types` 2.x) provides types for **IndxCloudApi v2.0** (IndxSearchLib v5). The shapes are generated from and verified against the live v5 OpenAPI spec.
+This package (`@indxsearch/indx-types` 2.x) provides types for **Indx v2.0** (IndxSearchLib v5). The shapes are generated from and verified against the live v5 OpenAPI spec.
 
 ## Usage
 
@@ -158,7 +158,7 @@ if (status.systemState === SystemState.Ready) {
 
 #### Authentication
 
-Auth is **bearer-token only** — create a token on the IndxCloudApi website and pass it as `preAuthenticatedToken`. The email/password login flow is deprecated and being removed.
+Auth is **bearer-token only** — create a token on the Indx Dashboard and pass it as `preAuthenticatedToken`. The email/password login flow is deprecated and being removed.
 
 - `ChangePasswordRequest` - Password change payload (`currentPassword`, `newPassword`)
 - `LoginInfo` / `LoginResponse` - _Deprecated_ — legacy email/password login types, being removed in favour of token-only auth.
@@ -233,7 +233,7 @@ For monorepo development with path mapping:
 ## Documentation
 
 - [Swagger API Specification](https://cloud.indx.co/swagger/v1/swagger.json)
-- [IndxCloudApi Documentation](https://cloud.indx.co/swagger)
+- [Indx Documentation](https://cloud.indx.co/swagger)
 
 ## License
 

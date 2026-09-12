@@ -191,7 +191,7 @@ writeFileSync(join(outDir, 'spinners.generated.css'), css);
 // Same frames, same keyframes, emitted as a C# data class and a CSS file the
 // Razor Spinner component renders from. Written only when the sibling project
 // is present (monorepo checkout), so the npm package builds anywhere.
-const blazorDir = join(root, '..', '..', '..', 'IndxCloudApi', 'Indx.Systm.Blazor');
+const blazorDir = join(root, '..', '..', '..', 'IndxServer', 'Indx.Systm.Blazor');
 if (existsSync(blazorDir)) {
   const csEntries = [...spinners.entries()]
     .map(([name, { viewBox, delay, frames }]) => {

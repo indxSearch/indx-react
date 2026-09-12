@@ -1,5 +1,5 @@
 /**
- * Machine-readable error code carried by every IndxCloudApi error response, as the `code`
+ * Machine-readable error code carried by every Indx error response, as the `code`
  * extension of an RFC 9457 problem document. Switch on this, not on the HTTP status: a 400 can
  * be any of five things, and the recovery differs.
  *
@@ -28,7 +28,7 @@ export type IndxProblemCode =
   | 'shadowBusy';
 
 /**
- * An IndxCloudApi error response body (`application/problem+json`, RFC 9457) with the `code`
+ * An Indx error response body (`application/problem+json`, RFC 9457) with the `code`
  * extension every endpoint adds. 401 from the JWT middleware comes without a body.
  */
 export interface IndxProblem {
