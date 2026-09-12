@@ -6,7 +6,7 @@ export { JsonErrorType } from './errors';
 export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth';
 
 // Query
-export { CloudQuery, CoverageSetup } from './query';
+export { QueryProxy, CloudQuery, CoverageSetup } from './query';
 
 // Filters
 export {

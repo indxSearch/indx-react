@@ -16,7 +16,7 @@ export interface CoverageSetup {
   truncationScore?: number;
 }
 
-export interface CloudQuery {
+export interface QueryProxy {
   text?: string | null;
   maxNumberOfRecordsToReturn?: number;
   enableCoverage?: boolean;
@@ -33,3 +33,6 @@ export interface CloudQuery {
   fieldBoosts?: Record<string, number> | null;
   logPrefix?: string | null;
 }
+
+/** @deprecated Renamed to {@link QueryProxy} in 2.3.0 (the server dropped its "cloud" vocabulary); removed in 3.0. */
+export type CloudQuery = QueryProxy;

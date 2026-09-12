@@ -25,9 +25,9 @@ This package (`@indxsearch/indx-types` 2.x) provides types for **Indx v2.0** (In
 ### Basic Query
 
 ```typescript
-import type { CloudQuery, Result } from '@indxsearch/indx-types';
+import type { QueryProxy, Result } from '@indxsearch/indx-types';
 
-const query: CloudQuery = {
+const query: QueryProxy = {
   text: 'search term',
   maxNumberOfRecordsToReturn: 10,
 };
@@ -78,7 +78,7 @@ const boost: BoostProxy = {
   }
 };
 
-const query: CloudQuery = {
+const query: QueryProxy = {
   text: 'search term',
   enableBoost: true,
   boosts: [boost]
@@ -88,7 +88,7 @@ const query: CloudQuery = {
 ### Coverage Setup
 
 ```typescript
-import type { CoverageSetup, CloudQuery } from '@indxsearch/indx-types';
+import type { CoverageSetup, QueryProxy } from '@indxsearch/indx-types';
 
 const coverageSetup: CoverageSetup = {
   coverWholeQuery: true,
@@ -100,7 +100,7 @@ const coverageSetup: CoverageSetup = {
   truncationScore: 255
 };
 
-const query: CloudQuery = {
+const query: QueryProxy = {
   text: 'search term',
   enableCoverage: true,
   coverageSetup
@@ -125,7 +125,7 @@ if (status.systemState === SystemState.Ready) {
 ### Types
 
 #### Query Types
-- `CloudQuery` - Main search query interface
+- `QueryProxy` - Main search query interface
 - `CoverageSetup` - Coverage configuration options
 
 #### Filter Types
@@ -145,7 +145,7 @@ if (status.systemState === SystemState.Ready) {
 
 #### Boost Types
 - `BoostProxy` - Search result boost configuration
-- `CloudQuery.fieldBoosts` - Per-field boost map (`Record<string, number>`) on `CloudQuery`
+- `QueryProxy.fieldBoosts` - Per-field boost map (`Record<string, number>`) on `QueryProxy`
 
 #### Vector / Hybrid Types
 - `VectorQueryProxy` - Embedding vector search query (field, vector, max results, filter)
