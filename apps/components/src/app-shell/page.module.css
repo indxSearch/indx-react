@@ -1,0 +1,43 @@
+.page { padding: 2rem; max-width: var(--maxWidth); margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.intro { display: flex; flex-direction: column; gap: 8px; }
+.title { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 64ch; }
+.screens { display: flex; gap: 8px; margin-top: 8px; }
+
+/* The frame is the app viewport; nothing inside it is decorative. */
+.frame { background: var(--lv0); border: 1px solid var(--lv2); border-radius: var(--radius); overflow: visible; }
+
+.header { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--lv1); border-bottom: 1px solid var(--lv2); }
+.home { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--lv7); flex-shrink: 0; }
+.logo { font: var(--text-base); font-weight: var(--med); letter-spacing: 0.01em; }
+.instance { font: var(--text-xs); color: var(--lv4); }
+.crumbs { flex: 1; min-width: 0; }
+.right { margin-left: auto; display: flex; align-items: center; }
+.mi { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.bell { position: relative; display: inline-flex; padding: 0 2px; }
+.dot { position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; border-radius: 50%; background: var(--CSignal); }
+.divider { height: 1px; background: var(--lv3); margin: 4px 0; }
+
+.main { padding: 20px 24px 28px; min-height: 360px; }
+.tabs { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--lv2); }
+.status { max-width: 560px; }
+.h2 { font: var(--text-xl); margin: 0; }
+.h3 { font: var(--text-lg); margin: 0 0 6px; }
+.h3Section { margin-top: 24px; }
+.table { border-collapse: collapse; font: var(--text-sm); }
+.table td { padding: 4px 16px 4px 0; vertical-align: top; color: var(--lv6); }
+.table td:first-child { color: var(--lv4); white-space: nowrap; font-weight: var(--med); min-width: 170px; }
+.placeholder { color: var(--lv5); font: var(--text-sm); }
+
+.teamHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.card { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-height: 96px; padding: 14px; border-radius: var(--radius); background: var(--lv1); color: inherit; text-decoration: none; font: var(--text-sm); }
+.card:hover { background: var(--lv2); }
+.cardHead { display: flex; align-items: center; gap: 8px; color: var(--lv7); font-weight: var(--med); }
+.cardFoot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.count { color: var(--lv5); font: var(--text-xs); }
+.below { margin-top: 24px; }
+.narrow { max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
+.muted { color: var(--lv5); font: var(--text-sm); margin: 0; }
+
+.notes { display: flex; flex-direction: column; gap: 12px; }

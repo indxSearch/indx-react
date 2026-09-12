@@ -47,6 +47,12 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: 'Mockups',
+    items: [
+      { label: 'App shell (option A)', path: '/app-shell' },
+    ],
+  },
+  {
     title: 'Systm Assets',
     items: [
       { label: 'Spinners', path: '/spinners' },
