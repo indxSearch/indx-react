@@ -5,6 +5,17 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-09-12
+
+### Added
+
+- `Alert`, `AlertTitle`, `AlertDescription`: an in-page callout with variants
+  `default` / `info` / `success` / `warning` / `destructive`, a default icon per
+  variant (`icon` overrides, `null` suppresses), and `role="alert"` for
+  warning/destructive. No shadow; the variant colours the icon, title and a 2px
+  start edge. Ported to Blazor.
+- Tokens `--CLightBlue` and `--CWarning` in globals.css, matching the Blazor side.
+
 ## [2.8.0] - 2026-09-11
 
 ### Added

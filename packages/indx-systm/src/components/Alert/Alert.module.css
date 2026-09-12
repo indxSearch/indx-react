@@ -1,0 +1,29 @@
+/* One surface, one accent: the variant colours the icon and title and the 2px start edge; the
+   body text stays readable in every variant. No shadows, per the design system. */
+.root {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border-inline-start: 2px solid var(--alert-accent, var(--lv3));
+  background: var(--lv1);
+  color: var(--lv7);
+  font: var(--text-sm);
+}
+
+.icon { display: inline-flex; flex-shrink: 0; margin-top: 1px; color: var(--alert-accent, var(--lv5)); }
+.body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.title { font-weight: var(--med); color: var(--alert-title, var(--lv7)); overflow-wrap: anywhere; }
+.description { color: var(--lv6); overflow-wrap: anywhere; }
+.description :is(p, ul, ol) { margin: 0; }
+
+.default     { --alert-accent: var(--lv3); }
+.info        { --alert-accent: var(--CLightBlue); }
+.success     { --alert-accent: var(--CTeal); }
+.warning     { --alert-accent: var(--CWarning); }
+.destructive { --alert-accent: var(--CSignal); --alert-title: var(--CSignal); }
+
+@media (prefers-color-scheme: dark) {
+  .root { background: var(--lv1); }
+}
