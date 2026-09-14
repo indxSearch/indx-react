@@ -1,0 +1,53 @@
+.page { padding: 2rem; max-width: var(--maxWidth); margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.intro { display: flex; flex-direction: column; gap: 8px; }
+.title { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 64ch; }
+.controls { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.stage { display: flex; justify-content: center; padding: 48px 24px; background: var(--lv0); border: 1px solid var(--lv2); border-radius: var(--radius); }
+
+/* ── ChatPanel ─────────────────────────────────────────────────────────── */
+.panel { display: flex; flex-direction: column; background: var(--lv1); border: 1px solid var(--lv2); border-radius: var(--radius); overflow: hidden; }
+.panelDesktop { width: 640px; min-height: 520px; }
+.panelPhone { width: 390px; height: 720px; }
+.modeTabs { padding: 0 8px; }
+.thread { display: flex; flex-direction: column; gap: 20px; padding: 20px 16px; flex: 1; min-height: 0; overflow: auto; }
+.composer { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--lv2); }
+.composerField { flex: 1; min-width: 0; }
+.hints { display: flex; gap: 18px; padding: 8px 16px; border-top: 1px solid var(--lv2); font: var(--text-2xs); color: var(--lv5); }
+.hints span { display: inline-flex; align-items: center; gap: 4px; }
+.kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; font: var(--text-2xs); color: var(--lv6); background: var(--lv2); border-radius: 3px; }
+.panelPhone .hints { display: none; }
+
+/* ── Message ───────────────────────────────────────────────────────────── */
+.userRow { display: flex; justify-content: flex-end; }
+.userMsg { max-width: 78%; padding: 10px 12px; background: var(--lv2); border-radius: var(--radius); font: var(--text-sm); line-height: 1.45; color: var(--lv7); }
+.assistant { display: flex; flex-direction: column; gap: 12px; }
+.assistantHead { display: flex; align-items: center; gap: 7px; font: var(--text-xs); font-weight: var(--med); color: var(--lv5); }
+.answer { margin: 0; font: var(--text-base); line-height: 1.5; color: var(--lv7); }
+.answer strong { font-weight: var(--med); }
+.code { margin: 0; padding: 14px 16px; background: var(--lv0); border-radius: var(--radius); font: 12px/1.6 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace; color: var(--lv6); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Inline numbered reference, sits in the running text. */
+.ref { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px; margin: 0 2px; font: var(--text-2xs); font-weight: var(--med); color: var(--lv6); background: var(--lv2); border-radius: 3px; vertical-align: 2px; text-decoration: none; }
+.ref:hover { background: var(--lv3); text-decoration: none; }
+
+/* ── Citations, status, suggestions, feedback ──────────────────────────── */
+.label { font: var(--text-2xs); font-weight: var(--med); color: var(--lv5); letter-spacing: 0.02em; }
+.stack { display: flex; flex-direction: column; gap: 6px; }
+.wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.citation { text-decoration: none; color: inherit; }
+.citation:hover { text-decoration: none; }
+.citation :global(span) { cursor: pointer; }
+.status { display: flex; align-items: center; gap: 8px; font: var(--text-xs); color: var(--lv5); }
+.statusSpinner { display: inline-flex; color: var(--CTeal); }
+.feedback { display: flex; align-items: center; gap: 2px; }
+.feedback .spacer { flex: 1; }
+.flipY { display: inline-flex; transform: scaleY(-1); }
+.empty { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; }
+.emptyTitle { font: var(--text-base); font-weight: var(--med); color: var(--lv7); }
+.emptyDesc { font: var(--text-sm); line-height: 1.45; color: var(--lv5); }
+.suggestions { display: flex; flex-direction: column; gap: 8px; }
+
+/* Modal variant: the panel is the dialog. */
+.modal { max-width: 640px; padding: 0; }
+.modal .panel { border: none; }

@@ -66,6 +66,12 @@ export const navGroups: NavGroup[] = [
       { label: 'FilterPanelSkeleton', path: '/filter-panel-skeleton' },
     ],
   },
+  {
+    title: 'Mockups',
+    items: [
+      { label: 'Chat · Ask mode', path: '/chat' },
+    ],
+  },
 ];
 
 interface SidebarProps {
