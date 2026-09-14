@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Button.module.css';
+import { Spinner } from '../Spinner/Spinner';
 
 interface IconProps {
   size?: string | number;
@@ -10,6 +11,10 @@ type ButtonBaseProps = {
   size?: 'micro' | 'default' | 'large';
   variant?: 'primary' | 'secondary' | 'ghost';
   disabled?: boolean;
+  /** The action behind this button is in progress: a Spinner takes the left-icon slot and the
+   *  button is disabled until it clears. Set it on every button that starts work the user has
+   *  to wait for, so a slow operation never reads as a dead click. */
+  loading?: boolean;
   iconLeft?: React.ReactElement<IconProps>;
   iconRight?: React.ReactElement<IconProps>;
   className?: string;
@@ -26,10 +31,12 @@ type ButtonAsLink = ButtonBaseProps & Omit<React.ComponentProps<'a'>, keyof Butt
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 export function Button(props: ButtonProps) {
-  const { size = 'default', variant = 'primary', iconLeft, iconRight, className, children, disabled = false, ...rest } = props;
+  const { size = 'default', variant = 'primary', iconLeft, iconRight, className, children, loading = false, ...rest } = props;
+  const disabled = props.disabled || loading;
   const { href } = rest as { href?: string };
 
   const iconSize = size === 'micro' ? '14px' : size === 'large' ? '21px' : '14px';
+  const iconPx = size === 'large' ? 21 : 14;
 
   const buttonClassName = [
     styles.button,
@@ -50,14 +57,16 @@ export function Button(props: ButtonProps) {
 
   const content = (
     <>
-      {iconLeft && React.cloneElement(iconLeft, { size: iconSize, color: 'currentColor' })}
+      {loading
+        ? <Spinner size={iconPx} />
+        : iconLeft && React.cloneElement(iconLeft, { size: iconSize, color: 'currentColor' })}
       {children}
       {iconRight && React.cloneElement(iconRight, { size: iconSize, color: 'currentColor' })}
     </>
   );
 
   if (href) {
-    const { type: _, href: _href, onClick, tabIndex: _tabIndex, ...anchorProps } = rest as any;
+    const { type: _, href: _href, onClick, tabIndex: _tabIndex, disabled: _disabled, ...anchorProps } = rest as any;
 
     if (disabled) {
       return (
@@ -65,6 +74,7 @@ export function Button(props: ButtonProps) {
           className={buttonClassName}
           {...anchorProps}
           aria-disabled="true"
+          aria-busy={loading || undefined}
           tabIndex={-1}
           onClick={(event) => {
             event.preventDefault();
@@ -89,9 +99,9 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const { type = 'button', href: _, ...buttonProps } = rest as any;
+  const { type = 'button', href: _, disabled: _disabled, ...buttonProps } = rest as any;
   return (
-    <button className={buttonClassName} type={type} disabled={disabled} {...buttonProps}>
+    <button className={buttonClassName} type={type} disabled={disabled} aria-busy={loading || undefined} {...buttonProps}>
       {content}
     </button>
   );

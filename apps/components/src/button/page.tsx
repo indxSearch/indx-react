@@ -39,6 +39,17 @@ export default function ButtonPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Loading State</h2>
+        <p className={styles.desc}>Set <code>loading</code> while the button's action runs: a spinner takes the left-icon slot and the button is disabled until it clears.</p>
+        <div className={styles.row}>
+          <Button variant="primary" loading>Saving…</Button>
+          <Button variant="secondary" loading>Renaming…</Button>
+          <Button variant="ghost" loading>Deleting…</Button>
+          <Button size="large" variant="primary" loading>Large</Button>
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>All Combinations</h2>
         <div className={styles.row}>
           <Button size="micro" variant="primary">Micro Primary</Button>

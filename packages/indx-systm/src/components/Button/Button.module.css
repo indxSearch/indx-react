@@ -12,6 +12,13 @@
   cursor: not-allowed;
 }
 
+/* Loading state: disabled for input, but shown at full strength — the spinner is the signal,
+   and a half-faded spinner reads as "off" rather than "working". */
+.button[aria-busy="true"] {
+  opacity: 1;
+  cursor: progress;
+}
+
 /* Focus indicator for keyboard navigation */
 .button:focus-visible {
   outline: 2px solid var(--lv5);
