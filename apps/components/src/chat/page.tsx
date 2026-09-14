@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button, Chip, SearchField, Spinner, Tabs, Alert, AlertTitle, AlertDescription, Modal } from '@indxsearch/systm';
-import { Ai_agent, Api, ArrowUp, Book, Chevron_right, Code, Copy, Refresh, Search, Search_query, Stop, Thumbs_up } from '@indxsearch/pixl';
+import { Ai_agent, Api, ArrowUp, Book, Chevron_right, Code, Copy, Refresh, Search, Search_query, Stop } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 /**
  * Mockup of the chat "Ask" mode for the docs search palette — the component family a docs
  * assistant (and, later, a dataset assistant in the console) needs: ChatPanel, Message,
- * Composer, Citation, StreamStatus, Suggestions, Feedback. Built from the systm parts that
+ * Composer, Citation, StreamStatus, Suggestions, AnswerActions. Built from the systm parts that
  * exist; the pieces that don't yet are plain markup here and are the shopping list.
  * Not wired to anything: the state switcher stands in for the conversation.
  */
@@ -55,11 +55,9 @@ function StreamStatus({ children }: { children: string }) {
   );
 }
 
-function Feedback({ onFollowUp }: { onFollowUp?: () => void }) {
+function AnswerActions({ onFollowUp }: { onFollowUp?: () => void }) {
   return (
     <div className={styles.feedback}>
-      <Button variant="ghost" size="micro" aria-label="Helpful" iconLeft={<Thumbs_up />} />
-      <Button variant="ghost" size="micro" aria-label="Not helpful" iconLeft={<span className={styles.flipY}><Thumbs_up /></span>} />
       <Button variant="ghost" size="micro" iconLeft={<Copy />}>Copy</Button>
       <span className={styles.spacer} />
       <Button variant="ghost" size="micro" iconRight={<Chevron_right />} onClick={onFollowUp}>Ask a follow-up</Button>
@@ -144,7 +142,7 @@ function Thread({ stage, phone }: { stage: Stage; phone: boolean }) {
               <p className={styles.answer}>Invites are then managed under Admin → Users; an invited address can register once and drops off the list when the account exists.<Ref n={2} /></p>
             )}
             <Citations sources={sources} />
-            <Feedback />
+            <AnswerActions />
           </div>
         </>
       );
@@ -209,7 +207,7 @@ export default function ChatPage() {
         <h1 className={styles.title}>Chat · Ask mode</h1>
         <p className={styles.desc}>
           The docs assistant as a second tab in the search palette. One conversation shown state by state; the parts
-          — ChatPanel, Message, Composer, Citation, StreamStatus, Suggestions, Feedback — are what indx-systm gains.
+          — ChatPanel, Message, Composer, Citation, StreamStatus, Suggestions, AnswerActions — are what indx-systm gains.
         </p>
       </div>
 

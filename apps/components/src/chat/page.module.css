@@ -42,7 +42,6 @@
 .statusSpinner { display: inline-flex; color: var(--CTeal); }
 .feedback { display: flex; align-items: center; gap: 2px; }
 .feedback .spacer { flex: 1; }
-.flipY { display: inline-flex; transform: scaleY(-1); }
 .empty { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; }
 .emptyTitle { font: var(--text-base); font-weight: var(--med); color: var(--lv7); }
 .emptyDesc { font: var(--text-sm); line-height: 1.45; color: var(--lv5); }
