@@ -12,7 +12,8 @@
  *   response also has a `Retry-After` header.
  * - `shadowBusy` (409): a field-configuration or replace build is in progress; try again later.
  * - `rateLimited` (429): too many attempts from this address on an anonymous auth endpoint
- *   (login, register, password reset). Carries `retryAfterSeconds` and a `Retry-After` header.
+ *   (login, register, password reset), or this API key exceeded its per-second budget where the
+ *   operator enabled per-key limits. Carries `retryAfterSeconds` and a `Retry-After` header.
  */
 export type IndxProblemCode =
   | 'invalidArgument'
