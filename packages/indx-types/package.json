@@ -1,6 +1,6 @@
 {
   "name": "@indxsearch/indx-types",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "TypeScript type definitions for Indx v2. Provides complete types for search queries, filters, boosts, results, and system status based on the official Swagger specification.",
   "keywords": [
     "indx",

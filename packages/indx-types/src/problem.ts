@@ -11,6 +11,8 @@
  *   `currentState`, `allowedStates` and `retryable`; when retryable (Loading / Indexing) the
  *   response also has a `Retry-After` header.
  * - `shadowBusy` (409): a field-configuration or replace build is in progress; try again later.
+ * - `rateLimited` (429): too many attempts from this address on an anonymous auth endpoint
+ *   (login, register, password reset). Carries `retryAfterSeconds` and a `Retry-After` header.
  */
 export type IndxProblemCode =
   | 'invalidArgument'
@@ -25,7 +27,8 @@ export type IndxProblemCode =
   | 'documentNotFound'
   | 'teamNotFound'
   | 'invalidState'
-  | 'shadowBusy';
+  | 'shadowBusy'
+  | 'rateLimited';
 
 /**
  * An Indx error response body (`application/problem+json`, RFC 9457) with the `code`
@@ -50,6 +53,8 @@ export interface IndxProblem {
   retryable?: boolean;
   /** `invalidState` in the Error state: the engine's error message. */
   errorMessage?: string;
+  /** `rateLimited` only: seconds until the window opens again (also the `Retry-After` header). */
+  retryAfterSeconds?: number;
   /** Registration / password endpoints: per-field validation messages. */
   errors?: string[];
 }
