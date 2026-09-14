@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `rateLimited` in `IndxProblemCode`, with `retryAfterSeconds` on `IndxProblem`: the
   server's anonymous auth endpoints (login, register, password reset) answer 429 with it
-  after too many attempts from one address.
+  after too many attempts from one address; so do API calls over a key's per-second budget
+  (where the operator enabled it), heavy operations beyond the server's concurrency cap, and
+  searches beyond its queue.
 
 ## [2.3.0] - 2026-09-12
 
