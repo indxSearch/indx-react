@@ -13,10 +13,8 @@
  * - `shadowBusy` (409): a field-configuration or replace build is in progress; try again later.
  * - `rateLimited` (429): too many attempts from this address on an anonymous auth endpoint
  *   (login, register, password reset); this API key exceeded its per-second budget where the
- *   operator enabled per-key limits; or the server is at capacity — its cap on concurrent
- *   heavy operations (load, replace, index, wake-up, batch document changes) is reached, or
- *   its search queue is full. Carries `retryAfterSeconds` and a `Retry-After` header; wait that
- *   long and retry.
+ *   operator enabled per-key limits; or too many calls from this address carried no bearer token
+ *   at all. Carries `retryAfterSeconds` and a `Retry-After` header; wait that long and retry.
  */
 export type IndxProblemCode =
   | 'invalidArgument'
