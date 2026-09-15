@@ -1,5 +1,6 @@
 /* Chat family — ChatPanel, Message, Composer, Citation, StreamStatus, Suggestions, AnswerActions.
-   Surfaces are told apart by tone and a border, never by shadow. */
+   One surface, no strokes: the parts are told apart by tone and by spacing, never by borders
+   or shadows. The panel's own edge is its host's business (a modal, a page). */
 
 /* ── ChatPanel ─────────────────────────────────────────────────────────── */
 .panel {
@@ -7,28 +8,26 @@
   flex-direction: column;
   min-height: 0;
   background: var(--lv1);
-  border: 1px solid var(--lv2);
   border-radius: var(--radius);
   overflow: hidden;
 }
-.header { flex-shrink: 0; padding: 0 8px; }
+.header { flex-shrink: 0; padding: 4px 12px 0; }
 .thread {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px 16px;
+  gap: 24px;
+  padding: 24px 20px;
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
-.footer { flex-shrink: 0; }
+.footer { flex-shrink: 0; padding: 4px 12px 0; }
 .hints {
   display: flex;
   gap: 18px;
-  padding: 8px 16px;
-  border-top: 1px solid var(--lv2);
+  padding: 6px 16px 12px;
   font: var(--text-2xs);
-  color: var(--lv5);
+  color: var(--lv4);
 }
 .hints span { display: inline-flex; align-items: center; gap: 4px; }
 .kbd {
@@ -39,7 +38,7 @@
   height: 18px;
   padding: 0 5px;
   font: var(--text-2xs);
-  color: var(--lv6);
+  color: var(--lv5);
   background: var(--lv2);
   border-radius: 3px;
 }
@@ -70,12 +69,15 @@
 .assistantBody > p { margin: 0; }
 
 /* ── Composer ──────────────────────────────────────────────────────────── */
+/* The field is its own quiet surface — one tone down from the panel — so it needs no rule
+   above it to read as "type here". */
 .composer {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 8px 12px;
-  border-top: 1px solid var(--lv2);
+  padding: 6px 6px 6px 12px;
+  background: var(--lv0);
+  border-radius: var(--radius);
 }
 .composerField {
   flex: 1;
@@ -113,7 +115,7 @@
 .composerInput:focus { outline: none; }
 .composerInput::placeholder { color: var(--lv4); }
 .composerInput:disabled { opacity: 0.6; cursor: not-allowed; }
-.composerButton { flex-shrink: 0; padding-bottom: 1px; }
+.composerButton { flex-shrink: 0; padding-bottom: 3px; }
 
 /* ── Citation ──────────────────────────────────────────────────────────── */
 .ref {
