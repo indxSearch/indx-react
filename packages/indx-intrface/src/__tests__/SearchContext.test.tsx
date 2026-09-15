@@ -35,24 +35,42 @@ async function waitForAuth(result: ReturnType<typeof setup>['result']) {
 // ─── Initialisation ─────────────────────────────────────────────────────────
 
 describe('missing dataset', () => {
-  it('fails on the status 404 and never calls CreateOrOpen', async () => {
-    // CreateOrOpen creates a dataset that does not exist, so calling it before
-    // the status probe would silently create an empty dataset from a typo'd
-    // name. This pins the status-first order introduced in 3.0.0.
-    let createOrOpenCalls = 0;
+  it('fails on the status 404 and never creates a dataset', async () => {
+    // PUT on the dataset route is the create endpoint. A typo'd name must end at the
+    // status 404, not in a silently created, empty dataset.
+    let putCalls = 0;
     const MISSING = 'http://localhost/api/teams/team/datasets/typo';
     server.use(
       http.get(`${MISSING}/status`, () => new HttpResponse(null, { status: 404 })),
       http.put(MISSING, () => {
-        createOrOpenCalls++;
+        putCalls++;
         return HttpResponse.json({});
       }),
     );
 
     const { result } = setup({ dataset: 'typo' });
     await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
-    expect(createOrOpenCalls).toBe(0);
+    expect(putCalls).toBe(0);
     expect(result.current.authError).toMatch(/not found/i);
+  });
+});
+
+describe('search-only keys', () => {
+  it('starts without calling any endpoint that needs write access', async () => {
+    // A Search-level API key can read status and field lists and search, and nothing that
+    // writes. Earlier versions sent PUT …/datasets/{name} (create-or-open) on start, which
+    // forced every front-end to ship a key that could change data.
+    const writes: string[] = [];
+    server.events.on('request:start', ({ request }) => {
+      if (request.method !== 'GET' && !/\/(search|search\/vector|search\/hybrid|documents\/lookup|filters\/[a-z]+)$/.test(new URL(request.url).pathname))
+        writes.push(`${request.method} ${new URL(request.url).pathname}`);
+    });
+
+    const { result } = setup();
+    await waitForAuth(result);
+    server.events.removeAllListeners('request:start');
+    expect(result.current.authError).toBeFalsy();
+    expect(writes).toEqual([]);
   });
 });
 

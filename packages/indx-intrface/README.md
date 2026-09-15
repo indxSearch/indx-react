@@ -42,7 +42,7 @@ VITE_INDX_URL=https://your-indx-server.com
 VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
-Create and monitor your bearer token on the Indx Dashboard.
+The token is an API key from the Indx console (Account → API keys). **Create it with the access level "Search only"**, limited to the team and the datasets this front-end searches. The key is sent from the browser, so anyone can read it; a Search key can search those datasets and nothing else, which is exactly what `SearchProvider` needs. Never use a Read or Full access key in a front-end — it would let anyone who opens the browser's network tab export or change your data.
 
 > Only the server URL and token come from the environment. Your **team** and **dataset** identify *what* you're searching, so they're passed directly as props on `SearchProvider` (shown below) — not as env vars.
 
@@ -53,9 +53,9 @@ VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Security Notes:**
-- Never commit `.env.local` to version control
-- The token is exposed in the browser — use a read-only / scoped search token
-- Store the token in environment variables; never hardcode it
+- The key is visible to every visitor. Use a **Search only** key, limited to the datasets the page searches — Search keys need Indx server with API key access levels.
+- If a key with more access ever shipped in a page, revoke it in the console (Account → API keys); it stays valid until revoked or expired.
+- Never commit `.env.local` to version control.
 
 ### 2. Import Styles
 

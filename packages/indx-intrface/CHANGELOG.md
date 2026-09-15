@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.0
+
+### Minor Changes
+
+- Starting a search no longer sends `PUT …/datasets/{name}`. That is the server's create-or-open endpoint and needs write access, so every front-end had to ship a key that could change data. `SearchProvider` now calls only read endpoints (status, field lists, search, document lookup, filters), and works with a **Search only** API key. Servers without API key access levels are unaffected: the removed call returned 200 without doing anything for an existing dataset.
+- README: use a Search only key, limited to the front-end's datasets.
+
+
 ## 3.2.0
 
 ### Minor Changes

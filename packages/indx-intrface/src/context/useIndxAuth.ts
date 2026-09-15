@@ -69,9 +69,8 @@ export function useIndxAuth({
             headers: { accept: 'text/plain', 'Authorization': `Bearer ${sessionToken}` },
           });
 
-        // Check dataset status FIRST. The server's CreateOrOpen creates a dataset that
-        // does not exist, so probing status before opening is what turns a typo'd dataset
-        // name into a clear 404 instead of a silently created, empty dataset.
+        // Check dataset status. A typo'd dataset name is a clear 404 here; nothing on this path
+        // can create a dataset.
         if (enableDebugLogs) console.log('[Auth] 🔍 Checking dataset status...');
         const statusRes = await authFetch(`${url}/api/teams/${team}/datasets/${dataset}/status`);
 
@@ -97,22 +96,10 @@ export function useIndxAuth({
         const statusData = await statusRes.json();
         if (enableDebugLogs) console.log('[Auth] 📊 Dataset status:', statusData);
 
-        // Dataset exists - now open the session (wakes/loads it server-side if needed).
-        if (enableDebugLogs) console.log('[Auth] 🔓 Opening dataset session...');
-        const createOrOpenRes = await fetch(`${url}/api/teams/${team}/datasets/${dataset}?configuration=400`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: '""',
-        });
-
-        if (!createOrOpenRes.ok) {
-          console.error('[Auth] ❌ CreateOrOpen failed:', createOrOpenRes.status, await createOrOpenRes.text());
-          throw new Error('Failed to open dataset session.');
-        }
-
+        // The dataset exists (the status call above also wakes a hibernated one server-side). There
+        // is no separate "open": earlier versions sent PUT …/datasets/{name} here, which is the
+        // create endpoint and needs write access — so every front-end had to ship a key that could
+        // change data. A Search-level API key is all a search UI needs.
         setToken(sessionToken);
         if (enableDebugLogs) console.log('[Auth] ✅ Dataset session established');
 
