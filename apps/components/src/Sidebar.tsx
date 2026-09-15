@@ -44,6 +44,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Chip', path: '/chip' },
       { label: 'Alert', path: '/alert' },
       { label: 'Tooltip', path: '/tooltip' },
+      { label: 'Chat', path: '/chat' },
     ],
   },
   {
@@ -64,12 +65,6 @@ export const navGroups: NavGroup[] = [
       { label: 'ActiveFiltersPanel', path: '/active-filters-panel' },
       { label: 'SearchResult', path: '/search-result' },
       { label: 'FilterPanelSkeleton', path: '/filter-panel-skeleton' },
-    ],
-  },
-  {
-    title: 'Mockups',
-    items: [
-      { label: 'Chat · Ask mode', path: '/chat' },
     ],
   },
 ];

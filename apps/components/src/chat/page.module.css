@@ -1,8 +1,15 @@
-.page { padding: 2rem; max-width: var(--maxWidth); margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
-.intro { display: flex; flex-direction: column; gap: 8px; }
+.page { padding: 2rem; max-width: var(--maxWidth); margin: 0 auto; }
+.intro { margin-bottom: 3rem; display: flex; flex-direction: column; gap: 8px; }
+.section { margin-bottom: 3rem; }
 .title { font: var(--text-2xl); margin: 0; }
-.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 64ch; }
-.controls { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
+.heading { font: var(--text-lg); margin-bottom: 1rem; color: var(--lv4); }
+.stack { display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+.stackTight { display: flex; flex-direction: column; gap: 8px; }
+.demo { padding: 1.25rem; border: 1px solid var(--lv2); border-radius: var(--radius); background: var(--lv1); display: flex; flex-direction: column; gap: 12px; }
+.demoLabel { font: var(--text-2xs); font-weight: var(--med); color: var(--lv5); letter-spacing: 0.02em; text-transform: uppercase; }
+.prose { margin: 0; font: var(--text-base); line-height: 1.5; color: var(--lv7); }
+.controls { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 1rem; }
 .stage { display: flex; justify-content: center; padding: 48px 24px; background: var(--lv0); border: 1px solid var(--lv2); border-radius: var(--radius); }
 
 /* The two frames the panel is shown in. */

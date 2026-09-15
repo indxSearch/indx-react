@@ -25,6 +25,7 @@ export default function Home() {
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
     { name: 'Tooltip', path: '/tooltip', desc: 'Hover/focus label for icon-only buttons and truncated controls' },
+    { name: 'Chat', path: '/chat', desc: 'Conversation with an assistant: panel, messages, composer, citations, status' },
   ]
 
   const intrfaceComponents = [
