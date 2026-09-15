@@ -5,6 +5,18 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-09-15
+
+### Added
+
+- Chat family, promoted from the components-gallery mockup: `ChatPanel` (header /
+  scrolling thread / composer / hints frame, with `Kbd` and `defaultChatHints`),
+  `UserMessage` and `AssistantMessage`, `Composer` (Enter sends, Shift+Enter breaks
+  the line, grows to `maxLines`, Send becomes Stop while `streaming`), `CitationRef`
+  (inline numbered mark) and `CitationList` (numbered chips with a source-type icon),
+  `StreamStatus`, `Suggestions` and `AnswerActions` (Copy + Ask a follow-up). First
+  used by the docs assistant in indx-docs. Not yet in Blazor.
+
 ## [2.9.0] - 2026-09-12
 
 ### Added

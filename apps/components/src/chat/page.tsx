@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Button, Chip, SearchField, Spinner, Tabs, Alert, AlertTitle, AlertDescription, Modal } from '@indxsearch/systm';
-import { Ai_agent, Api, ArrowUp, Book, Chevron_right, Code, Copy, Refresh, Search, Search_query, Stop } from '@indxsearch/pixl';
+import {
+  Button, Tabs, Alert, AlertTitle, AlertDescription, Modal,
+  ChatPanel, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions,
+} from '@indxsearch/systm';
+import { Api, Book, Code, Refresh, Search, Search_query } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 /**
- * Mockup of the chat "Ask" mode for the docs search palette — the component family a docs
- * assistant (and, later, a dataset assistant in the console) needs: ChatPanel, Message,
- * Composer, Citation, StreamStatus, Suggestions, AnswerActions. Built from the systm parts that
- * exist; the pieces that don't yet are plain markup here and are the shopping list.
- * Not wired to anything: the state switcher stands in for the conversation.
+ * The chat "Ask" mode for the docs search palette, shown state by state — the demo of the systm
+ * Chat family: ChatPanel, UserMessage / AssistantMessage, Composer, CitationRef / CitationList,
+ * StreamStatus, Suggestions, AnswerActions. Not wired to anything: the state switcher stands in
+ * for the conversation. The live one is the Ask tab in indx-docs.
  */
 
 type Stage = 'empty' | 'searching' | 'streaming' | 'answered' | 'error' | 'limited';
@@ -25,74 +27,19 @@ const frames = [{ label: 'Desktop', value: 'desktop' }, { label: 'Phone', value:
 const modes = [{ label: 'Search', value: 'search' }, { label: 'Ask', value: 'ask' }];
 
 const sourceIcon = { guide: <Book />, howto: <Search_query />, csharp: <Code />, http: <Api /> };
-type Source = { n: number; title: string; kind: keyof typeof sourceIcon };
-
-function Ref({ n }: { n: number }) {
-  return <a href="#" className={styles.ref} onClick={e => e.preventDefault()}>{n}</a>;
-}
-
-function Citations({ sources }: { sources: Source[] }) {
-  return (
-    <div className={styles.stack}>
-      <div className={styles.label}>SOURCES</div>
-      <div className={styles.wrap}>
-        {sources.map(s => (
-          <a key={s.n} href="#" className={styles.citation} onClick={e => e.preventDefault()}>
-            <Chip icon={sourceIcon[s.kind]}>{s.n}&nbsp; {s.title}</Chip>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StreamStatus({ children }: { children: string }) {
-  return (
-    <div className={styles.status}>
-      <span className={styles.statusSpinner}><Spinner size={14} /></span>
-      <span>{children}</span>
-    </div>
-  );
-}
-
-function AnswerActions({ onFollowUp }: { onFollowUp?: () => void }) {
-  return (
-    <div className={styles.feedback}>
-      <Button variant="ghost" size="micro" iconLeft={<Copy />}>Copy</Button>
-      <span className={styles.spacer} />
-      <Button variant="ghost" size="micro" iconRight={<Chevron_right />} onClick={onFollowUp}>Ask a follow-up</Button>
-    </div>
-  );
-}
-
-function UserMessage({ children }: { children: string }) {
-  return <div className={styles.userRow}><div className={styles.userMsg}>{children}</div></div>;
-}
-
-function AssistantHead() {
-  return <div className={styles.assistantHead}><Ai_agent color="currentColor" size={14} /><span>Indx assistant</span></div>;
-}
-
-function Composer({ streaming, value, placeholder }: { streaming?: boolean; value?: string; placeholder: string }) {
-  return (
-    <div className={styles.composer}>
-      <div className={styles.composerField}>
-        <SearchField inputSize="default" placeholder={placeholder} defaultValue={value} searchIcon={<Ai_agent />} showFocusBorder={false} />
-      </div>
-      {streaming
-        ? <Button variant="secondary" size="micro" aria-label="Stop" iconLeft={<Stop />} />
-        : <Button variant="primary" size="micro" aria-label="Send" iconLeft={<ArrowUp />} disabled={!value} />}
-    </div>
-  );
-}
 
 const question = 'How do I stop strangers from signing up on my server?';
-const sources: Source[] = [
-  { n: 1, title: 'Server setup · Registration control', kind: 'guide' },
-  { n: 2, title: 'Server setup · Deploy to Azure', kind: 'guide' },
+const sources = [
+  { n: 1, title: 'Server setup · Registration control', icon: sourceIcon.guide, href: '#' },
+  { n: 2, title: 'Server setup · Deploy to Azure', icon: sourceIcon.guide, href: '#' },
 ];
+const stop = (e: React.MouseEvent) => e.preventDefault();
 
-function Thread({ stage, phone }: { stage: Stage; phone: boolean }) {
+function Assistant({ children }: { children: React.ReactNode }) {
+  return <AssistantMessage label="Indx assistant">{children}</AssistantMessage>;
+}
+
+function Thread({ stage, phone, onPick }: { stage: Stage; phone: boolean; onPick: (s: string) => void }) {
   switch (stage) {
     case 'empty':
       return (
@@ -101,96 +48,88 @@ function Thread({ stage, phone }: { stage: Stage; phone: boolean }) {
             <div className={styles.emptyTitle}>Ask about Indx</div>
             <div className={styles.emptyDesc}>Answers come from the guides, how-tos and API references, with the pages they came from.</div>
           </div>
-          <div className={styles.suggestions}>
-            <div className={styles.label}>TRY ASKING</div>
-            <div className={styles.wrap}>
-              {['How do I set up hybrid search?', 'What does Coverage measure?', 'Restrict who can register', 'Search several JSON types in one index']
-                .map(s => <Button key={s} variant="secondary" size="micro">{s}</Button>)}
-            </div>
-          </div>
+          <Suggestions
+            items={['How do I set up hybrid search?', 'What does Coverage measure?', 'Restrict who can register', 'Search several JSON types in one index']}
+            onPick={onPick}
+          />
         </>
       );
     case 'searching':
       return (
         <>
           <UserMessage>Can I move a dataset to another team?</UserMessage>
-          <div className={styles.assistant}><AssistantHead /><StreamStatus>Searching the docs…</StreamStatus></div>
+          <Assistant><StreamStatus>Searching the docs…</StreamStatus></Assistant>
         </>
       );
     case 'streaming':
       return (
         <>
           <UserMessage>Why did my Coverage scores drop after I added synonyms?</UserMessage>
-          <div className={styles.assistant}>
-            <AssistantHead />
-            <p className={styles.answer}>That is by design. Coverage is <code>totalSum / q × 65535</code>, and synonym expansion appends terms to the query text the engine scores against, so a longer <em>q</em> scales every</p>
+          <Assistant>
+            <p>That is by design. Coverage is <code>totalSum / q × 65535</code>, and synonym expansion appends terms to the query text the engine scores against, so a longer <em>q</em> scales every</p>
             <StreamStatus>Writing…</StreamStatus>
-          </div>
+          </Assistant>
         </>
       );
     case 'answered':
       return (
         <>
           <UserMessage>{question}</UserMessage>
-          <div className={styles.assistant}>
-            <AssistantHead />
-            <p className={styles.answer}>
-              Set the registration mode. The server starts open, and the admin Settings page switches it to <strong>Invite</strong> (only addresses you add can register), <strong>EmailDomain</strong> (anyone on your domain), or <strong>Closed</strong>.<Ref n={1} /> The same setting is exposed for deployment:
+          <Assistant>
+            <p>
+              Set the registration mode. The server starts open, and the admin Settings page switches it to <strong>Invite</strong> (only addresses you add can register), <strong>EmailDomain</strong> (anyone on your domain), or <strong>Closed</strong>.<CitationRef n={1} href="#" onClick={stop} /> The same setting is exposed for deployment:
             </p>
             <pre className={styles.code}>Indx__Registration__Mode=Invite</pre>
             {!phone && (
-              <p className={styles.answer}>Invites are then managed under Admin → Users; an invited address can register once and drops off the list when the account exists.<Ref n={2} /></p>
+              <p>Invites are then managed under Admin → Users; an invited address can register once and drops off the list when the account exists.<CitationRef n={2} href="#" onClick={stop} /></p>
             )}
-            <Citations sources={sources} />
-            <AnswerActions />
-          </div>
+            <CitationList items={sources.map(s => ({ ...s, onClick: stop }))} />
+            <AnswerActions onCopy={() => {}} onFollowUp={() => {}} />
+          </Assistant>
         </>
       );
     case 'error':
       return (
         <>
           <UserMessage>Can I move a dataset to another team?</UserMessage>
-          <div className={styles.assistant}>
-            <AssistantHead />
+          <Assistant>
             <Alert variant="default" icon={null}>
               <AlertTitle>The answer did not come through</AlertTitle>
               <AlertDescription>The connection dropped while the answer was being written. Your question is kept.</AlertDescription>
               <div style={{ marginTop: 10 }}><Button variant="secondary" size="micro" iconLeft={<Refresh />}>Try again</Button></div>
             </Alert>
-          </div>
+          </Assistant>
         </>
       );
     case 'limited':
       return (
         <>
           <UserMessage>Can I move a dataset to another team?</UserMessage>
-          <div className={styles.assistant}>
-            <AssistantHead />
+          <Assistant>
             <Alert variant="default" icon={null}>
               <AlertTitle>Too many questions for now</AlertTitle>
               <AlertDescription>You can ask again in about a minute. Search still works in the meantime.</AlertDescription>
               <div style={{ marginTop: 10 }}><Button variant="ghost" size="micro" iconLeft={<Search />}>Switch to search</Button></div>
             </Alert>
-          </div>
+          </Assistant>
         </>
       );
   }
 }
 
-function ChatPanel({ stage, phone, mode, onMode }: { stage: Stage; phone: boolean; mode: string; onMode: (m: string) => void }) {
+function Panel({ stage, phone, mode, onMode }: { stage: Stage; phone: boolean; mode: string; onMode: (m: string) => void }) {
+  const [draft, setDraft] = useState('');
   const streaming = stage === 'searching' || stage === 'streaming';
   const placeholder = stage === 'empty' ? 'Ask about Indx…' : 'Ask a follow-up…';
   return (
-    <div className={`${styles.panel} ${phone ? styles.panelPhone : styles.panelDesktop}`}>
-      <div className={styles.modeTabs}><Tabs items={modes} value={mode} onValueChange={onMode} size="micro" /></div>
-      <div className={styles.thread}><Thread stage={stage} phone={phone} /></div>
-      <Composer streaming={streaming} placeholder={placeholder} />
-      <div className={styles.hints}>
-        <span><kbd className={styles.kbd}>↵</kbd> send</span>
-        <span><kbd className={styles.kbd}>⇧↵</kbd> new line</span>
-        <span><kbd className={styles.kbd}>esc</kbd> close</span>
-      </div>
-    </div>
+    <ChatPanel
+      className={phone ? styles.panelPhone : styles.panelDesktop}
+      header={<Tabs items={modes} value={mode} onValueChange={onMode} size="micro" />}
+      composer={<Composer value={draft} onChange={setDraft} onSend={() => setDraft('')} onStop={() => {}} streaming={streaming} placeholder={placeholder} />}
+      hints={phone ? false : undefined}
+    >
+      <Thread stage={stage} phone={phone} onPick={setDraft} />
+    </ChatPanel>
   );
 }
 
@@ -206,8 +145,9 @@ export default function ChatPage() {
       <div className={styles.intro}>
         <h1 className={styles.title}>Chat · Ask mode</h1>
         <p className={styles.desc}>
-          The docs assistant as a second tab in the search palette. One conversation shown state by state; the parts
-          — ChatPanel, Message, Composer, Citation, StreamStatus, Suggestions, AnswerActions — are what indx-systm gains.
+          The docs assistant as a second tab in the search palette, one conversation shown state by state. Built from the
+          systm Chat family — ChatPanel, UserMessage / AssistantMessage, Composer, CitationRef / CitationList,
+          StreamStatus, Suggestions, AnswerActions. The live one is the Ask tab on docs.indx.co.
         </p>
       </div>
 
@@ -221,12 +161,12 @@ export default function ChatPage() {
           className={styles.modal}
           trigger={<Button variant="secondary" size="micro">Open as modal</Button>}
         >
-          <ChatPanel stage={stage} phone={false} mode={mode} onMode={setMode} />
+          <Panel stage={stage} phone={false} mode={mode} onMode={setMode} />
         </Modal>
       </div>
 
       <div className={styles.stage}>
-        <ChatPanel stage={stage} phone={phone} mode={mode} onMode={setMode} />
+        <Panel stage={stage} phone={phone} mode={mode} onMode={setMode} />
       </div>
     </main>
   );

@@ -27,3 +27,9 @@ export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
 
 export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink, type NavigationMenuProps, type NavigationMenuTriggerProps, type NavigationMenuLinkProps } from './components/NavigationMenu/NavigationMenu';
+
+export {
+  ChatPanel, Kbd, defaultChatHints, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions,
+  type ChatPanelProps, type UserMessageProps, type AssistantMessageProps, type ComposerProps, type ComposerHandle,
+  type CitationRefProps, type CitationItem, type CitationListProps, type StreamStatusProps, type SuggestionsProps, type AnswerActionsProps,
+} from './components/Chat';
