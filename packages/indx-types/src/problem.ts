@@ -14,7 +14,8 @@
  * - `rateLimited` (429): too many attempts from this address on an anonymous auth endpoint
  *   (login, register, password reset); this API key exceeded its per-second budget where the
  *   operator enabled per-key limits; or too many calls from this address carried no bearer token
- *   at all. Carries `retryAfterSeconds` and a `Retry-After` header; wait that long and retry.
+ *   that validates (missing, expired or invalid). Carries `retryAfterSeconds` and a `Retry-After`
+ *   header; wait that long and retry.
  */
 export type IndxProblemCode =
   | 'invalidArgument'
