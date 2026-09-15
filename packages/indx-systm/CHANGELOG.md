@@ -5,6 +5,14 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.1] - 2026-09-15
+
+### Changed
+
+- Chat family: no borders. `ChatPanel` loses its outline and the rules above the composer and
+  the hints; the `Composer` becomes a quiet field one tone below the panel. Regions are told
+  apart by tone and spacing. 2.10.0 was published before this change.
+
 ## [2.10.0] - 2026-09-15
 
 ### Added
