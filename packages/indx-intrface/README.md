@@ -42,9 +42,9 @@ VITE_INDX_URL=https://your-indx-server.com
 VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
-The token is an API key from the Indx console (Account → API keys). **Create it with the access level "Search only"**, limited to the team and the datasets this front-end searches. The key is sent from the browser, so anyone can read it; a Search key can search those datasets and nothing else, which is exactly what `SearchProvider` needs. Never use a Read or Full access key in a front-end — it would let anyone who opens the browser's network tab export or change your data.
+The token is an API key from the Indx console (Account → API keys). **Create it with the access level "Search only"**, limited to the team and the datasets this front-end searches. The key is sent from the browser, so anyone can read it; a Search key can search those datasets and nothing else, which is exactly what `SearchProvider` needs. Never use a Read or Full access key in a front-end. It would let anyone who opens the browser's network tab export or change your data.
 
-> Only the server URL and token come from the environment. Your **team** and **dataset** identify *what* you're searching, so they're passed directly as props on `SearchProvider` (shown below) — not as env vars.
+> Only the server URL and token come from the environment. Your **team** and **dataset** identify *what* you're searching, so they're passed directly as props on `SearchProvider` (shown below), not as env vars.
 
 **For local development:**
 ```bash
@@ -53,7 +53,7 @@ VITE_INDX_TOKEN=your-bearer-token-here
 ```
 
 **Security Notes:**
-- The key is visible to every visitor. Use a **Search only** key, limited to the datasets the page searches — Search keys need Indx server with API key access levels.
+- The key is visible to every visitor. Use a **Search only** key, limited to the datasets the page searches. Search keys need Indx server with API key access levels.
 - If a key with more access ever shipped in a page, revoke it in the console (Account → API keys); it stays valid until revoked or expired.
 - Never commit `.env.local` to version control.
 
@@ -322,7 +322,7 @@ export default function AdvancedSearch() {
 |------|------|----------|---------|-------------|
 | `url` | `string` | ✅ | - | INDX server URL |
 | `preAuthenticatedToken` | `string` | ✅ | - | Bearer token created on the Indx Dashboard |
-| `team` | `string` | ✅ | - | Team that owns the dataset — scopes requests to `/api/teams/{team}/datasets/{dataset}/…` |
+| `team` | `string` | ✅ | - | Team that owns the dataset, scoping requests to `/api/teams/{team}/datasets/{dataset}/…` |
 | `dataset` | `string` | ✅ | - | Dataset name |
 | `allowEmptySearch` | `boolean` | ❌ | `false` | Show results without query |
 | `enableFacets` | `boolean` | ❌ | `true` | Enable faceted search |
@@ -436,7 +436,7 @@ import { useHybridSearch } from '@indxsearch/intrface';
 
 const { results, isLoading, error, search } = useHybridSearch(embeddingFn, {
   fieldName: 'embedding',
-  alpha: 0.5,       // optional, default 0.5 — blend of text vs. vector score
+  alpha: 0.5,       // optional, default 0.5, blend of text vs. vector score
   maxResults: 10,   // optional, default 10
   filter,           // optional FilterProxy
   timeoutMs,        // optional
@@ -450,11 +450,11 @@ await search('comfortable running shoes');
 
 These components are also exported and can be used for custom layouts:
 
-- `SearchResult` — a single result row; renders `children`, an optional index/score, and a skeleton state.
-- `SearchResultRow` — a lightweight row wrapper with `'title' | 'default'` variants for laying out result fields.
-- `SearchResultsSkeleton` — placeholder rows shown while results load (`rows` prop).
-- `FilterPanelSkeleton` — placeholder for a filter panel while facets load (`list` or `slider` variant).
-- `SearchSettingsPanel` — a ready-made panel for editing `searchSettings` (max results, coverage depth, placeholder text, coverage setup, etc.).
+- `SearchResult`: a single result row; renders `children`, an optional index/score, and a skeleton state.
+- `SearchResultRow`: a lightweight row wrapper with `'title' | 'default'` variants for laying out result fields.
+- `SearchResultsSkeleton`: placeholder rows shown while results load (`rows` prop).
+- `FilterPanelSkeleton`: placeholder for a filter panel while facets load (`list` or `slider` variant).
+- `SearchSettingsPanel`: a ready-made panel for editing `searchSettings` (max results, coverage depth, placeholder text, coverage setup, etc.).
 
 ## Troubleshooting
 
