@@ -1,9 +1,14 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import styles from './Tabs.module.css';
 
 export interface TabItem {
   label: string;
   value: string;
+  /**
+   * Optional icon shown before the label. Pass a rendered pixl icon; it inherits the tab's colour
+   * through `currentColor`, so a selected tab's icon follows the label without extra props.
+   */
+  icon?: ReactNode;
 }
 
 export interface TabsProps {
@@ -115,6 +120,7 @@ export function Tabs({ items, value, onValueChange, size = 'default', scrollable
             onClick={() => onValueChange(item.value)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
+            {item.icon ? <span className={styles.icon} aria-hidden="true">{item.icon}</span> : null}
             {item.label}
           </button>
         );

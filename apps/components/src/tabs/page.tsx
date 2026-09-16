@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { Tabs } from '@indxsearch/systm';
+import { Search, Ai_agent, Sliders_horizontal } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 const ITEMS = [
   { label: 'Overview', value: 'overview' },
   { label: 'Settings', value: 'settings' },
   { label: 'Activity', value: 'activity' },
+];
+
+// Icons are optional per item and inherit the tab's colour, so the selected tab's icon
+// brightens with its label.
+const ICON_ITEMS = [
+  { label: 'Search', value: 'search', icon: <Search color="currentColor" /> },
+  { label: 'Ask', value: 'ask', icon: <Ai_agent color="currentColor" /> },
+  { label: 'Settings', value: 'settings', icon: <Sliders_horizontal color="currentColor" /> },
 ];
 
 // A realistic "lots of tabs" set — e.g. a team's datasets — to exercise overflow behaviour.
@@ -21,6 +30,7 @@ export default function TabsPage() {
   const [activeMicro, setActiveMicro] = useState('overview');
   const [activeLarge, setActiveLarge] = useState('overview');
   const [activeMany, setActiveMany] = useState(MANY_ITEMS[0].value);
+  const [activeIcons, setActiveIcons] = useState('search');
 
   return (
     <main className={styles.main}>
@@ -45,6 +55,12 @@ export default function TabsPage() {
         <h2 className={styles.heading}>Large</h2>
         <Tabs items={ITEMS} value={activeLarge} onValueChange={setActiveLarge} size="large" />
         <p className={styles.active}>Active: {activeLarge}</p>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>With icons</h2>
+        <Tabs items={ICON_ITEMS} value={activeIcons} onValueChange={setActiveIcons} size="micro" />
+        <p className={styles.active}>Active: {activeIcons}</p>
       </div>
 
       <div className={styles.section}>

@@ -5,6 +5,15 @@ All notable changes to @indxsearch/systm will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-09-16
+
+### Added
+
+- `Tabs`: an optional `icon` per item, shown before the label. It inherits the tab's colour
+  through `currentColor`, so a selected tab's icon follows its label, and it is hidden from
+  assistive technology since the label already names the tab. The Blazor port takes the icon the
+  way `Button` and `Chip` do, as a `RenderFragment<int>` given the size the tab wants.
+
 ## [2.10.1] - 2026-09-15
 
 ### Changed
