@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import styles from './Tabs.module.css';
 
 export interface TabItem {
@@ -6,7 +6,8 @@ export interface TabItem {
   value: string;
   /**
    * Optional icon shown before the label. Pass a rendered pixl icon; it inherits the tab's colour
-   * through `currentColor`, so a selected tab's icon follows the label without extra props.
+   * through `currentColor`, and the tab sizes it (see `iconSize`) unless the icon carries a size
+   * of its own. So `icon: <Search color="currentColor" />` is the whole call site.
    */
   icon?: ReactNode;
 }
@@ -27,6 +28,12 @@ export interface TabsProps {
    */
   getPanelId?: (item: TabItem) => string | undefined;
 }
+
+/**
+ * Icon width per tab size, in the pixl grid's multiples of 7 (a 7×5 icon at 14 is 14×10). Large
+ * tabs carry a pixl icon at its own default, 21; smaller tabs step down one multiple.
+ */
+const iconSize = { micro: 14, default: 14, large: 21 } as const;
 
 export function Tabs({ items, value, onValueChange, size = 'default', scrollable = false, getPanelId }: TabsProps) {
   const listRef = useRef<HTMLDivElement>(null);
@@ -120,7 +127,13 @@ export function Tabs({ items, value, onValueChange, size = 'default', scrollable
             onClick={() => onValueChange(item.value)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
-            {item.icon ? <span className={styles.icon} aria-hidden="true">{item.icon}</span> : null}
+            {item.icon ? (
+              <span className={styles.icon} aria-hidden="true">
+                {isValidElement<{ size?: number | string }>(item.icon) && item.icon.props.size === undefined
+                  ? cloneElement(item.icon, { size: iconSize[size] })
+                  : item.icon}
+              </span>
+            ) : null}
             {item.label}
           </button>
         );

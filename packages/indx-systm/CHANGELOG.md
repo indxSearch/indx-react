@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Tabs`: an optional `icon` per item, shown before the label. It inherits the tab's colour
   through `currentColor`, so a selected tab's icon follows its label, and it is hidden from
-  assistive technology since the label already names the tab. The Blazor port takes the icon the
-  way `Button` and `Chip` do, as a `RenderFragment<int>` given the size the tab wants.
+  assistive technology since the label already names the tab. The tab sizes the icon — 21 on
+  large tabs (pixl's own default), 14 on micro and default, both multiples of the pixl grid —
+  unless the icon carries a size of its own, so the call site is just the icon. The Blazor port
+  takes it the way `Button` and `Chip` do, as a `RenderFragment<int>` given the same size.
 
 ## [2.10.1] - 2026-09-15
 
