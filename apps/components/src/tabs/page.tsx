@@ -59,8 +59,21 @@ export default function TabsPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>With icons</h2>
-        <Tabs items={ICON_ITEMS} value={activeIcons} onValueChange={setActiveIcons} size="micro" />
+        <Tabs items={ICON_ITEMS} value={activeIcons} onValueChange={setActiveIcons} />
         <p className={styles.active}>Active: {activeIcons}</p>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>With icons &mdash; all sizes</h2>
+        <p className={styles.desc}>
+          The tab sizes the icon: 21 on large, 14 on default and micro. Pass a size on the icon
+          itself to override it.
+        </p>
+        <div className={styles.stack}>
+          <Tabs items={ICON_ITEMS} value="search" onValueChange={() => {}} size="micro" />
+          <Tabs items={ICON_ITEMS} value="search" onValueChange={() => {}} size="default" />
+          <Tabs items={ICON_ITEMS} value="search" onValueChange={() => {}} size="large" />
+        </div>
       </div>
 
       <div className={styles.section}>
