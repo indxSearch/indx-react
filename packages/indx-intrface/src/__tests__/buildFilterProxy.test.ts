@@ -52,3 +52,31 @@ describe('buildFilterProxy', () => {
       .rejects.toThrow(/Range filter 'speed' failed: HTTP 400 — Field 'speed' is not filterable/);
   });
 });
+
+describe('buildFilterProxy buckets', () => {
+  const rangeTokens = () => server.use(
+    http.post(`${URL}/api/teams/team/datasets/test/filters/range`, async ({ request }) => {
+      const { fieldName, lowerLimit, upperLimit } = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+      return HttpResponse.json({ hashString: `${fieldName}:${lowerLimit}-${upperLimit}` });
+    }),
+  );
+
+  it('ORs the buckets of one field, then ANDs with the rest', async () => {
+    rangeTokens();
+    const proxy = await buildFilterProxy(
+      { brand: ['acme'] }, {}, URL, 'team', 'test', fetchPlain, {},
+      { speed: [{ min: 0, max: 19 }, { min: 40, max: 59 }] }
+    );
+    expect(proxy.hashString).toBe('(brand=acme AND (speed:0-19 OR speed:40-59))');
+  });
+
+  it('passes a single bucket through without combining', async () => {
+    rangeTokens();
+    const proxy = await buildFilterProxy({}, {}, URL, 'team', 'test', fetchPlain, {}, { speed: [{ min: 20, max: 39 }] });
+    expect(proxy.hashString).toBe('speed:20-39');
+  });
+
+  it('ignores a field whose bucket list is empty', async () => {
+    expect(await buildFilterProxy({}, {}, URL, 'team', 'test', fetchPlain, {}, { speed: [] })).toBeNull();
+  });
+});

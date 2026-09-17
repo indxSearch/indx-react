@@ -1,0 +1,43 @@
+/* a vertical list of buckets */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* buckets flow left to right, wrapping as needed */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.grid li {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* control on the left, count on the right */
+.count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+.countValue {
+  flex-shrink: 0;
+}
+
+.chip {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.error {
+  font: var(--text-xs);
+  color: var(--negative, #c33);
+}

@@ -35,12 +35,28 @@ const RangeFilterButton = memo(({ field, min, max, onReset }: { field: string, m
   </li>
 ));
 
+const BucketFilterButton = memo(({ field, label, onReset }: { field: string, label: string, onReset: () => void }) => (
+  <li>
+    <Button
+      onClick={onReset}
+      iconRight={<X_or_error />}
+      variant='primary'
+      size='micro'
+      className={styles.chip}
+      title={`${field}: ${label}`}
+    >
+      <span className={styles.chipLabel}>{field}: {label}</span>
+    </Button>
+  </li>
+));
+
 export function ActiveFiltersPanel() {
   const {
-    state: { filters, rangeFilters },
+    state: { filters, rangeFilters, bucketFilters },
     resetFilters,
     resetSingleFilter,
     resetRangeFilter,
+    resetBucketFilter,
   } = useSearchContext();
 
   const filterEntries = useMemo(() => 
@@ -55,9 +71,16 @@ export function ActiveFiltersPanel() {
     [rangeFilters]
   );
 
+  const bucketEntries = useMemo(() =>
+    Object.entries(bucketFilters).flatMap(([field, ranges]) =>
+      ranges.map(range => ({ field, range, label: `${range.min}-${range.max}` }))
+    ),
+    [bucketFilters]
+  );
+
   const hasFilters = useMemo(() => 
-    Object.keys(filters).length > 0 || Object.keys(rangeFilters).length > 0,
-    [filters, rangeFilters]
+    Object.keys(filters).length > 0 || Object.keys(rangeFilters).length > 0 || bucketEntries.length > 0,
+    [filters, rangeFilters, bucketEntries]
   );
 
   if (!hasFilters) return null;
@@ -80,6 +103,14 @@ export function ActiveFiltersPanel() {
             min={min}
             max={max}
             onReset={() => resetRangeFilter(field)}
+          />
+        ))}
+        {bucketEntries.map(({ field, range, label }) => (
+          <BucketFilterButton
+            key={`${field}-${range.min}-${range.max}`}
+            field={field}
+            label={label}
+            onReset={() => resetBucketFilter(field, range)}
           />
         ))}
         <li>

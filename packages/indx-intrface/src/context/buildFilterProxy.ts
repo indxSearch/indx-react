@@ -55,6 +55,8 @@ async function combineAll(
 
 export type ValueMatch = 'all' | 'any';
 
+export interface NumericRange { min: number; max: number }
+
 /**
  * Builds the server-side filter token for the current selection.
  *
@@ -62,23 +64,35 @@ export type ValueMatch = 'all' | 'any';
  * match mode: `'all'` (default) ANDs them — a document must carry every value,
  * which is the natural reading for multi-valued fields such as genres and
  * narrows the result set with each click; `'any'` ORs them, for scalar fields
- * where a document can only ever hold one of the values. The per-field results
- * are then ANDed with each other and with every range filter. Any failed
- * filter call throws — the caller must not fall back to an unfiltered search.
+ * where a document can only ever hold one of the values. Bucket filters (the
+ * ranges a BucketFilterPanel selects) are disjoint, so several on one field are
+ * always ORed. The per-field results are then ANDed with each other and with
+ * every range filter. Any failed filter call throws — the caller must not fall
+ * back to an unfiltered search.
  */
 export async function buildFilterProxy(
   filters: Record<string, string[]>,
-  rangeFilters: Record<string, { min: number; max: number }>,
+  rangeFilters: Record<string, NumericRange>,
   url: string,
   team: string,
   dataset: string,
   authenticatedFetch: AuthenticatedFetch,
-  valueMatch: Record<string, ValueMatch> = {}
+  valueMatch: Record<string, ValueMatch> = {},
+  bucketFilters: Record<string, NumericRange[]> = {}
 ): Promise<any> {
   const filterEntries = Object.entries(filters ?? {}).filter(([, values]) => values.length > 0);
   const rangeFilterEntries = Object.entries(rangeFilters ?? {});
+  const bucketEntries = Object.entries(bucketFilters ?? {}).filter(([, ranges]) => ranges.length > 0);
 
-  const [perFieldProxies, rangeFilterProxies] = await Promise.all([
+  const rangeProxy = (field: string, { min, max }: NumericRange) =>
+    postFilter(
+      'range',
+      { fieldName: field, lowerLimit: min, upperLimit: max },
+      `Range filter '${field}'`,
+      url, team, dataset, authenticatedFetch
+    );
+
+  const [perFieldProxies, rangeFilterProxies, bucketProxies] = await Promise.all([
     Promise.all(
       filterEntries.map(async ([field, values]) => {
         const valueProxies = await Promise.all(
@@ -90,17 +104,14 @@ export async function buildFilterProxy(
         return combineAll(valueProxies, operator, url, team, dataset, authenticatedFetch);
       })
     ),
+    Promise.all(rangeFilterEntries.map(([field, range]) => rangeProxy(field, range))),
     Promise.all(
-      rangeFilterEntries.map(([field, { min, max }]) =>
-        postFilter(
-          'range',
-          { fieldName: field, lowerLimit: min, upperLimit: max },
-          `Range filter '${field}'`,
-          url, team, dataset, authenticatedFetch
-        )
-      )
+      bucketEntries.map(async ([field, ranges]) => {
+        const proxies = await Promise.all(ranges.map(range => rangeProxy(field, range)));
+        return combineAll(proxies, 'or', url, team, dataset, authenticatedFetch);
+      })
     ),
   ]);
 
-  return combineAll([...perFieldProxies, ...rangeFilterProxies], 'and', url, team, dataset, authenticatedFetch);
+  return combineAll([...perFieldProxies, ...rangeFilterProxies, ...bucketProxies], 'and', url, team, dataset, authenticatedFetch);
 }

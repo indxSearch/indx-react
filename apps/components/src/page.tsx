@@ -32,6 +32,7 @@ export default function Home() {
     { name: 'SearchInput', path: '/search-input', desc: 'Search input with query state' },
     { name: 'ValueFilterPanel', path: '/value-filter-panel', desc: 'Faceted value filter panel' },
     { name: 'RangeFilterPanel', path: '/range-filter-panel', desc: 'Numeric range filter slider' },
+    { name: 'BucketFilterPanel', path: '/bucket-filter-panel', desc: 'Numeric field grouped into tickable ranges' },
     { name: 'SortByPanel', path: '/sort-by-panel', desc: 'Sort options panel' },
     { name: 'ActiveFiltersPanel', path: '/active-filters-panel', desc: 'Active filter chips' },
     { name: 'SearchResult', path: '/search-result', desc: 'Composable result rows with skeleton loading' },

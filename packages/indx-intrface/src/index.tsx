@@ -1,6 +1,6 @@
 import '@indxsearch/systm/styles.css';
 export { SearchProvider, useSearchContext, SearchContext } from './context/SearchContext';
-export type { SearchContextType, SearchState } from './context/SearchContext';
+export type { SearchContextType, SearchState, NumericRange, ValueMatch } from './context/SearchContext';
 export { useSearch } from './context/useSearch';
 export { SearchInput } from './components/SearchInput';
 export { SearchResults } from './components/SearchResults';
@@ -14,6 +14,8 @@ export { FilterPanelSkeleton } from './components/FilterPanelSkeleton';
 export type { FilterPanelSkeletonProps } from './components/FilterPanelSkeleton';
 export { ValueFilterPanel } from './components/ValueFilterPanel';
 export { RangeFilterPanel } from './components/RangeFilterPanel';
+export { BucketFilterPanel } from './components/BucketFilterPanel';
+export type { BucketFilterPanelProps, BucketSpec } from './components/BucketFilterPanel';
 export { ActiveFiltersPanel } from './components/ActiveFiltersPanel';
 export { SortByPanel } from './components/SortByPanel';
 export { SearchSettingsPanel } from './components/SearchSettingsPanel';

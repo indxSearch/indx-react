@@ -1,7 +1,7 @@
 
 import React, { useState, ReactNode } from 'react';
 import { SearchContext } from '@indxsearch/intrface';
-import type { SearchContextType } from '@indxsearch/intrface';
+import type { SearchContextType, NumericRange } from '@indxsearch/intrface';
 
 // Numeric facets for range filter / histogram demos
 const numericFacets = {
@@ -53,6 +53,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string[]>>({});
   const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>({});
+  const [bucketFilters, setBucketFilters] = useState<Record<string, NumericRange[]>>({});
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAscending, setSortAscending] = useState(true);
 
@@ -73,7 +74,24 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
     setRangeFiltersState(prev => { const { [field]: _, ...rest } = prev; return rest; });
   };
 
-  const resetFilters = () => { setFilters({}); setRangeFiltersState({}); };
+  const sameRange = (a: NumericRange, b: NumericRange) => a.min === b.min && a.max === b.max;
+  const toggleBucketFilter = (field: string, range: NumericRange) => {
+    setBucketFilters(prev => {
+      const cur = prev[field] ?? [];
+      const next = cur.some(r => sameRange(r, range)) ? cur.filter(r => !sameRange(r, range)) : [...cur, range];
+      if (next.length === 0) { const { [field]: _, ...rest } = prev; return rest; }
+      return { ...prev, [field]: next };
+    });
+  };
+  const resetBucketFilter = (field: string, range?: NumericRange) => {
+    setBucketFilters(prev => {
+      const next = range ? (prev[field] ?? []).filter(r => !sameRange(r, range)) : [];
+      if (next.length === 0) { const { [field]: _, ...rest } = prev; return rest; }
+      return { ...prev, [field]: next };
+    });
+  };
+
+  const resetFilters = () => { setFilters({}); setRangeFiltersState({}); setBucketFilters({}); };
 
   const value: SearchContextType = {
     state: {
@@ -83,6 +101,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
       filters,
       valueMatch: {},
       rangeFilters,
+      bucketFilters,
       rangeBounds,
       facets: { ...categoryFacets, ...numericFacets },
       facetStats: {
@@ -124,6 +143,8 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
     setValueMatch: () => {},
     setRangeFilter,
     resetRangeFilter,
+    toggleBucketFilter,
+    resetBucketFilter,
     resetFilters,
     resetSingleFilter: (field, value) => {
       if (value !== undefined) toggleFilter(field, value);

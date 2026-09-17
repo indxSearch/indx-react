@@ -108,15 +108,23 @@ export function useSearchExecution({
         //    gets a facets-only search whose filter leaves that field out, and the
         //    panel reads that field's counts from there instead. Built and sent in
         //    parallel with the main search, so latency stays one round trip.
+        //    Buckets are disjoint ranges, so a field with selected buckets is an OR
+        //    field by construction and gets the same treatment.
         const orFields = enableFacets
-          ? Object.keys(state.filters).filter(
-              field => state.valueMatch[field] === 'any' && (state.filters[field]?.length ?? 0) > 0
-            )
+          ? Array.from(new Set([
+              ...Object.keys(state.filters).filter(
+                field => state.valueMatch[field] === 'any' && (state.filters[field]?.length ?? 0) > 0
+              ),
+              ...Object.keys(state.bucketFilters).filter(field => (state.bucketFilters[field]?.length ?? 0) > 0),
+            ]))
           : [];
         const [filterProxy, ...orFilterProxies] = await Promise.all([
-          buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch),
+          buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch, state.bucketFilters),
           ...orFields.map(field =>
-            buildFilterProxy({ ...state.filters, [field]: [] }, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch)
+            buildFilterProxy(
+              { ...state.filters, [field]: [] }, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch,
+              { ...state.bucketFilters, [field]: [] }
+            )
           ),
         ]);
 
@@ -306,6 +314,7 @@ export function useSearchExecution({
       state.filters,
       state.valueMatch,
       state.rangeFilters,
+      state.bucketFilters,
       state.facetStats,
       sortBy,
       sortAscending,
@@ -401,7 +410,7 @@ export function useSearchExecution({
     if (!shouldSkipSearch) {
       performSearchRef.current?.({ enableFacets: facetsEnabled });
     }
-  }, [state.filters, state.rangeFilters]);
+  }, [state.filters, state.rangeFilters, state.bucketFilters]);
 
   // Trigger: sort changes
   useEffect(() => {

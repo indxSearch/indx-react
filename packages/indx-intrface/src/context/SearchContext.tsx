@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import type { CoverageSetup } from '@indxsearch/indx-types';
 import { useIndxAuth } from './useIndxAuth';
 import { useSearchExecution } from './useSearchExecution';
-import type { ValueMatch } from './buildFilterProxy';
+import type { ValueMatch, NumericRange } from './buildFilterProxy';
 
-export type { ValueMatch };
+export type { ValueMatch, NumericRange };
 
 // Internal type with all CoverageSetup properties required (SearchContext always provides defaults)
 export type RequiredCoverageSetup = Required<CoverageSetup>;
@@ -40,6 +40,7 @@ export interface SearchState {
   filters: Record<string, string[]>; // Current active filters, mapping field names to arrays of selected values
   valueMatch: Record<string, ValueMatch>; // Per field: 'all' (AND the selected values, default) or 'any' (OR them). Registered by ValueFilterPanel's `match` prop
   rangeFilters: Record<string, { min: number; max: number }>; // Current active range filters, mapping field names to min/max values
+  bucketFilters: Record<string, NumericRange[]>; // Selected buckets per field (BucketFilterPanel). Disjoint ranges, ORed within the field
   facetStats?: Record<string, { min: number; max: number }>; // Current facet statistics (min/max values) for numeric fields, updated with each search
   rangeBounds: Record<string, { min: number; max: number }>; // Range bounds for numeric fields, updated when query or auth data changes
   sortBy?: string; // The field currently being used to sort results
@@ -65,6 +66,8 @@ export interface SearchContextType {
   resetFilters: () => void; // Clears all active filters and range filters
   resetSingleFilter: (field: string, value: string, isUserAction?: boolean) => void; // Removes a specific value from a value filter
   resetRangeFilter: (field: string, isUserAction?: boolean) => void; // Removes a range filter for a field
+  toggleBucketFilter: (field: string, range: NumericRange) => void; // Selects or deselects one bucket on a field
+  resetBucketFilter: (field: string, range?: NumericRange, isUserAction?: boolean) => void; // Removes one bucket, or every bucket on the field when no range is given
   setSort: (field: string | null, ascending: boolean) => void; // Sets the sort field and direction
   setDebounceDelay?: (ms: number) => void; // Optional: Updates the debounce delay for faceted searches
   setSearchSettings: (settings: Partial<SearchSettings>) => void;
@@ -125,6 +128,7 @@ export const SearchProvider: React.FC<{
     filters: {},
     valueMatch: {},
     rangeFilters: {},
+    bucketFilters: {},
     facetStats: {},
     rangeBounds: {},
     searchSettings: {
@@ -207,12 +211,14 @@ export const SearchProvider: React.FC<{
       // Preserve empty filter references to avoid triggering filter effect unnecessarily
       const hasFilters = Object.keys(prev.filters).length > 0;
       const hasRangeFilters = Object.keys(prev.rangeFilters).length > 0;
+      const hasBucketFilters = Object.keys(prev.bucketFilters).length > 0;
 
       return {
         ...prev,
         query,
         filters: hasFilters ? {} : prev.filters,
         rangeFilters: hasRangeFilters ? {} : prev.rangeFilters,
+        bucketFilters: hasBucketFilters ? {} : prev.bucketFilters,
         searchSettings: {
           ...prev.searchSettings,
           maxNumberOfRecordsToReturn: userMaxResultsRef.current,
@@ -314,6 +320,7 @@ export const SearchProvider: React.FC<{
       ...prev,
       filters: {},
       rangeFilters: {},
+      bucketFilters: {},
     }));
   }, []);
 
@@ -337,6 +344,33 @@ export const SearchProvider: React.FC<{
       const updatedRangeFilters = { ...prev.rangeFilters };
       delete updatedRangeFilters[field];
       return { ...prev, rangeFilters: updatedRangeFilters };
+    });
+  }, []);
+
+  const sameRange = (a: NumericRange, b: NumericRange) => a.min === b.min && a.max === b.max;
+
+  const toggleBucketFilter = useCallback((field: string, range: NumericRange) => {
+    filtersChangedByUser.current = true;
+    setState(prev => {
+      const current = prev.bucketFilters[field] ?? [];
+      const next = current.some(r => sameRange(r, range))
+        ? current.filter(r => !sameRange(r, range))
+        : [...current, range];
+      const bucketFilters = { ...prev.bucketFilters };
+      if (next.length > 0) bucketFilters[field] = next;
+      else delete bucketFilters[field];
+      return { ...prev, bucketFilters };
+    });
+  }, []);
+
+  const resetBucketFilter = useCallback((field: string, range?: NumericRange, isUserAction: boolean = true) => {
+    if (isUserAction) filtersChangedByUser.current = true;
+    setState(prev => {
+      const bucketFilters = { ...prev.bucketFilters };
+      const next = range ? (bucketFilters[field] ?? []).filter(r => !sameRange(r, range)) : [];
+      if (next.length > 0) bucketFilters[field] = next;
+      else delete bucketFilters[field];
+      return { ...prev, bucketFilters };
     });
   }, []);
 
@@ -367,6 +401,8 @@ export const SearchProvider: React.FC<{
         resetFilters,
         resetSingleFilter,
         resetRangeFilter,
+        toggleBucketFilter,
+        resetBucketFilter,
         setSort,
         setDebounceDelay,
         setSearchSettings,

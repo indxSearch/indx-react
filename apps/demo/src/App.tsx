@@ -5,6 +5,7 @@ import { SearchClient } from './SearchClient';
 import {
   ActiveFiltersPanel,
   ValueFilterPanel,
+  BucketFilterPanel,
   RangeFilterPanel,
   SortByPanel,
   SearchSettingsPanel,
@@ -38,8 +39,8 @@ const filters = (
     <RangeFilterPanel label="Speed" field="speed" displayType="slider" expectedMin={5} expectedMax={180} />
     <RangeFilterPanel label="Attack" field="attack" displayType="slider" startCollapsed={true} showHistogram />
     <RangeFilterPanel label="HP" field="hp" displayType="slider" startCollapsed={true} />
-    {/* speed is scalar, so match="any" turns this into a multi-select: pick several speeds, get all of them */}
-    <ValueFilterPanel label="Speed" field="speed" match="any" displayType="button" preserveBlankFacetStateOrder={false} sortFacetsBy="numeric" startCollapsed={true} />
+    {/* speed grouped into ranges; several buckets OR together */}
+    <BucketFilterPanel label="Speed" field="speed" width={20} displayType="button" layout="grid" startCollapsed={true} />
     <ValueFilterPanel label="Attack" field="attack" layout="grid" startCollapsed={true} showCount={true} />
     <ValueFilterPanel label="HP" startCollapsed={true} field="hp" />
     <SearchSettingsPanel />

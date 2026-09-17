@@ -247,6 +247,24 @@ import { RangeFilterPanel } from '@indxsearch/intrface';
 />
 ```
 
+### Bucket Filters (Numeric, grouped)
+
+Groups a numeric field into ranges the user can tick, several at once. Pick a bucket width, the lower edges, or spell the buckets out:
+
+```typescript
+import { BucketFilterPanel } from '@indxsearch/intrface';
+
+<BucketFilterPanel field="speed" label="Speed" width={20} />              // 0-19, 20-39, ... over the field's range
+<BucketFilterPanel field="speed" width={[1, 21, 41, 81, 181]} />         // 1-20, 21-40, 41-80, 81-180
+<BucketFilterPanel field="price" buckets={[
+  { label: 'Under 50', max: 49 },
+  { label: '50 to 199', min: 50, max: 199 },
+  { label: '200 and up', min: 200 },
+]} />
+```
+
+Each bucket is a range filter. Selected buckets on one field are ORed, so ticking two widens the result; across fields they AND as usual. Counts are summed from the field's facet values, so the field must be facetable for counts to show (filterable is enough for the filter itself).
+
 ### Active Filters Display
 
 ```typescript
@@ -385,6 +403,23 @@ Different fields and range filters always narrow the result set (ANDed). With `d
 | `resolution` | `number` | ❌ | Value-range per histogram bucket (e.g. `200` → 5 bars over 0–1000). Auto-derived (~20 bars) if omitted |
 | `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |
 | `startCollapsed` | `boolean` | ❌ | Start collapsed (default `false`) |
+
+### BucketFilterPanel Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `field` | `string` | ✅ | Numeric field to filter on (must be filterable; facetable for counts) |
+| `label` | `string` | ❌ | Display label |
+| `width` | `number \| number[]` | ❌ | A number gives equal-width buckets aligned to multiples of it over the field's range. An array gives each bucket's lower edge, the last entry closing the final bucket. Ignored when `buckets` is set |
+| `buckets` | `{ label?, min?, max? }[]` | ❌ | Explicit buckets. Leave `min` or `max` off for an open end; it closes at the field's bound when sent |
+| `displayType` | `'checkbox' \| 'button'` | ❌ | Control style (default `'checkbox'`) |
+| `layout` | `'list' \| 'grid'` | ❌ | Vertical list or wrapping grid (default `'list'`) |
+| `showCount` | `boolean` | ❌ | Show the document count per bucket (default `true`) |
+| `hideEmpty` | `boolean` | ❌ | Drop buckets with count 0 instead of showing them disabled (default `false`) |
+| `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |
+| `startCollapsed` | `boolean` | ❌ | Start collapsed (default `false`) |
+
+Selected buckets on a field are always ORed (they are disjoint ranges). Like `ValueFilterPanel match="any"`, a field with a selection costs one extra facets-only search per query so the other buckets keep their counts.
 
 ### SortByPanel Props
 

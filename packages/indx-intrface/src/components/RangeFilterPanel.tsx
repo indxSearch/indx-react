@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { Slider, InputField, FilterPanelBase } from '@indxsearch/systm';
 import styles from './RangeFilterPanel.module.css';
+import { decimalsOf } from '../utils/numeric';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 export interface RangeFilterPanelProps {
@@ -15,14 +16,6 @@ export interface RangeFilterPanelProps {
   showHistogram?: boolean; // Show a histogram above the slider (requires field to be facetable)
   resolution?: number; // Value-range per histogram bucket (e.g. 200 → 5 bars over 0–1000). Auto-derived if omitted (~20 bars)
   step?: number; // Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …)
-}
-
-/** Number of decimals needed to represent `n` exactly (capped at 6). */
-function decimalsOf(n: number): number {
-  if (!Number.isFinite(n)) return 0;
-  const text = String(n);
-  const dot = text.indexOf('.');
-  return dot === -1 ? 0 : Math.min(6, text.length - dot - 1);
 }
 
 /** Snaps `value` onto the `min + k·step` grid react-range expects. */
