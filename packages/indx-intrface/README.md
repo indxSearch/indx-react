@@ -224,7 +224,7 @@ import { ValueFilterPanel } from '@indxsearch/intrface';
   <ValueFilterPanel
     field="brand"
     label="Brand"
-    displayType="button"
+    control="button"
     layout="grid"
   />
 
@@ -301,9 +301,9 @@ export default function AdvancedSearch() {
         {/* Sidebar with filters */}
         <aside style={{ width: '250px' }}>
           <ActiveFiltersPanel />
-          <SortByPanel displayType="radio" />
+          <SortByPanel control="radio" />
           <ValueFilterPanel field="category" label="Category" />
-          <ValueFilterPanel field="brand" label="Brand" displayType="button" />
+          <ValueFilterPanel field="brand" label="Brand" control="button" />
           <RangeFilterPanel field="price" label="Price" />
         </aside>
 
@@ -379,7 +379,9 @@ Initialisation failures (bad token, unknown dataset, unreachable server) and fai
 |------|------|---------|-------------|
 | `field` | `string` | ✅ | Field name to filter on |
 | `label` | `string` | ❌ | Display label |
-| `displayType` | `'checkbox' \| 'button' \| 'toggle'` | `'checkbox'` | Filter UI style |
+| `control` | `'checkbox' \| 'radio' \| 'button' \| 'toggle'` | `'checkbox'` | The control each value renders as. `radio` is single-select: a click replaces the selection and the other values keep their counts. `toggle` is for boolean fields. (`displayType` still works, deprecated) |
+| `hideEmpty` | `boolean` | `false` | Drop values with a count of 0 instead of showing them disabled |
+| `showActivePanel` | `boolean` | `false` | Tint the panel while it has a selection |
 | `layout` | `'list' \| 'grid'` | `'list'` | Layout style |
 | `limit` | `number` | `undefined` | Max filters to show |
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
@@ -387,7 +389,7 @@ Initialisation failures (bad token, unknown dataset, unreachable server) and fai
 | `showNull` | `boolean` | `false` | List the `null` facet bucket (documents without the field) as an option |
 | `match` | `'all' \| 'any'` | `'all'` | How several selected values combine. `'all'` requires every selected value (right for multi-valued fields such as genres: each click narrows). `'any'` matches at least one (use on scalar fields, where a document holds a single value). An `any` field with a selection costs one extra facets-only search per query, so its other values keep their counts and stay selectable. |
 
-Different fields and range filters always narrow the result set (ANDed). With `displayType="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
+Different fields and range filters always narrow the result set (ANDed). With `control="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
 
 ### RangeFilterPanel Props
 
@@ -395,7 +397,8 @@ Different fields and range filters always narrow the result set (ANDed). With `d
 |------|------|----------|-------------|
 | `field` | `string` | ✅ | Field name to filter on |
 | `label` | `string` | ❌ | Display label |
-| `displayType` | `'slider' \| 'input'` | ❌ | Filter UI style (default `'input'`) |
+| `control` | `'slider' \| 'input'` | ❌ | Slider with inputs beneath, or inputs alone (default `'input'`; `displayType` still works, deprecated) |
+| `showActivePanel` | `boolean` | ❌ | Tint the panel while it has a selection (default `false`) |
 | `expectedMin` | `number` | ❌ | Expected lower bound (default `0`) |
 | `expectedMax` | `number` | ❌ | Expected upper bound (default `1000`) |
 | `step` | `number` | ❌ | Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …) |
@@ -412,7 +415,9 @@ Different fields and range filters always narrow the result set (ANDed). With `d
 | `label` | `string` | ❌ | Display label |
 | `width` | `number \| number[]` | ❌ | A number gives equal-width buckets aligned to multiples of it over the field's range. An array gives each bucket's lower edge, the last entry closing the final bucket. Ignored when `buckets` is set |
 | `buckets` | `{ label?, min?, max? }[]` | ❌ | Explicit buckets. Leave `min` or `max` off for an open end; it closes at the field's bound when sent |
-| `displayType` | `'checkbox' \| 'button'` | ❌ | Control style (default `'checkbox'`) |
+| `control` | `'checkbox' \| 'radio' \| 'button'` | ❌ | The control each bucket renders as; `radio` is single-select (default `'checkbox'`; `displayType` still works, deprecated) |
+| `limit` | `number` | ❌ | Buckets shown before a "Show more" button. Unlimited when omitted |
+| `showActivePanel` | `boolean` | ❌ | Tint the panel while it has a selection (default `false`) |
 | `layout` | `'list' \| 'grid'` | ❌ | Vertical list or wrapping grid (default `'list'`) |
 | `showCount` | `boolean` | ❌ | Show the document count per bucket (default `true`) |
 | `hideEmpty` | `boolean` | ❌ | Drop buckets with count 0 instead of showing them disabled (default `false`) |
@@ -425,7 +430,7 @@ Selected buckets on a field are always ORed (they are disjoint ranges). Like `Va
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `displayType` | `'dropdown' \| 'radio'` | `'dropdown'` | Sort UI style |
+| `control` | `'select' \| 'radio'` | `'select'` | A select, or one radio per option (`displayType` still works, deprecated; `'dropdown'` maps to `'select'`) |
 | `collapsible` | `boolean` | `true` | Allow the panel to collapse |
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
 
@@ -543,7 +548,7 @@ These components are also exported and can be used for custom layouts:
 
     <div className="filters">
       <ValueFilterPanel field="category" label="Category" />
-      <ValueFilterPanel field="brand" label="Brand" displayType="button" />
+      <ValueFilterPanel field="brand" label="Brand" control="button" />
       <RangeFilterPanel field="price" label="Price" expectedMin={0} expectedMax={1000} />
       <ValueFilterPanel field="inStock" label="In Stock" />
     </div>

@@ -49,3 +49,8 @@
   min-width: 0;
   max-width: 100%;
 }
+
+/* panel tint while it holds a selection (showActivePanel) */
+.active {
+  background: var(--lv1);
+}

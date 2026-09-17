@@ -5,12 +5,16 @@ import styles from './SortByPanel.module.css';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 type SortByPanelProps = {
+  /** A select, or one radio per option. */
+  control?: 'select' | 'radio';
+  /** @deprecated Use `control`. `'dropdown'` maps to `'select'`. */
   displayType?: 'dropdown' | 'radio';
   collapsible?: boolean;
   startCollapsed?: boolean;
 };
 
-export const SortByPanel: React.FC<SortByPanelProps> = ({ displayType = 'dropdown', collapsible = true, startCollapsed = false }) => {
+export const SortByPanel: React.FC<SortByPanelProps> = ({ control: controlProp, displayType, collapsible = true, startCollapsed = false }) => {
+  const control = controlProp ?? (displayType === 'radio' ? 'radio' : 'select');
   const {
     state: { sortableFields, sortBy, sortAscending },
     setSort,
@@ -21,7 +25,7 @@ export const SortByPanel: React.FC<SortByPanelProps> = ({ displayType = 'dropdow
     return (
       <FilterPanelSkeleton
         title="Sort by"
-        rows={displayType === 'radio' ? 3 : 1}
+        rows={control === 'radio' ? 3 : 1}
         collapsible={collapsible}
         startCollapsed={startCollapsed}
       />
@@ -58,7 +62,7 @@ export const SortByPanel: React.FC<SortByPanelProps> = ({ displayType = 'dropdow
         collapsible={collapsible}
         collapsed={actualCollapsed}
       >
-        {displayType === 'dropdown' ? (
+        {control === 'select' ? (
           <Select
             value={currentValue}
             onValueChange={handleChange}

@@ -57,10 +57,10 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAscending, setSortAscending] = useState(true);
 
-  const toggleFilter = (field: string, value: string) => {
+  const toggleFilter = (field: string, value: string, exclusive = false) => {
     setFilters(prev => {
       const cur = prev[field] ?? [];
-      const next = cur.includes(value) ? cur.filter(v => v !== value) : [...cur, value];
+      const next = cur.includes(value) ? cur.filter(v => v !== value) : exclusive ? [value] : [...cur, value];
       if (next.length === 0) { const { [field]: _, ...rest } = prev; return rest; }
       return { ...prev, [field]: next };
     });
@@ -75,10 +75,10 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
   };
 
   const sameRange = (a: NumericRange, b: NumericRange) => a.min === b.min && a.max === b.max;
-  const toggleBucketFilter = (field: string, range: NumericRange) => {
+  const toggleBucketFilter = (field: string, range: NumericRange, exclusive = false) => {
     setBucketFilters(prev => {
       const cur = prev[field] ?? [];
-      const next = cur.some(r => sameRange(r, range)) ? cur.filter(r => !sameRange(r, range)) : [...cur, range];
+      const next = cur.some(r => sameRange(r, range)) ? cur.filter(r => !sameRange(r, range)) : exclusive ? [range] : [...cur, range];
       if (next.length === 0) { const { [field]: _, ...rest } = prev; return rest; }
       return { ...prev, [field]: next };
     });

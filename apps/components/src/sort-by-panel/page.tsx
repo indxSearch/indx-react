@@ -14,17 +14,17 @@ export default function SortByPanelPage() {
         <MockSearchProvider>
           <div className={styles.demo}>
             <h2 className={styles.heading}>Dropdown</h2>
-            <SortByPanel displayType="dropdown" />
+            <SortByPanel control="select" />
           </div>
 
           <div className={styles.demo}>
             <h2 className={styles.heading}>Radio buttons</h2>
-            <SortByPanel displayType="radio" />
+            <SortByPanel control="radio" />
           </div>
 
           <div className={styles.demo}>
             <h2 className={styles.heading}>Collapsible + starts collapsed</h2>
-            <SortByPanel displayType="dropdown" collapsible startCollapsed />
+            <SortByPanel control="select" collapsible startCollapsed />
           </div>
         </MockSearchProvider>
       </div>
@@ -38,17 +38,17 @@ export default function SortByPanelPage() {
         <MockSearchProvider isFetchingInitial={true}>
           <div className={styles.demo}>
             <h2 className={styles.heading}>Dropdown skeleton</h2>
-            <SortByPanel displayType="dropdown" />
+            <SortByPanel control="select" />
           </div>
 
           <div className={styles.demo}>
             <h2 className={styles.heading}>Radio skeleton</h2>
-            <SortByPanel displayType="radio" />
+            <SortByPanel control="radio" />
           </div>
 
           <div className={styles.demo}>
             <h2 className={styles.heading}>Starts collapsed</h2>
-            <SortByPanel displayType="dropdown" startCollapsed />
+            <SortByPanel control="select" startCollapsed />
           </div>
         </MockSearchProvider>
       </div>

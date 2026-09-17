@@ -41,3 +41,8 @@
   font: var(--text-xs);
   color: var(--negative, #c33);
 }
+
+/* panel tint while it holds a selection (showActivePanel) */
+.active {
+  background: var(--lv1);
+}

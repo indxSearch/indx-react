@@ -37,7 +37,7 @@ function renderPanel(props: Partial<React.ComponentProps<typeof RangeFilterPanel
     >
       <RangeFilterPanel
         field="price"
-        displayType="slider"
+        control="slider"
         expectedMin={0}
         expectedMax={200}
         {...props}
@@ -61,8 +61,8 @@ describe('histogram rendering', () => {
     expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(0);
   });
 
-  it('shows no histogram bars when displayType is input', async () => {
-    renderPanel({ showHistogram: true, displayType: 'input' });
+  it('shows no histogram bars when control is input', async () => {
+    renderPanel({ showHistogram: true, control: 'input' });
     // input mode never renders the slider branch — just wait a moment
     await new Promise(r => setTimeout(r, 200));
     expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(0);
@@ -190,7 +190,7 @@ describe('histogram snapshot', () => {
       >
         <RangeFilterPanel
           field="rating"
-          displayType="slider"
+          control="slider"
           showHistogram={true}
           expectedMin={0}
           expectedMax={5}

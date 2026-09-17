@@ -16,6 +16,9 @@ vi.mock('@indxsearch/systm', () => ({
     <input type="checkbox" aria-label={label} checked={checked} disabled={disabled} onChange={() => onChange(!checked)} />
   ),
   Button: ({ children, onClick, disabled }: any) => <button onClick={onClick} disabled={disabled}>{children}</button>,
+  RadioButton: ({ label, checked, disabled, onChange }: any) => (
+    <input type="radio" aria-label={label} checked={checked} disabled={disabled} onChange={onChange} />
+  ),
 }));
 
 const SEARCH = 'http://localhost/api/teams/team/datasets/test/search';
@@ -46,7 +49,7 @@ function renderPanel(props: React.ComponentProps<typeof ValueFilterPanel>) {
 describe('boolean toggle', () => {
   it('stays on and enabled once the filter narrows the facet to {true} only', async () => {
     serveFacets('inStock', [{ key: 'true', value: 42 }, { key: 'false', value: 8 }], [{ key: 'true', value: 42 }]);
-    renderPanel({ field: 'inStock', label: 'In stock', displayType: 'toggle' });
+    renderPanel({ field: 'inStock', label: 'In stock', control: 'toggle' });
 
     const toggle = await screen.findByRole('switch') as HTMLInputElement;
     expect(toggle.checked).toBe(false);
@@ -66,7 +69,7 @@ describe('boolean toggle', () => {
 
   it('accepts a true/false/null field', async () => {
     serveFacets('inStock', [{ key: 'true', value: 5 }, { key: 'false', value: 3 }, { key: 'null', value: 2 }]);
-    renderPanel({ field: 'inStock', label: 'In stock', displayType: 'toggle' });
+    renderPanel({ field: 'inStock', label: 'In stock', control: 'toggle' });
     const toggle = await screen.findByRole('switch') as HTMLInputElement;
     expect(toggle.disabled).toBe(false);
   });
@@ -124,5 +127,58 @@ describe('match prop', () => {
     fireEvent.click(await screen.findByLabelText('a'));
     fireEvent.click(await screen.findByLabelText('b'));
     await waitFor(() => expect(combineOps.filter(op => op === true).length).toBeGreaterThan(0)); // category: AND
+  });
+});
+
+describe('control prop', () => {
+  const COLORS = [{ key: 'red', value: 2 }, { key: 'blue', value: 1 }, { key: 'green', value: 1 }];
+  const searchBodies: { filter?: { hashString: string }; maxNumberOfRecordsToReturn: number }[] = [];
+  const serveColors = () => {
+    searchBodies.length = 0;
+    server.use(
+      http.get('http://localhost/api/teams/team/datasets/test/fields/filterable', () => HttpResponse.json(FIELDS)),
+      http.get('http://localhost/api/teams/team/datasets/test/fields/facetable', () => HttpResponse.json(FIELDS)),
+      http.post(SEARCH, async ({ request }) => {
+        const body = await request.json() as (typeof searchBodies)[number];
+        searchBodies.push(body);
+        // A filter on color narrows the color facet to that value only, like the engine.
+        const m = /^color=(\w+)$/.exec(body.filter?.hashString ?? '');
+        const facets = m ? COLORS.filter(c => c.key === m[1]) : COLORS;
+        return HttpResponse.json({ records: RECORDS, facets: { color: facets }, truncationIndex: -1 });
+      }),
+    );
+  };
+  const box = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+
+  it("radio is single-select: a click replaces the selection and the others stay pickable", async () => {
+    serveColors();
+    renderPanel({ field: 'color', control: 'radio' });
+    fireEvent.click(await screen.findByLabelText('red'));
+    await waitFor(() => expect(box('red').checked).toBe(true));
+    await new Promise(r => setTimeout(r, 50));
+    expect(box('blue').disabled).toBe(false);
+
+    fireEvent.click(box('blue'));
+    await waitFor(() => expect(box('blue').checked).toBe(true));
+    await new Promise(r => setTimeout(r, 50));
+    expect(box('red').checked).toBe(false);
+    const main = searchBodies.filter(b => b.maxNumberOfRecordsToReturn > 0).at(-1)!;
+    expect(main.filter?.hashString).toBe('color=blue');
+  });
+
+  it('still accepts the deprecated displayType', async () => {
+    serveColors();
+    renderPanel({ field: 'color', displayType: 'button' });
+    expect((await screen.findByText('red')).closest('button')).not.toBeNull();
+  });
+
+  it('hideEmpty drops values whose count is 0', async () => {
+    serveColors();
+    server.use(http.post(SEARCH, () => HttpResponse.json({
+      records: RECORDS, facets: { color: [...COLORS, { key: 'black', value: 0 }] }, truncationIndex: -1,
+    })));
+    renderPanel({ field: 'color', hideEmpty: true });
+    await screen.findByLabelText('red');
+    expect(screen.queryByLabelText('black')).toBeNull();
   });
 });

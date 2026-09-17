@@ -17,7 +17,7 @@ function renderPanel(props: Partial<React.ComponentProps<typeof RangeFilterPanel
   return render(
     <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token"
       allowEmptySearch enableFacets facetDebounceDelayMillis={0}>
-      <RangeFilterPanel field="price" displayType="input" {...props} />
+      <RangeFilterPanel field="price" control="input" {...props} />
     </SearchProvider>
   );
 }
@@ -58,7 +58,7 @@ describe('field validation', () => {
     server.use(
       http.get('http://localhost/api/teams/team/datasets/test/fields/filterable', () => HttpResponse.json(['category'])),
     );
-    renderPanel({ displayType: 'slider' });
+    renderPanel({ control: 'slider' });
     await screen.findByText(/Cannot render filter for "price": missing filterable/);
     expect(screen.queryByRole('slider')).toBeNull();
   });
@@ -72,13 +72,13 @@ describe('slider step', () => {
         facets: { price: [{ key: '6.5', value: 3 }, { key: '7.3', value: 4 }, { key: '9.25', value: 1 }] },
       })),
     );
-    renderPanel({ displayType: 'slider' });
+    renderPanel({ control: 'slider' });
     const slider = await screen.findByRole('slider');
     await waitFor(() => expect(slider.dataset.step).toBe('0.01'));
   });
 
   it('uses step 1 for integer data and honours an explicit step prop', async () => {
-    renderPanel({ displayType: 'slider' });
+    renderPanel({ control: 'slider' });
     const slider = await screen.findByRole('slider');
     await waitFor(() => expect(slider.dataset.min).toBe('10'));
     expect(slider.dataset.step).toBe('1');

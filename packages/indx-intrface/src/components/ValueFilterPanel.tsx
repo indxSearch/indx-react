@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './ValueFilterPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
-import { Checkbox, Button, ToggleSwitch, FilterPanelBase } from '@indxsearch/systm';
+import { Checkbox, Button, ToggleSwitch, RadioButton, FilterPanelBase } from '@indxsearch/systm';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 export interface ValueFilterPanelProps {
@@ -13,11 +13,19 @@ export interface ValueFilterPanelProps {
   limit?: number; // Maximum number of items to show before collapsing.
   collapsible?: boolean; // If filter panel should be able to be collapsed
   startCollapsed?: boolean; // If filter should display as collapsed from init
+  /**
+   * The control each value renders as. `radio` is single-select: a click replaces
+   * the selection, and the field's other values keep their counts so the user can
+   * switch. `toggle` is for boolean fields.
+   */
+  control?: 'checkbox' | 'radio' | 'button' | 'toggle';
+  /** @deprecated Use `control`. */
   displayType?: 'checkbox' | 'button' | 'toggle';
   layout?: 'list' | 'grid';
-  showActivePanel?: boolean; // Change background color of panel when filtered
-  showCount?: boolean; // Show histogram of filters
+  showActivePanel?: boolean; // Tint the panel while it has a selection
+  showCount?: boolean; // Show the document count per value
   showNull?: boolean; // If true, include entries with count === null
+  hideEmpty?: boolean; // Drop values with a count of 0 instead of showing them disabled
   /**
    * How several selected values combine. `'all'` (default) requires a document to
    * carry every selected value — right for multi-valued fields such as genres,
@@ -43,11 +51,13 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   limit = 10,
   collapsible = true,
   startCollapsed = false,
-  displayType = 'checkbox',
+  control: controlProp,
+  displayType,
   layout = 'list',
   showActivePanel = false,
   showCount = true,
   showNull = false,
+  hideEmpty = false,
   match = 'all',
   displayIfEmptyQuery = true,
   displayCondition = (_: { query: string; filters: any; facets: any }) => true
@@ -60,9 +70,13 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     allowEmptySearch
   } = useSearchContext();
 
+  const control = controlProp ?? displayType ?? 'checkbox';
+  // A radio can only ever hold one value, so its counts must come from a search
+  // that leaves this field out, which is what 'any' buys.
+  const effectiveMatch = control === 'radio' ? 'any' : match;
   useEffect(() => {
-    setValueMatch(field, match);
-  }, [field, match, setValueMatch]);
+    setValueMatch(field, effectiveMatch);
+  }, [field, effectiveMatch, setValueMatch]);
 
   const preservedFacetValuesRef = useRef<Record<string, number | null> | null>(null);
   const [visibleCount, setVisibleCount] = useState(limit);
@@ -78,7 +92,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   }
 
   if (isFetchingInitial || !facets) {
-    if (displayType === 'toggle') {
+    if (control === 'toggle') {
       return <FilterPanelSkeleton rows={1} collapsible={false} />;
     }
     return (
@@ -117,7 +131,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   // A toggle whose filter is on may get no facet entry back at all (every
   // remaining document is 'true', or none are); keep rendering it so it can be
   // switched off again.
-  const facetValues = facets?.[field] ?? (displayType === 'toggle' ? [] : undefined);
+  const facetValues = facets?.[field] ?? (control === 'toggle' ? [] : undefined);
   if (!facetValues || !Array.isArray(facetValues)) return null;
   const selectedValues = filters?.[field] ?? [];
 
@@ -159,7 +173,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   const BOOLEAN_KEYS = new Set(['true', 'false', 'null']);
   const facetKeys = Array.from(mergedValuesMap.keys());
   const isBooleanFacet =
-    displayType === 'toggle' &&
+    control === 'toggle' &&
     ((facetKeys.length > 0 && facetKeys.every(k => BOOLEAN_KEYS.has(k))) ||
       (facetKeys.length === 0 && selectedValues.length > 0));
 
@@ -173,7 +187,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     mergedValuesMap.delete('null');
   }
 
-  if (displayType === 'toggle' && !isBooleanFacet) {
+  if (control === 'toggle' && !isBooleanFacet) {
     // If toggle is requested but facet doesn't have exactly two boolean values,
     // render a disabled toggle instead of an error
     return (
@@ -221,6 +235,9 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   let allEntries = Array.from(mergedValuesMap.entries());
   if (!showNull) {
     allEntries = allEntries.filter(([key]) => key !== 'null');
+  }
+  if (hideEmpty) {
+    allEntries = allEntries.filter(([key, c]) => c !== 0 || selectedValues.includes(key));
   }
 
   // 7) If there really are no entries to show—and we’re not forcibly preserving blank state—return null
@@ -286,15 +303,16 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     // For list layout, show count as plain number to the right
     // const countNumber = (count ?? 0) > 0 ? count : '';
     const countNumber = showCount && (count ?? 0) > 0 ? count : '';
+    const onSelect = () => toggleFilter(field, key, control === 'radio');
 
-    switch (displayType) {
+    switch (control) {
       case 'button':
         if (layout === 'list') {
           return (
             <div className={styles.count}>
               <Button
                 variant={isSelected ? 'primary' : 'secondary'}
-                onClick={() => toggleFilter(field, key)}
+                onClick={onSelect}
                 disabled={disabled}
                 size="micro"
                 className={styles.chip}
@@ -310,7 +328,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
         return (
           <Button
             variant={isSelected ? 'primary' : 'secondary'}
-            onClick={() => toggleFilter(field, key)}
+            onClick={onSelect}
             disabled={disabled}
             size="micro"
             className={styles.chip}
@@ -325,10 +343,27 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
           <ToggleSwitch
             label={key}
             checked={isSelected}
-            onChange={() => toggleFilter(field, key)}
+            onChange={onSelect}
             disabled={disabled}
           />
         );
+
+      case 'radio': {
+        const radio = (
+          <RadioButton
+            id={`${field}-${key}`}
+            name={field}
+            value={key}
+            label={layout === 'grid' ? `${key}${countDisplay}` : key}
+            checked={isSelected}
+            onChange={onSelect}
+            disabled={disabled}
+          />
+        );
+        return layout === 'list'
+          ? <div className={styles.count}>{radio}<span className={styles.countValue}>{countNumber}</span></div>
+          : radio;
+      }
 
       case 'checkbox':
       default:
@@ -339,10 +374,10 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
                 label={key}
                 score=""
                 checked={isSelected}
-                onChange={() => toggleFilter(field, key)}
+                onChange={onSelect}
                 disabled={disabled}
               />
-              <span>{countNumber}</span>
+              <span className={styles.countValue}>{countNumber}</span>
             </div>
           );
         }
@@ -352,7 +387,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
             label={key}
             score={countDisplay}
             checked={isSelected}
-            onChange={() => toggleFilter(field, key)}
+            onChange={onSelect}
             disabled={disabled}
           />
         );
@@ -367,6 +402,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
       title={label}
       collapsible={collapsible}
       collapsed={actualCollapsed}
+      className={showActivePanel && selectedValues.length > 0 ? styles.active : undefined}
     >
       <ul
         className={layout === 'grid' ? styles.grid : styles.list}

@@ -19,7 +19,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="HP"
               field="hp"
-              displayType="slider"
+              control="slider"
               expectedMin={0}
               expectedMax={255}
             />
@@ -30,7 +30,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="HP"
               field="hp"
-              displayType="slider"
+              control="slider"
               expectedMin={0}
               expectedMax={255}
               showHistogram
@@ -42,7 +42,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="Attack"
               field="attack"
-              displayType="slider"
+              control="slider"
               expectedMin={0}
               expectedMax={190}
               showHistogram
@@ -55,7 +55,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="Speed"
               field="speed"
-              displayType="slider"
+              control="slider"
               expectedMin={0}
               expectedMax={200}
               showHistogram
@@ -68,7 +68,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="Defense"
               field="defense"
-              displayType="input"
+              control="input"
               expectedMin={0}
               expectedMax={230}
             />
@@ -79,7 +79,7 @@ export default function RangeFilterPanelPage() {
             <RangeFilterPanel
               label="HP"
               field="hp"
-              displayType="slider"
+              control="slider"
               expectedMin={0}
               expectedMax={255}
               showHistogram
@@ -91,14 +91,14 @@ export default function RangeFilterPanelPage() {
         <div className={styles.demo}>
           <h2 className={styles.heading}>Skeleton — expanded</h2>
           <MockSearchProvider isFetchingInitial={true}>
-            <RangeFilterPanel label="HP" field="hp" displayType="slider" expectedMin={0} expectedMax={255} />
+            <RangeFilterPanel label="HP" field="hp" control="slider" expectedMin={0} expectedMax={255} />
           </MockSearchProvider>
         </div>
 
         <div className={styles.demo}>
           <h2 className={styles.heading}>Skeleton — starts collapsed</h2>
           <MockSearchProvider isFetchingInitial={true}>
-            <RangeFilterPanel label="HP" field="hp" displayType="slider" expectedMin={0} expectedMax={255} startCollapsed />
+            <RangeFilterPanel label="HP" field="hp" control="slider" expectedMin={0} expectedMax={255} startCollapsed />
           </MockSearchProvider>
         </div>
 

@@ -15,6 +15,9 @@ vi.mock('@indxsearch/systm', () => ({
     <input type="checkbox" aria-label={label} checked={checked} disabled={disabled} onChange={() => onChange(!checked)} />
   ),
   Button: ({ children, onClick, disabled, title }: any) => <button onClick={onClick} disabled={disabled} title={title}>{children}</button>,
+  RadioButton: ({ label, checked, disabled, onChange }: any) => (
+    <input type="radio" aria-label={label} checked={checked} disabled={disabled} onChange={onChange} />
+  ),
 }));
 vi.mock('@indxsearch/pixl', () => ({ X_or_error: () => null }));
 
@@ -209,5 +212,30 @@ describe('BucketFilterPanel next to a RangeFilterPanel on the same field', () =>
     // What the bucket panel reads: counts with its own selection left out.
     expect(box('0-19').disabled).toBe(false);
     expect(box('60-79').disabled).toBe(false);
+  });
+});
+
+describe('BucketFilterPanel control and limit', () => {
+  it('radio replaces the selection instead of adding to it', async () => {
+    const searchBodies = serveSpeedDataset();
+    renderPanel({ field: 'speed', width: 20, control: 'radio' });
+    await screen.findByLabelText('0-19');
+    fireEvent.click(box('0-19'));
+    await waitFor(() => expect(box('0-19').checked).toBe(true));
+    await settle();
+    fireEvent.click(box('60-79'));
+    await waitFor(() => expect(box('60-79').checked).toBe(true));
+    await settle();
+    expect(box('0-19').checked).toBe(false);
+    expect(mainSearches(searchBodies).at(-1)!.filter?.hashString).toBe('speed:60-79');
+  });
+
+  it('limit hides the rest behind a Show more button', async () => {
+    serveSpeedDataset();
+    renderPanel({ field: 'speed', width: 20, limit: 2 });
+    await screen.findByLabelText('0-19');
+    expect(screen.queryByLabelText('40-59')).toBeNull();
+    fireEvent.click(screen.getByText('Show 3 more of 5 total'));
+    expect(box('40-59')).not.toBeNull();
   });
 });

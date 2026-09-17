@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styles from './BucketFilterPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import type { NumericRange } from '../context/SearchContext';
-import { Checkbox, Button, FilterPanelBase } from '@indxsearch/systm';
+import { Checkbox, Button, RadioButton, FilterPanelBase } from '@indxsearch/systm';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 import { precisionOf, roundTo } from '../utils/numeric';
 
@@ -26,11 +26,18 @@ export interface BucketFilterPanelProps {
   width?: number | number[];
   /** Explicit buckets, optionally named and open-ended. Takes precedence over `width`. */
   buckets?: BucketSpec[];
+  /** The control each bucket renders as. `radio` is single-select: a click replaces the selection. */
+  control?: 'checkbox' | 'radio' | 'button';
+  /** @deprecated Use `control`. */
   displayType?: 'checkbox' | 'button';
   layout?: 'list' | 'grid';
   showCount?: boolean;
   /** Drop buckets with a count of 0 instead of showing them disabled. */
   hideEmpty?: boolean;
+  /** Buckets shown before a "Show more" button. Unlimited when omitted. */
+  limit?: number;
+  /** Tint the panel while it has a selection. */
+  showActivePanel?: boolean;
   collapsible?: boolean;
   startCollapsed?: boolean;
 }
@@ -63,10 +70,13 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   label,
   width,
   buckets: bucketSpecs,
-  displayType = 'checkbox',
+  control: controlProp,
+  displayType,
   layout = 'list',
   showCount = true,
   hideEmpty = false,
+  limit,
+  showActivePanel = false,
   collapsible = true,
   startCollapsed = false,
 }) => {
@@ -77,8 +87,11 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
     allowEmptySearch,
   } = useSearchContext();
 
+  const control = controlProp ?? displayType ?? 'checkbox';
   const facetValues: { key: string; value: number | null }[] | undefined = facets?.[field];
   const selected = bucketFilters[field] ?? [];
+  const [visibleCount, setVisibleCount] = useState(limit ?? Infinity);
+  useEffect(() => { setVisibleCount(limit ?? Infinity); }, [limit, facetValues]);
 
   // The field's full extent: the per-query bounds when known, else the live stats.
   // Open-ended buckets close at these so the server always gets finite limits.
@@ -159,14 +172,32 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   let rows = buckets.map(b => ({ bucket: b, count: countable ? countIn(b, facetValues) : null }));
   if (hideEmpty) rows = rows.filter(r => r.count !== 0 || isSelected(r.bucket));
   if (rows.length === 0) return null;
+  const visibleRows = rows.slice(0, visibleCount);
 
   const renderControl = (bucket: Bucket, count: number | null) => {
     const checked = isSelected(bucket);
     const disabled = count === 0 && !checked;
     const countText = showCount && (count ?? 0) > 0 ? `${count}` : '';
-    const onToggle = () => toggleBucketFilter(field, bucket.range);
+    const onToggle = () => toggleBucketFilter(field, bucket.range, control === 'radio');
 
-    if (displayType === 'button') {
+    if (control === 'radio') {
+      const radio = (
+        <RadioButton
+          id={`${field}-${bucket.range.min}-${bucket.range.max}`}
+          name={field}
+          value={bucket.label}
+          label={layout === 'grid' && countText ? `${bucket.label} (${countText})` : bucket.label}
+          checked={checked}
+          onChange={onToggle}
+          disabled={disabled}
+        />
+      );
+      return layout === 'list'
+        ? <div className={styles.count}>{radio}<span className={styles.countValue}>{countText}</span></div>
+        : radio;
+    }
+
+    if (control === 'button') {
       const button = (
         <Button variant={checked ? 'primary' : 'secondary'} onClick={onToggle} disabled={disabled} size="micro" className={styles.chip}>
           {layout === 'grid' && countText ? `${bucket.label} (${countText})` : bucket.label}
@@ -187,11 +218,23 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   };
 
   return (
-    <FilterPanelBase title={label} collapsible={collapsible} collapsed={collapsible ? startCollapsed : false}>
+    <FilterPanelBase
+      title={label}
+      collapsible={collapsible}
+      collapsed={collapsible ? startCollapsed : false}
+      className={showActivePanel && selected.length > 0 ? styles.active : undefined}
+    >
       <ul className={layout === 'grid' ? styles.grid : styles.list} style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {rows.map(({ bucket, count }) => (
+        {visibleRows.map(({ bucket, count }) => (
           <li key={`${bucket.range.min}-${bucket.range.max}`}>{renderControl(bucket, count)}</li>
         ))}
+        {visibleRows.length < rows.length && (
+          <li>
+            <Button variant="ghost" size="micro" onClick={() => setVisibleCount(rows.length)}>
+              {`Show ${rows.length - visibleRows.length} more of ${rows.length} total`}
+            </Button>
+          </li>
+        )}
       </ul>
     </FilterPanelBase>
   );

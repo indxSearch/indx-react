@@ -151,19 +151,41 @@ export default function ValueFilterPanelPage() {
       </div>
 
       <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.title} style={{ fontSize: '1.25rem' }}>Live panels</h2>
+        <p className={styles.desc}>Wired to a mock search context, so selection state is real.</p>
+      </div>
+
+      <div className={styles.grid}>
+        <MockSearchProvider>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Radio: <code>control="radio"</code></h2>
+            <ValueFilterPanel label="Rarity" field="rarity" control="radio" />
+          </div>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Tinted while active: <code>showActivePanel</code></h2>
+            <ValueFilterPanel label="Pokemon Type" field="type" control="button" layout="grid" showActivePanel />
+          </div>
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Radio buttons in a grid</h2>
+            <ValueFilterPanel label="Pokemon Type" field="type" control="radio" layout="grid" />
+          </div>
+        </MockSearchProvider>
+      </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
         <h2 className={styles.title} style={{ fontSize: '1.25rem' }}>Toggle (boolean facet)</h2>
-        <p className={styles.desc}>Use <code>displayType="toggle"</code> for fields with two boolean values.</p>
+        <p className={styles.desc}>Use <code>control="toggle"</code> for fields with two boolean values.</p>
       </div>
 
       <div className={styles.grid}>
         <MockSearchProvider>
           <div className={styles.demo}>
             <h2 className={styles.heading}>Toggle — on/off</h2>
-            <ValueFilterPanel label="Legendary" field="is_legendary" displayType="toggle" />
+            <ValueFilterPanel label="Legendary" field="is_legendary" control="toggle" />
           </div>
           <div className={styles.demo}>
             <h2 className={styles.heading}>Toggle — with count</h2>
-            <ValueFilterPanel label="Legendary" field="is_legendary" displayType="toggle" showCount />
+            <ValueFilterPanel label="Legendary" field="is_legendary" control="toggle" showCount />
           </div>
         </MockSearchProvider>
       </div>

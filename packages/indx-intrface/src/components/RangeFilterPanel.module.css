@@ -18,3 +18,8 @@
   border-radius: 1px 1px 0 0;
   transition: background 0.15s;
 }
+
+/* panel tint while it holds a selection (showActivePanel) */
+.active {
+  background: var(--lv1);
+}

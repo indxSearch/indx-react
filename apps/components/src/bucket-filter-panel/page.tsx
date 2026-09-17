@@ -48,7 +48,7 @@ export default function BucketFilterPanelPage() {
 
           <div className={styles.demo}>
             <h2 className={styles.heading}>Buttons in a grid</h2>
-            <BucketFilterPanel label="Attack" field="attack" width={50} displayType="button" layout="grid" />
+            <BucketFilterPanel label="Attack" field="attack" width={50} control="button" layout="grid" />
           </div>
 
           <div className={styles.demo}>
@@ -68,6 +68,16 @@ export default function BucketFilterPanelPage() {
                 { label: '100 and up', min: 100 },
               ]}
             />
+          </div>
+
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Single-select: <code>control="radio"</code></h2>
+            <BucketFilterPanel label="Speed" field="speed" width={40} control="radio" showActivePanel />
+          </div>
+
+          <div className={styles.demo}>
+            <h2 className={styles.heading}>Limited: <code>limit={'{3}'}</code></h2>
+            <BucketFilterPanel label="Speed" field="speed" width={20} limit={3} />
           </div>
 
           <div className={styles.demo}>

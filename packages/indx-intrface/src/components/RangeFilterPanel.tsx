@@ -8,7 +8,11 @@ import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 export interface RangeFilterPanelProps {
   field: string;
   label?: string;
+  /** A two-thumb slider with inputs beneath, or the inputs alone. */
+  control?: 'slider' | 'input';
+  /** @deprecated Use `control`. */
   displayType?: 'slider' | 'input';
+  showActivePanel?: boolean; // Tint the panel while it has a selection
   expectedMin?: number;
   expectedMax?: number;
   collapsible?: boolean; // If filter panel should be able to be collapsed
@@ -29,7 +33,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   label,
   expectedMin = 0,
   expectedMax = 1000,
-  displayType = 'input',
+  control: controlProp,
+  displayType,
+  showActivePanel = false,
   collapsible = true,
   startCollapsed = false,
   showHistogram = false,
@@ -43,6 +49,8 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     allowEmptySearch,
     isFetchingInitial
   } = useSearchContext();
+
+  const control = controlProp ?? displayType ?? 'input';
 
   // 1) Query-specific bounds (updates only when query text changes)
   const hasRealBounds = rangeBounds?.[field] !== undefined;
@@ -83,6 +91,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
 
   // 5) Get intended values from rangeFilters (user's choice, or undefined if unset)
   const intended = rangeFilters?.[field];
+  const activeClass = showActivePanel && intended !== undefined ? styles.active : undefined;
 
   // 5) Display values: use intended if set, otherwise default to query bounds (full range)
   const displayMin = intended ? intended.min : queryMin;
@@ -331,9 +340,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 9) Render slider (rail at query bounds, active region shows live data bounds)
-  if (displayType === 'slider') {
+  if (control === 'slider') {
     return (
-      <FilterPanelBase title={label} collapsed={startCollapsed} collapsible={collapsible}>
+      <FilterPanelBase title={label} collapsed={startCollapsed} collapsible={collapsible} className={activeClass}>
         {isDisabled && (
           <div className={styles.disabledMessage}>
             No adjustable range (all results have the same value: {queryMin}).
@@ -429,7 +438,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // ─────────────────────────────────────────────────────────────────────────────
   // 11) Fallback: two number inputs
   return (
-    <FilterPanelBase title={label}>
+    <FilterPanelBase title={label} className={activeClass}>
       {isDisabled && (
         <div className={styles.disabledMessage}>
           No adjustable range (all results have the same value: {queryMin}).

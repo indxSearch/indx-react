@@ -60,13 +60,13 @@ export interface SearchContextType {
   dataset: string;
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>;
   setQuery: (query: string) => void; // Updates the search query text
-  toggleFilter: (field: string, value: string) => void; // Toggles a value filter on/off for a given field
+  toggleFilter: (field: string, value: string, exclusive?: boolean) => void; // Toggles a value on a field. `exclusive` makes it single-select: the value replaces the selection, and clicking the selected value clears it
   setValueMatch: (field: string, match: ValueMatch) => void; // How several selected values on one field combine: 'all' (AND) or 'any' (OR)
   setRangeFilter: (field: string, min: number, max: number) => void; // Sets min/max values for a range filter
   resetFilters: () => void; // Clears all active filters and range filters
   resetSingleFilter: (field: string, value: string, isUserAction?: boolean) => void; // Removes a specific value from a value filter
   resetRangeFilter: (field: string, isUserAction?: boolean) => void; // Removes a range filter for a field
-  toggleBucketFilter: (field: string, range: NumericRange) => void; // Selects or deselects one bucket on a field
+  toggleBucketFilter: (field: string, range: NumericRange, exclusive?: boolean) => void; // Selects or deselects one bucket on a field. `exclusive` makes it single-select
   resetBucketFilter: (field: string, range?: NumericRange, isUserAction?: boolean) => void; // Removes one bucket, or every bucket on the field when no range is given
   setSort: (field: string | null, ascending: boolean) => void; // Sets the sort field and direction
   setDebounceDelay?: (ms: number) => void; // Optional: Updates the debounce delay for faceted searches
@@ -272,14 +272,14 @@ export const SearchProvider: React.FC<{
   }, []);
 
   // Function to toggle a value filter on/off for a given field
-  const toggleFilter = useCallback((field: string, value: string) => {
+  const toggleFilter = useCallback((field: string, value: string, exclusive: boolean = false) => {
     filtersChangedByUser.current = true; // User explicitly toggled a filter
     setState(prev => {
       const updatedFilters = { ...prev.filters };
       const currentValues = updatedFilters[field] || [];
       const newValues = currentValues.includes(value)
         ? currentValues.filter(v => v !== value)
-        : [...currentValues, value];
+        : exclusive ? [value] : [...currentValues, value];
 
       if (newValues.length) {
         updatedFilters[field] = newValues;
@@ -349,13 +349,13 @@ export const SearchProvider: React.FC<{
 
   const sameRange = (a: NumericRange, b: NumericRange) => a.min === b.min && a.max === b.max;
 
-  const toggleBucketFilter = useCallback((field: string, range: NumericRange) => {
+  const toggleBucketFilter = useCallback((field: string, range: NumericRange, exclusive: boolean = false) => {
     filtersChangedByUser.current = true;
     setState(prev => {
       const current = prev.bucketFilters[field] ?? [];
       const next = current.some(r => sameRange(r, range))
         ? current.filter(r => !sameRange(r, range))
-        : [...current, range];
+        : exclusive ? [range] : [...current, range];
       const bucketFilters = { ...prev.bucketFilters };
       if (next.length > 0) bucketFilters[field] = next;
       else delete bucketFilters[field];
