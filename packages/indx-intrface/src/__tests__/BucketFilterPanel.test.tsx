@@ -163,16 +163,16 @@ describe('BucketFilterPanel', () => {
     expect(box('60-79').checked).toBe(true);
   });
 
-  it('hides empty buckets when asked and disables them otherwise', async () => {
+  it('hides empty buckets by default and shows them disabled with showEmpty', async () => {
     serveSpeedDataset();
     const { unmount } = renderPanel({ field: 'speed', buckets: [{ label: 'None', min: 90, max: 99 }, { label: 'Some', min: 1, max: 10 }] });
     await screen.findByLabelText('Some');
-    expect(box('None').disabled).toBe(true);
+    expect(screen.queryByLabelText('None')).toBeNull();
     unmount();
 
-    renderPanel({ field: 'speed', hideEmpty: true, buckets: [{ label: 'None', min: 90, max: 99 }, { label: 'Some', min: 1, max: 10 }] });
+    renderPanel({ field: 'speed', showEmpty: true, buckets: [{ label: 'None', min: 90, max: 99 }, { label: 'Some', min: 1, max: 10 }] });
     await screen.findByLabelText('Some');
-    expect(screen.queryByLabelText('None')).toBeNull();
+    expect(box('None').disabled).toBe(true);
   });
 
   it('reports a field that is not filterable instead of rendering', async () => {

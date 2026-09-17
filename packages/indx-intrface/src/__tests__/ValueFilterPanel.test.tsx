@@ -171,14 +171,4 @@ describe('control prop', () => {
     renderPanel({ field: 'color', displayType: 'button' });
     expect((await screen.findByText('red')).closest('button')).not.toBeNull();
   });
-
-  it('hideEmpty drops values whose count is 0', async () => {
-    serveColors();
-    server.use(http.post(SEARCH, () => HttpResponse.json({
-      records: RECORDS, facets: { color: [...COLORS, { key: 'black', value: 0 }] }, truncationIndex: -1,
-    })));
-    renderPanel({ field: 'color', hideEmpty: true });
-    await screen.findByLabelText('red');
-    expect(screen.queryByLabelText('black')).toBeNull();
-  });
 });

@@ -32,8 +32,13 @@ export interface BucketFilterPanelProps {
   displayType?: 'checkbox' | 'button';
   layout?: 'list' | 'grid';
   showCount?: boolean;
-  /** Drop buckets with a count of 0 instead of showing them disabled. */
-  hideEmpty?: boolean;
+  /**
+   * Keep buckets that hold no values, shown disabled. Off by default: the server
+   * never lists a facet value with a count of 0, and a bucket follows the same
+   * rule. Turn it on for a fixed set of named buckets that should always be
+   * visible, the way `preserveBlankFacetState` keeps a value panel's list stable.
+   */
+  showEmpty?: boolean;
   /** Buckets shown before a "Show more" button. Unlimited when omitted. */
   limit?: number;
   /** Tint the panel while it has a selection. */
@@ -74,7 +79,7 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   displayType,
   layout = 'list',
   showCount = true,
-  hideEmpty = false,
+  showEmpty = false,
   limit,
   showActivePanel = false,
   collapsible = true,
@@ -170,7 +175,7 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   const isSelected = (b: Bucket) => selected.some(r => r.min === b.range.min && r.max === b.range.max);
 
   let rows = buckets.map(b => ({ bucket: b, count: countable ? countIn(b, facetValues) : null }));
-  if (hideEmpty) rows = rows.filter(r => r.count !== 0 || isSelected(r.bucket));
+  if (!showEmpty) rows = rows.filter(r => r.count !== 0 || isSelected(r.bucket));
   if (rows.length === 0) return null;
   const visibleRows = rows.slice(0, visibleCount);
 

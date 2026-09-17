@@ -25,7 +25,6 @@ export interface ValueFilterPanelProps {
   showActivePanel?: boolean; // Tint the panel while it has a selection
   showCount?: boolean; // Show the document count per value
   showNull?: boolean; // If true, include entries with count === null
-  hideEmpty?: boolean; // Drop values with a count of 0 instead of showing them disabled
   /**
    * How several selected values combine. `'all'` (default) requires a document to
    * carry every selected value — right for multi-valued fields such as genres,
@@ -57,7 +56,6 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   showActivePanel = false,
   showCount = true,
   showNull = false,
-  hideEmpty = false,
   match = 'all',
   displayIfEmptyQuery = true,
   displayCondition = (_: { query: string; filters: any; facets: any }) => true
@@ -235,9 +233,6 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   let allEntries = Array.from(mergedValuesMap.entries());
   if (!showNull) {
     allEntries = allEntries.filter(([key]) => key !== 'null');
-  }
-  if (hideEmpty) {
-    allEntries = allEntries.filter(([key, c]) => c !== 0 || selectedValues.includes(key));
   }
 
   // 7) If there really are no entries to show—and we’re not forcibly preserving blank state—return null

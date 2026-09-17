@@ -380,7 +380,6 @@ Initialisation failures (bad token, unknown dataset, unreachable server) and fai
 | `field` | `string` | ✅ | Field name to filter on |
 | `label` | `string` | ❌ | Display label |
 | `control` | `'checkbox' \| 'radio' \| 'button' \| 'toggle'` | `'checkbox'` | The control each value renders as. `radio` is single-select: a click replaces the selection and the other values keep their counts. `toggle` is for boolean fields. (`displayType` still works, deprecated) |
-| `hideEmpty` | `boolean` | `false` | Drop values with a count of 0 instead of showing them disabled |
 | `showActivePanel` | `boolean` | `false` | Tint the panel while it has a selection |
 | `layout` | `'list' \| 'grid'` | `'list'` | Layout style |
 | `limit` | `number` | `undefined` | Max filters to show |
@@ -420,7 +419,7 @@ Different fields and range filters always narrow the result set (ANDed). With `c
 | `showActivePanel` | `boolean` | ❌ | Tint the panel while it has a selection (default `false`) |
 | `layout` | `'list' \| 'grid'` | ❌ | Vertical list or wrapping grid (default `'list'`) |
 | `showCount` | `boolean` | ❌ | Show the document count per bucket (default `true`) |
-| `hideEmpty` | `boolean` | ❌ | Drop buckets with count 0 instead of showing them disabled (default `false`) |
+| `showEmpty` | `boolean` | ❌ | Keep buckets that hold no values, shown disabled. Off by default; the server never lists a zero-count value and buckets follow suit. Turn on for a fixed set of named buckets that should always be visible |
 | `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |
 | `startCollapsed` | `boolean` | ❌ | Start collapsed (default `false`) |
 

@@ -32,7 +32,7 @@ const categoryFacets = {
   ],
   rarity: [
     { key: 'common', value: 85 }, { key: 'uncommon', value: 42 },
-    { key: 'rare', value: 18 }, { key: 'legendary', value: 5 }, { key: 'mythic', value: 0 },
+    { key: 'rare', value: 18 }, { key: 'legendary', value: 5 },
   ],
   is_legendary: [
     { key: 'true', value: 20 }, { key: 'false', value: 130 },

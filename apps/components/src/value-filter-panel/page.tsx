@@ -169,14 +169,7 @@ export default function ValueFilterPanelPage() {
             <h2 className={styles.heading}>Radio buttons in a grid</h2>
             <ValueFilterPanel label="Pokemon Type" field="type" control="radio" layout="grid" />
           </div>
-          <div className={styles.demo}>
-            <h2 className={styles.heading}>Zero counts shown disabled (default)</h2>
-            <ValueFilterPanel label="Rarity" field="rarity" />
-          </div>
-          <div className={styles.demo}>
-            <h2 className={styles.heading}>Zero counts dropped: <code>hideEmpty</code></h2>
-            <ValueFilterPanel label="Rarity" field="rarity" hideEmpty />
-          </div>
+
         </MockSearchProvider>
       </div>
 

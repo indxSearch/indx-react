@@ -57,11 +57,11 @@ export default function BucketFilterPanelPage() {
           </div>
 
           <div className={styles.demo}>
-            <h2 className={styles.heading}>Empty buckets hidden: <code>hideEmpty</code></h2>
+            <h2 className={styles.heading}>Empty bucket kept, disabled: <code>showEmpty</code></h2>
             <BucketFilterPanel
               label="HP"
               field="hp"
-              hideEmpty
+              showEmpty
               buckets={[
                 { label: '0 to 9 (none)', max: 9 },
                 { label: '10 to 99', min: 10, max: 99 },
