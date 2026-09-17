@@ -7,13 +7,13 @@ export default function SortByPanelPage() {
     <main className={styles.main}>
       <div className={styles.section}>
         <h1 className={styles.title}>SortByPanel</h1>
-        <p className={styles.desc}>Sort options panel with dropdown or radio buttons</p>
+        <p className={styles.desc}>Sort options panel as a select or radio buttons</p>
       </div>
 
       <div className={styles.grid}>
         <MockSearchProvider>
           <div className={styles.demo}>
-            <h2 className={styles.heading}>Dropdown</h2>
+            <h2 className={styles.heading}>Select</h2>
             <SortByPanel control="select" />
           </div>
 
@@ -37,7 +37,7 @@ export default function SortByPanelPage() {
       <div className={styles.grid}>
         <MockSearchProvider isFetchingInitial={true}>
           <div className={styles.demo}>
-            <h2 className={styles.heading}>Dropdown skeleton</h2>
+            <h2 className={styles.heading}>Select skeleton</h2>
             <SortByPanel control="select" />
           </div>
 

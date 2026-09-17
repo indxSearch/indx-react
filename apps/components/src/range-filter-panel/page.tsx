@@ -15,6 +15,11 @@ export default function RangeFilterPanelPage() {
         <div className={styles.grid}>
 
           <div className={styles.demo}>
+            <h2 className={styles.heading}>Tinted while active: <code>showActivePanel</code></h2>
+            <RangeFilterPanel label="HP" field="hp" control="slider" expectedMin={0} expectedMax={255} showActivePanel />
+          </div>
+
+          <div className={styles.demo}>
             <h2 className={styles.heading}>Slider — default</h2>
             <RangeFilterPanel
               label="HP"
