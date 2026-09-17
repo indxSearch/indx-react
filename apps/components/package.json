@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@indxsearch/indx-types": "^2.0.0",
-    "@indxsearch/intrface": "^3.0.1",
+    "@indxsearch/indx-types": "^2.4.0",
+    "@indxsearch/intrface": "^3.6.0",
     "@indxsearch/pixl": "^1.5.0",
-    "@indxsearch/systm": "^2.6.1",
+    "@indxsearch/systm": "^2.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1"
