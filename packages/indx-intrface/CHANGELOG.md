@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.6.0
+
+### Minor Changes
+
+- 5ef6a54: `RangeFilterPanel` histogram bars are clickable. A click moves both slider thumbs onto that bar's bucket and applies it as the range filter; clicking the selected bucket again returns to the full range. Each bar is a button spanning the histogram's full height, so a one-pixel bar is as easy to hit as a tall one, with a hover tone, keyboard focus and an accessible label carrying the bucket's range and count.
+
+  The histogram's highlight also follows the thumbs exactly now. It used to light whole buckets, so with a coarse histogram the lit region overshot the selection by up to a bucket; the bars are now drawn muted with a lit copy clipped to the span between the thumbs, so a bucket the thumb sits in is lit up to the thumb and no further. The lit span is the selection only; what is still reachable under other filters stays on the slider track's live overlay, where it was.
+
+### Patch Changes
+
+- 7a83d42: `RangeFilterPanel` inputs no longer change width on decimal fields. The Min input's `max` attribute was `sliderValue - 1` with floating-point noise (`7.712999999999999` on a rating of 8.713), and the browser sizes a number input to the longest value its bounds admit, so Min came out three times wider than Max until the first drag. Bounds now go out rounded to the field's precision and one step apart instead of one unit, and both inputs carry an explicit width from the field's bounds, so the browser's guess never applies and a typed value is never clipped either.
+
 ## 3.5.0
 
 ### Minor Changes
