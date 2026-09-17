@@ -32,23 +32,38 @@
 .histogramBar {
   /* flex-grow is set inline to the bucket's span in value units; with a zero
      basis the bars divide the width exactly in proportion, so edges land on
-     the value axis. The 1px gap lives inside the bar (padding), not between
-     bars, because a flex gap would take its pixels out of every bar's share
-     and drift the edges by up to half the bar count in pixels. */
+     the value axis. No gap and no padding: a flex gap would take its pixels
+     out of every bar's share, and padding would pull a bar's fill off its
+     boundary. The separators are drawn on top instead (.histogramSeparator). */
   flex: 0 0 0%;
   min-width: 0;
   height: 100%;
   display: flex;
   align-items: flex-end;
-  box-sizing: border-box;
-  padding: 0 1px 0 0;
+  padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
 }
 
-.histogramBar:last-child {
-  padding-right: 0;
+/* 1px lines centred on each bucket boundary, in the panel's own background */
+.histogramSeparators {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.histogramSeparator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--lv0);
+}
+
+.active .histogramSeparator {
+  background: var(--lv1);
 }
 
 .histogramBar:disabled {

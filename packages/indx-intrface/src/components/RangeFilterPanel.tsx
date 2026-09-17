@@ -406,7 +406,12 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             // histogramBuckets), so bar edges, thumbs and this clip share one axis.
             const leftF = Math.max(0, Math.min(1, (litFrom - displayQueryMin) / span));
             const rightF = Math.max(0, Math.min(1, (displayQueryMax - litTo) / span));
-            const clipPath = `inset(0 calc(10px + (100% - 20px) * ${rightF}) 0 calc(10px + (100% - 20px) * ${leftF}))`;
+            const onTrack = (f: number) => `calc(10px + (100% - 20px) * ${f})`;
+            const clipPath = `inset(0 ${onTrack(rightF)} 0 ${onTrack(leftF)})`;
+            // Bars fill their boxes completely in both layers; the 1px separators
+            // are drawn on top, centred on each bucket boundary, so a bar's fill,
+            // the clip and a thumb on that boundary share the same x.
+            const separators = histogramBuckets.slice(1).map(b => onTrack((b.bucketStart - displayQueryMin) / span));
             const bars = histogramBuckets.map(bucket => ({
               ...bucket,
               height: Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20)),
@@ -439,6 +444,11 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                     <span key={i} className={styles.histogramBar} style={{ flexGrow: bucket.span }}>
                       <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
                     </span>
+                  ))}
+                </div>
+                <div className={styles.histogramSeparators} aria-hidden="true">
+                  {separators.map((left, i) => (
+                    <span key={i} className={styles.histogramSeparator} style={{ left }} />
                   ))}
                 </div>
               </div>
