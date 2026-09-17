@@ -381,17 +381,14 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         )}
         {showHistogram && histogramBuckets.length > 0 && (
           (() => {
-            // The lit part of the histogram follows the thumbs exactly: the bars
-            // are drawn once in the muted tone, and a copy in the active tone is
-            // clipped to the selected (or live) span. A bucket the thumb sits in
-            // is lit up to the thumb and no further, so a coarse histogram stays
-            // as crisp as a fine one.
-            const hasLiveOverlay =
-              typeof liveDataMin === 'number' &&
-              typeof liveDataMax === 'number' &&
-              liveDataMax > liveDataMin &&
-              (liveDataMin > queryMin || liveDataMax < queryMax);
-            const [litFrom, litTo] = hasLiveOverlay ? [liveDataMin, liveDataMax] : [finalMin, finalMax];
+            // The lit part of the histogram is the selection and nothing else: the
+            // bars are drawn once in the muted tone, and a copy in the lit tone is
+            // clipped to the span between the thumbs, so a bucket a thumb sits in
+            // is lit up to the thumb and no further. What is still reachable under
+            // the other filters is the slider track's job (its live overlay); the
+            // histogram used to follow that span too, which put its lit edge away
+            // from the thumbs whenever another filter narrowed the field.
+            const [litFrom, litTo] = [finalMin, finalMax];
             const span = displayQueryMax - displayQueryMin || 1;
             // Fractions of the track, which is the histogram's inner box (its 10px
             // side padding removed); the thumb centre sits at trackLeft + f * width.
