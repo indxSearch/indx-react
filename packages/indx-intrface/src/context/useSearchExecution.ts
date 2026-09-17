@@ -62,6 +62,7 @@ export function useSearchExecution({
         filterableFields: auth.filterableFields,
         facetableFields: auth.facetableFields,
         sortableFields: auth.sortableFields,
+        fieldsSeeded: true,
       }));
     }
   }, [

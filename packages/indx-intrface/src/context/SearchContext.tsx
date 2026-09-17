@@ -41,6 +41,7 @@ export interface SearchState {
   valueMatch: Record<string, ValueMatch>; // Per field: 'all' (AND the selected values, default) or 'any' (OR them). Registered by ValueFilterPanel's `match` prop
   rangeFilters: Record<string, { min: number; max: number }>; // Current active range filters, mapping field names to min/max values
   bucketFilters: Record<string, NumericRange[]>; // Selected buckets per field (BucketFilterPanel). Disjoint ranges, ORed within the field
+  fieldsSeeded: boolean; // True once the field lists and initial bounds from initialisation have been copied into this state. isFetchingInitial stays true until then, so no panel validates a field against an empty list for the one render in between
   filterRevision: number; // Bumped in the same state update as every user-initiated filter change; the search trigger keys on it, so a programmatic change (isUserAction false) never searches and a user change always searches with its own state
   facetStats?: Record<string, { min: number; max: number }>; // Current facet statistics (min/max values) for numeric fields, updated with each search
   rangeBounds: Record<string, { min: number; max: number }>; // Range bounds for numeric fields, updated when query or auth data changes
@@ -130,6 +131,7 @@ export const SearchProvider: React.FC<{
     rangeFilters: {},
     bucketFilters: {},
     filterRevision: 0,
+    fieldsSeeded: false,
     facetStats: {},
     rangeBounds: {},
     searchSettings: {
@@ -383,7 +385,7 @@ export const SearchProvider: React.FC<{
     <SearchContext.Provider
       value={{
         state,
-        isFetchingInitial: auth.isFetchingInitial,
+        isFetchingInitial: auth.isFetchingInitial || !state.fieldsSeeded,
         authError: auth.authError ?? undefined,
         allowEmptySearch,
         url,

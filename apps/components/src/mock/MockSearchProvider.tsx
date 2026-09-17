@@ -104,6 +104,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
       rangeFilters,
       bucketFilters,
       filterRevision: 0,
+      fieldsSeeded: true,
       rangeBounds,
       facets: { ...categoryFacets, ...numericFacets },
       facetStats: {

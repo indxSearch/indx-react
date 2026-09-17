@@ -490,3 +490,19 @@ describe('search settings', () => {
     expect(searchBodies.at(-1).sortBy).toBe('price');
   });
 });
+
+describe('initialisation', () => {
+  it('reports isFetchingInitial until the field lists are in state', async () => {
+    // Panels validate fields once isFetchingInitial is false. The lists are copied
+    // into state an effect after auth finishes, so the flag must cover that render
+    // or every field reads as "not filterable" for a frame.
+    const seen: { fetching: boolean; fields: number }[] = [];
+    const { result } = setup();
+    await waitFor(() => {
+      seen.push({ fetching: result.current.isFetchingInitial, fields: result.current.state.filterableFields.length });
+      expect(result.current.isFetchingInitial).toBe(false);
+    });
+    expect(seen.some(s => !s.fetching && s.fields === 0)).toBe(false);
+    expect(result.current.state.filterableFields.length).toBeGreaterThan(0);
+  });
+});
