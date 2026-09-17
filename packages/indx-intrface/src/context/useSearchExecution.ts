@@ -174,6 +174,12 @@ export function useSearchExecution({
         const searchData = await searchResponse.json();
         const truncationIndex = searchData.truncationIndex ?? -1;
 
+        // The OR fields' own panels read their counts from the excluded-field
+        // responses; everything else, including facetStats and so the range
+        // sliders' active region, keeps reading the fully filtered facets. A
+        // slider on a bucketed field then narrows to the selected bucket, the
+        // same way it narrows for a filter on any other field.
+        const panelFacetOverrides: Record<string, unknown> = {};
         for (let i = 0; i < orFields.length; i++) {
           const field = orFields[i];
           if (!orResponses[i].ok) {
@@ -181,7 +187,7 @@ export function useSearchExecution({
           }
           const orData = await orResponses[i].json();
           if (orData.facets?.[field] !== undefined) {
-            searchData.facets = { ...(searchData.facets ?? {}), [field]: orData.facets[field] };
+            panelFacetOverrides[field] = orData.facets[field];
           }
         }
 
@@ -256,7 +262,9 @@ export function useSearchExecution({
         }
 
         // 10) Prepare displayFacets (fallback to initial keys for non-coverage fields)
-        let displayFacets: any = searchData.facets;
+        let displayFacets: any = Object.keys(panelFacetOverrides).length > 0
+          ? { ...(searchData.facets ?? {}), ...panelFacetOverrides }
+          : searchData.facets;
         if (enableFacets && (!displayFacets || Object.keys(displayFacets).length === 0)) {
           displayFacets = {};
           for (const [field, fieldKeys] of Object.entries(auth.initialFacetKeys)) {

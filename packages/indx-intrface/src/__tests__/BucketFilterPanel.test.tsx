@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { SearchProvider } from '../context/SearchContext';
+import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { BucketFilterPanel } from '../components/BucketFilterPanel';
 import { ActiveFiltersPanel } from '../components/ActiveFiltersPanel';
 import { server } from './mocks/server';
@@ -177,5 +177,37 @@ describe('BucketFilterPanel', () => {
     server.use(http.get(`${DS}/fields/filterable`, () => HttpResponse.json([])));
     renderPanel({ field: 'speed', width: 20 });
     await screen.findByText(/not filterable/);
+  });
+});
+
+describe('BucketFilterPanel next to a RangeFilterPanel on the same field', () => {
+  it('narrows the range stats to the selected bucket while the buckets keep their own counts', async () => {
+    serveSpeedDataset();
+    let seen: { facetStats?: Record<string, { min: number; max: number }> } = {};
+    const Probe = () => {
+      const { state } = useSearchContext();
+      seen = { facetStats: state.facetStats };
+      return null;
+    };
+    render(
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token"
+        allowEmptySearch enableFacets facetDebounceDelayMillis={0}>
+        <Probe />
+        <BucketFilterPanel field="speed" width={20} />
+      </SearchProvider>
+    );
+    await screen.findByLabelText('0-19');
+    await settle();
+    expect(seen.facetStats?.speed).toEqual({ min: 5, max: 80 });
+
+    fireEvent.click(box('20-39'));
+    await waitFor(() => expect(box('20-39').checked).toBe(true));
+    await settle();
+
+    // What a slider's active region reads: the fully filtered extent, 25-33.
+    expect(seen.facetStats?.speed).toEqual({ min: 25, max: 33 });
+    // What the bucket panel reads: counts with its own selection left out.
+    expect(box('0-19').disabled).toBe(false);
+    expect(box('60-79').disabled).toBe(false);
   });
 });
