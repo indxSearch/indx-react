@@ -4,12 +4,28 @@
 }
 
 .histogram {
+  position: relative;
+  height: 20px;
+  margin-bottom: 2px;
+}
+
+/* two identical layers: the muted, clickable bars, and a lit copy clipped to
+   the selected span so its edge sits exactly under the thumb */
+.histogramLayer {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: flex-end;
   gap: 1px;
-  height: 20px;
   padding: 0 10px;
-  margin-bottom: 2px;
+}
+
+.histogramLit {
+  pointer-events: none;
+}
+
+.histogramLit .histogramFill {
+  background: var(--lv5);
 }
 
 /* each bar is a button spanning the histogram's full height, so a one-pixel
@@ -38,12 +54,13 @@
 .histogramFill {
   display: block;
   width: 100%;
+  background: var(--lv3);
   border-radius: 1px 1px 0 0;
   transition: background 0.15s, height 0.15s;
 }
 
 .histogramBar:hover:not(:disabled) .histogramFill {
-  background: var(--lv6) !important;
+  background: var(--lv4);
 }
 
 /* panel tint while it holds a selection (showActivePanel) */

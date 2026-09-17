@@ -380,44 +380,61 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
           </div>
         )}
         {showHistogram && histogramBuckets.length > 0 && (
-          <div className={styles.histogram}>
-            {(() => {
-              const hasLiveOverlay =
-                typeof liveDataMin === 'number' &&
-                typeof liveDataMax === 'number' &&
-                liveDataMax > liveDataMin &&
-                (liveDataMin > queryMin || liveDataMax < queryMax);
-
-              return histogramBuckets.map((bucket, i) => {
-                const height = Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20));
-                const isActive = hasLiveOverlay
-                  ? bucket.bucketEnd > liveDataMin && bucket.bucketStart < liveDataMax
-                  : bucket.bucketEnd > finalMin && bucket.bucketStart < finalMax;
-                const bucketLast = Math.min(queryMax, roundTo(bucket.bucketEnd - step, step));
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    className={styles.histogramBar}
-                    data-testid="histogram-bar"
-                    data-active={isActive}
-                    disabled={isDisabled}
-                    aria-label={`${bucket.bucketStart} to ${bucketLast}: ${bucket.count}`}
-                    title={`${bucket.bucketStart} to ${bucketLast}: ${bucket.count}`}
-                    onClick={() => selectBucket(bucket.bucketStart, bucket.bucketEnd)}
-                  >
-                    <span
-                      className={styles.histogramFill}
-                      style={{
-                        height: `${height}px`,
-                        background: isActive ? 'var(--lv5)' : 'var(--lv3)',
-                      }}
-                    />
-                  </button>
-                );
-              });
-            })()}
-          </div>
+          (() => {
+            // The lit part of the histogram follows the thumbs exactly: the bars
+            // are drawn once in the muted tone, and a copy in the active tone is
+            // clipped to the selected (or live) span. A bucket the thumb sits in
+            // is lit up to the thumb and no further, so a coarse histogram stays
+            // as crisp as a fine one.
+            const hasLiveOverlay =
+              typeof liveDataMin === 'number' &&
+              typeof liveDataMax === 'number' &&
+              liveDataMax > liveDataMin &&
+              (liveDataMin > queryMin || liveDataMax < queryMax);
+            const [litFrom, litTo] = hasLiveOverlay ? [liveDataMin, liveDataMax] : [finalMin, finalMax];
+            const span = displayQueryMax - displayQueryMin || 1;
+            // Fractions of the track, which is the histogram's inner box (its 10px
+            // side padding removed); the thumb centre sits at trackLeft + f * width.
+            const leftF = Math.max(0, Math.min(1, (litFrom - displayQueryMin) / span));
+            const rightF = Math.max(0, Math.min(1, (displayQueryMax - litTo) / span));
+            const clipPath = `inset(0 calc(10px + (100% - 20px) * ${rightF}) 0 calc(10px + (100% - 20px) * ${leftF}))`;
+            const bars = histogramBuckets.map(bucket => ({
+              ...bucket,
+              height: Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20)),
+              last: Math.min(queryMax, roundTo(bucket.bucketEnd - step, step)),
+            }));
+            return (
+              <div className={styles.histogram}>
+                <div className={styles.histogramLayer}>
+                  {bars.map((bucket, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={styles.histogramBar}
+                      data-testid="histogram-bar"
+                      disabled={isDisabled}
+                      aria-label={`${bucket.bucketStart} to ${bucket.last}: ${bucket.count}`}
+                      title={`${bucket.bucketStart} to ${bucket.last}: ${bucket.count}`}
+                      onClick={() => selectBucket(bucket.bucketStart, bucket.bucketEnd)}
+                    >
+                      <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
+                    </button>
+                  ))}
+                </div>
+                <div
+                  className={`${styles.histogramLayer} ${styles.histogramLit}`}
+                  aria-hidden="true"
+                  style={{ clipPath }}
+                >
+                  {bars.map((bucket, i) => (
+                    <span key={i} className={styles.histogramBar}>
+                      <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })()
         )}
         <div style={{ padding: '10px 10px 20px 10px' }}>
           <Slider
