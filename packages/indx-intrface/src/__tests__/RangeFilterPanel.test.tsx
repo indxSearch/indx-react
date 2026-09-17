@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { SearchProvider } from '../context/SearchContext';
+import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { RangeFilterPanel } from '../components/RangeFilterPanel';
 import { server } from './mocks/server';
 import { FACETS, SEARCH_RESPONSE } from './mocks/fixtures';
@@ -260,11 +260,75 @@ describe('bar layout', () => {
     renderPanel({ showHistogram: true, resolution: 10 });
     await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
     fireEvent.click(screen.getAllByTestId('histogram-bar')[0]); // selects 10-19
-    const lit = screen.getAllByTestId('histogram-bar')[0].parentElement!.nextElementSibling as HTMLElement;
+    const lit = screen.getByTestId('histogram-lit') as HTMLElement;
     // Right inset fraction = (200 - 19) / 190; left = 0. Same mapping as react-range's
     // thumb centre, trackLeft + trackWidth * (v - min) / (max - min).
     await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190})`));
     expect(lit.style.clipPath).toContain('* 0)');
     expect(lit.style.clipPath).toContain('10px + (100% - 20px)');
+  });
+});
+
+// ─── Reachable range under another filter ─────────────────────────────────────
+
+describe('histogram under another filter', () => {
+  // A category filter narrows price to 60-120 (facet keys under the filter).
+  const NARROW = FACETS.price.filter(f => Number(f.key) >= 60 && Number(f.key) <= 120);
+  function serveNarrowed() {
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        const body = await request.json() as { filter?: unknown };
+        return HttpResponse.json({ ...SEARCH_RESPONSE, facets: body.filter ? { ...FACETS, price: NARROW } : FACETS });
+      }),
+    );
+  }
+  const Probe = ({ onReady }: { onReady: (toggle: (f: string, v: string) => void) => void }) => {
+    const { toggleFilter } = useSearchContext();
+    React.useEffect(() => { onReady(toggleFilter); }, [toggleFilter, onReady]);
+    return null;
+  };
+  function renderNarrowed() {
+    let toggle: ((f: string, v: string) => void) | undefined;
+    render(
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token"
+        allowEmptySearch enableFacets facetDebounceDelayMillis={0}>
+        <Probe onReady={t => { toggle = t; }} />
+        <RangeFilterPanel field="price" control="slider" showHistogram resolution={10} />
+      </SearchProvider>
+    );
+    return () => toggle!('category', 'running');
+  }
+
+  it('disables bars outside the reachable range and clips the muted layer to it', async () => {
+    serveNarrowed();
+    const applyFilter = renderNarrowed();
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
+    applyFilter();
+    const bars = () => screen.getAllByTestId('histogram-bar') as HTMLButtonElement[];
+    await waitFor(() => expect(bars()[0].disabled).toBe(true)); // 10-19, below 60
+    expect(bars()[5].disabled).toBe(false); // 60-69
+    expect(bars()[11].disabled).toBe(false); // 120-129 contains 120
+    expect(bars()[12].disabled).toBe(true); // 130-139, above 120
+    const live = screen.getByTestId('histogram-live') as HTMLElement;
+    expect(live.style.clipPath).toContain(`* ${(60 - 10) / 190})`);
+    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190})`);
+  });
+
+  it('clicking a partly reachable bar selects only its reachable part', async () => {
+    serveNarrowed();
+    const rangeBodies: { lowerLimit: number; upperLimit: number }[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/filters/range', async ({ request }) => {
+        const body = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+        rangeBodies.push(body);
+        return HttpResponse.json({ hashString: `range:${body.lowerLimit}-${body.upperLimit}` });
+      }),
+    );
+    const applyFilter = renderNarrowed();
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
+    applyFilter();
+    await waitFor(() => expect((screen.getAllByTestId('histogram-bar')[0] as HTMLButtonElement).disabled).toBe(true));
+    fireEvent.click(screen.getAllByTestId('histogram-bar')[11]); // 120-129, reachable only at 120
+    await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 120, upperLimit: 120 }));
   });
 });

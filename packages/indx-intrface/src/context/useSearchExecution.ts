@@ -25,7 +25,6 @@ export interface UseSearchExecutionOptions {
   allowEmptySearch: boolean;
   facetsEnabled: boolean;
   enableDebugLogs: boolean;
-  filtersChangedByUser: React.MutableRefObject<boolean>;
   shouldFetchMore: React.MutableRefObject<boolean>;
 }
 
@@ -42,7 +41,6 @@ export function useSearchExecution({
   allowEmptySearch,
   facetsEnabled,
   enableDebugLogs,
-  filtersChangedByUser,
   shouldFetchMore,
 }: UseSearchExecutionOptions): UseSearchExecutionResult {
   const latestRequestId = useRef(0);
@@ -405,20 +403,21 @@ export function useSearchExecution({
     return () => { searchWithFacetsDebounced.current?.cancel(); };
   }, [state.query, allowEmptySearch, facetsEnabled]);
 
-  // Trigger: user-initiated filter changes
+  // Trigger: user-initiated filter changes. Keyed on filterRevision, which the
+  // context bumps inside the same state update as the change, so the search
+  // runs in the commit that carries the new filters. A flag read by "whichever
+  // effect runs next" used to do this, and a programmatic range reset landing
+  // first could consume it and search with the previous filters instead.
   useEffect(() => {
-    const wasChangedByUser = filtersChangedByUser.current;
-    filtersChangedByUser.current = false;
-
     if (!hasInitialized.current || !auth.token) return;
-    if (!wasChangedByUser) return;
+    if (state.filterRevision === 0) return;
 
     const trimmedQuery = state.query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
     if (!shouldSkipSearch) {
       performSearchRef.current?.({ enableFacets: facetsEnabled });
     }
-  }, [state.filters, state.rangeFilters, state.bucketFilters]);
+  }, [state.filterRevision]);
 
   // Trigger: sort changes
   useEffect(() => {

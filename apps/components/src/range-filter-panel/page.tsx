@@ -20,6 +20,13 @@ export default function RangeFilterPanelPage() {
           </div>
 
           <div className={styles.demo}>
+            <h2 className={styles.heading}>Narrowed by another filter (reachable 35 to 100)</h2>
+            <MockSearchProvider facetStats={{ attack: { min: 35, max: 100 } }}>
+              <RangeFilterPanel label="Attack" field="attack" control="slider" expectedMin={0} expectedMax={255} showHistogram resolution={10} />
+            </MockSearchProvider>
+          </div>
+
+          <div className={styles.demo}>
             <h2 className={styles.heading}>Slider — default</h2>
             <RangeFilterPanel
               label="HP"

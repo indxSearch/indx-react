@@ -41,6 +41,7 @@ export interface SearchState {
   valueMatch: Record<string, ValueMatch>; // Per field: 'all' (AND the selected values, default) or 'any' (OR them). Registered by ValueFilterPanel's `match` prop
   rangeFilters: Record<string, { min: number; max: number }>; // Current active range filters, mapping field names to min/max values
   bucketFilters: Record<string, NumericRange[]>; // Selected buckets per field (BucketFilterPanel). Disjoint ranges, ORed within the field
+  filterRevision: number; // Bumped in the same state update as every user-initiated filter change; the search trigger keys on it, so a programmatic change (isUserAction false) never searches and a user change always searches with its own state
   facetStats?: Record<string, { min: number; max: number }>; // Current facet statistics (min/max values) for numeric fields, updated with each search
   rangeBounds: Record<string, { min: number; max: number }>; // Range bounds for numeric fields, updated when query or auth data changes
   sortBy?: string; // The field currently being used to sort results
@@ -109,7 +110,6 @@ export const SearchProvider: React.FC<{
   enableDebugLogs = false,
   preAuthenticatedToken,
 }) => {
-  const filtersChangedByUser = useRef(false);
   const shouldFetchMore = useRef(false);
   // The page size the user wants. Starts at the maxResults prop and follows
   // setSearchSettings({ maxNumberOfRecordsToReturn }); a new query resets the
@@ -129,6 +129,7 @@ export const SearchProvider: React.FC<{
     valueMatch: {},
     rangeFilters: {},
     bucketFilters: {},
+    filterRevision: 0,
     facetStats: {},
     rangeBounds: {},
     searchSettings: {
@@ -200,13 +201,11 @@ export const SearchProvider: React.FC<{
     allowEmptySearch,
     facetsEnabled,
     enableDebugLogs,
-    filtersChangedByUser,
     shouldFetchMore,
   });
 
   // Function to update the search query text
   const setQuery = useCallback((query: string) => {
-    filtersChangedByUser.current = false; // Query change clears filters, not a user filter action
     setState(prev => {
       // Preserve empty filter references to avoid triggering filter effect unnecessarily
       const hasFilters = Object.keys(prev.filters).length > 0;
@@ -273,7 +272,6 @@ export const SearchProvider: React.FC<{
 
   // Function to toggle a value filter on/off for a given field
   const toggleFilter = useCallback((field: string, value: string, exclusive: boolean = false) => {
-    filtersChangedByUser.current = true; // User explicitly toggled a filter
     setState(prev => {
       const updatedFilters = { ...prev.filters };
       const currentValues = updatedFilters[field] || [];
@@ -290,6 +288,7 @@ export const SearchProvider: React.FC<{
       return {
         ...prev,
         filters: updatedFilters,
+        filterRevision: prev.filterRevision + 1,
       };
     });
   }, []);
@@ -303,29 +302,28 @@ export const SearchProvider: React.FC<{
 
   // Function to set min/max values for a range filter
   const setRangeFilter = useCallback((field: string, min: number, max: number) => {
-    filtersChangedByUser.current = true; // User explicitly set a range filter
     setState(prev => ({
       ...prev,
       rangeFilters: {
         ...prev.rangeFilters,
         [field]: { min, max },
       },
+      filterRevision: prev.filterRevision + 1,
     }));
   }, []);
 
   // Function to clear all active filters and range filters
   const resetFilters = useCallback(() => {
-    filtersChangedByUser.current = true; // User explicitly reset all filters
     setState(prev => ({
       ...prev,
       filters: {},
       rangeFilters: {},
       bucketFilters: {},
+      filterRevision: prev.filterRevision + 1,
     }));
   }, []);
 
   const resetSingleFilter = useCallback((field: string, value: string, isUserAction: boolean = true) => {
-    if (isUserAction) filtersChangedByUser.current = true;
     setState(prev => {
       const updatedFilters = { ...prev.filters };
       const newValues = (updatedFilters[field] || []).filter(v => v !== value);
@@ -334,23 +332,22 @@ export const SearchProvider: React.FC<{
       } else {
         delete updatedFilters[field];
       }
-      return { ...prev, filters: updatedFilters };
+      return { ...prev, filters: updatedFilters, filterRevision: prev.filterRevision + (isUserAction ? 1 : 0) };
     });
   }, []);
 
   const resetRangeFilter = useCallback((field: string, isUserAction: boolean = true) => {
-    if (isUserAction) filtersChangedByUser.current = true;
     setState(prev => {
+      if (!(field in prev.rangeFilters)) return prev; // nothing to remove, nothing to search for
       const updatedRangeFilters = { ...prev.rangeFilters };
       delete updatedRangeFilters[field];
-      return { ...prev, rangeFilters: updatedRangeFilters };
+      return { ...prev, rangeFilters: updatedRangeFilters, filterRevision: prev.filterRevision + (isUserAction ? 1 : 0) };
     });
   }, []);
 
   const sameRange = (a: NumericRange, b: NumericRange) => a.min === b.min && a.max === b.max;
 
   const toggleBucketFilter = useCallback((field: string, range: NumericRange, exclusive: boolean = false) => {
-    filtersChangedByUser.current = true;
     setState(prev => {
       const current = prev.bucketFilters[field] ?? [];
       const next = current.some(r => sameRange(r, range))
@@ -359,18 +356,17 @@ export const SearchProvider: React.FC<{
       const bucketFilters = { ...prev.bucketFilters };
       if (next.length > 0) bucketFilters[field] = next;
       else delete bucketFilters[field];
-      return { ...prev, bucketFilters };
+      return { ...prev, bucketFilters, filterRevision: prev.filterRevision + 1 };
     });
   }, []);
 
   const resetBucketFilter = useCallback((field: string, range?: NumericRange, isUserAction: boolean = true) => {
-    if (isUserAction) filtersChangedByUser.current = true;
     setState(prev => {
       const bucketFilters = { ...prev.bucketFilters };
       const next = range ? (bucketFilters[field] ?? []).filter(r => !sameRange(r, range)) : [];
       if (next.length > 0) bucketFilters[field] = next;
       else delete bucketFilters[field];
-      return { ...prev, bucketFilters };
+      return { ...prev, bucketFilters, filterRevision: prev.filterRevision + (isUserAction ? 1 : 0) };
     });
   }, []);
 

@@ -145,8 +145,10 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     const clampedMax = Math.max(queryMin, Math.min(queryMax, max));
     const finalMin = Math.min(clampedMin, clampedMax);
     const finalMax = Math.max(clampedMin, clampedMax);
-    const isValidMin = finalMin >= queryMin && finalMin < finalMax;
-    const isValidMax = finalMax <= queryMax && finalMax > finalMin;
+    // Bounds are inclusive on the server, so a single-value range (min == max) is valid;
+    // a histogram bar whose reachable part is one value selects exactly that.
+    const isValidMin = finalMin >= queryMin && finalMin <= finalMax;
+    const isValidMax = finalMax <= queryMax && finalMax >= finalMin;
 
     return { finalMin, finalMax, isValidMin, isValidMax };
   }, [sliderValue, queryMin, queryMax]);
@@ -234,15 +236,17 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // Clicking the bucket that is already selected returns to the full range.
   const selectBucket = React.useCallback((bucketStart: number, bucketLast: number) => {
     if (isDisabled) return;
-    const start = snapToStep(Math.max(queryMin, bucketStart), queryMin, step);
-    const end = Math.max(start, snapToStep(Math.min(queryMax, bucketLast), queryMin, step));
+    // Clamp to what the other filters leave reachable, as the thumbs do, so a
+    // bar that is only partly reachable selects its reachable part.
+    const start = snapToStep(Math.max(queryMin, liveDataMin, bucketStart), queryMin, step);
+    const end = Math.max(start, snapToStep(Math.min(queryMax, liveDataMax, bucketLast), queryMin, step));
     if (sliderValue[0] === start && sliderValue[1] === end) {
       setSliderValue([queryMin, queryMax]);
       resetRangeFilter(field, true);
     } else {
       setSliderValue([start, end]);
     }
-  }, [isDisabled, queryMin, queryMax, step, sliderValue, field, resetRangeFilter]);
+  }, [isDisabled, queryMin, queryMax, liveDataMin, liveDataMax, step, sliderValue, field, resetRangeFilter]);
 
   // 8) Manual number‐input handlers. Typing only updates the text; the number is
   // committed on blur or Enter. Min can't exceed liveDataMax (can't filter above
@@ -389,25 +393,33 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         )}
         {showHistogram && histogramBuckets.length > 0 && (
           (() => {
-            // The lit part of the histogram is the selection and nothing else: the
-            // bars are drawn once in the muted tone, and a copy in the lit tone is
-            // clipped to the span between the thumbs, so a bucket a thumb sits in
-            // is lit up to the thumb and no further. What is still reachable under
-            // the other filters is the slider track's job (its live overlay); the
-            // histogram used to follow that span too, which put its lit edge away
-            // from the thumbs whenever another filter narrowed the field.
-            const [litFrom, litTo] = [finalMin, finalMax];
-            const span = displayQueryMax - displayQueryMin || 1;
+            // Three tones, each a full set of bars clipped on the value axis:
+            //   dim    everything, for what the other filters leave unreachable
+            //   muted  clipped to the live reachable span (the track's overlay)
+            //   lit    clipped to the selection between the thumbs, within that span
+            // so a selected but unreachable stretch reads as unreachable, and a
+            // bucket a thumb sits in is lit up to the thumb and no further.
+            //
             // react-range (getOffsets) puts a thumb's centre at
             //   trackLeft + trackWidth * (v - min) / (max - min)
             // and the track fills the slider wrapper, whose side padding is the
             // 10px the histogram also uses, so the histogram's inner box is the
-            // track box. Both layers lay their bars out by value span (see
-            // histogramBuckets), so bar edges, thumbs and this clip share one axis.
-            const leftF = Math.max(0, Math.min(1, (litFrom - displayQueryMin) / span));
-            const rightF = Math.max(0, Math.min(1, (displayQueryMax - litTo) / span));
+            // track box. Every layer lays its bars out by value span (see
+            // histogramBuckets), so bar edges, thumbs and these clips share one axis.
+            const hasLiveOverlay =
+              liveDataMax > liveDataMin && (liveDataMin > queryMin || liveDataMax < queryMax);
+            const [liveFrom, liveTo] = hasLiveOverlay ? [liveDataMin, liveDataMax] : [displayQueryMin, displayQueryMax];
+            const litFrom = Math.max(finalMin, liveFrom);
+            const litTo = Math.min(finalMax, liveTo);
+            const span = displayQueryMax - displayQueryMin || 1;
+            const fracFrom = (v: number) => Math.max(0, Math.min(1, (v - displayQueryMin) / span));
+            const fracTo = (v: number) => Math.max(0, Math.min(1, (displayQueryMax - v) / span));
+            const leftF = fracFrom(litFrom);
+            const rightF = litTo < litFrom ? 1 - leftF : fracTo(litTo);
             const onTrack = (f: number) => `calc(10px + (100% - 20px) * ${f})`;
             const clipPath = `inset(0 ${onTrack(rightF)} 0 ${onTrack(leftF)})`;
+            const liveClipPath = `inset(0 ${onTrack(fracTo(liveTo))} 0 ${onTrack(fracFrom(liveFrom))})`;
+            const unreachable = (b: { bucketStart: number; last: number }) => b.last < liveFrom || b.bucketStart > liveTo;
             // Bars fill their boxes completely in both layers; the 1px separators
             // are drawn on top, centred on each bucket boundary, so a bar's fill,
             // the clip and a thumb on that boundary share the same x.
@@ -426,7 +438,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                       className={styles.histogramBar}
                       style={{ flexGrow: bucket.span }}
                       data-testid="histogram-bar"
-                      disabled={isDisabled}
+                      disabled={isDisabled || unreachable(bucket)}
                       aria-label={`${bucket.bucketStart} to ${bucket.last}: ${bucket.count}`}
                       title={`${bucket.bucketStart} to ${bucket.last}: ${bucket.count}`}
                       onClick={() => selectBucket(bucket.bucketStart, bucket.last)}
@@ -436,8 +448,21 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                   ))}
                 </div>
                 <div
+                  className={`${styles.histogramLayer} ${styles.histogramLive}`}
+                  aria-hidden="true"
+                  data-testid="histogram-live"
+                  style={{ clipPath: liveClipPath }}
+                >
+                  {bars.map((bucket, i) => (
+                    <span key={i} className={styles.histogramBar} style={{ flexGrow: bucket.span }}>
+                      <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
+                    </span>
+                  ))}
+                </div>
+                <div
                   className={`${styles.histogramLayer} ${styles.histogramLit}`}
                   aria-hidden="true"
+                  data-testid="histogram-lit"
                   style={{ clipPath }}
                 >
                   {bars.map((bucket, i) => (

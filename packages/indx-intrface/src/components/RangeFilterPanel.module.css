@@ -19,10 +19,17 @@
   padding: 0 10px;
 }
 
+.histogramLive,
 .histogramLit {
   pointer-events: none;
 }
 
+/* reachable under the other filters, not selected */
+.histogramLive .histogramFill {
+  background: var(--lv3);
+}
+
+/* selected and reachable */
 .histogramLit .histogramFill {
   background: var(--lv5);
 }
@@ -75,16 +82,13 @@
   outline-offset: 1px;
 }
 
+/* base layer: what the other filters leave unreachable */
 .histogramFill {
   display: block;
   width: 100%;
-  background: var(--lv3);
+  background: var(--lv2);
   border-radius: 1px 1px 0 0;
-  transition: background 0.15s, height 0.15s;
-}
-
-.histogramBar:hover:not(:disabled) .histogramFill {
-  background: var(--lv4);
+  transition: height 0.15s;
 }
 
 /* panel tint while it holds a selection (showActivePanel) */

@@ -49,7 +49,8 @@ const rangeBounds = {
 const noop = () => {};
 const noopFetch = () => Promise.resolve(new Response());
 
-export function MockSearchProvider({ children, isFetchingInitial = false }: { children: ReactNode; isFetchingInitial?: boolean }) {
+/** `facetStats` narrows a field's live (reachable) range, as another active filter would. */
+export function MockSearchProvider({ children, isFetchingInitial = false, facetStats: facetStatsOverride = {} }: { children: ReactNode; isFetchingInitial?: boolean; facetStats?: Record<string, { min: number; max: number }> }) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string[]>>({});
   const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>({});
@@ -102,6 +103,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
       valueMatch: {},
       rangeFilters,
       bucketFilters,
+      filterRevision: 0,
       rangeBounds,
       facets: { ...categoryFacets, ...numericFacets },
       facetStats: {
@@ -109,6 +111,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false }: { ch
         attack: { min: 5,  max: 190 },
         defense:{ min: 5,  max: 230 },
         speed:  { min: 5,  max: 200 },
+        ...facetStatsOverride,
       },
       facetDebounceDelayMillis: 300,
       filterableFields: ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
