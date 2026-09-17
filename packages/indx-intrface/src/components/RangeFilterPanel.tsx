@@ -358,6 +358,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
       <FilterPanelSkeleton
         title={label}
         variant="slider"
+        withHistogram={showHistogram}
         collapsible={collapsible}
         startCollapsed={startCollapsed}
       />
@@ -391,6 +392,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             No adjustable range (all results have the same value: {queryMin}).
           </div>
         )}
+        {/* The histogram box is always there once showHistogram is set, empty until the
+            first facets land, so the panel does not grow by its height when they do. */}
+        {showHistogram && histogramBuckets.length === 0 && <div className={styles.histogram} />}
         {showHistogram && histogramBuckets.length > 0 && (
           (() => {
             // Three tones, each a full set of bars clipped on the value axis:

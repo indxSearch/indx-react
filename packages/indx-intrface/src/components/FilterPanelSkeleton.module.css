@@ -49,3 +49,10 @@
   background: var(--lv2);
   animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
 }
+
+/* same height as RangeFilterPanel's histogram (20px bars + 2px gap), less the
+   14px column gap that follows it, so the track lands where the real one does */
+.histogramRow {
+  height: 8px;
+  margin-top: 2px;
+}
