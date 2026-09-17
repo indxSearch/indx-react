@@ -417,8 +417,13 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             const leftF = fracFrom(litFrom);
             const rightF = litTo < litFrom ? 1 - leftF : fracTo(litTo);
             const onTrack = (f: number) => `calc(10px + (100% - 20px) * ${f})`;
-            const clipPath = `inset(0 ${onTrack(rightF)} 0 ${onTrack(leftF)})`;
-            const liveClipPath = `inset(0 ${onTrack(fracTo(liveTo))} 0 ${onTrack(fracFrom(liveFrom))})`;
+            // The right edge of a clipped layer loses its last pixel column to the
+            // separator drawn on that boundary (and to pixel snapping of the clip),
+            // which the left edge does not, so the right inset is pulled in by one.
+            const RIGHT_EDGE_PX = 1;
+            const onTrackRight = (f: number) => `calc(10px + (100% - 20px) * ${f} - ${RIGHT_EDGE_PX}px)`;
+            const clipPath = `inset(0 ${onTrackRight(rightF)} 0 ${onTrack(leftF)})`;
+            const liveClipPath = `inset(0 ${onTrackRight(fracTo(liveTo))} 0 ${onTrack(fracFrom(liveFrom))})`;
             const unreachable = (b: { bucketStart: number; last: number }) => b.last < liveFrom || b.bucketStart > liveTo;
             // Bars fill their boxes completely in both layers; the 1px separators
             // are drawn on top, centred on each bucket boundary, so a bar's fill,

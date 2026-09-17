@@ -24,14 +24,18 @@
   pointer-events: none;
 }
 
-/* reachable under the other filters, not selected */
+/* reachable under the other filters, not selected. Square corners: these
+   layers are clipped at the thumbs, and a rounded corner would recede from
+   the clip edge by its radius. */
 .histogramLive .histogramFill {
   background: var(--lv3);
+  border-radius: 0;
 }
 
 /* selected and reachable */
 .histogramLit .histogramFill {
   background: var(--lv5);
+  border-radius: 0;
 }
 
 /* each bar is a button spanning the histogram's full height, so a one-pixel

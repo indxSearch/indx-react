@@ -263,7 +263,8 @@ describe('bar layout', () => {
     const lit = screen.getByTestId('histogram-lit') as HTMLElement;
     // Right inset fraction = (200 - 19) / 190; left = 0. Same mapping as react-range's
     // thumb centre, trackLeft + trackWidth * (v - min) / (max - min).
-    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190})`));
+    // Right insets end one pixel short so the edge keeps its last column.
+    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190} - 1px)`));
     expect(lit.style.clipPath).toContain('* 0)');
     expect(lit.style.clipPath).toContain('10px + (100% - 20px)');
   });
@@ -311,7 +312,7 @@ describe('histogram under another filter', () => {
     expect(bars()[12].disabled).toBe(true); // 130-139, above 120
     const live = screen.getByTestId('histogram-live') as HTMLElement;
     expect(live.style.clipPath).toContain(`* ${(60 - 10) / 190})`);
-    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190})`);
+    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190} - 1px)`);
   });
 
   it('clicking a partly reachable bar selects only its reachable part', async () => {
