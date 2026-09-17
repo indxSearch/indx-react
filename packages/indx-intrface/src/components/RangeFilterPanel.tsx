@@ -229,6 +229,21 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     }
   }, [isDisabled, queryMin, queryMax, liveDataMin, liveDataMax, field, resetRangeFilter]);
 
+  // A histogram bar is a range: clicking it moves both thumbs onto that bucket,
+  // and the debounced effect above commits it like any other slider change.
+  // Clicking the bucket that is already selected returns to the full range.
+  const selectBucket = React.useCallback((bucketStart: number, bucketEnd: number) => {
+    if (isDisabled) return;
+    const start = snapToStep(Math.max(queryMin, bucketStart), queryMin, step);
+    const end = Math.max(start, snapToStep(Math.min(queryMax, roundTo(bucketEnd - step, step)), queryMin, step));
+    if (sliderValue[0] === start && sliderValue[1] === end) {
+      setSliderValue([queryMin, queryMax]);
+      resetRangeFilter(field, true);
+    } else {
+      setSliderValue([start, end]);
+    }
+  }, [isDisabled, queryMin, queryMax, step, sliderValue, field, resetRangeFilter]);
+
   // 8) Manual number‐input handlers. Typing only updates the text; the number is
   // committed on blur or Enter. Min can't exceed liveDataMax (can't filter above
   // what exists), max can't be below liveDataMin.
@@ -378,17 +393,27 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                 const isActive = hasLiveOverlay
                   ? bucket.bucketEnd > liveDataMin && bucket.bucketStart < liveDataMax
                   : bucket.bucketEnd > finalMin && bucket.bucketStart < finalMax;
+                const bucketLast = Math.min(queryMax, roundTo(bucket.bucketEnd - step, step));
                 return (
-                  <div
+                  <button
                     key={i}
+                    type="button"
                     className={styles.histogramBar}
                     data-testid="histogram-bar"
                     data-active={isActive}
-                    style={{
-                      height: `${height}px`,
-                      background: isActive ? 'var(--lv5)' : 'var(--lv3)',
-                    }}
-                  />
+                    disabled={isDisabled}
+                    aria-label={`${bucket.bucketStart} to ${bucketLast}: ${bucket.count}`}
+                    title={`${bucket.bucketStart} to ${bucketLast}: ${bucket.count}`}
+                    onClick={() => selectBucket(bucket.bucketStart, bucket.bucketEnd)}
+                  >
+                    <span
+                      className={styles.histogramFill}
+                      style={{
+                        height: `${height}px`,
+                        background: isActive ? 'var(--lv5)' : 'var(--lv3)',
+                      }}
+                    />
+                  </button>
                 );
               });
             })()}

@@ -31,7 +31,7 @@ export default function RangeFilterPanelPage() {
           </div>
 
           <div className={styles.demo}>
-            <h2 className={styles.heading}>Slider + histogram (~20 bars)</h2>
+            <h2 className={styles.heading}>Slider + histogram (~20 bars). Click a bar to filter on its bucket</h2>
             <RangeFilterPanel
               label="HP"
               field="hp"

@@ -401,7 +401,7 @@ Different fields and range filters always narrow the result set (ANDed). With `c
 | `expectedMin` | `number` | ❌ | Expected lower bound (default `0`) |
 | `expectedMax` | `number` | ❌ | Expected upper bound (default `1000`) |
 | `step` | `number` | ❌ | Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …) |
-| `showHistogram` | `boolean` | ❌ | Show a histogram above the slider (requires the field to be facetable; default `false`) |
+| `showHistogram` | `boolean` | ❌ | Show a histogram above the slider; clicking a bar filters on that bucket, clicking it again returns to the full range (requires the field to be facetable; default `false`) |
 | `resolution` | `number` | ❌ | Value-range per histogram bucket (e.g. `200` → 5 bars over 0–1000). Auto-derived (~20 bars) if omitted |
 | `collapsible` | `boolean` | ❌ | Whether the panel can collapse (default `true`) |
 | `startCollapsed` | `boolean` | ❌ | Start collapsed (default `false`) |

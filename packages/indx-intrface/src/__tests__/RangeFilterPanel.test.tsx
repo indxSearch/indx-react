@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { SearchProvider } from '../context/SearchContext';
 import { RangeFilterPanel } from '../components/RangeFilterPanel';
@@ -108,7 +108,7 @@ describe('bar heights', () => {
     );
 
     const bars = screen.getAllByTestId('histogram-bar');
-    const heights = bars.map(b => parseInt(b.style.height, 10));
+    const heights = bars.map(b => parseInt((b.firstElementChild as HTMLElement).style.height, 10));
 
     expect(Math.max(...heights)).toBe(20);
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(1);
@@ -122,7 +122,7 @@ describe('bar heights', () => {
     );
 
     const bars = screen.getAllByTestId('histogram-bar');
-    const heights = bars.map(b => parseInt(b.style.height, 10));
+    const heights = bars.map(b => parseInt((b.firstElementChild as HTMLElement).style.height, 10));
     // FACETS fixture has variance — not all bars should be the same height
     expect(new Set(heights).size).toBeGreaterThan(1);
   });
@@ -206,5 +206,33 @@ describe('histogram snapshot', () => {
     );
 
     warn.mockRestore();
+  });
+});
+
+// ─── Clicking a bar ───────────────────────────────────────────────────────────
+
+describe('clicking a histogram bar', () => {
+  it('filters on that bucket, and clicking it again returns to the full range', async () => {
+    const rangeBodies: { lowerLimit: number; upperLimit: number }[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/filters/range', async ({ request }) => {
+        const body = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+        rangeBodies.push(body);
+        return HttpResponse.json({ hashString: `range:${body.fieldName}:${body.lowerLimit}-${body.upperLimit}` });
+      }),
+    );
+    renderPanel({ showHistogram: true, resolution: 10 });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar').length).toBeGreaterThan(0), { timeout: 3000 });
+
+    // Fixture bounds are 10-200; resolution 10 makes the first bar the bucket 10-19.
+    const first = screen.getAllByTestId('histogram-bar')[0];
+    expect(first.getAttribute('aria-label')).toBe('10 to 19: 3');
+    fireEvent.click(first);
+    await waitFor(() => expect(rangeBodies.at(-1)).toEqual({ fieldName: 'price', lowerLimit: 10, upperLimit: 19 }));
+
+    const before = rangeBodies.length;
+    fireEvent.click(screen.getAllByTestId('histogram-bar')[0]);
+    await new Promise(r => setTimeout(r, 50));
+    expect(rangeBodies.length).toBe(before); // back to the full range: no filter sent
   });
 });
