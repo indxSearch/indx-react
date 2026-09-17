@@ -234,19 +234,28 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // A histogram bar is a range: clicking it moves both thumbs onto that bucket,
   // and the debounced effect above commits it like any other slider change.
   // Clicking the bucket that is already selected returns to the full range.
+  // The bucket whose click set the current filter. A second click on it resets.
+  // This is remembered rather than recomputed because once the filter applies,
+  // the field's facets narrow to the values inside the bucket and the clamped
+  // extent shifts (60-69 becomes 60-67), so comparing numbers would read the
+  // second click as a new, narrower selection.
+  const clickedBucketRef = React.useRef<{ start: number; last: number } | null>(null);
   const selectBucket = React.useCallback((bucketStart: number, bucketLast: number) => {
     if (isDisabled) return;
+    const clicked = clickedBucketRef.current;
+    if (intended && clicked && clicked.start === bucketStart && clicked.last === bucketLast) {
+      clickedBucketRef.current = null;
+      setSliderValue([queryMin, queryMax]);
+      resetRangeFilter(field, true);
+      return;
+    }
     // Clamp to what the other filters leave reachable, as the thumbs do, so a
     // bar that is only partly reachable selects its reachable part.
     const start = snapToStep(Math.max(queryMin, liveDataMin, bucketStart), queryMin, step);
     const end = Math.max(start, snapToStep(Math.min(queryMax, liveDataMax, bucketLast), queryMin, step));
-    if (sliderValue[0] === start && sliderValue[1] === end) {
-      setSliderValue([queryMin, queryMax]);
-      resetRangeFilter(field, true);
-    } else {
-      setSliderValue([start, end]);
-    }
-  }, [isDisabled, queryMin, queryMax, liveDataMin, liveDataMax, step, sliderValue, field, resetRangeFilter]);
+    clickedBucketRef.current = { start: bucketStart, last: bucketLast };
+    setSliderValue([start, end]);
+  }, [isDisabled, intended, queryMin, queryMax, liveDataMin, liveDataMax, step, field, resetRangeFilter]);
 
   // 8) Manual number‐input handlers. Typing only updates the text; the number is
   // committed on blur or Enter. Min can't exceed liveDataMax (can't filter above

@@ -14,8 +14,8 @@ vi.mock('@indxsearch/systm', () => ({
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="filter-panel">{children}</div>
   ),
-  Slider: ({ min, max }: { min: number; max: number }) => (
-    <div role="slider" data-min={min} data-max={max} />
+  Slider: ({ min, max, value }: { min: number; max: number; value: number[] }) => (
+    <div role="slider" data-min={min} data-max={max} data-value={JSON.stringify(value)} />
   ),
   InputField: ({ label, value }: { label: string; value: number }) => (
     <input aria-label={label} defaultValue={value} readOnly />
@@ -331,5 +331,38 @@ describe('histogram under another filter', () => {
     await waitFor(() => expect((screen.getAllByTestId('histogram-bar')[0] as HTMLButtonElement).disabled).toBe(true));
     fireEvent.click(screen.getAllByTestId('histogram-bar')[11]); // 120-129, reachable only at 120
     await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 120, upperLimit: 120 }));
+  });
+});
+
+describe('clicking a bar twice when the filter narrows its own facets', () => {
+  it('resets on the second click instead of narrowing to the values inside', async () => {
+    // The server only lists values inside the active range filter, so after the
+    // first click the field's live span shrinks to the bucket's actual values.
+    const rangeBodies: { lowerLimit: number; upperLimit: number }[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/filters/range', async ({ request }) => {
+        const body = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+        rangeBodies.push(body);
+        return HttpResponse.json({ hashString: `range:${body.lowerLimit}-${body.upperLimit}` });
+      }),
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        const body = await request.json() as { filter?: { hashString: string } };
+        const m = /^range:(\d+)-(\d+)$/.exec(body.filter?.hashString ?? '');
+        const price = m ? FACETS.price.filter(f => Number(f.key) >= Number(m[1]) && Number(f.key) <= Number(m[2])) : FACETS.price;
+        return HttpResponse.json({ ...SEARCH_RESPONSE, facets: { ...FACETS, price } });
+      }),
+    );
+    renderPanel({ showHistogram: true, resolution: 10 });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
+
+    // 60-69 holds only the value 60, so after the click the live span is 60-60.
+    fireEvent.click(screen.getAllByTestId('histogram-bar')[5]);
+    await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 60, upperLimit: 69 }));
+    await new Promise(r => setTimeout(r, 50));
+
+    const sent = rangeBodies.length;
+    fireEvent.click(screen.getAllByTestId('histogram-bar')[5]);
+    await waitFor(() => expect(screen.getByRole('slider').getAttribute('data-value')).toBe('[10,200]'));
+    expect(rangeBodies.length).toBe(sent); // no narrower filter went out
   });
 });
