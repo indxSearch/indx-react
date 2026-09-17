@@ -16,7 +16,6 @@
   inset: 0;
   display: flex;
   align-items: flex-end;
-  gap: 1px;
   padding: 0 10px;
 }
 
@@ -31,15 +30,25 @@
 /* each bar is a button spanning the histogram's full height, so a one-pixel
    bar is as easy to hit as a tall one; the fill inside is the visible part */
 .histogramBar {
-  flex: 1;
+  /* flex-grow is set inline to the bucket's span in value units; with a zero
+     basis the bars divide the width exactly in proportion, so edges land on
+     the value axis. The 1px gap lives inside the bar (padding), not between
+     bars, because a flex gap would take its pixels out of every bar's share
+     and drift the edges by up to half the bar count in pixels. */
+  flex: 0 0 0%;
   min-width: 0;
   height: 100%;
   display: flex;
   align-items: flex-end;
-  padding: 0;
+  box-sizing: border-box;
+  padding: 0 1px 0 0;
   border: 0;
   background: none;
   cursor: pointer;
+}
+
+.histogramBar:last-child {
+  padding-right: 0;
 }
 
 .histogramBar:disabled {

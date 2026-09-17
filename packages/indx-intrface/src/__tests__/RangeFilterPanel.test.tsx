@@ -236,3 +236,35 @@ describe('clicking a histogram bar', () => {
     expect(rangeBodies.length).toBe(before); // back to the full range: no filter sent
   });
 });
+
+// ─── Bars sit on the value axis ───────────────────────────────────────────────
+
+describe('bar layout', () => {
+  it('weights each bar by its span in value units, cutting the last one at the max', async () => {
+    // Bounds 10-200 at resolution 50: 10-60, 60-110, 110-160 and 160-200 (40 wide).
+    renderPanel({ showHistogram: true, resolution: 50 });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(4), { timeout: 3000 });
+    const grow = screen.getAllByTestId('histogram-bar').map(b => Number(b.style.flexGrow));
+    expect(grow).toEqual([50, 50, 50, 40]);
+  });
+
+  it('counts the max value into the last bucket', async () => {
+    // Fixture has a value at exactly 200, the upper bound; it belongs to 190-200.
+    renderPanel({ showHistogram: true, resolution: 10 });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
+    const last = screen.getAllByTestId('histogram-bar').at(-1)!;
+    expect(last.getAttribute('aria-label')).toBe('190 to 200: 2');
+  });
+
+  it('clips the lit layer by the same value fraction the slider uses for a thumb', async () => {
+    renderPanel({ showHistogram: true, resolution: 10 });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
+    fireEvent.click(screen.getAllByTestId('histogram-bar')[0]); // selects 10-19
+    const lit = screen.getAllByTestId('histogram-bar')[0].parentElement!.nextElementSibling as HTMLElement;
+    // Right inset fraction = (200 - 19) / 190; left = 0. Same mapping as react-range's
+    // thumb centre, trackLeft + trackWidth * (v - min) / (max - min).
+    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190})`));
+    expect(lit.style.clipPath).toContain('* 0)');
+    expect(lit.style.clipPath).toContain('10px + (100% - 20px)');
+  });
+});
