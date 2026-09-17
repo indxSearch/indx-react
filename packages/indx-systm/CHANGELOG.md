@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.11.1
+
+### Patch Changes
+
+- a93c907: The hourglass spinner turns clockwise, with redrawn keyframes.
+
 All notable changes to @indxsearch/systm will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
