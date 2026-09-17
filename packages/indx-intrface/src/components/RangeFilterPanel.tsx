@@ -2,7 +2,7 @@ import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { Slider, InputField, FilterPanelBase } from '@indxsearch/systm';
 import styles from './RangeFilterPanel.module.css';
-import { decimalsOf } from '../utils/numeric';
+import { decimalsOf, roundTo } from '../utils/numeric';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
 export interface RangeFilterPanelProps {
@@ -117,6 +117,22 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // parsed and committed to sliderValue on blur / Enter.
   const [minText, setMinText] = React.useState(String(displayMin));
   const [maxText, setMaxText] = React.useState(String(displayMax));
+
+  // The browser sizes a number input from its min/max attributes, so a noisy
+  // bound like 7.712999999999999 made the field 100px wide while its neighbour
+  // stayed at 33px. Size both inputs ourselves, to the widest value they can
+  // hold: the bounds at the field's precision, plus whatever is being typed.
+  const inputStyle = React.useMemo(() => {
+    const decimals = decimalsOf(step);
+    const chars = Math.max(
+      3,
+      queryMin.toFixed(decimals).length,
+      queryMax.toFixed(decimals).length,
+      minText.length,
+      maxText.length,
+    );
+    return { width: `calc(${chars + 1}ch + 20px)` } as const;
+  }, [step, queryMin, queryMax, minText, maxText]);
   React.useEffect(() => {
     setMinText(String(sliderValue[0]));
     setMaxText(String(sliderValue[1]));
@@ -400,7 +416,6 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         <div
           style={{
             display: 'flex',
-            flex: 'flex-grow',
             gap: '10px',
             alignItems: 'flex-start',
             justifyContent: 'space-between',
@@ -409,9 +424,10 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
           <InputField
             label="Min:"
             type="number"
+            style={inputStyle}
             value={isDisabled ? String(queryMin) : minText}
             min={queryMin}
-            max={Math.min(liveDataMax, sliderValue[1] - 1)}
+            max={roundTo(Math.min(liveDataMax, sliderValue[1] - step), step)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinText(e.target.value)}
             onBlur={commitMin}
             onKeyDown={commitOnEnter(commitMin)}
@@ -421,8 +437,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
           <InputField
             label="Max:"
             type="number"
+            style={inputStyle}
             value={isDisabled ? String(queryMax) : maxText}
-            min={Math.max(liveDataMin, sliderValue[0] + 1)}
+            min={roundTo(Math.max(liveDataMin, sliderValue[0] + step), step)}
             max={queryMax}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMaxText(e.target.value)}
             onBlur={commitMax}
@@ -448,9 +465,10 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         <InputField
           label="Min:"
           type="number"
+          style={inputStyle}
           value={isDisabled ? String(queryMin) : minText}
           min={queryMin}
-          max={Math.min(liveDataMax, sliderValue[1] - 1)}
+          max={roundTo(Math.min(liveDataMax, sliderValue[1] - step), step)}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinText(e.target.value)}
           onBlur={commitMin}
           onKeyDown={commitOnEnter(commitMin)}
@@ -460,8 +478,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         <InputField
           label="Max:"
           type="number"
+          style={inputStyle}
           value={isDisabled ? String(queryMax) : maxText}
-          min={Math.max(liveDataMin, sliderValue[0] + 1)}
+          min={roundTo(Math.max(liveDataMin, sliderValue[0] + step), step)}
           max={queryMax}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMaxText(e.target.value)}
           onBlur={commitMax}

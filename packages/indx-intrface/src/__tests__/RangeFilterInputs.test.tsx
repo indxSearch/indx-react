@@ -84,3 +84,25 @@ describe('slider step', () => {
     expect(slider.dataset.step).toBe('1');
   });
 });
+
+describe('input bounds on a decimal field', () => {
+  it('sends min/max attributes rounded to the field precision, one step apart', async () => {
+    // Rating-like field: bounds 5.3 to 8.713. Before, Min's max was
+    // sliderValue[1] - 1 = 7.712999999999999, which Chrome sized the input for.
+    server.use(
+      http.post("http://localhost/api/teams/team/datasets/test/search", () => HttpResponse.json({
+        records: [], truncationIndex: -1,
+        facets: { price: [{ key: '5.3', value: 1 }, { key: '6.25', value: 1 }, { key: '8.713', value: 1 }] },
+      })),
+    );
+    renderPanel({ control: 'slider' });
+    const min = await screen.findByLabelText('Min:') as HTMLInputElement;
+    const max = screen.getByLabelText('Max:') as HTMLInputElement;
+    await waitFor(() => expect(min.min).toBe('5.3'));
+    expect(min.max).toBe('8.712');
+    expect(max.min).toBe('5.301');
+    expect(max.max).toBe('8.713');
+    // and the inputs carry an explicit width, so the browser's guess never applies
+    expect(min.style.width).toMatch(/ch/);
+  });
+});
