@@ -367,7 +367,7 @@ Initialisation failures (bad token, unknown dataset, unreachable server) and fai
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
 | `showCount` | `boolean` | `true` | Show facet counts |
 | `showNull` | `boolean` | `false` | List the `null` facet bucket (documents without the field) as an option |
-| `match` | `'all' \| 'any'` | `'all'` | How several selected values combine. `'all'` requires every selected value (right for multi-valued fields such as genres: each click narrows). `'any'` matches at least one (use on scalar fields, where a document holds a single value). |
+| `match` | `'all' \| 'any'` | `'all'` | How several selected values combine. `'all'` requires every selected value (right for multi-valued fields such as genres: each click narrows). `'any'` matches at least one (use on scalar fields, where a document holds a single value). An `any` field with a selection costs one extra facets-only search per query, so its other values keep their counts and stay selectable. |
 
 Different fields and range filters always narrow the result set (ANDed). With `displayType="toggle"` the field is treated as boolean whenever its facet keys are `true` / `false` / `null`, and the `null` bucket counts as `false`.
 

@@ -100,39 +100,82 @@ export function useSearchExecution({
       }
 
       try {
-        // 1) Build combined filter proxy
-        const filterProxy = await buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch);
+        // 1) Build the combined filter proxy, plus one per OR field with a selection.
+        //    Facet counts come from the documents the filter admits, so a field whose
+        //    values are ORed cannot take its counts from the main search: on a scalar
+        //    field, selecting "red" leaves only red in the result set, and every other
+        //    value drops out of the panel before the user can add it. Each such field
+        //    gets a facets-only search whose filter leaves that field out, and the
+        //    panel reads that field's counts from there instead. Built and sent in
+        //    parallel with the main search, so latency stays one round trip.
+        const orFields = enableFacets
+          ? Object.keys(state.filters).filter(
+              field => state.valueMatch[field] === 'any' && (state.filters[field]?.length ?? 0) > 0
+            )
+          : [];
+        const [filterProxy, ...orFilterProxies] = await Promise.all([
+          buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch),
+          ...orFields.map(field =>
+            buildFilterProxy({ ...state.filters, [field]: [] }, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch)
+          ),
+        ]);
 
         // 2) Determine if we should fetch results
         const shouldFetchResults = allowEmptySearch || state.query.trim() !== '';
-        const searchBody = {
+        const commonBody = {
           text: state.query,
+          enableCoverage: settingsEnableCoverage,
+          removeDuplicates: settingsRemoveDuplicates,
+          coverageDepth: settingsCoverageDepth,
+          coverageSetup: settingsCoverageSetup,
+        };
+        const searchBody = {
+          ...commonBody,
           maxNumberOfRecordsToReturn: shouldFetchResults ? settingsMaxResults : 0,
           enableFacets,
           ...(filterProxy ? { filter: filterProxy } : {}),
           ...(sortBy ? { sortBy } : {}),
           ...(sortAscending !== undefined ? { sortAscending } : {}),
-          enableCoverage: settingsEnableCoverage,
-          removeDuplicates: settingsRemoveDuplicates,
-          coverageDepth: settingsCoverageDepth,
-          coverageSetup: settingsCoverageSetup,
         };
 
         if (enableDebugLogs) {
           console.log('[performSearch] request body:', JSON.stringify(searchBody, null, 2));
         }
 
-        // 3) Execute the search
-        const searchResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(searchBody),
-        });
+        // 3) Execute the search and the OR-field facet searches together
+        const postSearch = (body: unknown) =>
+          authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+        const [searchResponse, ...orResponses] = await Promise.all([
+          postSearch(searchBody),
+          ...orFilterProxies.map(proxy =>
+            postSearch({
+              ...commonBody,
+              maxNumberOfRecordsToReturn: 0,
+              enableFacets: true,
+              ...(proxy ? { filter: proxy } : {}),
+            })
+          ),
+        ]);
         if (!searchResponse.ok) {
           throw await IndxApiError.fromResponse('Search', searchResponse);
         }
         const searchData = await searchResponse.json();
         const truncationIndex = searchData.truncationIndex ?? -1;
+
+        for (let i = 0; i < orFields.length; i++) {
+          const field = orFields[i];
+          if (!orResponses[i].ok) {
+            throw await IndxApiError.fromResponse(`Facets for '${field}'`, orResponses[i]);
+          }
+          const orData = await orResponses[i].json();
+          if (orData.facets?.[field] !== undefined) {
+            searchData.facets = { ...(searchData.facets ?? {}), [field]: orData.facets[field] };
+          }
+        }
 
         // 4) Fetch actual documents if needed
         const records = searchData.records || [];
