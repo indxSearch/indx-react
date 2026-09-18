@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Database, Users } from '@indxsearch/pixl';
+import { Database, Users, Home } from '@indxsearch/pixl';
 import {
   NavigationMenu, NavigationMenuList, NavigationMenuItem,
   NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink,
@@ -13,9 +13,9 @@ const components = [
   { title: 'Chart', description: 'Turn your data into a clear picture.', href: '/chart' },
 ];
 
-function Example({ size = 'default', icons = true }: { size?: 'micro' | 'default'; icons?: boolean }) {
+function Example({ size = 'default', icons = true, align, vertical }: { size?: 'micro' | 'default' | 'large'; icons?: boolean; align?: 'start' | 'end'; vertical?: boolean }) {
   return (
-    <NavigationMenu size={size} aria-label={`${size} ${icons ? 'with icons' : 'text only'} example`}>
+    <NavigationMenu size={size} align={align} orientation={vertical ? 'vertical' : 'horizontal'} aria-label={`${size} ${icons ? 'with icons' : 'text only'} example`}>
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger icon={icons ? <Database /> : undefined}>Components</NavigationMenuTrigger>
@@ -43,7 +43,7 @@ function Example({ size = 'default', icons = true }: { size?: 'micro' | 'default
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink variant="navigation" asChild><Link to="/">Overview</Link></NavigationMenuLink>
+          <NavigationMenuLink variant="navigation" icon={icons ? <Home /> : undefined} href="/">Overview</NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger disabled>Coming soon</NavigationMenuTrigger>
@@ -65,6 +65,20 @@ export default function NavigationMenuPage() {
       <section className={styles.section}>
         <h2 className={styles.heading}>Micro</h2>
         <Example size="micro" />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>Large</h2>
+        <Example size="large" />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>Aligned to the end</h2>
+        <p className={styles.intro}>For a menu at the right edge of a header. The panel is pinned to the same edge, so it stays on screen.</p>
+        <Example align="end" />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>Vertical</h2>
+        <p className={styles.intro}>For a mobile menu. Items stack and each control fills the row.</p>
+        <div style={{ maxWidth: 320 }}><Example vertical /></div>
       </section>
       <section className={styles.section}>
         <h2 className={styles.heading}>Without icons</h2>

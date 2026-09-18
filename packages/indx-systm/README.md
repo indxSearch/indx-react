@@ -113,8 +113,9 @@ import '@indxsearch/systm/patterns.css'; // Or import patterns standalone
 
 Composable site navigation with direct links and dropdown panels, powered by
 Radix and styled with Systm colors, sharp corners, and Pixl dropdown icons.
-Use `micro` (30px, `--text-xs`) or `default` (40px, `--text-sm`). Leading trigger
-icons use 14px, with Button-matched gaps of 7px and 10px respectively.
+Use `micro` (30px, `--text-xs`), `default` (40px, `--text-sm`) or `large` (50px,
+`--text-base`, matching Button `large`). Leading icons on triggers and navigation
+links are 14px, or 21px at `large`, with Button-matched gaps.
 
 ```tsx
 import {
@@ -141,10 +142,13 @@ import {
 ```
 
 Use `asChild` on links to wrap a router Link. Triggers accept an `icon` element
-and `disabled`; links accept `active` for the current page. Panels support custom
+and `disabled`; links accept `active` for the current page and, in the navigation
+variant, an `icon` so a link matches a trigger beside it. Panels support custom
 layouts such as grids and descriptions. The shared dropdown viewport is included
-by the root and fits its width up to 560px. Radix root props such as `value`,
-`onValueChange`, and `delayDuration` are forwarded. See `/navigation-menu` in the
+by the root and fits its width up to 560px, or `panelWidth`. For a menu at the
+right edge of a header set `align="end"`, which pins the list and the panel to
+that edge. `orientation="vertical"` stacks the items for a mobile menu. Radix
+root props such as `value`, `onValueChange`, and `delayDuration` are forwarded. See `/navigation-menu` in the
 component viewer for interactive examples.
 
 ## Dependencies

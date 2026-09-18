@@ -6,6 +6,7 @@
 
 .micro { --control-height: 30px; --control-padding: 10px; --icon-gap: 7px; font: var(--text-xs); }
 .default { --control-height: 40px; --control-padding: 15px; --icon-gap: 10px; font: var(--text-sm); }
+.large { --control-height: 50px; --control-padding: 20px; --icon-gap: 10px; font: var(--text-base); }
 
 .list {
   display: flex;
@@ -18,6 +19,15 @@
   margin: 0;
   list-style: none;
 }
+
+/* align="end": the list hugs the end edge, so the panel below it does too. */
+.alignEnd .list { margin-inline-start: auto; }
+
+/* orientation="vertical" (set by Radix on the root): items stack, each control fills the row.
+   For a mobile menu. align decides which side the text sits on. */
+.root[data-orientation='vertical'] .list { flex-direction: column; align-items: stretch; width: 100%; }
+.root[data-orientation='vertical'] .control { justify-content: flex-start; }
+.alignEnd[data-orientation='vertical'] .control { justify-content: flex-end; }
 
 .control {
   all: unset;
@@ -56,9 +66,11 @@
   pointer-events: none;
 }
 
+.alignEnd .viewportPosition { display: flex; justify-content: flex-end; }
+
 .viewport {
   position: relative;
-  width: min(560px, 100%);
+  width: min(var(--panel-width, 560px), 100%);
   height: calc(var(--radix-navigation-menu-viewport-height) + 2px);
   max-height: min(480px, 70dvh);
   overflow: auto;
