@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  /* Shrinks inside a flex row or a grid column instead of forcing the layout wider. The
+     native input's intrinsic width would otherwise set a floor here. */
+  min-width: 0;
 }
 
 .label {
@@ -17,6 +20,10 @@
   border-radius: var(--radius);
   background: transparent;
   color: var(--lv7);
+  /* Fills the wrapper, so the wrapper decides the width and an inline style still wins. */
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .input:not(:disabled):hover {
