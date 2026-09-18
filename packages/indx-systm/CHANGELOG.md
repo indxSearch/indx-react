@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.12.0
+
+### Minor Changes
+
+- 39b7a38: NavigationMenu: `size="large"` (matches Button large, 21px icons), `align="end"` to pin the list and panel to the end edge, `panelWidth`, vertical orientation for mobile menus, and an `icon` prop on `NavigationMenuLink` so a top-level link matches a trigger beside it.
+
 ## 2.11.1
 
 ### Patch Changes
