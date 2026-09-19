@@ -6,11 +6,13 @@ interface TableCellProps {
   children?: React.ReactNode
   isHeader?: boolean
   scope?: 'col' | 'row'
+  /** Let the cell span columns, for a control that wants the full width of a two-column block. */
+  colSpan?: number
 }
 
-export function TableCell({ label, children, isHeader = false, scope }: TableCellProps) {
+export function TableCell({ label, children, isHeader = false, scope, colSpan }: TableCellProps) {
   const CellType = isHeader ? 'th' : 'td';
-  const cellProps = isHeader && scope ? { scope } : {};
+  const cellProps = { ...(isHeader && scope ? { scope } : {}), ...(colSpan ? { colSpan } : {}) };
 
   if (label || children) {
     return (

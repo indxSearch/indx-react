@@ -33,3 +33,5 @@ export {
   type ChatPanelProps, type UserMessageProps, type AssistantMessageProps, type ComposerProps, type ComposerHandle,
   type CitationRefProps, type CitationItem, type CitationListProps, type StreamStatusProps, type SuggestionsProps, type AnswerActionsProps,
 } from './components/Chat';
+export { Truncate, type TruncateProps } from './components/Truncate/Truncate';
+export { Disclosure, type DisclosureProps } from './components/Disclosure/Disclosure';

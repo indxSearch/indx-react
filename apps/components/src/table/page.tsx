@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon, Button, Checkbox, RadioButton, InputField, Slider } from '@indxsearch/systm';
+import { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon, Button, Checkbox, RadioButton, InputField, Slider, Truncate } from '@indxsearch/systm';
 import { Check, Compose, Delete, External_link } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
@@ -380,6 +380,38 @@ export default function TablePage() {
             </TableRow>
           </tbody>
         </Table>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Scrollable, with a pinned first column</h2>
+        <p>
+          A wide table in a narrow space. With <code>scrollable</code> the table scrolls inside its own frame,
+          and <code>stickyFirstColumn</code> keeps the first column in place. Drag the box narrower. The names
+          use <code>Truncate side="start"</code>, so a long nested name loses its beginning and keeps the part
+          that identifies it.
+        </p>
+        <div style={{ resize: 'horizontal', overflow: 'hidden', width: 420, minWidth: 240, maxWidth: '100%', border: '1px dashed var(--lv3)' }}>
+          <Table aria-label="Scrollable example" scrollable stickyFirstColumn>
+            <TableHeader>
+              <th scope="col">Field</th>
+              <th scope="col">Searchable</th>
+              <th scope="col">Filterable</th>
+              <th scope="col">Facetable</th>
+              <th scope="col">Sortable</th>
+            </TableHeader>
+            <tbody>
+              {['title', 'authorName', 'cover.asset.metadata.dimensions.aspectRatio', 'cover.asset.metadata.lqip'].map(name => (
+                <TableRow key={name}>
+                  <td style={{ maxWidth: 160 }}><Truncate side="start">{name}</Truncate></td>
+                  <td><Checkbox aria-label={name} /></td>
+                  <td><Checkbox aria-label={name} /></td>
+                  <td><Checkbox aria-label={name} /></td>
+                  <td><Checkbox aria-label={name} /></td>
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       </div>
 
       <div className={styles.section}>

@@ -69,3 +69,43 @@
     height: 14px;
     color: var(--lv6);
 }
+
+/* scrollable: the frame scrolls sideways, the page does not. */
+.scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.scroll:focus-visible {
+    outline: 2px solid var(--lv5);
+    outline-offset: 2px;
+}
+
+/* stickyFirstColumn: the first cell of every row stays at the frame's left edge. It needs an
+   opaque background, or the scrolling cells show through it. Collapsed borders do not travel
+   with a sticky cell, so the line on its right edge is drawn by a pseudo-element. No shadow:
+   the line is what separates it, as everywhere else in the system. */
+.stickyFirst th:first-child,
+.stickyFirst td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: var(--lv0);
+}
+
+.stickyFirst .headerRow th:first-child,
+.stickyFirst thead th:first-child {
+    z-index: 2;
+    background-color: var(--lv2);
+}
+
+.stickyFirst th:first-child::after,
+.stickyFirst td:first-child::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -0.5px;
+    width: 1px;
+    background: var(--lv3);
+}
