@@ -76,9 +76,31 @@
     max-width: 100%;
 }
 
+/* bleedEnd: the frame reaches into the gutter on the end side, so a table that has to scroll
+   runs to the edge of the screen. There is no padding to match it. Padding would let the table
+   be scrolled past the point where its end reaches the screen edge, pulling it back in to the
+   page margin, and that last stretch brings nothing new into view. Instead the table is kept
+   narrower than the frame by the same amount, so a table that fits still ends at the page
+   margin, and one that does not scrolls until its end meets the screen edge and stops. The
+   start side is left alone: a pinned first column belongs at the page margin from the first
+   pixel of scroll. No fade, unlike Tabs: a table running off the edge already says it scrolls. */
+.bleedEnd {
+    margin-inline-end: calc(-1 * var(--table-bleed));
+    max-width: none;
+}
+
+.bleedEnd > .table {
+    width: calc(100% - var(--table-bleed));
+}
+
 .scroll:focus-visible {
     outline: 2px solid var(--lv5);
     outline-offset: 2px;
+}
+
+/* A frame that reaches the screen edge has no room for a ring outside it. */
+.bleedEnd:focus-visible {
+    outline-offset: -2px;
 }
 
 /* stickyFirstColumn: the first cell of every row stays at the frame's left edge. It needs an
