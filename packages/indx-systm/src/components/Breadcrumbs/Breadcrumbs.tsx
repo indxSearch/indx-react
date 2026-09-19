@@ -27,6 +27,11 @@ export interface BreadcrumbItem {
 export interface BreadcrumbsProps {
   items: BreadcrumbItem[];
   size?: 'micro' | 'default';
+  /** What happens when the trail does not fit. `wrap` (default) breaks onto more lines, for a
+   * trail in the page. `truncate` keeps one line, for a header: labels ellipsize, ancestors give
+   * way before the current page, and a step with an icon collapses to the icon and its switcher.
+   * The full label stays in the DOM and in the step's tooltip. */
+  overflow?: 'wrap' | 'truncate';
   className?: string;
   separator?: React.ReactNode;
   /** Return a router link, forwarding these anchor props to preserve styling and accessibility. */
@@ -47,12 +52,13 @@ const ACTION_VALUE = '\u0000action';
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
   size = 'default',
+  overflow = 'wrap',
   className = '',
   separator = <Chevron_right size={14} color="currentColor" />,
   renderLink,
   'aria-label': ariaLabel = 'Breadcrumb',
 }) => (
-  <nav aria-label={ariaLabel} className={`${styles.root} ${styles[size]} ${className}`}>
+  <nav aria-label={ariaLabel} className={`${styles.root} ${styles[size]} ${overflow === 'truncate' ? styles.truncate : ''} ${className}`}>
     <ol className={styles.list}>
       {items.map((item, index) => (
         <li key={item.id} className={styles.item}>
@@ -63,6 +69,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 const props: React.ComponentPropsWithoutRef<'a'> = {
                   className: styles.label,
                   href: item.href,
+                  title: overflow === 'truncate' ? item.label : undefined,
                   onClick: item.onClick,
                   'aria-current': index === items.length - 1 ? 'page' : undefined,
                   children: <>
@@ -73,7 +80,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 return renderLink ? renderLink(item, props) : <a {...props} />;
               })()
             ) : (
-              <span className={styles.label} aria-current={index === items.length - 1 ? 'page' : undefined}>
+              <span className={styles.label} title={overflow === 'truncate' ? item.label : undefined} aria-current={index === items.length - 1 ? 'page' : undefined}>
                 {item.icon && <span className={styles.icon} aria-hidden="true">{renderStepIcon(item.icon)}</span>}
                 <span className={styles.text}>{item.label}</span>
               </span>

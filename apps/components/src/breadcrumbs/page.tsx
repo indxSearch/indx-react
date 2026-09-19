@@ -53,6 +53,13 @@ export default function BreadcrumbsPage() {
         <Breadcrumbs items={items.map(item => ({ ...item, switcher: { ...item.switcher!, disabled: true } }))} />
       </div>
       <div className={styles.section}>
+        <h2 className={styles.heading}>Truncate, for a header</h2>
+        <p>One line, whatever the width. Drag the box's right edge narrower: the ancestor gives way first and collapses to its icon and switcher, then the current page ellipsizes. Hover a step for its full name.</p>
+        <div style={{ resize: 'horizontal', overflow: 'auto', width: 420, minWidth: 150, maxWidth: '100%', padding: 8, border: '1px solid var(--lv3)' }}>
+          <Breadcrumbs items={items} size="micro" overflow="truncate" aria-label="Truncating breadcrumbs" />
+        </div>
+      </div>
+      <div className={styles.section}>
         <h2 className={styles.heading}>Custom separator and router links</h2>
         <Breadcrumbs separator="/"
           items={[{ id: 'home', label: 'Components', href: '/' }, { id: 'current', label: 'Breadcrumbs' }]}

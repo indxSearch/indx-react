@@ -17,3 +17,30 @@
 .option { display: inline-flex; align-items: center; gap: 6px; overflow-wrap: anywhere; min-width: 0; }
 .menu { min-width: min(180px, var(--radix-select-content-available-width)); max-width: var(--radix-select-content-available-width); max-height: var(--radix-select-content-available-height); }
 .menuDivider { height: 1px; background: var(--lv3); margin: 4px 0; }
+
+/* overflow="truncate": one line, sized by the space the trail is given rather than by a
+   breakpoint. Ancestors shrink long before the current page does (the shrink ratio) and every
+   label ellipsizes.
+
+   Each step needs an explicit floor. Its parts that cannot shrink (padding, icon, separator,
+   the room reserved for the switcher) are not a floor by themselves, because the step and the
+   label carry min-width: 0 so that they can shrink at all, and the switcher is absolutely
+   positioned. Without the floor an ancestor collapses to nothing and its switcher drifts over
+   whatever sits before the trail. So the floor is added up from the same numbers the layout uses:
+   a step with an icon may lose its text entirely and stay as icon plus switcher, a step without
+   one keeps a few characters, and the current page always does, since that is where the reader is. */
+.truncate { min-width: 0; }
+.truncate .list { flex-wrap: nowrap; }
+.truncate .item {
+  --sep: 0px; --lead: 0px; --end: 10px; --text-min: 4ch;
+  flex: 0 1 auto;
+  min-width: calc(var(--sep) + 10px + var(--lead) + var(--text-min) + var(--end));
+}
+.truncate .item:not(:first-child) { --sep: 28px; } /* separator 22px + the 6px gap */
+.truncate .item:has(.switchable) { --end: 36px; }
+.truncate .item:has(.label > .icon) { --lead: calc(14px + var(--icon-gap)); --text-min: 0px; }
+.truncate .item.item:last-child { --text-min: 6ch; }
+.truncate .item:not(:last-child) { flex-shrink: 1000; }
+.truncate .step { flex: 0 1 auto; }
+.truncate .label { overflow: hidden; }
+.truncate .text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
