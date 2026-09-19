@@ -18,6 +18,7 @@ export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './compo
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';
 export { Chip, type ChipProps } from './components/Chip/Chip';
 export { Alert, AlertTitle, AlertDescription, type AlertProps, type AlertVariant } from './components/Alert/Alert';
+export { SaveBar, type SaveBarProps } from './components/SaveBar/SaveBar';
 export { Tooltip, type TooltipProps, type TooltipPosition } from './components/Tooltip/Tooltip';
 export { Chart, type ChartProps, type ChartSeries } from './components/Chart/Chart';
 export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
