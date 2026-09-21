@@ -57,6 +57,10 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: 'Mockups',
+    items: [{ label: 'Analytics dashboard', path: '/analytics-dashboard' }],
+  },
+  {
     title: 'Intrface Components',
     items: [
       { label: 'SearchInput', path: '/search-input' },

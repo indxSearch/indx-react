@@ -1,0 +1,79 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.title { font: var(--text-2xl); margin: 0 0 0.5rem; }
+.sub { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; font: var(--text-sm); color: var(--lv5); }
+.period { min-width: 160px; }
+
+/* ── KPI tiles: six across, then three, then two ── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 14px 12px;
+  min-width: 0;
+}
+.tileLabel { font: var(--text-xs); color: var(--lv5); cursor: help; align-self: flex-start; border-bottom: 1px dotted var(--lv3); }
+.tileValue { font: var(--text-2xl); color: var(--lv8); font-variant-numeric: tabular-nums; }
+.tileFoot { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font: var(--text-xs); }
+.tileVs { color: var(--lv4); }
+
+.delta { display: inline-flex; align-items: center; gap: 2px; font: var(--text-xs); font-weight: var(--med); font-variant-numeric: tabular-nums; }
+.deltaGood { color: #12a071; }
+.deltaBad { color: var(--CSignal); }
+.deltaNeutral { color: var(--lv6); }
+@media (prefers-color-scheme: dark) { .deltaGood { color: var(--CTeal); } }
+
+/* ── Panels ── */
+.panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panelHead { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.heading { display: flex; align-items: center; gap: 8px; font: var(--text-lg); margin: 0; }
+.note { font: var(--text-xs); color: var(--lv5); margin: 0; max-width: 70ch; }
+
+.split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.reading { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+.readingTitle { font: var(--text-sm); font-weight: var(--med); color: var(--lv7); margin: 0; }
+.readingText { font: var(--text-sm); color: var(--lv6); margin: 0; }
+.facts { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.facts > div { display: flex; align-items: baseline; gap: 10px; }
+.facts dt { font: var(--text-xl); color: var(--lv8); min-width: 3.2em; font-variant-numeric: tabular-nums; }
+.facts dd { font: var(--text-sm); color: var(--lv5); margin: 0; }
+
+.tabBody { display: flex; flex-direction: column; gap: 12px; }
+/* td/th in the selector: the Table's own cell rules are more specific than a bare class. */
+.tabBody td.num, .tabBody th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tabBody td.term { font-weight: var(--med); color: var(--lv8); white-space: nowrap; }
+
+/* A small inline bar next to a percentage. */
+.meter { display: inline-block; width: 56px; height: 4px; margin-right: 8px; vertical-align: middle; background: var(--lv2); }
+.meter > span { display: block; height: 100%; background: var(--lv6); }
+.meter > .meterWarn { background: var(--CWarning); }
+
+.footer { display: flex; flex-direction: column; gap: 8px; padding-top: 1rem; border-top: 1px solid var(--lv2); }
+.footer p { font: var(--text-xs); color: var(--lv5); margin: 0; max-width: 90ch; }
+.footer strong { color: var(--lv7); font-weight: var(--med); }
+
+@media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) {
+  .main { padding: 1rem; }
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

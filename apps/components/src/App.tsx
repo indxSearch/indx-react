@@ -40,6 +40,7 @@ import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
 import DatePickerPage from './date-picker/page';
 import ChatPage from './chat/page';
+import AnalyticsDashboardPage from './analytics-dashboard/page';
 
 export default function App() {
   return (
@@ -83,6 +84,7 @@ export default function App() {
         <Route path="/modal" element={<ModalPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/analytics-dashboard" element={<AnalyticsDashboardPage />} />
       </Routes>
     </Layout>
   );
