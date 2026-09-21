@@ -57,10 +57,6 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: 'Mockups',
-    items: [{ label: 'Analytics dashboard', path: '/analytics-dashboard' }],
-  },
-  {
     title: 'Intrface Components',
     items: [
       { label: 'SearchInput', path: '/search-input' },
@@ -72,6 +68,10 @@ export const navGroups: NavGroup[] = [
       { label: 'SearchResult', path: '/search-result' },
       { label: 'FilterPanelSkeleton', path: '/filter-panel-skeleton' },
     ],
+  },
+  {
+    title: 'Mockups',
+    items: [{ label: 'Analytics dashboard', path: '/analytics-dashboard' }],
   },
 ];
 

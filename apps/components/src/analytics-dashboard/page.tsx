@@ -6,12 +6,14 @@ import { ArrowDown, ArrowUp, Database, Graph } from '@indxsearch/pixl';
 import { buildPeriod, type Kpi, type PeriodKey, type TermRow } from './data';
 import styles from './page.module.css';
 
-// A mockup of what search analytics could look like in the Indx console. The model is
-// Relewise's Search Analytics page (KPIs against the previous period, a timeline, term tables),
-// with one change that matters for Indx: they count "searches without results". Indx is fuzzy
-// and nearly always returns something, so an empty result page is the wrong signal. The signal
-// here is COVERAGE: a search where no document covered the query. It is called "without
-// coverage" throughout, never a failure, because the visitor still got the nearest matches.
+// A mockup: a search analytics dashboard composed from systm components, with generated data.
+// The layout is the familiar one for this kind of page: KPIs against the previous period, a
+// timeline, then term tables.
+//
+// One choice is specific to a fuzzy search engine. Such an engine nearly always returns
+// something, so "searches without results" is the wrong signal. The signal here is COVERAGE: a
+// search where no document covered the query. It is called "without coverage" throughout,
+// never a failure, because the visitor still got the nearest matches.
 
 const PERIODS = [
   { label: 'Last 7 days', value: '7' },
@@ -116,7 +118,7 @@ export default function AnalyticsDashboardPage() {
     <main className={styles.main}>
       <Alert variant="info">
         <AlertDescription>
-          A mockup. The numbers are generated in the page; nothing here is recorded by IndxServer today.
+          A mockup built from systm components. Every number is generated in the page.
         </AlertDescription>
       </Alert>
 
@@ -124,8 +126,8 @@ export default function AnalyticsDashboardPage() {
         <div>
           <h1 className={styles.title}>Search analytics</h1>
           <p className={styles.sub}>
-            <Chip icon={<Database />}>tmdb23k</Chip>
-            <span>23,236 documents · team indx-intern</span>
+            <Chip icon={<Database />}>movies</Chip>
+            <span>23,236 documents</span>
           </p>
         </div>
         <div className={styles.period}>
@@ -142,7 +144,7 @@ export default function AnalyticsDashboardPage() {
           <Delta kpi={k.unique} direction="higherIsBetter" format="relative" />
         </KpiTile>
         <KpiTile label="Without coverage" value={pct(k.uncoveredShare.value)}
-                 hint="Share of searches where no document covered the query. Indx still returned its nearest matches.">
+                 hint="Share of searches where no document covered the query. The engine still returned its nearest matches.">
           <Delta kpi={k.uncoveredShare} direction="lowerIsBetter" format="points" />
         </KpiTile>
         <KpiTile label="Without coverage, count" value={nf.format(k.uncoveredCount.value)}
@@ -252,9 +254,9 @@ export default function AnalyticsDashboardPage() {
 
       <footer className={styles.footer}>
         <p>
-          <strong>What this would take.</strong> Searches, terms and coverage can be logged by the server on its own.
-          Click position cannot: the client has to report which result was chosen, in one call carrying the term, the
-          document key and the position.
+          <strong>Where the numbers would come from.</strong> Searches, terms and coverage can be logged where the
+          search runs. Click position cannot: the client has to report which result was chosen, in one call carrying
+          the term, the document key and the position.
         </p>
         <p>
           <strong>No visitor is identified.</strong> A term, a count, a position and a timestamp answer everything on

@@ -15,7 +15,7 @@ export interface TermRow {
 export interface UncoveredRow {
   term: string;
   searches: number;
-  nearest: string;        // what Indx returned on top anyway
+  nearest: string;        // what the engine returned on top anyway
   coverage: number;       // best coverage score, 0..100
   hint: 'synonym' | 'spelling' | 'not in catalogue';
 }

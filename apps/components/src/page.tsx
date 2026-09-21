@@ -115,6 +115,18 @@ export default function Home() {
           </Link>
         ))}
       </div>
+
+      <div style={{ marginTop: '4rem', marginBottom: '2rem' }}>
+        <h2 className={styles.sectionTitle}>Mockups</h2>
+        <p className={styles.sectionDesc}>Whole pages composed from the components above, with generated data</p>
+      </div>
+
+      <div className={styles.grid}>
+        <Link to="/analytics-dashboard" className={styles.card}>
+          <h3 className={styles.cardTitle}>Analytics dashboard</h3>
+          <p className={styles.cardDesc}>Search analytics: KPIs, searches per day, click position, term tables</p>
+        </Link>
+      </div>
     </main>
   )
 }
