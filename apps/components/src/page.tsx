@@ -24,6 +24,12 @@ export default function Home() {
     { name: 'Chart', path: '/chart', desc: 'Line and bar charts with 12×12 dot grid background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
+    { name: 'Alert', path: '/alert', desc: 'Callout that stays in the page, for outcomes the reader must not miss' },
+    { name: 'SaveBar', path: '/save-bar', desc: 'Sticky Save / Cancel row for a page that edits a working copy' },
+    { name: 'Breadcrumbs', path: '/breadcrumbs', desc: 'Page trail with a context switcher per step' },
+    { name: 'Disclosure', path: '/disclosure', desc: 'Section that opens and closes' },
+    { name: 'NavigationMenu', path: '/navigation-menu', desc: 'Top-level navigation with dropdown content' },
+    { name: 'Truncate', path: '/truncate', desc: 'One line that ellipsizes at either end instead of wrapping' },
     { name: 'Tooltip', path: '/tooltip', desc: 'Hover/focus label for icon-only buttons and truncated controls' },
     { name: 'Chat', path: '/chat', desc: 'Conversation with an assistant: panel, messages, composer, citations, status' },
   ]

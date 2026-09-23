@@ -44,6 +44,8 @@ export const navGroups: NavGroup[] = [
       { label: 'FilterPanelBase', path: '/filter-panel-base' },
       { label: 'Chip', path: '/chip' },
       { label: 'Alert', path: '/alert' },
+      { label: 'SaveBar', path: '/save-bar' },
+      { label: 'Truncate', path: '/truncate' },
       { label: 'Tooltip', path: '/tooltip' },
       { label: 'Chat', path: '/chat' },
     ],

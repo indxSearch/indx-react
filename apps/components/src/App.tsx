@@ -16,6 +16,8 @@ import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
 import ChipPage from './chip/page';
 import AlertPage from './alert/page';
+import SaveBarPage from './save-bar/page';
+import TruncatePage from './truncate/page';
 import TooltipPage from './tooltip/page';
 import IconsPage from './icons/page';
 import SearchInputPage from './search-input/page';
@@ -60,6 +62,8 @@ export default function App() {
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
         <Route path="/chip" element={<ChipPage />} />
         <Route path="/alert" element={<AlertPage />} />
+        <Route path="/save-bar" element={<SaveBarPage />} />
+        <Route path="/truncate" element={<TruncatePage />} />
         <Route path="/tooltip" element={<TooltipPage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
