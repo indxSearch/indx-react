@@ -13,9 +13,9 @@ const components = [
   { title: 'Chart', description: 'Turn your data into a clear picture.', href: '/chart' },
 ];
 
-function Example({ size = 'default', icons = true, align, vertical }: { size?: 'micro' | 'default' | 'large'; icons?: boolean; align?: 'start' | 'end'; vertical?: boolean }) {
+function Example({ size = 'default', icons = true, align, panelAlign, vertical }: { size?: 'micro' | 'default' | 'large'; icons?: boolean; align?: 'start' | 'end'; panelAlign?: 'trigger' | 'start' | 'end'; vertical?: boolean }) {
   return (
-    <NavigationMenu size={size} align={align} orientation={vertical ? 'vertical' : 'horizontal'} aria-label={`${size} ${icons ? 'with icons' : 'text only'} example`}>
+    <NavigationMenu size={size} align={align} panelAlign={panelAlign} orientation={vertical ? 'vertical' : 'horizontal'} aria-label={`${size} ${icons ? 'with icons' : 'text only'} example`}>
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger icon={icons ? <Database /> : undefined}>Components</NavigationMenuTrigger>
@@ -72,8 +72,18 @@ export default function NavigationMenuPage() {
       </section>
       <section className={styles.section}>
         <h2 className={styles.heading}>Aligned to the end</h2>
-        <p className={styles.intro}>For a menu at the right edge of a header. The panel is pinned to the same edge, so it stays on screen.</p>
+        <p className={styles.intro}>For a menu at the right edge of a header. <code>align</code> moves the list; the panel still opens under whichever trigger you used.</p>
         <Example align="end" />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>Where the panel opens</h2>
+        <p className={styles.intro}>
+          By default the panel sits under the trigger that opened it, clamped so it never leaves the
+          menu: open Resources, in the middle of the list, and the panel follows it. Pass{' '}
+          <code>panelAlign="start"</code> or <code>"end"</code> to pin it to an edge instead, which
+          is what a menu whose only trigger is the edge-most item wants.
+        </p>
+        <Example align="end" panelAlign="start" />
       </section>
       <section className={styles.section}>
         <h2 className={styles.heading}>Vertical</h2>

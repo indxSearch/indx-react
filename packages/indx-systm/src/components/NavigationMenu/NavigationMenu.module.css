@@ -20,14 +20,15 @@
   list-style: none;
 }
 
-/* align="end": the list hugs the end edge, so the panel below it does too. */
-.alignEnd .list { margin-inline-start: auto; }
+/* align="end": the list hugs the end edge. Where the PANEL sits is panelAlign's business. */
+.alignEnd .list, .alignList .list { margin-inline-start: auto; }
 
 /* orientation="vertical" (set by Radix on the root): items stack, each control fills the row.
    For a mobile menu. align decides which side the text sits on. */
 .root[data-orientation='vertical'] .list { flex-direction: column; align-items: stretch; width: 100%; }
 .root[data-orientation='vertical'] .control { justify-content: flex-start; }
-.alignEnd[data-orientation='vertical'] .control { justify-content: flex-end; }
+.alignEnd[data-orientation='vertical'] .control,
+.alignList[data-orientation='vertical'] .control { justify-content: flex-end; }
 
 .control {
   all: unset;
@@ -67,6 +68,26 @@
 }
 
 .alignEnd .viewportPosition { display: flex; justify-content: flex-end; }
+
+/* panelAlign="trigger" (the default): the panel starts under the trigger that opened it. The
+   offset is measured in the component and arrives as --panel-offset; the clamp keeps the panel
+   inside the menu, so a trigger near the end edge pushes it back rather than off the header.
+   Falls back to the start edge before the first measurement, and in vertical orientation, where
+   the panel is full width and an offset would only indent it. */
+.panelTrigger .viewportPosition {
+  inset-inline-start: clamp(
+    0px,
+    var(--panel-offset, 0px),
+    100% - min(var(--panel-width, 560px), 100%)
+  );
+  width: min(var(--panel-width, 560px), 100%);
+  transition: inset-inline-start 200ms ease;
+}
+.panelTrigger[data-orientation='vertical'] .viewportPosition { inset-inline-start: 0; width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panelTrigger .viewportPosition { transition: none; }
+}
 
 .viewport {
   position: relative;

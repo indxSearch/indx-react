@@ -18,22 +18,65 @@ export interface NavigationMenuProps extends React.ComponentPropsWithoutRef<type
   align?: 'start' | 'end';
   /** Width of the shared panel. Any CSS length; defaults to 560px, capped at the menu's width. */
   panelWidth?: string | number;
+  /**
+   * Where the shared panel sits under the list. `trigger`, the default, puts it under the trigger
+   * that opened it, clamped so it never leaves the menu. `start` and `end` hug an edge of the
+   * menu instead, which is what a dropdown does when it is the edge-most item and nothing else.
+   * Ignored in vertical orientation, where the panel is full width.
+   */
+  panelAlign?: 'trigger' | 'start' | 'end';
 }
 
 /** Compose with List, Item, Trigger, Content and Link. The shared panel is included. */
 export const NavigationMenu = React.forwardRef<React.ComponentRef<typeof Primitive.Root>, NavigationMenuProps>(
-  ({ size = 'default', align = 'start', panelWidth, className = '', style, children, 'aria-label': ariaLabel = 'Main navigation', ...props }, ref) => {
-    const rootStyle = panelWidth === undefined
-      ? style
-      : { ...style, '--panel-width': typeof panelWidth === 'number' ? `${panelWidth}px` : panelWidth } as React.CSSProperties;
+  ({ size = 'default', align = 'start', panelAlign = 'trigger', panelWidth, className = '', style, children, 'aria-label': ariaLabel = 'Main navigation', ...props }, ref) => {
+    // Where the panel starts, in pixels from the menu's start edge. Only used by panelAlign
+    // "trigger": the offset of the trigger that is open. CSS clamps it to the menu's width.
+    const rootRef = React.useRef<HTMLElement | null>(null);
+    const [triggerOffset, setTriggerOffset] = React.useState<number | null>(null);
+
+    // The open trigger is the one Radix marks data-state="open". Measured rather than taken from
+    // Radix's indicator variables, which only exist while an Indicator is rendered, and read on
+    // every open, on a change of trigger and on a resize, because the header reflows.
+    React.useEffect(() => {
+      const root = rootRef.current;
+      if (!root || panelAlign !== 'trigger') return;
+
+      const measure = () => {
+        const open = root.querySelector<HTMLElement>('[data-state="open"][aria-expanded="true"]');
+        if (!open) return;                                   // closing: keep the last offset so the panel does not jump as it fades
+        const left = open.getBoundingClientRect().left - root.getBoundingClientRect().left;
+        setTriggerOffset(left);
+      };
+
+      measure();
+      const observer = new MutationObserver(measure);
+      observer.observe(root, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
+      const resize = new ResizeObserver(measure);
+      resize.observe(root);
+      return () => { observer.disconnect(); resize.disconnect(); };
+    }, [panelAlign, children]);
+
+    const rootStyle = {
+      ...style,
+      ...(panelWidth === undefined ? {} : { '--panel-width': typeof panelWidth === 'number' ? `${panelWidth}px` : panelWidth }),
+      ...(panelAlign === 'trigger' && triggerOffset !== null ? { '--panel-offset': `${Math.round(triggerOffset)}px` } : {}),
+    } as React.CSSProperties;
+
+    const panelClass = panelAlign === 'trigger' ? styles.panelTrigger : panelAlign === 'end' ? styles.alignEnd : '';
+
     return (
       <SizeContext.Provider value={size}>
         <Primitive.Root
           {...props}
-          ref={ref}
+          ref={node => {
+            rootRef.current = node;
+            if (typeof ref === 'function') ref(node);
+            else if (ref) (ref as React.MutableRefObject<typeof node>).current = node;
+          }}
           aria-label={ariaLabel}
           style={rootStyle}
-          className={`${styles.root} ${styles[size]} ${align === 'end' ? styles.alignEnd : ''} ${className}`}
+          className={`${styles.root} ${styles[size]} ${align === 'end' ? styles.alignList : ''} ${panelClass} ${className}`}
         >
           {children}
           <div className={styles.viewportPosition}>
