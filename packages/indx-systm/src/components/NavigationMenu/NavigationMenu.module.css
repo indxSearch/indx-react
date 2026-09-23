@@ -85,6 +85,10 @@
 }
 .panelTrigger[data-orientation='vertical'] .viewportPosition { inset-inline-start: 0; width: 100%; }
 
+/* Set while the panel takes up a position it should arrive at rather than travel to: the first
+   open onto a trigger, and a reflow while open. Moving from one trigger to the next still slides. */
+.panelTrigger[data-panel-jump] .viewportPosition { transition: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .panelTrigger .viewportPosition { transition: none; }
 }

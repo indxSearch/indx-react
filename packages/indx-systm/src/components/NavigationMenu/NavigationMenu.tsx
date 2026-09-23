@@ -10,6 +10,9 @@ const iconSize: Record<Size, number> = { micro: 14, default: 14, large: 21 };
 
 const SizeContext = React.createContext<Size>('default');
 
+/** useLayoutEffect on the client, useEffect on the server, where layout effects do not run. */
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
 export interface NavigationMenuProps extends React.ComponentPropsWithoutRef<typeof Primitive.Root> {
   /** Control height, padding and font. `large` matches Button size="large". */
   size?: Size;
@@ -32,27 +35,41 @@ export const NavigationMenu = React.forwardRef<React.ComponentRef<typeof Primiti
   ({ size = 'default', align = 'start', panelAlign = 'trigger', panelWidth, className = '', style, children, 'aria-label': ariaLabel = 'Main navigation', ...props }, ref) => {
     // Where the panel starts, in pixels from the menu's start edge. Only used by panelAlign
     // "trigger": the offset of the trigger that is open. CSS clamps it to the menu's width.
+    // The offset is written straight to the DOM rather than kept in state, so it lands in the
+    // same frame the panel appears; a state update would arrive a render later, and the panel
+    // would be seen at the start edge first and slide across to its trigger.
     const rootRef = React.useRef<HTMLElement | null>(null);
-    const [triggerOffset, setTriggerOffset] = React.useState<number | null>(null);
+    const wasOpen = React.useRef(false);
 
     // The open trigger is the one Radix marks data-state="open". Measured rather than taken from
     // Radix's indicator variables, which only exist while an Indicator is rendered, and read on
     // every open, on a change of trigger and on a resize, because the header reflows.
-    React.useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       const root = rootRef.current;
       if (!root || panelAlign !== 'trigger') return;
 
       const measure = () => {
         const open = root.querySelector<HTMLElement>('[data-state="open"][aria-expanded="true"]');
-        if (!open) return;                                   // closing: keep the last offset so the panel does not jump as it fades
+        if (!open) { wasOpen.current = false; return; }       // closing: keep the last offset so the panel does not jump as it fades
         const left = open.getBoundingClientRect().left - root.getBoundingClientRect().left;
-        setTriggerOffset(left);
+        // Moving between triggers slides; opening onto a trigger, or a reflow while open, does
+        // not, so the panel is never seen travelling from a position it was never meant to have.
+        if (!wasOpen.current) root.setAttribute('data-panel-jump', '');
+        root.style.setProperty('--panel-offset', `${Math.round(left)}px`);
+        if (!wasOpen.current) {
+          void root.offsetWidth;                             // commit the jump before the transition comes back
+          root.removeAttribute('data-panel-jump');
+          wasOpen.current = true;
+        }
       };
 
       measure();
       const observer = new MutationObserver(measure);
       observer.observe(root, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
-      const resize = new ResizeObserver(measure);
+      const resize = new ResizeObserver(() => {
+        wasOpen.current = false;                             // a reflow repositions without animating
+        measure();
+      });
       resize.observe(root);
       return () => { observer.disconnect(); resize.disconnect(); };
     }, [panelAlign, children]);
@@ -60,7 +77,6 @@ export const NavigationMenu = React.forwardRef<React.ComponentRef<typeof Primiti
     const rootStyle = {
       ...style,
       ...(panelWidth === undefined ? {} : { '--panel-width': typeof panelWidth === 'number' ? `${panelWidth}px` : panelWidth }),
-      ...(panelAlign === 'trigger' && triggerOffset !== null ? { '--panel-offset': `${Math.round(triggerOffset)}px` } : {}),
     } as React.CSSProperties;
 
     const panelClass = panelAlign === 'trigger' ? styles.panelTrigger : panelAlign === 'end' ? styles.alignEnd : '';
