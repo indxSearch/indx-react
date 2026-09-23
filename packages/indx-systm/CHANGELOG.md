@@ -4,6 +4,7 @@
 
 ### Minor Changes
 
+- c7dabbc: NavigationMenu: the shared panel opens under the trigger that opened it, clamped so it never leaves the menu. `align` now moves the list only, which is the layout choice it always was. A menu whose dropdown is not the edge-most item no longer drops its panel at the far edge, detached from the button it belongs to. `panelAlign="start"` or `"end"` pins the panel to an edge instead, which is the old behaviour.
 - 712b613: SaveBar: the Save / Cancel row of a page that edits a working copy. It sits after the content and sticks to the bottom of the window while that content is taller than the screen. Render it only while there is something to save. `aside` holds secondary actions such as export and import.
 
 ## 2.13.0
