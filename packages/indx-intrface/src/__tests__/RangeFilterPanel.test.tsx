@@ -1,11 +1,14 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { RangeFilterPanel } from '../components/RangeFilterPanel';
 import { server } from './mocks/server';
 import { FACETS, SEARCH_RESPONSE } from './mocks/fixtures';
+
+// The props the panel last gave the Slider stub, so a test can drive a drag.
+const sliderProps = vi.hoisted(() => ({ current: null as null | Record<string, any> }));
 
 // @indxsearch/systm imports @indxsearch/pixl which has a module named "Object"
 // that conflicts with the global Object in the test environment. Mock systm
@@ -14,9 +17,10 @@ vi.mock('@indxsearch/systm', () => ({
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="filter-panel">{children}</div>
   ),
-  Slider: ({ min, max, value }: { min: number; max: number; value: number[] }) => (
-    <div role="slider" data-min={min} data-max={max} data-value={JSON.stringify(value)} />
-  ),
+  Slider: (props: { min: number; max: number; value: number[] }) => {
+    sliderProps.current = props;
+    return <div role="slider" data-min={props.min} data-max={props.max} data-value={JSON.stringify(props.value)} />;
+  },
   InputField: ({ label, value }: { label: string; value: number }) => (
     <input aria-label={label} defaultValue={value} readOnly />
   ),
@@ -242,14 +246,13 @@ describe('clicking a histogram bar', () => {
 describe('bar layout', () => {
   it('weights each bar by its span in value units, cutting the last one at the max', async () => {
     // Bounds 10-200 at resolution 50, step 1: 10-59, 60-109, 110-159 and 160-200.
-    // Each bar runs from its first value to its last, so a clicked bar's edges are
-    // where the thumbs land; the step between buckets is an empty gap.
+    // Every value owns a cell one step wide, so a bar covers its values' cells and
+    // bars touch; the last one ends with the cell of 200, at 201.
     renderPanel({ showHistogram: true, resolution: 50 });
     await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(4), { timeout: 3000 });
-    const bar = screen.getAllByTestId('histogram-bar')[0];
-    const layer = bar.parentElement!;
-    const grow = [...layer.children].map(c => [c.getAttribute('data-testid') ? 'bar' : 'gap', Number((c as HTMLElement).style.flexGrow)]);
-    expect(grow).toEqual([['bar', 49], ['gap', 1], ['bar', 49], ['gap', 1], ['bar', 49], ['gap', 1], ['bar', 40]]);
+    const layer = screen.getAllByTestId('histogram-bar')[0].parentElement!;
+    const grow = [...layer.children].map(c => Number((c as HTMLElement).style.flexGrow));
+    expect(grow).toEqual([50, 50, 50, 41]);
   });
 
   it('counts the max value into the last bucket', async () => {
@@ -265,10 +268,11 @@ describe('bar layout', () => {
     await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(19), { timeout: 3000 });
     fireEvent.click(screen.getAllByTestId('histogram-bar')[0]); // selects 10-19
     const lit = screen.getByTestId('histogram-lit') as HTMLElement;
-    // Right inset fraction = (200 - 19) / 190; left = 0. Same mapping as react-range's
-    // thumb centre, trackLeft + trackWidth * (v - min) / (max - min).
-    // 19 is also where the bar ends, so the clip needs no pixel correction.
-    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190})`));
+    // The axis runs over cells, 10 to 201. The selection's right edge is the end of
+    // 19's cell, 20, where the upper thumb sits and the bar ends: right inset
+    // fraction (201 - 20) / 191, left 0. Same mapping as react-range's thumb
+    // centre, trackLeft + trackWidth * (v - min) / (max - min).
+    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(201 - 20) / 191})`));
     expect(lit.style.clipPath).toContain('* 0)');
     expect(lit.style.clipPath).toContain('10px + (100% - 20px)');
   });
@@ -315,8 +319,8 @@ describe('histogram under another filter', () => {
     expect(bars()[11].disabled).toBe(false); // 120-129 contains 120
     expect(bars()[12].disabled).toBe(true); // 130-139, above 120
     const live = screen.getByTestId('histogram-live') as HTMLElement;
-    expect(live.style.clipPath).toContain(`* ${(60 - 10) / 190})`);
-    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190})`);
+    expect(live.style.clipPath).toContain(`* ${(60 - 10) / 191})`);
+    expect(live.style.clipPath).toContain(`* ${(201 - 121) / 191})`); // to the end of 120's cell
   });
 
   it('clicking a partly reachable bar selects only its reachable part', async () => {
@@ -366,7 +370,48 @@ describe('clicking a bar twice when the filter narrows its own facets', () => {
 
     const sent = rangeBodies.length;
     fireEvent.click(screen.getAllByTestId('histogram-bar')[5]);
-    await waitFor(() => expect(screen.getByRole('slider').getAttribute('data-value')).toBe('[10,200]'));
+    // Full range: the upper thumb sits at the end of 200's cell.
+    await waitFor(() => expect(screen.getByRole('slider').getAttribute('data-value')).toBe('[10,201]'));
     expect(rangeBodies.length).toBe(sent); // no narrower filter went out
+  });
+});
+
+// ─── Cells: the upper thumb sits at the end of its value's cell ───────────────
+
+describe('slider cells', () => {
+  function serveRange() {
+    const rangeBodies: { lowerLimit: number; upperLimit: number }[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/filters/range', async ({ request }) => {
+        const body = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+        rangeBodies.push(body);
+        return HttpResponse.json({ hashString: `range:${body.fieldName}:${body.lowerLimit}-${body.upperLimit}` });
+      }),
+    );
+    return rangeBodies;
+  }
+
+  it('runs the slider to the end of the max value\'s cell', async () => {
+    renderPanel();
+    const slider = await screen.findByRole('slider');
+    await waitFor(() => expect(slider.dataset.max).toBe('201'));
+    expect(slider.dataset.min).toBe('10');
+  });
+
+  it('reads the upper thumb one step back: dragged to 50, the filter ends at 49', async () => {
+    const rangeBodies = serveRange();
+    renderPanel();
+    await waitFor(() => expect(screen.getByRole('slider').dataset.max).toBe('201'));
+    act(() => { sliderProps.current!.onFinalChange([30, 50]); });
+    await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 30, upperLimit: 49 }));
+    expect(screen.getByRole('slider').getAttribute('data-value')).toBe('[30,50]');
+  });
+
+  it('keeps a selection at least one cell wide when the thumbs meet', async () => {
+    const rangeBodies = serveRange();
+    renderPanel();
+    await waitFor(() => expect(screen.getByRole('slider').dataset.max).toBe('201'));
+    act(() => { sliderProps.current!.onFinalChange([40, 40]); });
+    await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 39, upperLimit: 39 }));
   });
 });

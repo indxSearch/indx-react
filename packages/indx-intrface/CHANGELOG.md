@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.7.2
+
+### Patch Changes
+
+- RangeFilterPanel: every value now owns a cell one step wide, and the upper thumb sits at the end of its value's cell, so the slider runs one step past the field's max. Histogram bars touch again instead of leaving a one-step gap between buckets, and a clicked bar's edges still sit exactly under both thumbs. The filter and the Min and Max inputs are unchanged: a 2004 to 2008 selection still filters on 2004 to 2008. When the thumbs meet, the selection stays one value wide.
+
 ## 3.7.1
 
 ### Patch Changes
