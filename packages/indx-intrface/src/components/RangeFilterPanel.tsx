@@ -345,13 +345,21 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
       const count = histogramSnapshot
         .filter(f => { const v = Number(f.key); return v >= bucketStart && (v < bucketEnd || (isLast && v <= queryMax)); })
         .reduce((sum, f) => sum + f.value, 0);
-      // Width on the value axis. Bars are laid out with this as their flex
-      // weight, so a bar's edges sit exactly where its values sit on the track.
-      const span = Math.min(bucketEnd, queryMax) - bucketStart;
       // Inclusive upper value, for the label and for a click: one step under the
       // next bucket, or the field's max for the last one.
       const last = isLast ? queryMax : roundTo(bucketEnd - step, step);
-      return { bucketStart, bucketEnd, count, span, last };
+      // The bar is drawn from its first value to its last, where the thumbs land
+      // when it is clicked, not on to the next bucket's start: drawn to 70, a
+      // 60-69 bar ran one step past the max thumb. The step between one bucket's
+      // last value and the next one's first holds no values and becomes the gap
+      // the separator sits in. A bucket one value wide (resolution no coarser
+      // than the step) would have no width that way, so it keeps its full width.
+      const barEnd = last > bucketStart ? last : Math.min(bucketEnd, queryMax);
+      // Width on the value axis. Bars and gaps are laid out with these as their
+      // flex weights, so a bar's edges sit exactly where its values sit on the track.
+      const span = barEnd - bucketStart;
+      const gap = isLast ? 0 : Math.max(0, bucketEnd - barEnd);
+      return { bucketStart, bucketEnd, count, span, gap, barEnd, last };
     });
   }, [showHistogram, histogramSnapshot, queryMin, queryMax, resolution, step]);
 
@@ -434,18 +442,19 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             const leftF = fracFrom(litFrom);
             const rightF = litTo < litFrom ? 1 - leftF : fracTo(litTo);
             const onTrack = (f: number) => `calc(10px + (100% - 20px) * ${f})`;
-            // The right edge of a clipped layer loses its last pixel column to the
-            // separator drawn on that boundary (and to pixel snapping of the clip),
-            // which the left edge does not, so the right inset is pulled in by one.
-            const RIGHT_EDGE_PX = 1;
-            const onTrackRight = (f: number) => `calc(10px + (100% - 20px) * ${f} - ${RIGHT_EDGE_PX}px)`;
-            const clipPath = `inset(0 ${onTrackRight(rightF)} 0 ${onTrack(leftF)})`;
-            const liveClipPath = `inset(0 ${onTrackRight(fracTo(liveTo))} 0 ${onTrack(fracFrom(liveFrom))})`;
+            // A clicked bucket's last value is where its bar ends, so both clip
+            // edges fall on bar edges and need no pixel correction.
+            const clipPath = `inset(0 ${onTrack(rightF)} 0 ${onTrack(leftF)})`;
+            const liveClipPath = `inset(0 ${onTrack(fracTo(liveTo))} 0 ${onTrack(fracFrom(liveFrom))})`;
             const unreachable = (b: { bucketStart: number; last: number }) => b.last < liveFrom || b.bucketStart > liveTo;
-            // Bars fill their boxes completely in both layers; the 1px separators
-            // are drawn on top, centred on each bucket boundary, so a bar's fill,
-            // the clip and a thumb on that boundary share the same x.
-            const separators = histogramBuckets.slice(1).map(b => onTrack((b.bucketStart - displayQueryMin) / span));
+            // Bars fill their boxes completely in every layer; the 1px separators
+            // are drawn on top, centred in the gap between one bucket's last value
+            // and the next one's first, so a bar's fill, the clip and a thumb on
+            // either edge share the same x.
+            const separators = histogramBuckets.slice(1).map((b, i) =>
+              onTrack(((histogramBuckets[i].barEnd + b.bucketStart) / 2 - displayQueryMin) / span));
+            const gapAfter = (bucket: { gap: number }, i: number) =>
+              bucket.gap > 0 ? <span key={`gap${i}`} className={styles.histogramGap} style={{ flexGrow: bucket.gap }} /> : null;
             const bars = histogramBuckets.map(bucket => ({
               ...bucket,
               height: Math.max(1, Math.ceil((bucket.count / histogramMaxCount) * 20)),
@@ -453,7 +462,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             return (
               <div className={styles.histogram}>
                 <div className={styles.histogramLayer}>
-                  {bars.map((bucket, i) => (
+                  {bars.map((bucket, i) => [
                     <button
                       key={i}
                       type="button"
@@ -466,8 +475,9 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                       onClick={() => selectBucket(bucket.bucketStart, bucket.last)}
                     >
                       <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
-                    </button>
-                  ))}
+                    </button>,
+                    gapAfter(bucket, i),
+                  ])}
                 </div>
                 <div
                   className={`${styles.histogramLayer} ${styles.histogramLive}`}
@@ -475,11 +485,12 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                   data-testid="histogram-live"
                   style={{ clipPath: liveClipPath }}
                 >
-                  {bars.map((bucket, i) => (
+                  {bars.map((bucket, i) => [
                     <span key={i} className={styles.histogramBar} style={{ flexGrow: bucket.span }}>
                       <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
-                    </span>
-                  ))}
+                    </span>,
+                    gapAfter(bucket, i),
+                  ])}
                 </div>
                 <div
                   className={`${styles.histogramLayer} ${styles.histogramLit}`}
@@ -487,11 +498,12 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
                   data-testid="histogram-lit"
                   style={{ clipPath }}
                 >
-                  {bars.map((bucket, i) => (
+                  {bars.map((bucket, i) => [
                     <span key={i} className={styles.histogramBar} style={{ flexGrow: bucket.span }}>
                       <span className={styles.histogramFill} style={{ height: `${bucket.height}px` }} />
-                    </span>
-                  ))}
+                    </span>,
+                    gapAfter(bucket, i),
+                  ])}
                 </div>
                 <div className={styles.histogramSeparators} aria-hidden="true">
                   {separators.map((left, i) => (

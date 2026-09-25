@@ -57,7 +57,14 @@
   cursor: pointer;
 }
 
-/* 1px lines centred on each bucket boundary, in the panel's own background */
+/* the step between one bucket's last value and the next one's first: it holds
+   no values, so it is empty, and the separator is centred in it */
+.histogramGap {
+  flex: 0 0 0%;
+  min-width: 0;
+}
+
+/* 1px lines centred in each gap between buckets, in the panel's own background */
 .histogramSeparators {
   position: absolute;
   inset: 0;

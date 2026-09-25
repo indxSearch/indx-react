@@ -241,11 +241,15 @@ describe('clicking a histogram bar', () => {
 
 describe('bar layout', () => {
   it('weights each bar by its span in value units, cutting the last one at the max', async () => {
-    // Bounds 10-200 at resolution 50: 10-60, 60-110, 110-160 and 160-200 (40 wide).
+    // Bounds 10-200 at resolution 50, step 1: 10-59, 60-109, 110-159 and 160-200.
+    // Each bar runs from its first value to its last, so a clicked bar's edges are
+    // where the thumbs land; the step between buckets is an empty gap.
     renderPanel({ showHistogram: true, resolution: 50 });
     await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(4), { timeout: 3000 });
-    const grow = screen.getAllByTestId('histogram-bar').map(b => Number(b.style.flexGrow));
-    expect(grow).toEqual([50, 50, 50, 40]);
+    const bar = screen.getAllByTestId('histogram-bar')[0];
+    const layer = bar.parentElement!;
+    const grow = [...layer.children].map(c => [c.getAttribute('data-testid') ? 'bar' : 'gap', Number((c as HTMLElement).style.flexGrow)]);
+    expect(grow).toEqual([['bar', 49], ['gap', 1], ['bar', 49], ['gap', 1], ['bar', 49], ['gap', 1], ['bar', 40]]);
   });
 
   it('counts the max value into the last bucket', async () => {
@@ -263,8 +267,8 @@ describe('bar layout', () => {
     const lit = screen.getByTestId('histogram-lit') as HTMLElement;
     // Right inset fraction = (200 - 19) / 190; left = 0. Same mapping as react-range's
     // thumb centre, trackLeft + trackWidth * (v - min) / (max - min).
-    // Right insets end one pixel short so the edge keeps its last column.
-    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190} - 1px)`));
+    // 19 is also where the bar ends, so the clip needs no pixel correction.
+    await waitFor(() => expect(lit.style.clipPath).toContain(`* ${(200 - 19) / 190})`));
     expect(lit.style.clipPath).toContain('* 0)');
     expect(lit.style.clipPath).toContain('10px + (100% - 20px)');
   });
@@ -312,7 +316,7 @@ describe('histogram under another filter', () => {
     expect(bars()[12].disabled).toBe(true); // 130-139, above 120
     const live = screen.getByTestId('histogram-live') as HTMLElement;
     expect(live.style.clipPath).toContain(`* ${(60 - 10) / 190})`);
-    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190} - 1px)`);
+    expect(live.style.clipPath).toContain(`* ${(200 - 120) / 190})`);
   });
 
   it('clicking a partly reachable bar selects only its reachable part', async () => {
