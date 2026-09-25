@@ -69,6 +69,14 @@ export interface NumericRange { min: number; max: number }
  * always ORed. The per-field results are then ANDed with each other and with
  * every range filter. Any failed filter call throws — the caller must not fall
  * back to an unfiltered search.
+ *
+ * A selected value on a field whose type is 'Number' (per `fieldTypes`, from
+ * fields/configuration) is sent as a range filter with equal limits, not a
+ * value filter. A value filter compares text, so on a number it is slow and
+ * misses 129.0 when asked for 129; a range with equal limits is numeric
+ * equality through the field's index. A value that is not a number on such a
+ * field, or a field of unknown type, goes as a value filter and the server
+ * answers.
  */
 export async function buildFilterProxy(
   filters: Record<string, string[]>,
@@ -78,7 +86,8 @@ export async function buildFilterProxy(
   dataset: string,
   authenticatedFetch: AuthenticatedFetch,
   valueMatch: Record<string, ValueMatch> = {},
-  bucketFilters: Record<string, NumericRange[]> = {}
+  bucketFilters: Record<string, NumericRange[]> = {},
+  fieldTypes: Record<string, string> = {}
 ): Promise<any> {
   const filterEntries = Object.entries(filters ?? {}).filter(([, values]) => values.length > 0);
   const rangeFilterEntries = Object.entries(rangeFilters ?? {});
@@ -92,14 +101,17 @@ export async function buildFilterProxy(
       url, team, dataset, authenticatedFetch
     );
 
+  const valueProxy = (field: string, value: string) => {
+    const asNumber = fieldTypes[field] === 'Number' ? Number(value) : NaN;
+    return Number.isFinite(asNumber)
+      ? rangeProxy(field, { min: asNumber, max: asNumber })
+      : postFilter('value', { fieldName: field, value }, `Value filter '${field}'`, url, team, dataset, authenticatedFetch);
+  };
+
   const [perFieldProxies, rangeFilterProxies, bucketProxies] = await Promise.all([
     Promise.all(
       filterEntries.map(async ([field, values]) => {
-        const valueProxies = await Promise.all(
-          values.map(value =>
-            postFilter('value', { fieldName: field, value }, `Value filter '${field}'`, url, team, dataset, authenticatedFetch)
-          )
-        );
+        const valueProxies = await Promise.all(values.map(value => valueProxy(field, value)));
         const operator = valueMatch[field] === 'any' ? 'or' : 'and';
         return combineAll(valueProxies, operator, url, team, dataset, authenticatedFetch);
       })

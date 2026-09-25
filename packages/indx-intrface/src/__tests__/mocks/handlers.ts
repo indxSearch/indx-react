@@ -26,6 +26,14 @@ export const handlers = [
   http.get(`${DS_BASE}/fields/sortable`, () =>
     HttpResponse.json(['price', 'title'])),
 
+  // The configuration carries each field's type; 'price' is the numeric one.
+  http.get(`${DS_BASE}/fields/configuration`, () =>
+    HttpResponse.json([
+      { fieldName: 'price', fieldType: 'Number', isArray: false, filterable: true, facetable: true, sortable: true },
+      { fieldName: 'category', fieldType: 'String', isArray: false, filterable: true, facetable: true },
+      { fieldName: 'title', fieldType: 'String', isArray: false, searchable: true, sortable: true },
+    ])),
+
   // Search — returns facets always so rangeBounds / facetStats tests work
   http.post(`${DS_BASE}/search`, () =>
     HttpResponse.json(SEARCH_RESPONSE)),

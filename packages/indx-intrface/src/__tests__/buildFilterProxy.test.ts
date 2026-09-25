@@ -53,6 +53,42 @@ describe('buildFilterProxy', () => {
   });
 });
 
+describe('buildFilterProxy on numeric fields', () => {
+  const rangeTokens = () => server.use(
+    http.post(`${URL}/api/teams/team/datasets/test/filters/range`, async ({ request }) => {
+      const { fieldName, lowerLimit, upperLimit } = await request.json() as { fieldName: string; lowerLimit: number; upperLimit: number };
+      return HttpResponse.json({ hashString: `${fieldName}:${lowerLimit}-${upperLimit}` });
+    }),
+  );
+  const buildTyped = (filters: Record<string, string[]>, types: Record<string, string>, match: Record<string, 'all' | 'any'> = {}) =>
+    buildFilterProxy(filters, {}, URL, 'team', 'test', fetchPlain, match, {}, types);
+
+  it("sends a selected value on a 'Number' field as a range with equal limits", async () => {
+    // A value filter compares text and misses 129.0 for 129; equal limits are numeric equality.
+    rangeTokens();
+    const proxy = await buildTyped({ rating: ['5'] }, { rating: 'Number' });
+    expect(proxy.hashString).toBe('rating:5-5');
+  });
+
+  it("ORs several numeric values on a field registered with match 'any'", async () => {
+    rangeTokens();
+    const proxy = await buildTyped({ rating: ['4', '5'] }, { rating: 'Number' }, { rating: 'any' });
+    expect(proxy.hashString).toBe('(rating:4-4 OR rating:5-5)');
+  });
+
+  it('keeps a value filter for a field of another or unknown type', async () => {
+    rangeTokens();
+    const proxy = await buildTyped({ category: ['running'], brand: ['acme'] }, { category: 'String' });
+    expect(proxy.hashString).toBe('(category=running AND brand=acme)');
+  });
+
+  it("keeps a value filter when the value is not a number, and lets the server answer", async () => {
+    rangeTokens();
+    const proxy = await buildTyped({ rating: ['n/a'] }, { rating: 'Number' });
+    expect(proxy.hashString).toBe('rating=n/a');
+  });
+});
+
 describe('buildFilterProxy buckets', () => {
   const rangeTokens = () => server.use(
     http.post(`${URL}/api/teams/team/datasets/test/filters/range`, async ({ request }) => {

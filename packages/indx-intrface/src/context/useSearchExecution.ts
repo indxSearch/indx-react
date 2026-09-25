@@ -62,6 +62,7 @@ export function useSearchExecution({
         filterableFields: auth.filterableFields,
         facetableFields: auth.facetableFields,
         sortableFields: auth.sortableFields,
+        fieldTypes: auth.fieldTypes,
         fieldsSeeded: true,
       }));
     }
@@ -118,11 +119,11 @@ export function useSearchExecution({
             ]))
           : [];
         const [filterProxy, ...orFilterProxies] = await Promise.all([
-          buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch, state.bucketFilters),
+          buildFilterProxy(state.filters, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch, state.bucketFilters, state.fieldTypes),
           ...orFields.map(field =>
             buildFilterProxy(
               { ...state.filters, [field]: [] }, state.rangeFilters, url, team, dataset, authenticatedFetch, state.valueMatch,
-              { ...state.bucketFilters, [field]: [] }
+              { ...state.bucketFilters, [field]: [] }, state.fieldTypes
             )
           ),
         ]);

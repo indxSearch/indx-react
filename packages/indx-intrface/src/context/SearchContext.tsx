@@ -37,6 +37,7 @@ export interface SearchState {
   filterableFields: string[]; // List of fields that can be used for filtering
   facetableFields: string[]; // List of fields that can be used for faceting
   sortableFields: string[]; // List of fields that can be used for sorting results
+  fieldTypes: Record<string, string>; // Each field's JSON type from fields/configuration ('String', 'Number', ...); decides whether a selected value becomes a value filter or a range with equal limits
   filters: Record<string, string[]>; // Current active filters, mapping field names to arrays of selected values
   valueMatch: Record<string, ValueMatch>; // Per field: 'all' (AND the selected values, default) or 'any' (OR them). Registered by ValueFilterPanel's `match` prop
   rangeFilters: Record<string, { min: number; max: number }>; // Current active range filters, mapping field names to min/max values
@@ -126,6 +127,7 @@ export const SearchProvider: React.FC<{
     filterableFields: [],
     facetableFields: [],
     sortableFields: [],
+    fieldTypes: {},
     filters: {},
     valueMatch: {},
     rangeFilters: {},

@@ -11,6 +11,14 @@ export interface IndxAuthResult {
   filterableFields: string[];
   facetableFields: string[];
   sortableFields: string[];
+  /**
+   * Each field's JSON type as the server reports it ('String', 'Number', 'True', 'False', ...),
+   * from GET fields/configuration. A selected value on a 'Number' field is sent as a range with
+   * equal limits rather than a value filter: a value filter compares text, so on a number it is
+   * slow and misses 129.0 when asked for 129. Empty when the server refused the call (older
+   * servers answer 403 to a Search key), in which case every selection is a value filter as before.
+   */
+  fieldTypes: Record<string, string>;
   totalDocumentCount: number;
 }
 
@@ -34,6 +42,7 @@ export function useIndxAuth({
   const [filterableFields, setFilterableFields] = useState<string[]>([]);
   const [facetableFields, setFacetableFields] = useState<string[]>([]);
   const [sortableFields, setSortableFields] = useState<string[]>([]);
+  const [fieldTypes, setFieldTypes] = useState<Record<string, string>>({});
   const [initialFacetStats, setInitialFacetStats] = useState<Record<string, { min: number; max: number }>>({});
   const [initialFacetKeys, setInitialFacetKeys] = useState<Record<string, string[]>>({});
   const [totalDocumentCount, setTotalDocumentCount] = useState(0);
@@ -117,11 +126,15 @@ export function useIndxAuth({
           console.log('[Auth] ✅ Dataset has', recordCount, 'records');
         }
 
-        // Fetch field metadata in parallel
-        const [filterableRes, facetableRes, sortableRes] = await Promise.all([
+        // Fetch field metadata in parallel. The configuration is the one call that may fail
+        // without failing initialisation: it needs a server where GET fields/configuration is
+        // Search level (26 Sep 2026); an older one answers 403, and then no field has a known
+        // type and every selection is a value filter, as before.
+        const [filterableRes, facetableRes, sortableRes, configurationRes] = await Promise.all([
           authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/filterable`),
           authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/facetable`),
           authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/sortable`),
+          authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/configuration`).catch(() => null),
         ]);
 
         if (!filterableRes.ok) {
@@ -146,6 +159,21 @@ export function useIndxAuth({
         setFacetableFields(facetable || []);
         setSortableFields(sortable || []);
         setTotalDocumentCount(recordCount);
+
+        const types: Record<string, string> = {};
+        if (configurationRes?.ok) {
+          const configuration = await configurationRes.json().catch(err => {
+            console.error('Failed to parse GetFieldConfiguration response:', err);
+            return [];
+          });
+          for (const field of configuration ?? []) {
+            if (field?.fieldName && field?.fieldType) types[field.fieldName] = field.fieldType;
+          }
+        } else if (enableDebugLogs) {
+          console.log('[Auth] fields/configuration not available', configurationRes?.status,
+            '- every selected value will be sent as a value filter');
+        }
+        setFieldTypes(types);
 
         // Initial blank search to get global facet bounds
         let blankSearchData: any = { facets: {} };
@@ -240,6 +268,7 @@ export function useIndxAuth({
     filterableFields,
     facetableFields,
     sortableFields,
+    fieldTypes,
     totalDocumentCount,
   };
 }
