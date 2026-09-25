@@ -12,7 +12,7 @@
   "dependencies": {
     "@indxsearch/indx-types": "^2.4.0",
     "@indxsearch/intrface": "^3.6.0",
-    "@indxsearch/pixl": "^1.5.0",
+    "@indxsearch/pixl": "^1.5.1",
     "@indxsearch/systm": "^2.14.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
