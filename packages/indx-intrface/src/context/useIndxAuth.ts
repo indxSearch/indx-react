@@ -128,7 +128,7 @@ export function useIndxAuth({
 
         // Fetch field metadata in parallel. The configuration is the one call that may fail
         // without failing initialisation: it needs a server where GET fields/configuration is
-        // Search level (26 Sep 2026); an older one answers 403, and then no field has a known
+        // Search level (25 Sep 2026); an older one answers 403, and then no field has a known
         // type and every selection is a value filter, as before.
         const [filterableRes, facetableRes, sortableRes, configurationRes] = await Promise.all([
           authFetch(`${url}/api/teams/${team}/datasets/${dataset}/fields/filterable`),
