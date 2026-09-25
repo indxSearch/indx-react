@@ -90,3 +90,38 @@
   background-color: var(--lv5);
   cursor: not-allowed;
 }
+/* Step marks: 2x8 bars, one per step, under the thumbs */
+.stepmarks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.stepmark {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 8px;
+  border-radius: 1px;
+  background-color: var(--lv5);
+  transform: translateX(-50%);
+}
+
+/* inline: centred across the 5px track, so the slider is no taller */
+.stepmarksInline {
+  top: 50%;
+  height: 8px;
+  transform: translateY(-50%);
+}
+
+/* below: a row 10px under the track; the track reserves the room for it */
+.stepmarksBelow {
+  top: calc(100% + 10px);
+  height: 8px;
+}
+
+.basetrackStepsBelow {
+  margin-bottom: 18px;
+}

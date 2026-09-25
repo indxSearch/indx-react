@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { Slider, InputField, FilterPanelBase } from '@indxsearch/systm';
+import type { StepMarks } from '@indxsearch/systm';
 import styles from './RangeFilterPanel.module.css';
 import { decimalsOf, roundTo } from '../utils/numeric';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
@@ -20,6 +21,8 @@ export interface RangeFilterPanelProps {
   showHistogram?: boolean; // Show a histogram above the slider (requires field to be facetable)
   resolution?: number; // Value-range per histogram bucket (e.g. 200 → 5 bars over 0–1000). Auto-derived if omitted (~20 bars)
   step?: number; // Slider step. Derived from the precision of the field's values if omitted (1 for integers, 0.1 for one decimal, …)
+  /** Draw a bar at every step of the slider: in a row below the track, or across it. Only drawn at 50 steps or fewer, so pair it with a coarse `step`. */
+  stepMarks?: StepMarks;
 }
 
 /** Snaps `value` onto the `min + k·step` grid react-range expects. */
@@ -40,7 +43,8 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   startCollapsed = false,
   showHistogram = false,
   resolution,
-  step: stepProp
+  step: stepProp,
+  stepMarks
 }) => {
   const {
     state: { rangeFilters, rangeBounds, facetStats, facets, filterableFields, facetableFields, query, facetDebounceDelayMillis },
@@ -503,6 +507,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             min={displayQueryMin}
             max={displayQueryMax}
             step={step}
+            stepMarks={stepMarks}
             value={isDisabled
               ? [displayQueryMin, displayQueryMax]
               : [snapToStep(finalMin, displayQueryMin, step), snapToStep(finalMax, displayQueryMin, step)]}

@@ -32,6 +32,7 @@ export default function IconsPage() {
               min={14}
               max={56}
               step={7}
+              stepMarks="below"
               value={iconSize}
               onChange={(val) => setIconSize(val as number)}
             />

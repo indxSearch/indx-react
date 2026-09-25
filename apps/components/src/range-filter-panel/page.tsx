@@ -38,6 +38,19 @@ export default function RangeFilterPanelPage() {
           </div>
 
           <div className={styles.demo}>
+            <h2 className={styles.heading}>Stepped (step 20) with marks below: <code>stepMarks="below"</code></h2>
+            <RangeFilterPanel
+              label="HP"
+              field="hp"
+              control="slider"
+              expectedMin={0}
+              expectedMax={255}
+              step={20}
+              stepMarks="below"
+            />
+          </div>
+
+          <div className={styles.demo}>
             <h2 className={styles.heading}>Slider + histogram (~20 bars). Click a bar to filter on its bucket</h2>
             <RangeFilterPanel
               label="HP"

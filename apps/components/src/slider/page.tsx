@@ -8,6 +8,10 @@ export default function SliderPage() {
   const [singleValue, setSingleValue] = useState(50);
   const [rangeValue, setRangeValue] = useState<[number, number]>([25, 75]);
   const [liveRangeValue, setLiveRangeValue] = useState<[number, number]>([30, 80]);
+  const [steppedValue, setSteppedValue] = useState(40);
+  const [steppedRange, setSteppedRange] = useState<[number, number]>([20, 80]);
+  const [inlineValue, setInlineValue] = useState(40);
+  const [inlineRange, setInlineRange] = useState<[number, number]>([20, 80]);
 
   useEffect(() => {
     setMounted(true);
@@ -72,6 +76,68 @@ export default function SliderPage() {
             onChange={(val) => setSingleValue(val as number)}
           />
           <p className={styles.valueDisplay}>Value: {singleValue} (step: 10)</p>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Step Marks, Below</h2>
+        <div className={styles.sliderContainer}>
+          <Slider
+            aria-label="Slider with step marks"
+            min={0}
+            max={100}
+            step={10}
+            stepMarks="below"
+            value={steppedValue}
+            onChange={(val) => setSteppedValue(val as number)}
+          />
+          <p className={styles.valueDisplay}>Value: {steppedValue} (step: 10, stepMarks="below")</p>
+        </div>
+        <div className={styles.sliderContainer}>
+          <Slider
+            aria-label="Range slider with step marks"
+            min={0}
+            max={100}
+            step={20}
+            stepMarks="below"
+            value={steppedRange}
+            isRange
+            onChange={(val) => setSteppedRange(val as [number, number])}
+          />
+          <p className={styles.valueDisplay}>
+            Range: {steppedRange[0]} - {steppedRange[1]} (step: 20, stepMarks="below")
+          </p>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Step Marks, Inline</h2>
+        <div className={styles.sliderContainer}>
+          <Slider
+            aria-label="Slider with inline step marks"
+            min={0}
+            max={100}
+            step={10}
+            stepMarks="inline"
+            value={inlineValue}
+            onChange={(val) => setInlineValue(val as number)}
+          />
+          <p className={styles.valueDisplay}>Value: {inlineValue} (step: 10, stepMarks="inline")</p>
+        </div>
+        <div className={styles.sliderContainer}>
+          <Slider
+            aria-label="Range slider with inline step marks"
+            min={0}
+            max={100}
+            step={20}
+            stepMarks="inline"
+            value={inlineRange}
+            isRange
+            onChange={(val) => setInlineRange(val as [number, number])}
+          />
+          <p className={styles.valueDisplay}>
+            Range: {inlineRange[0]} - {inlineRange[1]} (step: 20, stepMarks="inline")
+          </p>
         </div>
       </div>
 

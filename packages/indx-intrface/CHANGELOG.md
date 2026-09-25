@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.7.0
+
+### Minor Changes
+
+- RangeFilterPanel: a new `stepMarks` prop draws a small bar at every step of the slider, `"below"` in a row under the track or `"inline"` across it, so a coarse `step` shows where the thumbs will snap. It is passed straight to the systm `Slider`, and like there it draws nothing past 50 steps.
+
+### Patch Changes
+
+- Updated dependencies [401b272]
+- Updated dependencies
+  - @indxsearch/systm@2.15.0
+
 ## 3.6.0
 
 ### Minor Changes
