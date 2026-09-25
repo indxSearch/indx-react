@@ -222,9 +222,16 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
 #### Create value filter
 - **Endpoint:** `POST …/filters/value`
 - **Auth Required:** Yes
-- **Body:** `{ FieldName: string, Value: any }`
+- **Body:** `{ FieldName: string, Value: string | number | boolean, IsCaseSensitive?: boolean }`
 - **Returns:** `FilterProxy` object with `hashString`
-- **Purpose:** Create a filter for exact value matching
+- **Purpose:** Create a filter for exact value matching. Case-insensitive unless `IsCaseSensitive` is true; set it when the value comes from a facet, since facets count distinct stored values with their casing
+
+#### Negate filter
+- **Endpoint:** `POST …/filters/not`
+- **Auth Required:** Yes
+- **Body:** `FilterProxy` (`{ hashString }`)
+- **Returns:** `FilterProxy` matching every document the given filter does not
+- **Purpose:** Exclude a value or range; the result combines like any other filter
 
 #### Create range filter
 - **Endpoint:** `POST …/filters/range`
