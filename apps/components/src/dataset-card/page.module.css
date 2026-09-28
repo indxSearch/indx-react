@@ -1,0 +1,63 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title { font: var(--text-2xl); margin: 0 0 0.5rem; }
+.desc { margin: 0; font: var(--text-sm); color: var(--lv5); max-width: 68ch; }
+.heading { font: var(--text-lg); margin: 1.5rem 0 0.25rem; }
+.note { margin: 0 0 0.75rem; font: var(--text-sm); color: var(--lv5); max-width: 68ch; }
+
+/* The grid the console uses: 300px columns, 16px apart. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── The card, mirroring IndxServer's DatasetList ───────────────────────────── */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 260px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--lv1);
+}
+
+.head { display: flex; align-items: center; gap: 8px; color: var(--lv7); font: var(--text-sm); font-weight: var(--med); }
+
+.detail {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 5px 12px;
+  align-items: baseline;
+  font: var(--text-sm);
+}
+
+.term { color: var(--lv4); font-weight: var(--med); white-space: nowrap; }
+.value { color: var(--lv6); font-variant-numeric: tabular-nums; }
+.chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
+.count { margin-left: 6px; color: var(--lv5); font-variant-numeric: tabular-nums; }
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 0.5px solid var(--lv2);
+}
+
+/* The sparkline below the state line, as the card's last word. */
+.activity { margin-top: 12px; }
+.activityLabel { display: block; color: var(--lv4); font: var(--text-xs); margin-bottom: 4px; }
+
+/* A spanning row, for the placement that keeps it inside the detail list. */
+.activityInline { grid-column: 1 / -1; }

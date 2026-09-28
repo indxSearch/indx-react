@@ -39,6 +39,7 @@ import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
 import ChartPage from './chart/page';
 import SparklinePage from './sparkline/page';
+import DatasetCardPage from './dataset-card/page';
 import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
 import DatePickerPage from './date-picker/page';
@@ -86,6 +87,7 @@ export default function App() {
         <Route path="/patterns" element={<PatternsPage />} />
         <Route path="/chart" element={<ChartPage />} />
         <Route path="/sparkline" element={<SparklinePage />} />
+        <Route path="/dataset-card" element={<DatasetCardPage />} />
         <Route path="/textarea" element={<TextareaPage />} />
         <Route path="/modal" element={<ModalPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />

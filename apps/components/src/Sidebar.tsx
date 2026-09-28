@@ -74,7 +74,10 @@ export const navGroups: NavGroup[] = [
   },
   {
     title: 'Mockups',
-    items: [{ label: 'Analytics dashboard', path: '/analytics-dashboard' }],
+    items: [
+      { label: 'Analytics dashboard', path: '/analytics-dashboard' },
+      { label: 'Dataset card', path: '/dataset-card' },
+    ],
   },
 ];
 
