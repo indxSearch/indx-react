@@ -26,6 +26,8 @@ export interface SparklineProps {
   fill?: boolean;
   /** A hairline at the bottom, for when the shape alone does not read as a graph. */
   baseline?: boolean;
+  /** Bar only: the gap between bars, in real pixels whatever the width. */
+  gap?: number;
   /**
    * What the graph says, for anyone who cannot see it. A sparkline with no label is invisible to
    * a screen reader; with one it is an image with a description.
@@ -46,6 +48,7 @@ export function Sparkline({
   color = 'currentColor',
   fill = false,
   baseline = false,
+  gap = 1,
   ariaLabel,
   className,
 }: SparklineProps) {
@@ -89,25 +92,28 @@ export function Sparkline({
 
   if (clean.length < 2) return svg(null);
 
+  // Bars are laid out with CSS rather than drawn in the SVG. The viewBox stretches to the box
+  // (preserveAspectRatio="none"), so a gap expressed in viewBox units lands at a different pixel
+  // width for every size and every number of bars. A flex row's gap is the pixels you asked for.
   if (type === 'bar') {
-    // A gap of a fifth of the slot, so bars read as separate without thinning to nothing when
-    // there are many of them.
-    const slot = VB_W / clean.length;
-    const barW = Math.max(slot * 0.8, 0.5);
-    return svg(
-      clean.map((v, i) => {
-        const top = y(v);
-        return (
-          <rect
+    return (
+      <div
+        className={[styles.bars, className].filter(Boolean).join(' ')}
+        style={{ width, height, color, gap, borderBottomWidth: baseline ? 1 : 0 }}
+        role={hidden ? undefined : 'img'}
+        aria-label={ariaLabel}
+        aria-hidden={hidden || undefined}
+      >
+        {clean.map((v, i) => (
+          <span
             key={i}
-            x={i * slot + (slot - barW) / 2}
-            y={top}
-            width={barW}
-            height={Math.max(VB_H - inset - top, 0.5)}
             className={styles.bar}
+            // A flat series is every bar at full height rather than every bar at nothing, which is
+            // the same choice the line makes when max equals min.
+            style={{ height: `${Math.max(((v - min) / span) * 100, 2)}%` }}
           />
-        );
-      })
+        ))}
+      </div>
     );
   }
 

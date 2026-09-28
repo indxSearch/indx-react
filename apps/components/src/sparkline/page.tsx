@@ -39,6 +39,20 @@ export default function SparklinePage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Bar gap</h2>
+        <p className={styles.desc}>
+          <code>gap</code> is real pixels, whatever the width and however many bars. Bars are laid
+          out with CSS for that reason: a gap in SVG units would stretch with the viewBox and land
+          at a different width every time.
+        </p>
+        <div style={row}>
+          <Sparkline values={searches} type="bar" gap={0.5} ariaLabel="Searches, rising" />
+          <Sparkline values={searches} type="bar" gap={1} ariaLabel="Searches, rising" />
+          <Sparkline values={searches} type="bar" gap={3} ariaLabel="Searches, rising" />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Fill and baseline</h2>
         <p className={styles.desc}>
           <code>fill</code> shades under the curve; <code>baseline</code> adds a hairline at the
