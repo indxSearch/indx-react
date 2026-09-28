@@ -66,10 +66,10 @@ export default function DatasetCardPage() {
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
-          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
             <Sparkline values={rising} type="bar" height={22} color="var(--lv5)"
                        ariaLabel="Searches over the last fourteen days, rising" />
           </span>
+          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
         </div>
 
         <div className={styles.card}>
@@ -86,10 +86,10 @@ export default function DatasetCardPage() {
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
-          <Foot state="Ready" color="var(--CTeal)" count="937 886 documents" />
             <Sparkline values={steady} type="bar" height={22} color="var(--lv5)"
                        ariaLabel="Searches over the last fourteen days, steady" />
           </span>
+          <Foot state="Ready" color="var(--CTeal)" count="937 886 documents" />
         </div>
 
         <div className={styles.card}>
@@ -100,10 +100,10 @@ export default function DatasetCardPage() {
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
-          <Foot state="Hibernated" color="var(--CLightBlue)" count="41 562 records on disk" />
             <Sparkline values={quiet} type="bar" height={22} color="var(--lv4)"
                        ariaLabel="Searches over the last fourteen days, none recently" />
           </span>
+          <Foot state="Hibernated" color="var(--CLightBlue)" count="41 562 records on disk" />
         </div>
       </div>
 
@@ -163,10 +163,10 @@ export default function DatasetCardPage() {
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
-          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
             <Sparkline values={rising} height={22} color="var(--lv5)" fill baseline
                        ariaLabel="Searches over the last fourteen days, rising" />
           </span>
+          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
         </div>
       </div>
     </main>
