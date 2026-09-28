@@ -45,10 +45,11 @@ export default function DatasetCardPage() {
         </p>
       </div>
 
-      <h2 className={styles.heading}>A &mdash; below the state line</h2>
+      <h2 className={styles.heading}>A &mdash; above the state line</h2>
       <p className={styles.note}>
-        The card&rsquo;s last word, under its own label. Gives the graph full width and keeps the
-        detail list untouched, at the cost of making the card taller.
+        Under its own label, directly above the state line, so the two close the card together.
+        Gives the graph full width and leaves the detail list untouched, at the cost of making the
+        card taller.
       </p>
       <div className={styles.grid}>
         <div className={styles.card}>
@@ -63,9 +64,9 @@ export default function DatasetCardPage() {
               <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
             </span>
           </span>
-          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
+          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
             <Sparkline values={rising} type="bar" height={22} color="var(--lv5)"
                        ariaLabel="Searches over the last fourteen days, rising" />
           </span>
@@ -83,9 +84,9 @@ export default function DatasetCardPage() {
               <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>9</span></Chip>
             </span>
           </span>
-          <Foot state="Ready" color="var(--CTeal)" count="937 886 documents" />
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
+          <Foot state="Ready" color="var(--CTeal)" count="937 886 documents" />
             <Sparkline values={steady} type="bar" height={22} color="var(--lv5)"
                        ariaLabel="Searches over the last fourteen days, steady" />
           </span>
@@ -97,9 +98,9 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last used</span><span className={styles.value}>3 hours ago</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>off (manual)</span>
           </span>
-          <Foot state="Hibernated" color="var(--CLightBlue)" count="41 562 records on disk" />
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
+          <Foot state="Hibernated" color="var(--CLightBlue)" count="41 562 records on disk" />
             <Sparkline values={quiet} type="bar" height={22} color="var(--lv4)"
                        ariaLabel="Searches over the last fourteen days, none recently" />
           </span>
@@ -121,6 +122,12 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last used</span><span className={styles.value}>just now</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>pinned</span>
             <span className={styles.term}>Fields</span><span className={styles.value}>71</span>
+            {/* The chips belong to the Fields row above them, so they stay with it and Activity
+                closes the list rather than splitting the two apart. */}
+            <span className={styles.chips}>
+              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>21</span></Chip>
+              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
+            </span>
             <span className={styles.term}>Activity</span>
             <span className={styles.value}>
               {/* Line with fill: at a third of the width and 16px tall there is no room for bars to
@@ -130,10 +137,6 @@ export default function DatasetCardPage() {
               <Sparkline values={rising} height={16} fill color="var(--lv7)"
                          ariaLabel="Searches over the last fourteen days, rising" />
             </span>
-            <span className={styles.chips}>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>21</span></Chip>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
-            </span>
           </span>
           <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
         </div>
@@ -141,9 +144,9 @@ export default function DatasetCardPage() {
 
       <h2 className={styles.heading}>C &mdash; line rather than bar</h2>
       <p className={styles.note}>
-        The same placement as A. A line reads as a trend and a bar as a count per period; searches
-        per day is a count, which is the argument for bars, but the line is quieter on a page of
-        nine cards.
+        A&rsquo;s placement, line form. A line reads as a trend and a bar as a count per period;
+        searches per day is a count, which is the argument for bars, but the line is quieter across
+        a page of nine cards.
       </p>
       <div className={styles.grid}>
         <div className={styles.card}>
@@ -158,9 +161,9 @@ export default function DatasetCardPage() {
               <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
             </span>
           </span>
-          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
+          <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
             <Sparkline values={rising} height={22} color="var(--lv5)" fill baseline
                        ariaLabel="Searches over the last fourteen days, rising" />
           </span>

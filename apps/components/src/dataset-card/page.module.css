@@ -50,13 +50,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: auto;
   padding-top: 14px;
   border-top: 0.5px solid var(--lv2);
 }
 
-/* The sparkline below the state line, as the card's last word. */
-.activity { margin-top: 12px; }
+/* The activity block and the state line are one group at the foot of the card, so `auto` belongs
+   on the first of them. Left on .foot, the free space opened between activity and the state line
+   and the graph drifted up to the detail list it is not part of. */
+.activity { margin-top: auto; }
 .activityLabel { display: block; color: var(--lv4); font: var(--text-xs); margin-bottom: 4px; }
 
 /* A spanning row, for the placement that keeps it inside the detail list. */
