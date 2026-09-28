@@ -101,6 +101,10 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
       isLoading: false,
       filters,
       valueMatch: {},
+      // Empty: the viewer has no server to read fields/configuration from, and with no types every
+      // selection stays a value filter, which is the same fallback intrface uses against a server
+      // that will not answer that call.
+      fieldTypes: {},
       rangeFilters,
       bucketFilters,
       filterRevision: 0,

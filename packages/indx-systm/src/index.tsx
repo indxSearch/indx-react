@@ -22,6 +22,7 @@ export { Alert, AlertTitle, AlertDescription, type AlertProps, type AlertVariant
 export { SaveBar, type SaveBarProps } from './components/SaveBar/SaveBar';
 export { Tooltip, type TooltipProps, type TooltipPosition } from './components/Tooltip/Tooltip';
 export { Chart, type ChartProps, type ChartSeries } from './components/Chart/Chart';
+export { Sparkline, type SparklineProps } from './components/Sparkline/Sparkline';
 export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
 export { Modal, type ModalProps } from './components/Modal/Modal';
 export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';

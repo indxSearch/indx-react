@@ -41,6 +41,7 @@ export const navGroups: NavGroup[] = [
       { label: 'NavigationMenu', path: '/navigation-menu' },
       { label: 'ProgressBar', path: '/progress-bar' },
       { label: 'Chart', path: '/chart' },
+      { label: 'Sparkline', path: '/sparkline' },
       { label: 'FilterPanelBase', path: '/filter-panel-base' },
       { label: 'Chip', path: '/chip' },
       { label: 'Alert', path: '/alert' },
