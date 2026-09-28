@@ -109,7 +109,9 @@ export default function DatasetCardPage() {
       <h2 className={styles.heading}>B &mdash; a row in the detail list</h2>
       <p className={styles.note}>
         Treats activity as one more fact about the dataset rather than as a feature of the card.
-        Costs the card no height, but gives the graph a third of the width.
+        Costs the card no height, but gives the graph a third of the width &mdash; which is why this
+        one is a filled line rather than bars: at that size the bars have no room to read as
+        separate, and the filled shape survives being small.
       </p>
       <div className={styles.grid}>
         <div className={styles.card}>
@@ -121,7 +123,11 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Fields</span><span className={styles.value}>71</span>
             <span className={styles.term}>Activity</span>
             <span className={styles.value}>
-              <Sparkline values={rising} type="bar" height={14}
+              {/* Line with fill: at a third of the width and 16px tall there is no room for bars to
+                  read as separate, and the filled area carries the shape where individual values
+                  cannot. --lv7 makes the line itself near-white; the fill is the same colour at
+                  0.12, so one setting gives a bright line over a faint wash. */}
+              <Sparkline values={rising} height={16} fill color="var(--lv7)"
                          ariaLabel="Searches over the last fourteen days, rising" />
             </span>
             <span className={styles.chips}>
