@@ -24,6 +24,26 @@ function Head({ name }: { name: string }) {
   );
 }
 
+// The Fields row: its chips sit in the value column, on the label's own line, with no total.
+// Each chip keeps its own count. Same four roles as the product card.
+function Fields({ searchable, filterable, facetable, preloaded }:
+  { searchable: number; filterable: number; facetable: number; preloaded: number }) {
+  const chip = (label: string, n: number) => (
+    <Chip color="var(--lv2)" textColor="var(--lv7)">{label}<span className={styles.count}>{n}</span></Chip>
+  );
+  return (
+    <>
+      <span className={styles.term}>Fields</span>
+      <span className={styles.chips}>
+        {chip('searchable', searchable)}
+        {chip('filterable', filterable)}
+        {chip('facetable', facetable)}
+        {chip('preloaded', preloaded)}
+      </span>
+    </>
+  );
+}
+
 function Foot({ state, color, count }: { state: string; color: string; count: string }) {
   return (
     <span className={styles.foot}>
@@ -58,11 +78,7 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last indexed</span><span className={styles.value}>2 minutes ago</span>
             <span className={styles.term}>Last used</span><span className={styles.value}>just now</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>pinned</span>
-            <span className={styles.term}>Fields</span><span className={styles.value}>71</span>
-            <span className={styles.chips}>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>21</span></Chip>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
-            </span>
+            <Fields searchable={21} filterable={45} facetable={28} preloaded={0} />
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
@@ -78,11 +94,7 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last indexed</span><span className={styles.value}>9 minutes ago</span>
             <span className={styles.term}>Last used</span><span className={styles.value}>8 minutes ago</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>pinned</span>
-            <span className={styles.term}>Fields</span><span className={styles.value}>14</span>
-            <span className={styles.chips}>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>1</span></Chip>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>9</span></Chip>
-            </span>
+            <Fields searchable={1} filterable={9} facetable={5} preloaded={0} />
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
@@ -121,13 +133,7 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last indexed</span><span className={styles.value}>2 minutes ago</span>
             <span className={styles.term}>Last used</span><span className={styles.value}>just now</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>pinned</span>
-            <span className={styles.term}>Fields</span><span className={styles.value}>71</span>
-            {/* The chips belong to the Fields row above them, so they stay with it and Activity
-                closes the list rather than splitting the two apart. */}
-            <span className={styles.chips}>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>21</span></Chip>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
-            </span>
+            <Fields searchable={21} filterable={45} facetable={28} preloaded={0} />
             <span className={styles.term}>Activity</span>
             <span className={styles.value}>
               {/* Line with fill: at a third of the width and 16px tall there is no room for bars to
@@ -155,11 +161,7 @@ export default function DatasetCardPage() {
             <span className={styles.term}>Last indexed</span><span className={styles.value}>2 minutes ago</span>
             <span className={styles.term}>Last used</span><span className={styles.value}>just now</span>
             <span className={styles.term}>Keep-alive</span><span className={styles.value}>pinned</span>
-            <span className={styles.term}>Fields</span><span className={styles.value}>71</span>
-            <span className={styles.chips}>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">searchable<span className={styles.count}>21</span></Chip>
-              <Chip color="var(--lv2)" textColor="var(--lv7)">filterable<span className={styles.count}>45</span></Chip>
-            </span>
+            <Fields searchable={21} filterable={45} facetable={28} preloaded={0} />
           </span>
           <span className={styles.activity}>
             <span className={styles.activityLabel}>Search activity</span>
