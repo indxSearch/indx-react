@@ -14,6 +14,7 @@ import {
 import type { SearchResultMeta } from '@indxsearch/intrface';
 import { Button, Chip } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
+import styles from './App.module.css';
 
 const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack', 'abilities'];
 
@@ -54,7 +55,7 @@ const filters = (
 const renderResult = (item: any, { select }: SearchResultMeta) => (
   <>
     <SearchResultRow variant="title">
-      <Button variant="ghost" size="micro" onClick={() => select()}>{item.name}</Button>
+      <Button variant="ghost" size="micro" className={styles.titleButton} onClick={() => select()}>{item.name}</Button>
       {item.is_legendary && <Spark color="gold" size={14} />}
       {item.type1 && <Chip>{item.type1}</Chip>}
       {item.type2 && <Chip>{item.type2}</Chip>}

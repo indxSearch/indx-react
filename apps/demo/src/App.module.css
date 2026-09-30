@@ -1,0 +1,18 @@
+/* The result title is the click that opens a result, so it is a systm Button (keyboard, focus
+   ring) that reads as the title: the row's own typography and colour, no button padding or
+   height, an underline on hover instead of the ghost background. Element plus class so it wins
+   over the Button's single-class rules whichever stylesheet loads last. */
+button.titleButton {
+  font: inherit;
+  color: inherit;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+}
+
+button.titleButton:hover:not(:disabled) {
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
