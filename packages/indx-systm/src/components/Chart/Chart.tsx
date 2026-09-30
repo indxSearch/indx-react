@@ -67,13 +67,29 @@ export function Chart({
   const range = maxVal - minVal || 1;
   const dataLen = Math.max(...series.map(s => s.data.length), 0);
 
+  // Roughly the width of one --text-2xs character, and the gap kept between two labels.
+  const LABEL_CHAR_WIDTH = 6, LABEL_GAP = 12, MIN_MARKER_SPACING = 12;
+
+  // Every how many points a label is drawn: as many as fit side by side at the current width,
+  // so 90 daily labels on a phone become a readable handful.
+  const labelStep = (() => {
+    if (!labels || labels.length <= 1 || cw <= 0) return 1;
+    const widest = Math.max(...labels.map(l => l.length)) * LABEL_CHAR_WIDTH + LABEL_GAP;
+    const fit = Math.max(Math.floor(cw / widest), 1);
+    return Math.ceil(labels.length / fit);
+  })();
+
+  // Whether points are far enough apart to each carry a marker. When they are not, the markers
+  // merge into a second, thicker line, so only the hovered point gets one.
+  const roomForMarkers = dataLen <= 1 || cw / (dataLen - 1) >= MIN_MARKER_SPACING;
+
   const toY = (v: number) => PAD_TOP + (1 - (v - minVal) / range) * ch;
   const toX = (i: number) =>
     dataLen <= 1 ? PAD_LEFT + cw / 2 : PAD_LEFT + (i / (dataLen - 1)) * cw;
 
   // ── Hover ────────────────────────────────────────────────────────
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  const handleMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (dataLen === 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -89,7 +105,11 @@ export function Chart({
     }
   }, [type, dataLen, cw]);
 
-  const clearTooltip = useCallback(() => setTooltip(null), []);
+  // A touch lifts off with a pointerleave; clearing then would close the tooltip the tap just
+  // opened. Only a mouse leaving clears it.
+  const handlePointerLeave = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.pointerType === 'mouse') setTooltip(null);
+  }, []);
 
   // ── Midline ──────────────────────────────────────────────────────
 
@@ -141,7 +161,8 @@ export function Chart({
           <polyline points={pts} fill="none" stroke={color} strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
           {s.data.map((v, i) => {
             const active = tooltip?.index === i;
-            const size = active ? 10 : 5;
+            if (!active && !roomForMarkers) return null;
+            const size = active ? (roomForMarkers ? 10 : 7) : 5;
             const half = size / 2;
             return (
               <rect
@@ -188,10 +209,16 @@ export function Chart({
   const renderLabels = () => {
     if (!labels?.length) return null;
     const y = PAD_TOP + ch + 18;
+    const last = labels.length - 1;
     return labels.map((lbl, i) => {
+      // Counted from the end, so the latest point always keeps its label.
+      if ((last - i) % labelStep !== 0) return null;
       const x = type === 'line' ? toX(i) : PAD_LEFT + (i + 0.5) * (cw / dataLen);
+      // On a line chart the end labels sit on the plot's edges; anchor them inwards so the frame
+      // does not clip them.
+      const anchor = type !== 'line' || last === 0 ? 'middle' : i === 0 ? 'start' : i === last ? 'end' : 'middle';
       return (
-        <text key={i} x={x} y={y} textAnchor="middle" fill="var(--lv4)" style={{ font: 'var(--text-2xs)' }}>
+        <text key={i} x={x} y={y} textAnchor={anchor} fill="var(--lv4)" style={{ font: 'var(--text-2xs)' }}>
           {lbl}
         </text>
       );
@@ -244,8 +271,9 @@ export function Chart({
             width={containerWidth}
             height={height}
             className={styles.svg}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={clearTooltip}
+            onPointerMove={handleMouseMove}
+            onPointerDown={handleMouseMove}
+            onPointerLeave={handlePointerLeave}
           >
             {midline}
             {baseline}
