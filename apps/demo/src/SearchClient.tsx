@@ -10,6 +10,7 @@ import {
   SearchProvider,
   SearchContext,
 } from '@indxsearch/intrface';
+import type { SearchResultMeta } from '@indxsearch/intrface';
 import { Base, Button, Popover } from '@indxsearch/systm';
 
 const simulateDelayMs = Number(import.meta.env.VITE_SIMULATE_INITIAL_DELAY_MS ?? 0);
@@ -37,7 +38,7 @@ type SearchClientProps = {
   team: string;
   dataset: string;
   fields: string[];
-  renderResult: (item: any) => React.ReactNode;
+  renderResult: (item: any, meta: SearchResultMeta) => React.ReactNode;
   filters: React.ReactNode;
   showFilters?: boolean;
 };
@@ -84,7 +85,7 @@ function SearchLayout({
   showFilters
 }: {
   fields: string[];
-  renderResult: (item: any) => React.ReactNode;
+  renderResult: (item: any, meta: SearchResultMeta) => React.ReactNode;
   filters: React.ReactNode;
   showFilters: boolean;
 }) {

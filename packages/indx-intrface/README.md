@@ -332,6 +332,27 @@ export default function AdvancedSearch() {
 }
 ```
 
+## Search statistics
+
+The dataset's **Statistics** tab shows what people search for, what they find nothing for, and what they choose. The page takes part in two ways:
+
+- **Searches** are counted by the server. `SearchProvider` sends a session id for the page load with every search, so a visitor typing "oslo" counts as one search for "oslo", not four. There is nothing to set up.
+- **Clicks** have to come from the page, because only the page knows which result was opened. Call `select()` from that click:
+
+```tsx
+<SearchResults fields={['name', 'price']}>
+  {(item, { select }) => (
+    <a href={`/products/${item.id}`} onClick={() => select()}>
+      {item.name}
+    </a>
+  )}
+</SearchResults>
+```
+
+`select()` sends the result's position and the id of the search it came from. Outside `SearchResults`, use `selectResult(result)` from `useSearch()` with any entry of `state.results`. It never throws: if statistics are switched off on the server, the click is simply not recorded.
+
+The session id lives only in memory for the page load. It identifies no one and sets no cookie.
+
 ## API Reference
 
 ### SearchProvider Props
@@ -369,7 +390,7 @@ export default function AdvancedSearch() {
 | `fields` | `string[]` | ✅ | Document fields to fetch |
 | `resultsPerPage` | `number` | ✅ | Results per page |
 | `parseArrayStrings` | `boolean` | ❌ | Convert string fields holding a JSON (`["a","b"]`) or Python-style (`['a', 'b']`) list literal into a `string[]` before `children` sees them. Default `false`; other strings are never altered. |
-| `children` | `(item: any) => ReactNode` | ✅ | Render function for each result |
+| `children` | `(item: any, meta: SearchResultMeta) => ReactNode` | ✅ | Render function for each result. `meta.result` is the result (key, score, `position`) and `meta.select()` reports that the visitor chose it; see [Search statistics](#search-statistics) |
 
 Initialisation failures (bad token, unknown dataset, unreachable server) and failed searches are stored in the context as `authError` / `state.error`, and `SearchResults` renders the message in place of the result list. `SearchErrorBoundary` only catches errors thrown while rendering.
 

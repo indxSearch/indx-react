@@ -11,7 +11,8 @@ import {
   SearchSettingsPanel,
   SearchResultRow,
 } from '@indxsearch/intrface';
-import { Chip } from '@indxsearch/systm';
+import type { SearchResultMeta } from '@indxsearch/intrface';
+import { Button, Chip } from '@indxsearch/systm';
 import { Spark } from '@indxsearch/pixl';
 
 const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack', 'abilities'];
@@ -47,10 +48,13 @@ const filters = (
   </>
 );
 
-const renderResult = (item: any) => (
+// The name is what a visitor clicks to open a result, so that click reports the choice:
+// select() sends the result's position and the search's queryId to events/select, and the
+// Statistics tab gets click-through and click position from it.
+const renderResult = (item: any, { select }: SearchResultMeta) => (
   <>
     <SearchResultRow variant="title">
-      {item.name}
+      <Button variant="ghost" size="micro" onClick={() => select()}>{item.name}</Button>
       {item.is_legendary && <Spark color="gold" size={14} />}
       {item.type1 && <Chip>{item.type1}</Chip>}
       {item.type2 && <Chip>{item.type2}</Chip>}

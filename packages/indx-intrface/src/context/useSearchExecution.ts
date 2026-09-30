@@ -26,6 +26,7 @@ export interface UseSearchExecutionOptions {
   facetsEnabled: boolean;
   enableDebugLogs: boolean;
   shouldFetchMore: React.MutableRefObject<boolean>;
+  sessionId: string;
 }
 
 export type UseSearchExecutionResult = void;
@@ -42,6 +43,7 @@ export function useSearchExecution({
   facetsEnabled,
   enableDebugLogs,
   shouldFetchMore,
+  sessionId,
 }: UseSearchExecutionOptions): UseSearchExecutionResult {
   const latestRequestId = useRef(0);
   const performSearchRef = useRef<((options: { enableFacets: boolean }) => Promise<void>) | undefined>(undefined);
@@ -152,7 +154,9 @@ export function useSearchExecution({
 
         // 3) Execute the search and the OR-field facet searches together
         const postSearch = (body: unknown) =>
-          authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search`, {
+          // Every search carries the session, the facets-only ones too: the server counts one
+          // search per visitor's settled query, whatever this page sends to get there.
+          authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search?session=${encodeURIComponent(sessionId)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -172,6 +176,8 @@ export function useSearchExecution({
           throw await IndxApiError.fromResponse('Search', searchResponse);
         }
         const searchData = await searchResponse.json();
+        // The id the server minted for this search; a click on one of its results sends it back.
+        const queryId = searchResponse.headers.get('Indx-Query-Id') ?? undefined;
         const truncationIndex = searchData.truncationIndex ?? -1;
 
         // The OR fields' own panels read their counts from the excluded-field
@@ -278,7 +284,7 @@ export function useSearchExecution({
           const query = state.query.trim();
           if (query === '' || query.length === 1) return true;
           return result.score >= settingsMinimumScore;
-        });
+        }).map((result, idx) => ({ ...result, position: idx + 1 }));
 
         setState(prev => ({
           ...prev,
@@ -288,6 +294,7 @@ export function useSearchExecution({
           ...(enableFacets ? { facets: displayFacets, facetStats: mergedFacetStats } : {}),
           isLoading: false,
           truncationIndex,
+          queryId,
         }));
       } catch (error) {
         console.error('[Search] ❌ Search failed:', error);

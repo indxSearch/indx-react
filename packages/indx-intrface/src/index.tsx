@@ -1,6 +1,8 @@
 import '@indxsearch/systm/styles.css';
 export { SearchProvider, useSearchContext, SearchContext } from './context/SearchContext';
 export type { SearchContextType, SearchState, NumericRange, ValueMatch } from './context/SearchContext';
+export type { SearchResult as SearchResultData } from './context/SearchContext';
+export type { SearchResultMeta } from './components/SearchResults';
 export { useSearch } from './context/useSearch';
 export { SearchInput } from './components/SearchInput';
 export { SearchResults } from './components/SearchResults';

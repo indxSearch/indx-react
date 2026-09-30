@@ -24,6 +24,18 @@ export interface SearchResult {
   document: any; // The actual document
   documentKey: number; // The document key
   score: number; // The search score
+  position: number; // 1-based place in the list the visitor saw; what selectResult reports
+}
+
+/**
+ * A random id for this page load, sent as `?session=` on every search. It identifies no one and
+ * is kept only in memory; it lets the server count the search a visitor settled on rather than
+ * every keystroke and every re-send (a facet refresh, a new sort, load more).
+ */
+function newSessionId(): string {
+  const c = globalThis.crypto as Crypto | undefined;
+  if (c?.randomUUID) return c.randomUUID();
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
 export interface SearchState {
@@ -51,6 +63,7 @@ export interface SearchState {
   searchSettings: SearchSettings;
   truncationIndex?: number;
   totalDocumentCount?: number; // Total number of documents in the dataset
+  queryId?: string; // The Indx-Query-Id of the search behind `results`; selectResult sends it back
 }
 
 export interface SearchContextType {
@@ -75,6 +88,8 @@ export interface SearchContextType {
   setDebounceDelay?: (ms: number) => void; // Optional: Updates the debounce delay for faceted searches
   setSearchSettings: (settings: Partial<SearchSettings>) => void;
   fetchMoreResults: (newMax: number) => void; // Fetches more results by increasing maxNumberOfRecordsToReturn
+  selectResult: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
+  sessionId: string; // This page load's session id, sent with every search
 }
 
 // Create the search context
@@ -113,6 +128,7 @@ export const SearchProvider: React.FC<{
   preAuthenticatedToken,
 }) => {
   const shouldFetchMore = useRef(false);
+  const sessionId = useRef(newSessionId()).current;
   // The page size the user wants. Starts at the maxResults prop and follows
   // setSearchSettings({ maxNumberOfRecordsToReturn }); a new query resets the
   // "load more" expansion back to this value rather than to the prop.
@@ -206,7 +222,34 @@ export const SearchProvider: React.FC<{
     facetsEnabled,
     enableDebugLogs,
     shouldFetchMore,
+    sessionId,
   });
+
+  // Reports a chosen result to the dataset's statistics: the queryId of the search it came from,
+  // the document and its position. Fire-and-forget for the caller - statistics must never break
+  // a search page - so a failure (statistics switched off, a network error) is only logged.
+  const queryIdRef = useRef<string | undefined>(undefined);
+  queryIdRef.current = state.queryId;
+  const selectResult = useCallback(async (result: SearchResult) => {
+    if (!auth.token) return;
+    try {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          queryId: queryIdRef.current,
+          documentKey: result.documentKey,
+          position: result.position,
+        }),
+      });
+      if (enableDebugLogs) {
+        if (response.ok) console.log(`[select] document ${result.documentKey} at position ${result.position}`);
+        else console.warn(`[select] not recorded: ${response.status}`);
+      }
+    } catch (error) {
+      if (enableDebugLogs) console.warn('[select] failed:', error);
+    }
+  }, [auth.token, authenticatedFetch, url, team, dataset, enableDebugLogs]);
 
   // Function to update the search query text
   const setQuery = useCallback((query: string) => {
@@ -406,7 +449,9 @@ export const SearchProvider: React.FC<{
         setSort,
         setDebounceDelay,
         setSearchSettings,
-        fetchMoreResults
+        fetchMoreResults,
+        selectResult,
+        sessionId,
       }}
     >
       {children}

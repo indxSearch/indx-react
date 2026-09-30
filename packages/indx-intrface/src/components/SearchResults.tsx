@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './SearchResults.module.css';
 import { useSearchContext } from '../context/SearchContext';
+import type { SearchResult as SearchResultData } from '../context/SearchContext';
 import { SearchResult } from './SearchResult';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Indx } from '@indxsearch/pixl';
@@ -17,7 +18,17 @@ export interface SearchResultsProps {
    * start with '[' such as "[Draft] Report", is passed through untouched.
    */
   parseArrayStrings?: boolean;
-  children: (item: Record<string, any>) => React.ReactNode;
+  /**
+   * Renders one result. The second argument is the result itself (key, score, 1-based position)
+   * and `select`, which reports that the visitor chose it: call it from the click that opens the
+   * result, so the dataset's statistics get click-through and click position.
+   */
+  children: (item: Record<string, any>, meta: SearchResultMeta) => React.ReactNode;
+}
+
+export interface SearchResultMeta {
+  result: SearchResultData;
+  select: () => Promise<void>;
 }
 
 // Python-style list literal of single-quoted items: ['a', 'b c', ...] or [].
@@ -48,6 +59,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     authError,
     allowEmptySearch,
     fetchMoreResults,
+    selectResult,
   } = useSearchContext();
 
   const pageSize = resultsPerPage ?? 30;
@@ -148,7 +160,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
               score={score}
               showScore={searchSettings.showScore}
             >
-              {children(displayData)}
+              {children(displayData, { result, select: () => selectResult(result) })}
             </SearchResult>
           );
         })}
