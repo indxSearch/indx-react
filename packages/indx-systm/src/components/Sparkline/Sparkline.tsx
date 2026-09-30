@@ -26,6 +26,11 @@ export interface SparklineProps {
   fill?: boolean;
   /** A hairline at the bottom, for when the shape alone does not read as a graph. */
   baseline?: boolean;
+  /**
+   * Line only: the last value is a period still running (today, this hour). Its segment is dashed,
+   * so a count that is only partway through does not read as a drop.
+   */
+  lastIsPartial?: boolean;
   /** Bar only: the gap between bars, in real pixels whatever the width. */
   gap?: number;
   /**
@@ -48,6 +53,7 @@ export function Sparkline({
   color = 'currentColor',
   fill = false,
   baseline = false,
+  lastIsPartial = false,
   gap = 1,
   ariaLabel,
   className,
@@ -118,7 +124,10 @@ export function Sparkline({
   }
 
   const step = VB_W / (clean.length - 1);
-  const points = clean.map((v, i) => `${i * step},${y(v)}`).join(' ');
+  // Points from `from`, placed where they sit in the whole series, so the parts of a split line meet.
+  const pointsOf = (from: number, count: number) =>
+    clean.slice(from, from + count).map((v, i) => `${(from + i) * step},${y(v)}`).join(' ');
+  const points = pointsOf(0, clean.length);
 
   return svg(
     <>
@@ -127,7 +136,19 @@ export function Sparkline({
       )}
       {/* non-scaling-stroke: preserveAspectRatio="none" stretches the viewBox, which would
           otherwise stretch the stroke with it and give a line thicker one way than the other. */}
-      <polyline className={styles.line} points={points} vectorEffect="non-scaling-stroke" />
+      {lastIsPartial ? (
+        <>
+          {/* The last point is a period still running: solid up to the one before it, dashed
+              into it, so "so far" does not read as a fall. */}
+          {clean.length > 2 && (
+            <polyline className={styles.line} points={pointsOf(0, clean.length - 1)} vectorEffect="non-scaling-stroke" />
+          )}
+          <polyline className={`${styles.line} ${styles.partial}`} points={pointsOf(clean.length - 2, 2)}
+                    vectorEffect="non-scaling-stroke" />
+        </>
+      ) : (
+        <polyline className={styles.line} points={points} vectorEffect="non-scaling-stroke" />
+      )}
     </>
   );
 }
