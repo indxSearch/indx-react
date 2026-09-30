@@ -1,7 +1,7 @@
 /* The result title is the click that opens a result, so it is a systm Button (keyboard, focus
    ring) that reads as the title: the row's own typography and colour, no button padding or
-   height, an underline on hover instead of the ghost background. Element plus class so it wins
-   over the Button's single-class rules whichever stylesheet loads last. */
+   height. Element plus class so it wins over the Button's single-class rules whichever
+   stylesheet loads last. */
 button.titleButton {
   font: inherit;
   color: inherit;
@@ -13,6 +13,30 @@ button.titleButton {
 
 button.titleButton:hover:not(:disabled) {
   background: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+}
+
+/* The whole row is the click target: the button's ::after is stretched over the result, which
+   intrface's result row already positions (position: relative). One control for keyboard and
+   screen readers, the row for the mouse. */
+button.titleButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+/* A state layer rather than a new colour: a faint wash of the strongest text tone, which
+   darkens the row in the light theme and lightens it in the dark one. */
+button.titleButton:hover::after {
+  background: color-mix(in srgb, var(--lv8) 5%, transparent);
+}
+
+/* The keyboard focus ring moves to the row, in systm's own focus style. */
+button.titleButton:focus-visible {
+  outline: none;
+}
+
+button.titleButton:focus-visible::after {
+  outline: 2px solid var(--lv5);
+  outline-offset: -2px;
 }
