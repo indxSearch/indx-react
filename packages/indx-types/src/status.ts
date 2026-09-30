@@ -33,6 +33,11 @@ export interface SystemStatus {
   version?: string | null;
   timeOfInstanceCreation: string;
   timeOfLastIndexBuild: string;
+  /** Records the store holds for this dataset, readable without waking it. Created with
+   * recordsOnDisk > 0 is what "hibernated" means since Hibernated left SystemState. */
+  recordsOnDisk: number;
+  /** Fields in the stored field configuration; 0 = not analyzed. */
+  fieldsDiscovered: number;
   shadowBuildInProgress: boolean;
   shadowBuildStartedUtc?: string | null;
 }

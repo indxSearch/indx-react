@@ -1,5 +1,7 @@
+// Hibernated = -1 was removed Sep 2026 together with the server's: hibernation is a position in
+// the pipeline, not a state. A hibernated dataset reports Created with recordsOnDisk > 0 in its
+// status; the library's Hibernate() lands in Loaded.
 export enum SystemState {
-  Hibernated = -1,
   Created = 0,
   Loading = 1,
   Loaded = 2,
