@@ -3,7 +3,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  /* The list's own reset, like ValueFilterPanel's: without it the browser's 40px indent and
+     1em margins show on any page that does not reset ul itself. */
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 /* items size to content, but may shrink (down to 0) so long chips don't overflow */
