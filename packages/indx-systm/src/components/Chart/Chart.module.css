@@ -105,3 +105,17 @@
   font: var(--text-xs);
   color: var(--lv5);
 }
+
+/* Markers: something happened on this point. Blue, the info tone, so it reads apart from the
+   series' grey and teal, and on the baseline so it never sits on the data. */
+.marker {
+  fill: var(--CLightBlue);
+}
+
+.tooltipMarker {
+  margin-top: 4px;
+}
+
+.markerDot {
+  background: var(--CLightBlue);
+}

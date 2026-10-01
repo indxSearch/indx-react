@@ -16,6 +16,12 @@ export interface ChartSeries {
   hoverColor?: string;
 }
 
+/** A point where something happened (a change, a release), and what it was. */
+export interface ChartMarker {
+  index: number;
+  label: string;
+}
+
 export interface ChartProps {
   series: ChartSeries[];
   labels?: string[];
@@ -23,6 +29,11 @@ export interface ChartProps {
   height?: number;
   showLegend?: boolean;
   className?: string;
+  /**
+   * Points where something happened. Drawn as a small square on the baseline under the point and
+   * listed in its tooltip. Several may share a point.
+   */
+  markers?: ChartMarker[];
 }
 
 interface TooltipState {
@@ -43,6 +54,7 @@ export function Chart({
   height = 200,
   showLegend = true,
   className,
+  markers,
 }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -259,6 +271,12 @@ export function Chart({
             <span className={styles.tooltipValue}>{formatValue(s.data[tooltip.index] ?? 0)}</span>
           </div>
         ))}
+        {markers?.filter(m => m.index === tooltip.index).map((m, mi) => (
+          <div key={`m${mi}`} className={`${styles.tooltipRow} ${styles.tooltipMarker}`}>
+            <span className={`${styles.tooltipDot} ${styles.markerDot}`} />
+            <span className={styles.tooltipName}>{m.label}</span>
+          </div>
+        ))}
       </div>
     );
   })() : null;
@@ -280,6 +298,12 @@ export function Chart({
             {columnHighlight}
             {crosshair}
             {type === 'line' ? renderLines() : renderBars()}
+            {/* Markers: drawn after the data so a bar cannot hide them, one square per point. */}
+            {markers && dataLen > 0 &&
+              [...new Set(markers.map(m => m.index).filter(i => i >= 0 && i < dataLen))].map(i => {
+                const mx = type === 'line' ? toX(i) : PAD_LEFT + (i + 0.5) * (cw / dataLen);
+                return <rect key={`m${i}`} className={styles.marker} x={mx - 3} y={PAD_TOP + ch - 3} width={6} height={6} />;
+              })}
             {renderLabels()}
           </svg>
         )}
