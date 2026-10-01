@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.9.1
+
+### Patch Changes
+
+- 1c09506: ActiveFiltersPanel: the chips line up with the panel heading on every page. The list no longer picks up the browser's default indent and margins when the page does not reset lists itself.
+- Updated dependencies [34c676b]
+  - @indxsearch/systm@2.17.0
+
 ## 3.9.0
 
 ### Minor Changes
