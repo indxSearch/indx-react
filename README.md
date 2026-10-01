@@ -4,6 +4,10 @@
 
  **[View live demo here](https://www.indx.co)** and **[View all components here](https://indx-components.vercel.app)**
 
+![A film search built with Indx React: a misspelled title still finds the film, then a search is narrowed by genre and release years](docs/images/intrface-demo.gif)
+
+<sub>Ten thousand films from [TMDB](https://www.themoviedb.org), searched with the components below. Film data and posters from TMDB; this demo uses TMDB data but is not endorsed or certified by TMDB.</sub>
+
 ```typescript
 <SearchProvider url={url} preAuthenticatedToken={token} team="my-team" dataset="products">
   <SearchInput />
