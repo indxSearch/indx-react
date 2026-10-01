@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.16.0
+
+### Minor Changes
+
+- `Chart` reads well on any screen and can mark events. Axis labels thin out to as many as fit, always keeping the newest point's label, and point markers step back when points crowd together, so a 90-day chart on a phone is readable. A tap now opens the tooltip on touch screens, and a sideways drag moves along the line. New `markers` prop: a small square under a point for something that happened there, a release or a config change, with the text in that point's tooltip. `Sparkline` gains `lastIsPartial`, which dashes the last segment so a day or hour that is still running does not read as a drop.
+- c2443e5: New `Sparkline`: a tiny display-only graph for putting a trend next to a number, such as searches over the last hours or documents added per day. Line or bar, no axis, legend, tooltip or interaction. It takes its colour from whatever it sits in and fills the width it is given, so it drops into a card or a table cell without configuration. Bars are laid out with CSS, so `gap` is real pixels at any width and any number of bars; it defaults to 1. `Chart` is unchanged and remains the one to use when you want any of the chrome.
+
 ## 2.15.0
 
 ### Minor Changes
