@@ -22,6 +22,17 @@ const PERIODS = [
 ];
 
 const nf = new Intl.NumberFormat('en-US');
+
+// Changes made to the dataset, as IndxServer records them: marked under the timeline, listed in
+// the tooltip of their day. Placed back from the newest point, so every period shows the ones in it.
+const CHANGES = [
+  { daysAgo: 2, label: 'Reindexed' },
+  { daysAgo: 6, label: '1,240 documents updated by filter' },
+  { daysAgo: 11, label: 'Fields changed: director' },
+  { daysAgo: 19, label: 'Synonyms: 34 → 44 entries' },
+  { daysAgo: 26, label: 'Boost rules: 3 → 4 rules, 3 enabled' },
+  { daysAgo: 52, label: 'Replaced: 22,880 → 23,236 documents' },
+];
 const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits)}%`;
 
 type Direction = 'higherIsBetter' | 'lowerIsBetter';
@@ -171,7 +182,10 @@ export default function AnalyticsDashboardPage() {
                   { label: 'All', value: 'all' },
                 ]} />
         </div>
-        <Chart type={timeline === 'all' ? 'line' : 'bar'} labels={data.labels} series={timelineSeries} height={240} />
+        <Chart type={timeline === 'all' ? 'line' : 'bar'} labels={data.labels} series={timelineSeries} height={240}
+               markers={CHANGES
+                 .map(c => ({ index: data.labels.length - 1 - Math.floor(c.daysAgo / (data.bucket === 'week' ? 7 : 1)), label: c.label }))
+                 .filter(m => m.index >= 0)} />
         {data.bucket === 'week' && <p className={styles.note}>Ninety days are shown per week; each bar starts on the date under it.</p>}
       </section>
 

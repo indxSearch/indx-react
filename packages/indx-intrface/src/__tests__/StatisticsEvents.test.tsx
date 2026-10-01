@@ -74,7 +74,7 @@ describe('selectResult', () => {
     await waitFor(() => expect(result.current.state.queryId).toBe('q-123'));
 
     const second = result.current.state.results![1];
-    await act(() => result.current.selectResult(second));
+    await act(() => result.current.selectResult!(second));
 
     expect(sent).toEqual({ queryId: 'q-123', documentKey: second.documentKey, position: 2 });
   });
@@ -88,6 +88,6 @@ describe('selectResult', () => {
     act(() => result.current.setQuery('shoe'));
     await waitFor(() => expect(result.current.state.results?.length).toBeGreaterThan(0));
 
-    await expect(result.current.selectResult(result.current.state.results![0])).resolves.toBeUndefined();
+    await expect(result.current.selectResult!(result.current.state.results![0])).resolves.toBeUndefined();
   });
 });

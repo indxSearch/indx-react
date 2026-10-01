@@ -88,8 +88,10 @@ export interface SearchContextType {
   setDebounceDelay?: (ms: number) => void; // Optional: Updates the debounce delay for faceted searches
   setSearchSettings: (settings: Partial<SearchSettings>) => void;
   fetchMoreResults: (newMax: number) => void; // Fetches more results by increasing maxNumberOfRecordsToReturn
-  selectResult: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
-  sessionId: string; // This page load's session id, sent with every search
+  // Optional in the type so a context built by hand (a test, a mock provider) stays valid; the
+  // SearchProvider always supplies both.
+  selectResult?: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
+  sessionId?: string; // This page load's session id, sent with every search
 }
 
 // Create the search context

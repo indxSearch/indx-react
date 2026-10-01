@@ -164,9 +164,11 @@ export default function DatasetCardPage() {
             <Fields searchable={21} filterable={45} facetable={28} preloaded={0} />
           </span>
           <span className={styles.activity}>
-            <span className={styles.activityLabel}>Search activity</span>
-            <Sparkline values={rising} height={22} color="var(--lv5)" fill baseline
-                       ariaLabel="Searches over the last fourteen days, rising" />
+            {/* As built: today is the last point, dashed because the day is still running, and
+                its count sits beside the label for following the day as it goes. */}
+            <span className={styles.activityLabel}>Search activity <span style={{ color: 'var(--lv5)' }}>· 11 today</span></span>
+            <Sparkline values={[...rising.slice(1), 11]} height={22} color="var(--lv5)" fill baseline lastIsPartial
+                       ariaLabel="Searches over the last fourteen days, eleven of them today" />
           </span>
           <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
         </div>

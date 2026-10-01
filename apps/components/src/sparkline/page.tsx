@@ -39,6 +39,22 @@ export default function SparklinePage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>A period still running</h2>
+        <p className={styles.desc}>
+          <code>lastIsPartial</code> dashes the last segment, for a series whose last value is
+          today or this hour: partway through, it would otherwise read as a fall. The dataset cards
+          in IndxServer draw fourteen days this way, with today's count beside the label.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: 320, color: 'var(--lv5)' }}>
+          <span style={{ font: 'var(--text-xs)', color: 'var(--lv4)' }}>
+            Search activity <span style={{ color: 'var(--lv5)' }}>· 9 today</span>
+          </span>
+          <Sparkline values={[...searches.slice(1), 9]} height={22} fill baseline lastIsPartial
+                     ariaLabel="Searches over the last fourteen days, nine of them today" />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Bar gap</h2>
         <p className={styles.desc}>
           <code>gap</code> is real pixels, whatever the width and however many bars. Bars are laid

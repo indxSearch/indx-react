@@ -160,7 +160,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
               score={score}
               showScore={searchSettings.showScore}
             >
-              {children(displayData, { result, select: () => selectResult(result) })}
+              {children(displayData, { result, select: () => selectResult?.(result) ?? Promise.resolve() })}
             </SearchResult>
           );
         })}
