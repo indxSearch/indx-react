@@ -451,9 +451,22 @@ Selected buckets on a field are always ORed (they are disjoint ranges). Like `Va
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `options` | `SortOption[]` | every sortable field | The choices to offer, in order, each `{ field, ascending, label }`. Without it the panel lists each sortable field by name, ascending and descending |
+| `noneLabel` | `string \| null` | `'None'` | The label of the choice that turns sorting off; `null` leaves it out |
 | `control` | `'select' \| 'radio'` | `'select'` | A select, or one radio per option (`displayType` still works, deprecated; `'dropdown'` maps to `'select'`) |
 | `collapsible` | `boolean` | `true` | Allow the panel to collapse |
 | `startCollapsed` | `boolean` | `false` | Start collapsed |
+
+```typescript
+<SortByPanel
+  noneLabel="Relevance"
+  options={[
+    { field: 'votes', ascending: false, label: 'Most voted' },
+    { field: 'vote_average', ascending: false, label: 'Highest rated' },
+    { field: 'release_year', ascending: false, label: 'Newest first' },
+  ]}
+/>
+```
 
 ## Hooks
 

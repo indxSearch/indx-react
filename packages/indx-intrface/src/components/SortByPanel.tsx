@@ -4,7 +4,22 @@ import { FilterPanelBase, RadioButton, Select } from '@indxsearch/systm';
 import styles from './SortByPanel.module.css';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
 
+/** One choice in the sort menu: a sortable field, a direction, and what the visitor reads. */
+export type SortOption = {
+  field: string;
+  ascending: boolean;
+  label: string;
+};
+
 type SortByPanelProps = {
+  /**
+   * The choices to offer, in this order, each with its own label: "Most voted", "Newest first".
+   * Without it the panel lists every sortable field twice, by its field name, ascending and
+   * descending. An option whose field is not sortable is left out, with a warning.
+   */
+  options?: SortOption[];
+  /** The label of the choice that turns sorting off (default "None"); `null` leaves it out. */
+  noneLabel?: string | null;
   /** A select, or one radio per option. */
   control?: 'select' | 'radio';
   /** @deprecated Use `control`. `'dropdown'` maps to `'select'`. */
@@ -13,7 +28,7 @@ type SortByPanelProps = {
   startCollapsed?: boolean;
 };
 
-export const SortByPanel: React.FC<SortByPanelProps> = ({ control: controlProp, displayType, collapsible = true, startCollapsed = false }) => {
+export const SortByPanel: React.FC<SortByPanelProps> = ({ options: optionsProp, noneLabel = 'None', control: controlProp, displayType, collapsible = true, startCollapsed = false }) => {
   const control = controlProp ?? (displayType === 'radio' ? 'radio' : 'select');
   const {
     state: { sortableFields, sortBy, sortAscending },
@@ -36,13 +51,19 @@ export const SortByPanel: React.FC<SortByPanelProps> = ({ control: controlProp, 
 
   const currentValue = sortBy ? `${sortBy}:${sortAscending ? 'asc' : 'desc'}` : 'none';
 
-  const options = [
-    { label: 'None', value: 'none' },
-    ...sortableFields.flatMap((field) => [
-      { label: `${field} (asc)`, value: `${field}:asc` },
-      { label: `${field} (desc)`, value: `${field}:desc` },
-    ]),
-  ];
+  const choices = optionsProp
+    ? optionsProp
+        .filter((o) => {
+          if (sortableFields.includes(o.field)) return true;
+          console.warn(`[SortByPanel] '${o.field}' is not sortable, so "${o.label}" is left out. Mark the field Sortable in the dataset's field configuration.`);
+          return false;
+        })
+        .map((o) => ({ label: o.label, value: `${o.field}:${o.ascending ? 'asc' : 'desc'}` }))
+    : sortableFields.flatMap((field) => [
+        { label: `${field} (asc)`, value: `${field}:asc` },
+        { label: `${field} (desc)`, value: `${field}:desc` },
+      ]);
+  const options = noneLabel === null ? choices : [{ label: noneLabel, value: 'none' }, ...choices];
 
   const handleChange = (value: string) => {
     if (value === 'none' || value === '') {

@@ -20,6 +20,7 @@ export { BucketFilterPanel } from './components/BucketFilterPanel';
 export type { BucketFilterPanelProps, BucketSpec } from './components/BucketFilterPanel';
 export { ActiveFiltersPanel } from './components/ActiveFiltersPanel';
 export { SortByPanel } from './components/SortByPanel';
+export type { SortOption } from './components/SortByPanel';
 export { SearchSettingsPanel } from './components/SearchSettingsPanel';
 export { SearchErrorBoundary } from './components/SearchErrorBoundary';
 export { IndxApiError } from './context/IndxApiError';
