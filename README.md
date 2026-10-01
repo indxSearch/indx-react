@@ -37,11 +37,15 @@
 - Empty search support (browse all results)
 - Custom result rendering
 
+![A film search for "intersetllar", two letters swapped: Interstellar is the first result, with its poster, year, rating, genres and cast](docs/images/intrface-fuzzy.png)
+
 ### Filtering
 - **Value Filters** - Checkbox or button-style facets with counts
 - **Range Filters** - Numeric sliders for prices, dates, etc.
 - **Active Filters** - Chip-based display of applied filters
 - **Sort Options** - Configurable sorting with radio or dropdown
+
+![The search "space" narrowed to Science Fiction from 1970 to 1999: both filters shown as chips under Active filters, genre buttons with counts for what is left, and an Actors filter with checkboxes](docs/images/intrface-filters.png)
 
 ### Developer Experience
 - Bearer-token authentication
