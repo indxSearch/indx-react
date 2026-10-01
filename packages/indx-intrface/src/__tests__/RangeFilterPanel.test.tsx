@@ -415,3 +415,58 @@ describe('slider cells', () => {
     await waitFor(() => expect(rangeBodies.at(-1)).toMatchObject({ lowerLimit: 39, upperLimit: 39 }));
   });
 });
+
+// ─── A step that does not divide the range ────────────────────────────────────
+
+// Ratings from 5.3 to 8.7: a range of 3.4, one decimal.
+const RATINGS = {
+  price: [
+    { key: '5.3', value: 4 },
+    { key: '6.1', value: 9 },
+    { key: '7.4', value: 12 },
+    { key: '8.7', value: 3 },
+  ],
+};
+
+function serveRatings() {
+  server.use(
+    http.post('http://localhost/api/teams/team/datasets/test/search', () =>
+      HttpResponse.json({ records: [], facets: RATINGS, truncationIndex: -1 }))
+  );
+}
+
+describe('a step that does not divide the range', () => {
+  it('ends the slider on the step grid, with both thumbs inside it', async () => {
+    // With step 0.5 the grid from 5.3 never meets 8.7. The upper thumb used to snap to 9.3
+    // past a max of 9.2, and the slider library threw, which took the page down.
+    serveRatings();
+    renderPanel({ step: 0.5 });
+    await waitFor(() => expect(sliderProps.current?.min).toBe(5.3), { timeout: 3000 });
+    const { min, max, value } = sliderProps.current!;
+    expect(max).toBe(9.3);
+    expect(Number(((max - min) / 0.5).toFixed(6)) % 1).toBe(0);
+    expect(value[0]).toBeGreaterThanOrEqual(min);
+    expect(value[1]).toBeLessThanOrEqual(max);
+  });
+
+  it('still lets the upper thumb select up to the largest value', async () => {
+    serveRatings();
+    renderPanel({ step: 0.5 });
+    await waitFor(() => expect(sliderProps.current?.max).toBe(9.3), { timeout: 3000 });
+    // Dragged to the end: the value is clamped to 8.7, and the thumb rests at the end of 8.7's
+    // cell, the slider's max, rather than one step short of it.
+    act(() => sliderProps.current!.onChange([5.3, 9.3]));
+    await waitFor(() => expect(sliderProps.current!.value[1]).toBe(9.3));
+    expect(sliderProps.current!.value[1]).toBeLessThanOrEqual(sliderProps.current!.max);
+  });
+});
+
+describe('automatic histogram resolution', () => {
+  it('gives a narrow decimal range about twenty bars, not one per whole number', async () => {
+    // Bucket width is a twentieth of the range in whole steps: 3.4 / 20 rounds up to 0.2,
+    // so 17 bars. Rounding to a whole number gave 1, and four bars.
+    serveRatings();
+    renderPanel({ showHistogram: true });
+    await waitFor(() => expect(screen.queryAllByTestId('histogram-bar')).toHaveLength(17), { timeout: 3000 });
+  });
+});

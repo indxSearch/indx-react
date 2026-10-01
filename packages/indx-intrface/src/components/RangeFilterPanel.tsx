@@ -31,6 +31,15 @@ function snapToStep(value: number, min: number, step: number): number {
   return Number(snapped.toFixed(decimalsOf(step)));
 }
 
+/** The first point of the `min + k·step` grid at or above `value`. The slider's own max has to
+ *  sit on the grid too: react-range throws when a snapped value lands past it, and a `step`
+ *  that does not divide the data's range (ratings 5.3 to 8.7 with step 0.5) put the upper
+ *  thumb at 9.3 against a max of 9.2, which took the whole page down. */
+function gridCeil(value: number, min: number, step: number): number {
+  const cells = Math.ceil(Number(((value - min) / step).toFixed(6)));
+  return Number((min + cells * step).toFixed(decimalsOf(step)));
+}
+
 export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   field,
   label,
@@ -92,6 +101,11 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // Use expectedMin/expectedMax to create a valid range for visual display only
   const displayQueryMin = isDisabled ? expectedMin : queryMin;
   const displayQueryMax = isDisabled ? expectedMax : queryMax;
+
+  // The slider runs one cell past the max (see fromThumbs), ending on the step grid, and every
+  // value handed to it stays inside its ends.
+  const sliderMax = gridCeil(displayQueryMax + step, displayQueryMin, step);
+  const onSlider = (v: number) => Math.min(sliderMax, Math.max(displayQueryMin, v));
 
   // 5) Get intended values from rangeFilters (user's choice, or undefined if unset)
   const intended = rangeFilters?.[field];
@@ -351,7 +365,10 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     if (!showHistogram || !histogramSnapshot || histogramSnapshot.length === 0) return [];
     const range = queryMax - queryMin;
     if (range <= 0) return [];
-    const effectiveResolution = resolution ?? (Math.ceil(range / 20) || 1);
+    // About twenty bars, each a whole number of slider steps wide, so a bar's edges fall on
+    // the cells the thumbs move between. Rounding up to a whole number instead left a field of
+    // ratings (a range of 3.4) with four bars.
+    const effectiveResolution = resolution ?? Math.max(step, roundTo(Math.ceil(range / 20 / step) * step, step));
     const numBars = Math.ceil(range / effectiveResolution);
     return Array.from({ length: numBars }, (_, i) => {
       const bucketStart = queryMin + i * effectiveResolution;
@@ -374,9 +391,11 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
       // Width on the value axis, used as the bar's flex weight so its edges sit
       // exactly where its cells sit on the track. Taken to the next bar's start
       // rather than to barEnd, so the weights always add up to the whole axis.
-      span: (i + 1 < all.length ? all[i + 1].bucketStart : bucket.barEnd) - bucket.bucketStart,
+      // The last bar runs to the slider's end, which can lie past its last cell when a
+      // `step` does not divide the range (see gridCeil).
+      span: (i + 1 < all.length ? all[i + 1].bucketStart : Math.max(bucket.barEnd, sliderMax)) - bucket.bucketStart,
     }));
-  }, [showHistogram, histogramSnapshot, queryMin, queryMax, resolution, step]);
+  }, [showHistogram, histogramSnapshot, queryMin, queryMax, resolution, step, sliderMax]);
 
   const histogramMaxCount = React.useMemo(
     () => Math.max(...histogramBuckets.map(b => b.count), 1),
@@ -453,10 +472,12 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
             const litTo = Math.min(finalMax, liveTo);
             // The axis runs over whole cells, to the end of the max value's cell.
             // A left edge is where a value's cell starts, a right edge where it ends.
-            const axisEnd = displayQueryMax + step;
+            // The slider's own end, so the lit edges stay under the thumbs.
+            const axisEnd = sliderMax;
             const span = axisEnd - displayQueryMin || 1;
             const fracFrom = (v: number) => Math.max(0, Math.min(1, (v - displayQueryMin) / span));
-            const fracTo = (v: number) => Math.max(0, Math.min(1, (axisEnd - (v + step)) / span));
+            // A selection that reaches the max lights to the end of the track.
+            const fracTo = (v: number) => v >= displayQueryMax ? 0 : Math.max(0, Math.min(1, (axisEnd - (v + step)) / span));
             const leftF = fracFrom(litFrom);
             const rightF = litTo < litFrom ? 1 - leftF : fracTo(litTo);
             const onTrack = (f: number) => `calc(10px + (100% - 20px) * ${f})`;
@@ -528,18 +549,18 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
         <div style={{ padding: '10px 10px 20px 10px' }}>
           <Slider
             min={displayQueryMin}
-            max={roundTo(displayQueryMax + step, step)}
+            max={sliderMax}
             step={step}
             stepMarks={stepMarks}
             value={isDisabled
-              ? [displayQueryMin, roundTo(displayQueryMax + step, step)]
-              : [snapToStep(finalMin, displayQueryMin, step), snapToStep(finalMax + step, displayQueryMin, step)]}
+              ? [displayQueryMin, sliderMax]
+              : [onSlider(snapToStep(finalMin, displayQueryMin, step)), onSlider(snapToStep(finalMax + step, displayQueryMin, step))]}
             isRange
             onChange={(vals: number | number[]) => handleSliderChange(vals as [number, number])}
             onFinalChange={(vals: number | number[]) => handleSliderCommit(vals as [number, number])}
             disabled={isDisabled}
             activeMin={liveDataMin}
-            activeMax={roundTo(liveDataMax + step, step)}
+            activeMax={onSlider(roundTo(liveDataMax + step, step))}
             isFaceted={isFaceted}
             highlightFaceted={isSelfActive}
             aria-label={label || `Filter by ${field}`}
