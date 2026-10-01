@@ -78,6 +78,12 @@
   border-radius: var(--radius);
 }
 
+/* Information rather than a call to act. Dark ink on teal in both themes, as on the teal Chip. */
+.badgeTeal {
+  color: #080809;
+  background: var(--CTeal);
+}
+
 .active {
   color: var(--lv7);
   border-bottom-color: var(--lv7);
