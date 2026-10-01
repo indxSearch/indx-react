@@ -24,9 +24,10 @@ export interface TabItem {
   badgeTitle?: string;
   /**
    * The badge's colour. `signal` (the default) asks for attention: something needs doing.
-   * `teal` is information: a count worth seeing that is not a warning.
+   * `info` is information: a count worth seeing that is not a warning, in the blue Chart
+   * markers use, so a count of events matches the marks they leave on a chart.
    */
-  badgeTone?: 'signal' | 'teal';
+  badgeTone?: 'signal' | 'info';
   /**
    * Makes the item a link to a separate page. The bar then renders as a nav of anchors, the
    * active item carries `aria-current="page"`, and the browser's own link behaviour applies.
@@ -192,7 +193,7 @@ export function Tabs({ items, value, onValueChange, size = 'default', variant = 
               </span>
             ) : null}
             {item.label}
-            {item.badge != null && item.badge !== false ? <span className={item.badgeTone === 'teal' ? `${styles.badge} ${styles.badgeTeal}` : styles.badge} title={item.badgeTitle}>{item.badge}</span> : null}
+            {item.badge != null && item.badge !== false ? <span className={item.badgeTone === 'info' ? `${styles.badge} ${styles.badgeInfo}` : styles.badge} title={item.badgeTitle}>{item.badge}</span> : null}
           </>
         );
         const className = `${styles.tab} ${styles[size]} ${selected ? styles.active : ''}`;
