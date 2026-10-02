@@ -27,6 +27,8 @@ export interface UseSearchExecutionOptions {
   enableDebugLogs: boolean;
   shouldFetchMore: React.MutableRefObject<boolean>;
   sessionId: string;
+  source?: string;
+  count: boolean;
 }
 
 export type UseSearchExecutionResult = void;
@@ -44,6 +46,8 @@ export function useSearchExecution({
   enableDebugLogs,
   shouldFetchMore,
   sessionId,
+  source,
+  count,
 }: UseSearchExecutionOptions): UseSearchExecutionResult {
   const latestRequestId = useRef(0);
   const performSearchRef = useRef<((options: { enableFacets: boolean }) => Promise<void>) | undefined>(undefined);
@@ -153,10 +157,14 @@ export function useSearchExecution({
         }
 
         // 3) Execute the search and the OR-field facet searches together
+        // Every search carries the session, the facets-only ones too: the server counts one
+        // search per visitor's settled query, whatever this page sends to get there. The surface
+        // (`source`) and `count=false` go along when the page set them.
+        const searchParams = new URLSearchParams({ session: sessionId });
+        if (source) searchParams.set('source', source);
+        if (!count) searchParams.set('count', 'false');
         const postSearch = (body: unknown) =>
-          // Every search carries the session, the facets-only ones too: the server counts one
-          // search per visitor's settled query, whatever this page sends to get there.
-          authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search?session=${encodeURIComponent(sessionId)}`, {
+          authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search?${searchParams}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -353,6 +361,9 @@ export function useSearchExecution({
       allowEmptySearch,
       enableDebugLogs,
       setState,
+      sessionId,
+      source,
+      count,
     ]
   );
 

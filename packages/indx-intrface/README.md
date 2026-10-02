@@ -353,6 +353,11 @@ The dataset's **Statistics** tab shows what people search for, what they find no
 
 The session id lives only in memory for the page load. It identifies no one and sets no cookie.
 
+Two optional `SearchProvider` props shape what the statistics see:
+
+- `source` names this search surface, when a dataset has more than one: `source="header"`, `source="app"`. The searches are counted as usual and stored with the name.
+- `count={false}` keeps a page's searches and clicks out of the statistics - a test page, an internal tool. They are stored, not counted.
+
 ## API Reference
 
 ### SearchProvider Props
@@ -372,6 +377,8 @@ The session id lives only in memory for the page load. It identifies no one and 
 | `removeDuplicates` | `boolean` | ❌ | `true` | Remove duplicate results |
 | `initialCoverageSetup` | `Partial<CoverageSetup>` | ❌ | `{}` | Override default coverage settings |
 | `enableDebugLogs` | `boolean` | ❌ | `false` | Enable detailed console logging |
+| `source` | `string` | ❌ | - | Names this search surface in the statistics (`"header"`, `"app"`); counted as usual. See [Search statistics](#search-statistics) |
+| `count` | `boolean` | ❌ | `true` | `false` keeps this page's searches and clicks out of the statistics (stored, not counted) |
 
 ### SearchInput Props
 

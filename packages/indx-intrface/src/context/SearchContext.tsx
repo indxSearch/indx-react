@@ -113,6 +113,8 @@ export const SearchProvider: React.FC<{
   initialCoverageSetup?: Partial<CoverageSetup>;
   enableDebugLogs?: boolean;
   preAuthenticatedToken?: string; // Bearer token used for all requests
+  source?: string; // Names this search surface in the statistics: a search box, an app ("header", "app")
+  count?: boolean; // false: searches and selects from here are stored but not counted (a test page, an agent)
 }> = ({
   children,
   url,
@@ -128,6 +130,8 @@ export const SearchProvider: React.FC<{
   initialCoverageSetup = {},
   enableDebugLogs = false,
   preAuthenticatedToken,
+  source,
+  count = true,
 }) => {
   const shouldFetchMore = useRef(false);
   const sessionId = useRef(newSessionId()).current;
@@ -225,6 +229,8 @@ export const SearchProvider: React.FC<{
     enableDebugLogs,
     shouldFetchMore,
     sessionId,
+    source,
+    count,
   });
 
   // Reports a chosen result to the dataset's statistics: the queryId of the search it came from,
@@ -242,6 +248,9 @@ export const SearchProvider: React.FC<{
           queryId: queryIdRef.current,
           documentKey: result.documentKey,
           position: result.position,
+          // The server also leaves uncounted a select on an uncounted search; saying so here
+          // covers a select whose search it cannot find.
+          ...(count ? {} : { count: false }),
         }),
       });
       if (enableDebugLogs) {
@@ -251,7 +260,7 @@ export const SearchProvider: React.FC<{
     } catch (error) {
       if (enableDebugLogs) console.warn('[select] failed:', error);
     }
-  }, [auth.token, authenticatedFetch, url, team, dataset, enableDebugLogs]);
+  }, [auth.token, authenticatedFetch, url, team, dataset, enableDebugLogs, count]);
 
   // Function to update the search query text
   const setQuery = useCallback((query: string) => {
