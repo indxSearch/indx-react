@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.0.0
+
+### Major Changes
+
+- 257de84: `SystemState.Hibernated` (-1) is removed, matching the server: hibernation is no longer a state
+  of its own. A hibernated dataset reports `Created` and its status carries `recordsOnDisk > 0`
+  (new field, with `fieldsDiscovered` beside it); the library's `Hibernate()` lands in `Loaded`.
+  Code switching on `Hibernated` or comparing `systemState === -1` should derive it instead:
+  `state === SystemState.Created && recordsOnDisk > 0`.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -50,14 +60,17 @@ First stable release of the v2 line, targeting IndxCloudApi v2 (IndxSearchLib v5
 pre-release that shipped under the `next` tag.)
 
 ### Changed
+
 - **BREAKING**: Type definitions target IndxCloudApi v2 (Indx v5).
 - `DataSetListDto` reflects the team model (`name`, `teamName`, `role`).
 
 ### Added
+
 - `LicenseInfo.licenseFileFound` and `ProcessError.timeStampUtc`, matching the
   IndxCloudApi v2 OpenAPI schema exactly (verified field-by-field).
 
 ### Compatibility
+
 - Requires IndxCloudApi v2
 - Zero runtime dependencies (types-only package)
 
@@ -66,6 +79,7 @@ pre-release that shipped under the `next` tag.)
 ## [1.0.0] - 2026-01-21
 
 ### Added
+
 - Initial release of `@indxsearch/indx-types`
 - Complete TypeScript type definitions for IndxCloudApi v1.0.2
 - `CoverageSetup` interface with all current properties
@@ -84,6 +98,7 @@ pre-release that shipped under the `next` tag.)
 - Apache 2.0 license
 
 ### Technical Details
+
 - Based on official Swagger specification from https://cloud.indx.co/swagger/v1/swagger.json
 - All properties correctly typed with optional modifiers matching API spec
 - `documentKey` correctly typed as `number` (Int32)

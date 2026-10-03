@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.10.0
+
+### Minor Changes
+
+- a0c776b: `SearchProvider` takes two optional props for the dataset's statistics. `source` names the search surface when a dataset has more than one (`source="header"`, `source="app"`): it is sent with every search, and those searches are counted as usual. `count={false}` keeps a page's searches and the results chosen from them out of the statistics while they are still stored, for a test page or an internal tool. Without either, nothing changes.
+- 5b50d4e: SortByPanel: offer your own sort choices with readable labels. Pass `options`, such as `{ field: 'votes', ascending: false, label: 'Most voted' }`, and the panel shows those choices in that order instead of every sortable field by its field name. `noneLabel` renames the choice that turns sorting off ("Relevance"), or drops it with `null`. Without `options` the panel works as before.
+
+### Patch Changes
+
+- 7cd07a7: RangeFilterPanel: a `step` that does not divide the field's range no longer breaks the page. Ratings from 5.3 to 8.7 with `step={0.5}` used to crash on load; now the slider works and still reaches the highest value. Histograms on narrow decimal ranges, such as ratings, now get about twenty bars without setting `resolution`, instead of three or four.
+- Updated dependencies [257de84]
+  - @indxsearch/indx-types@3.0.0
+
 ## 3.9.1
 
 ### Patch Changes

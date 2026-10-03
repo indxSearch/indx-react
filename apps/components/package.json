@@ -1,6 +1,6 @@
 {
   "name": "components-viewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@indxsearch/indx-types": "^2.4.0",
-    "@indxsearch/intrface": "^3.7.0",
+    "@indxsearch/indx-types": "^3.0.0",
+    "@indxsearch/intrface": "^3.10.0",
     "@indxsearch/pixl": "^1.5.1",
     "@indxsearch/systm": "^2.15.0",
     "react": "^19.0.0",
