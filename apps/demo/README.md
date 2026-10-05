@@ -1,6 +1,6 @@
 # indx-react Demo App
 
-> **Target:** Indx v2, powered by IndxSearchLib v5 alpha.
+> **Target:** Indx v2, powered by IndxSearchLib v5.
 
 A showcase application demonstrating the `@indxsearch/intrface` component library for building powerful search interfaces with [INDX](https://indx.co).
 

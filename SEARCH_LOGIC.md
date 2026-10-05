@@ -1,6 +1,6 @@
 # Search Logic Documentation
 
-> **Target:** Indx v2, powered by IndxSearchLib v5 alpha.
+> **Target:** Indx v2, powered by IndxSearchLib v5.
 
 ## Overview
 

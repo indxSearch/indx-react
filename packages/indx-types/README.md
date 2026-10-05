@@ -18,7 +18,7 @@ npm install @indxsearch/indx-types
 
 ## Version Compatibility
 
-This package (`@indxsearch/indx-types` 2.x) provides types for **Indx v2.0** (IndxSearchLib v5). The shapes are generated from and verified against the live v5 OpenAPI spec.
+This package (`@indxsearch/indx-types` 3.x) provides types for **Indx v2.0** (IndxSearchLib v5). The shapes are generated from and verified against the live v5 OpenAPI spec.
 
 ## Usage
 
