@@ -38,6 +38,13 @@ export interface SystemStatus {
   recordsOnDisk: number;
   /** Fields in the stored field configuration; 0 = not analyzed. */
   fieldsDiscovered: number;
+  /** True while a rebuild on a shadow engine runs. `PUT fields/configuration` and
+   * `POST index` on a Ready dataset answer 202 as soon as one is started. */
   shadowBuildInProgress: boolean;
   shadowBuildStartedUtc?: string | null;
+  /** When the last rebuild ended; null while one runs and before the first. */
+  shadowBuildFinishedUtc?: string | null;
+  /** Why the last rebuild failed, or null. A failed rebuild swaps nothing in: the dataset
+   * keeps serving with the documents and field configuration it had. */
+  shadowBuildError?: string | null;
 }

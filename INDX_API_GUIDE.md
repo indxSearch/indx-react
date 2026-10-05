@@ -132,45 +132,28 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### Set searchable fields
-- **Endpoint:** `PUT …/fields/searchable`
-- **Auth Required:** Yes
-- **Body:** `Array<[fieldName: string, weight: number]>`
-- **Example:** `[["name", 100], ["type1", 50]]`
-- **Returns:** `204 No Content`
-
 #### Get filterable fields
 - **Endpoint:** `GET …/fields/filterable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
-
-#### Set filterable fields
-- **Endpoint:** `PUT …/fields/filterable`
-- **Auth Required:** Yes
-- **Body:** `string[]` - Array of field names
-- **Returns:** `204 No Content`
 
 #### Get facetable fields
 - **Endpoint:** `GET …/fields/facetable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### Set facetable fields
-- **Endpoint:** `PUT …/fields/facetable`
-- **Auth Required:** Yes
-- **Body:** `string[]` - Array of field names
-- **Returns:** `204 No Content`
-
 #### Get sortable fields
 - **Endpoint:** `GET …/fields/sortable`
 - **Auth Required:** Yes
 - **Returns:** `string[]`
 
-#### Set sortable fields
-- **Endpoint:** `PUT …/fields/sortable`
+#### Set field roles and weights
+- **Endpoint:** `PUT …/fields/configuration`
 - **Auth Required:** Yes
-- **Body:** `string[]` - Array of field names
-- **Returns:** `204 No Content`
+- **Body:** `FieldProxy[]` - one object per field; only the properties sent are changed
+- **Example:** `[{"fieldName": "name", "searchable": true, "weight": 2}, {"fieldName": "category", "filterable": true, "facetable": true}]`
+- **Returns:** `204 No Content` when applied at once. `202 Accepted` with the status when the change started a rebuild of a dataset that is `Ready`: poll `GET …/status` until `shadowBuildInProgress` is `false`, then check that `shadowBuildError` is `null`.
+- **Note:** This is the only route that writes roles. The per-role `PUT …/fields/searchable` (and `filterable`, `facetable`, `sortable`, `word-indexing`, `embeddable`) were removed in October 2026 and answer `405`.
 
 ### Indexing
 
@@ -277,20 +260,17 @@ await authenticatedFetch(`${base}/analyze`, {
   body: fileStream
 });
 
-// 4. Configure fields (each returns 204 No Content)
-await authenticatedFetch(`${base}/fields/searchable`, {
+// 4. Configure fields in one call (204 No Content before the first index)
+await authenticatedFetch(`${base}/fields/configuration`, {
   method: 'PUT',
-  body: JSON.stringify([["name", 100], ["description", 50]])
-});
-
-await authenticatedFetch(`${base}/fields/filterable`, {
-  method: 'PUT',
-  body: JSON.stringify(["category", "price"])
-});
-
-await authenticatedFetch(`${base}/fields/facetable`, {
-  method: 'PUT',
-  body: JSON.stringify(["category", "brand"])
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify([
+    { fieldName: 'name', searchable: true, weight: 2 },
+    { fieldName: 'description', searchable: true, weight: 1 },
+    { fieldName: 'category', filterable: true, facetable: true },
+    { fieldName: 'price', filterable: true },
+    { fieldName: 'brand', facetable: true }
+  ])
 });
 
 // 5. Load data (204 No Content)
