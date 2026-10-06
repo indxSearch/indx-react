@@ -57,6 +57,37 @@
   cursor: not-allowed;
 }
 
+/* Ghost: a view setting in a toolbar, styled as the ghost Button. Sized to its value; the border
+   stays, transparent, so the height matches the bordered field's. */
+.ghost {
+  width: auto;
+  background: transparent;
+  border-color: transparent;
+  color: var(--lv5);
+}
+
+.ghost:hover:not([data-disabled]) {
+  background: var(--lv2);
+  border-color: transparent;
+}
+
+.ghost .icon {
+  color: inherit;
+}
+
+.sizer {
+  display: inline-grid;
+}
+
+.sizer > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.sizerHidden {
+  visibility: hidden;
+}
+
 .icon {
   color: var(--lv5);
   display: flex;

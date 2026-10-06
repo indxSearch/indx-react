@@ -19,6 +19,9 @@ export interface SelectProps {
   disabled?: boolean;
   label?: string;
   size?: 'micro' | 'default' | 'large';
+  /** 'default': a bordered field. 'ghost': no border or background, sized to its value, like a
+   *  ghost Button; for a view setting in a toolbar rather than a form field. */
+  variant?: 'default' | 'ghost';
   'aria-label'?: string;
   id?: string;
 }
@@ -32,6 +35,7 @@ export const Select: React.FC<SelectProps> = ({
   disabled = false,
   label,
   size = 'default',
+  variant = 'default',
   'aria-label': ariaLabel,
   id,
 }) => {
@@ -44,12 +48,24 @@ export const Select: React.FC<SelectProps> = ({
     <RadixSelect.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <RadixSelect.Trigger
         id={selectId}
-        className={`${styles.trigger} ${styles[size]} ${className} cursor-pointer`}
+        className={`${styles.trigger} ${styles[size]} ${variant === 'ghost' ? styles.ghost : ''} ${className} cursor-pointer`}
         {...(label ? { 'aria-labelledby': labelId } : ariaLabel ? { 'aria-label': ariaLabel } : {})}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           {selectedOption?.icon}
-          <RadixSelect.Value placeholder={placeholder} />
+          {variant === 'ghost' ? (
+            // Every label in one grid cell, only the chosen one visible: the field is as wide as
+            // its widest option, so a value never clips and the field does not change width as
+            // the choice changes.
+            <span className={styles.sizer}>
+              {options.filter((o) => o.value !== value).map((o) => (
+                <span key={o.value} className={styles.sizerHidden} aria-hidden="true">{o.label}</span>
+              ))}
+              <span><RadixSelect.Value placeholder={placeholder} /></span>
+            </span>
+          ) : (
+            <RadixSelect.Value placeholder={placeholder} />
+          )}
         </span>
         <RadixSelect.Icon className={styles.icon} aria-hidden="true">
           <Chevron_down size={size === 'large' ? 21 : 14} color="currentColor" />
