@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.18.0
+
+### Minor Changes
+
+- Select: a new `variant="ghost"` for a view setting in a toolbar rather than a form field. No border or background, styled like a ghost Button, and as wide as its widest option, so the chosen value never clips and the field keeps its width as the choice changes. The default stays the bordered field.
+
 ## 2.17.0
 
 ### Minor Changes
