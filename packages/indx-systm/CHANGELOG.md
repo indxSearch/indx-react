@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.19.0
+
+### Minor Changes
+
+- ToggleSwitch: a new `variant="positive"` for settings where on versus off should be seen at a glance. When on, the track turns green in light mode and teal in dark mode. The colour is the new `--CPositive` token, so a theme can change it in one place. The default ToggleSwitch is unchanged.
+
 ## 2.18.0
 
 ### Minor Changes
