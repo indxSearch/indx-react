@@ -21,7 +21,7 @@
 
   /* Semantic: "on / enabled" — green on light mode, teal on dark (overridden below).
      Used by ToggleSwitch's positive variant. */
-  --CPositive: #2BB673;
+  --CPositive: #53A645;
 
   /* FONT FAMILY */
   --font-family: 'Inter', sans-serif;
