@@ -6,15 +6,14 @@ import type { ValueMatch, NumericRange } from './buildFilterProxy';
 
 export type { ValueMatch, NumericRange };
 
-// Internal type with all CoverageSetup properties required (SearchContext always provides defaults)
-export type RequiredCoverageSetup = Required<CoverageSetup>;
-
 export interface SearchSettings {
   maxNumberOfRecordsToReturn: number;
-  coverageDepth: number;
+  // Coverage values this page decides for itself. One left out is not sent, and the server takes
+  // it from the dataset's query parameters (its Query parameters tab), else the engine default.
+  coverageDepth?: number;
   enableCoverage: boolean;
   removeDuplicates: boolean;
-  coverageSetup: RequiredCoverageSetup;
+  coverageSetup: CoverageSetup;
   minimumScore: number;
   showScore: boolean;
   placeholderText: string;
@@ -124,7 +123,7 @@ export const SearchProvider: React.FC<{
   maxResults = 10,
   facetDebounceDelayMillis = 500, // debounce faceted searches only
   enableFacets = true,
-  coverageDepth = 500,
+  coverageDepth,
   removeDuplicates = true,
   enableCoverage = true,
   initialCoverageSetup = {},
@@ -166,22 +165,8 @@ export const SearchProvider: React.FC<{
       minimumScore: 0,
       showScore: true,
       placeholderText: 'Type to search',
-      coverageSetup: {
-        // Default values matching Swagger specification
-        coverWholeQuery: true,
-        coverWholeWords: true,
-        coverFuzzyWords: true,
-        coverJoinedWords: true,
-        coverPrefixSuffix: true,
-        truncate: true,
-        includePatternMatches: true,
-        minWordSize: 2,
-        levenshteinMaxWordSize: 20,
-        truncateWordHitLimit: 1,
-        truncateWordHitTolerance: 0,
-        truncationScore: 65024,
-        ...initialCoverageSetup, // Allow prop-based override
-      },
+      // Only what the page sets: every value sent overrides the dataset's choice for it.
+      coverageSetup: { ...initialCoverageSetup },
     },
   });
 
@@ -299,9 +284,12 @@ export const SearchProvider: React.FC<{
     setState(prev => {
       const newSettings = { ...prev.searchSettings, ...settings };
 
-      // Preserve coverageSetup reference if not explicitly provided
-      if (!settings.coverageSetup) {
+      // Not mentioned: keep it. Mentioned as undefined: clear it, so the dataset decides every
+      // coverage value again. Otherwise merge, so setting one value leaves the others alone.
+      if (!('coverageSetup' in settings)) {
         newSettings.coverageSetup = prev.searchSettings.coverageSetup;
+      } else if (!settings.coverageSetup) {
+        newSettings.coverageSetup = {};
       } else {
         // Merge with existing when provided
         newSettings.coverageSetup = {
