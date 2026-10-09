@@ -17,7 +17,7 @@
 .panelPhone { width: 390px; height: 720px; }
 
 /* Answer content that the docs render with their own markdown renderer. */
-.code { margin: 0; padding: 14px 16px; background: var(--lv0); border-radius: var(--radius); font: 12px/1.6 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace; color: var(--lv6); white-space: pre-wrap; overflow-wrap: anywhere; }
+.code { margin: 0; padding: 14px 16px; background: var(--lv0); border-radius: var(--radius); font: 12px/1.6 var(--font-mono); color: var(--lv6); white-space: pre-wrap; overflow-wrap: anywhere; }
 .empty { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; }
 .emptyTitle { font: var(--text-base); font-weight: var(--med); color: var(--lv7); }
 .emptyDesc { font: var(--text-sm); line-height: 1.45; color: var(--lv5); }

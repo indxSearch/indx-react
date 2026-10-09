@@ -20,7 +20,7 @@
 }
 
 .desc code {
-  font-family: monospace;
+  font-family: var(--font-mono);
   background: var(--lv2);
   padding: 1px 5px;
   border-radius: 2px;

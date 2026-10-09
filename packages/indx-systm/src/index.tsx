@@ -38,3 +38,4 @@ export {
 } from './components/Chat';
 export { Truncate, type TruncateProps } from './components/Truncate/Truncate';
 export { Disclosure, type DisclosureProps } from './components/Disclosure/Disclosure';
+export { CodeCopy, type CodeCopyProps } from './components/CodeCopy/CodeCopy';

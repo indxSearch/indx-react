@@ -25,6 +25,10 @@
 
   /* FONT FAMILY */
   --font-family: 'Inter', sans-serif;
+  /* Code, commands, keys and file names. The app loads the Geist Mono face (for example
+     @fontsource/geist-mono); without it the system's monospace takes over.
+     Kept in sync with Indx.Systm.Blazor/wwwroot/indx-systm.css. */
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* TEXT — line-height tuned per scale: looser for body (wraps to multiple lines),
      tighter for large display sizes. Controls (buttons/inputs) use fixed heights with
