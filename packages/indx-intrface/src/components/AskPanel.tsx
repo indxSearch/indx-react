@@ -175,7 +175,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
               </div>
             )}
             {status === 'searching' && asked.steps.length === 0 && <StreamStatus>Searching…</StreamStatus>}
-            {status === 'writing' && <StreamStatus>Writing…</StreamStatus>}
+            {status === 'writing' && <StreamStatus spinner="grow">Writing…</StreamStatus>}
             {status === 'error' && (
               <Alert variant="default" icon={null}>
                 <AlertTitle>{asked.error?.code === 'nothingFound' ? 'Nothing to answer from' : 'The answer did not come through'}</AlertTitle>
