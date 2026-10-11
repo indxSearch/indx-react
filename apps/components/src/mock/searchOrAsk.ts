@@ -19,14 +19,20 @@ const SOURCES = [
   { n: 3, documentKey: 103, title: 'Boost rules · Overview' },
 ];
 const ANSWER =
-  'Open the dataset and go to the Synonyms tab. Add a list of words that mean the same thing; ' +
-  'a search for any of them then also finds the others [1].\n\n' +
+  'Open the dataset and go to the **Synonyms** tab [1]:\n\n' +
+  '1. Add a list of words that mean the same thing.\n' +
+  '2. Choose `multidirectional`, or `oneWay` to expand from one word only.\n\n' +
   'Synonyms apply from the next search, with no reindex. Expansion makes the query longer, so ' +
-  'Coverage scores come out a little lower by design [2].';
+  'Coverage scores come out a little lower *by design* [2].';
 
 // A follow-up gets an answer that builds on the first, so a conversation reads like one.
 const FOLLOW_UP =
-  'Over the HTTP API, PUT the whole list to the dataset\'s synonyms route; it replaces what is there [1]. ' +
+  'Over the HTTP API, **PUT** the whole list to the dataset\'s synonyms route; it replaces what is there [1]:\n\n' +
+  '```bash\n' +
+  'curl -X PUT "$BASE/api/teams/my-team/datasets/docs/synonyms" \\\n' +
+  '  -H "Authorization: Bearer $KEY" \\\n' +
+  '  -d \'[{ "terms": ["sofa", "couch"], "direction": "multidirectional" }]\'\n' +
+  '```\n\n' +
   'The console\'s Synonyms tab saves through the same route.';
 
 export type AskBehaviour = 'answer' | 'nothingFound' | 'limited' | 'failed';

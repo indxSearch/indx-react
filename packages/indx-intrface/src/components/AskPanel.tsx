@@ -6,6 +6,7 @@ import {
 import type { ComposerHandle } from '@indxsearch/systm';
 import { Refresh } from '@indxsearch/pixl';
 import { useAsk, type AskSource, type AskStatus, type AskTurn } from '../hooks/useAsk';
+import { answerMarkdown } from '../utils/answerMarkdown';
 import styles from './AskPanel.module.css';
 
 export interface AskPanelProps {
@@ -21,7 +22,8 @@ export interface AskPanelProps {
   /** The label over each answer. Default "Answer". */
   label?: string;
   /** Renders the answer text, for a page with a markdown renderer of its own. `cite(n)` gives the
-   *  citation mark for source n. Default: paragraphs of plain text with [n] as citation marks. */
+   *  citation mark for source n. Default: intrface's own markdown (paragraphs, headings, lists,
+   *  code blocks, inline code, bold, italics, links), with [n] as citation marks. */
   renderAnswer?: (answer: string, cite: (n: number) => React.ReactNode) => React.ReactNode;
   /** Shown under the answer as "Ask a follow-up" when `followUps` is off: e.g. back to the
    *  search field. With `followUps` on, that button goes to the follow-up field instead. */
@@ -32,21 +34,6 @@ export interface AskPanelProps {
 }
 
 const CITE = /\[(\d+)\]/g;
-
-/** Plain text, paragraphs on blank lines, [n] as citation marks. */
-function plainAnswer(answer: string, cite: (n: number) => React.ReactNode): React.ReactNode {
-  return answer.split(/\n{2,}/).map((para, i) => {
-    const parts: React.ReactNode[] = [];
-    let last = 0;
-    for (const m of para.matchAll(CITE)) {
-      parts.push(para.slice(last, m.index));
-      parts.push(<React.Fragment key={`c${m.index}`}>{cite(Number(m[1]))}</React.Fragment>);
-      last = m.index! + m[0].length;
-    }
-    parts.push(para.slice(last));
-    return <p key={i} className={styles.paragraph}>{parts}</p>;
-  });
-}
 
 /** A finished turn of the conversation, kept on screen above the current one. */
 interface PastTurn {
@@ -63,7 +50,7 @@ interface PastTurn {
  * ones as context. Pair it with `SearchInput`'s `onAsk`, or `useSearchOrAsk` (when to offer).
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
-  question, followUps = false, onSourceClick, label = 'Answer', renderAnswer = plainAnswer, onFollowUp, onStatusChange,
+  question, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
   className = '',
 }) => {
   const asked = useAsk();
