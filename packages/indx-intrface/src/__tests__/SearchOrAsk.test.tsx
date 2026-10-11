@@ -206,6 +206,10 @@ describe('catalogue: a description becomes filters', () => {
     await waitFor(() => expect(result.current.ctx.state.filters).toEqual({ type1: ['electric'] }));
     expect(result.current.ctx.state.rangeFilters.speed!.min).toBe(80);
     expect(result.current.ctx.state.query).toBe('cute');
+
+    act(() => result.current.f.apply({ filters: [], text: '', sort: { field: 'speed', descending: true } }));
+    expect(result.current.ctx.state.sortBy).toBe('speed');
+    expect(result.current.ctx.state.sortAscending).toBe(false);
   });
 
   it('lets a page hand SearchInput the offer, so each pause is judged once', async () => {

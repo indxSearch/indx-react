@@ -101,6 +101,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
       <span className={styles.searchedLabel}>{f.more ? `${f.found}+` : f.found} found</span>
       {f.filters.map((x, i) => <Chip key={i}>{filterLabel(x)}</Chip>)}
       {f.text && <span className={styles.searchedLabel}>“{f.text}”</span>}
+      {f.sort && <span className={styles.searchedLabel}>sorted by {f.sort.field.split('.')[0]}, {f.sort.descending ? 'largest' : 'smallest'} first</span>}
     </div>
   );
 

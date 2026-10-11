@@ -14,6 +14,8 @@ export interface FilterSuggestionResult {
   filters: FilterSuggestion[];
   /** What no filter covers, to search for; empty when the filters cover it all. */
   text: string;
+  /** An order the description asked for, on a Sortable field. */
+  sort?: { field: string; descending: boolean } | null;
 }
 
 /**
@@ -24,7 +26,7 @@ export interface FilterSuggestionResult {
  */
 export function useFilterSuggestion() {
   const ctx = useSearchContext();
-  const { url, team, dataset, authenticatedFetch, setQuery, toggleFilter, setRangeFilter } = ctx;
+  const { url, team, dataset, authenticatedFetch, setQuery, toggleFilter, setRangeFilter, setSort } = ctx;
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
   const [suggestion, setSuggestion] = useState<FilterSuggestionResult | null>(null);
@@ -63,8 +65,9 @@ export function useFilterSuggestion() {
       if (f.value != null) toggleFilter(f.field, f.value);
       else setRangeFilter(f.field, f.min ?? bounds[f.field]?.min ?? 0, f.max ?? bounds[f.field]?.max ?? Number.MAX_SAFE_INTEGER);
     }
+    if (result.sort) setSort(result.sort.field, !result.sort.descending);
     setSuggestion(null);
-  }, [setQuery, toggleFilter, setRangeFilter]);
+  }, [setQuery, toggleFilter, setRangeFilter, setSort]);
 
   const clear = useCallback(() => { seq.current++; setSuggestion(null); setLoading(false); }, []);
 

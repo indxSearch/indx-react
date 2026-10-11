@@ -38,6 +38,8 @@ export interface AskState {
 export interface AskFilters {
   filters: { field: string; value?: string | null; min?: number | null; max?: number | null }[];
   text: string;
+  /** An order the description asked for ("the largest"): a Sortable field. */
+  sort?: { field: string; descending: boolean } | null;
   found: number;
   /** True when the count is a cap: there are more. */
   more: boolean;
