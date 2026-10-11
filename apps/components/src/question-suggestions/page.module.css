@@ -1,0 +1,23 @@
+.main { padding: 2rem; max-width: var(--maxWidth); margin: 0 auto; }
+.section { margin-bottom: 2rem; }
+.title { font: var(--text-2xl); margin-bottom: 0.5rem; }
+.heading { font: var(--text-xl); margin-bottom: 0.75rem; }
+.desc { font: var(--text-base); color: var(--lv5); margin-bottom: 0.5rem; max-width: 720px; }
+.note { font: var(--text-sm); color: var(--lv4); }
+.notes { font: var(--text-sm); color: var(--lv6); display: flex; flex-direction: column; gap: 6px; max-width: 720px; padding-left: 18px; }
+.controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.examples { display: flex; flex-wrap: wrap; gap: 4px; }
+.stage { max-width: 640px; margin-bottom: 3rem; }
+.score { font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 6px; }
+.dropdown { margin-top: 6px; padding: 6px; background: var(--lv1); border-radius: var(--radius); display: flex; flex-direction: column; gap: 2px; }
+.group { font: var(--text-xs); color: var(--lv5); padding: 8px 10px 4px; }
+.row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 10px; border-radius: 6px;
+  text-align: left; font: var(--text-sm); color: var(--lv7); width: 100%; height: auto; }
+div.row:hover { background: var(--lv2); }
+.row strong { color: var(--lv8); font-weight: var(--med); }
+.askRow { color: var(--lv8); font-weight: var(--med); }
+.quiet { color: var(--lv5); }
+.rowIcon { display: inline-flex; color: var(--lv5); flex: none; }
+.rowText { flex: 1; min-width: 0; }
+.key { display: inline-flex; color: var(--lv4); }
+.asked { margin-top: 12px; padding: 14px; background: var(--lv1); border-radius: var(--radius); font: var(--text-sm); color: var(--lv7); }

@@ -90,6 +90,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Analytics dashboard', path: '/analytics-dashboard' },
       { label: 'Dataset card', path: '/dataset-card' },
+      { label: 'Question suggestions', path: '/question-suggestions' },
     ],
   },
 ];
