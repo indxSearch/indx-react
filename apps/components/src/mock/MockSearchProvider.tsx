@@ -49,11 +49,36 @@ const rangeBounds = {
 const noop = () => {};
 const noopFetch = () => Promise.resolve(new Response());
 
-/** `facetStats` narrows a field's live (reachable) range, as another active filter would. */
-export function MockSearchProvider({ children, isFetchingInitial = false, facetStats: facetStatsOverride = {} }: { children: ReactNode; isFetchingInitial?: boolean; facetStats?: Record<string, { min: number; max: number }> }) {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
-  const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>({});
+export interface MockSearchProviderProps {
+  children: ReactNode;
+  isFetchingInitial?: boolean;
+  /** Narrows a field's live (reachable) range, as another active filter would. */
+  facetStats?: Record<string, { min: number; max: number }>;
+  /** Start in a given state, for pages that show one state per demo. */
+  initialQuery?: string;
+  initialFilters?: Record<string, string[]>;
+  initialRangeFilters?: Record<string, { min: number; max: number }>;
+  /** Number of results the last search returned; null for no search yet. */
+  resultCount?: number | null;
+  /** As the server reports it: with coverage on and a text query, -1 means no result reached the coverage bar. */
+  truncationIndex?: number;
+  enableCoverage?: boolean;
+}
+
+export function MockSearchProvider({
+  children,
+  isFetchingInitial = false,
+  facetStats: facetStatsOverride = {},
+  initialQuery = '',
+  initialFilters = {},
+  initialRangeFilters = {},
+  resultCount = null,
+  truncationIndex,
+  enableCoverage = false,
+}: MockSearchProviderProps) {
+  const [query, setQuery] = useState(initialQuery);
+  const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
+  const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>(initialRangeFilters);
   const [bucketFilters, setBucketFilters] = useState<Record<string, NumericRange[]>>({});
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAscending, setSortAscending] = useState(true);
@@ -97,7 +122,8 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
   const value: SearchContextType = {
     state: {
       query,
-      results: null,
+      results: resultCount === null ? null : Array.from({ length: resultCount }, (_, i) => ({ documentKey: i, score: 100 - i, position: i + 1, document: {} })),
+      truncationIndex,
       isLoading: false,
       filters,
       valueMatch: {},
@@ -127,7 +153,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
       searchSettings: {
         maxNumberOfRecordsToReturn: 30,
         coverageDepth: 0,
-        enableCoverage: false,
+        enableCoverage,
         removeDuplicates: false,
         coverageSetup: {
           coverWholeQuery: false, coverWholeWords: false, coverFuzzyWords: false,

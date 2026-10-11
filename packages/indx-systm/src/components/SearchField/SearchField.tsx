@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import styles from './SearchField.module.css';
 import { Search } from '@indxsearch/pixl';
 
@@ -41,6 +41,20 @@ export function SearchField({
   ...props
 }: SearchFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // What sits on the right (a Clear button, chips) is laid over the input, so the input is padded
+  // by its width; otherwise typed text runs underneath it.
+  const rightRef = useRef<HTMLDivElement>(null);
+  const [rightWidth, setRightWidth] = useState(0);
+  const hasChildren = React.Children.toArray(children).length > 0;
+  useLayoutEffect(() => {
+    const el = rightRef.current;
+    if (!el) { setRightWidth(0); return; }
+    const measure = () => setRightWidth(el.offsetWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasChildren]);
   const generatedId = React.useId();
   const inputId = providedId || generatedId;
   const errorId = `${inputId}-error`;
@@ -50,6 +64,9 @@ export function SearchField({
 
   if (searchIconColor) {
     inlineStyles['--search-icon-color'] = searchIconColor;
+  }
+  if (rightWidth > 0) {
+    inlineStyles.paddingRight = `${rightWidth + 10}px`;
   }
 
   const fallbackIconColor = 'var(--search-icon-color)';
@@ -83,7 +100,7 @@ export function SearchField({
           aria-describedby={error ? errorId : undefined}
           {...props}
         />
-        {children && <div className={styles.rightContent}>{children}</div>}
+        {hasChildren && <div ref={rightRef} className={styles.rightContent}>{children}</div>}
       </div>
       {error && (
         <span id={errorId} className={styles.errorText} role="alert">
