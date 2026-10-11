@@ -20,7 +20,7 @@ const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack
 
 const filters = (
   <>
-    <ActiveFiltersPanel />
+    {/* <ActiveFiltersPanel /> */}
     <SortByPanel control="radio" />
     <SortByPanel startCollapsed={true} />
     <ValueFilterPanel label="Primary type" layout="grid" field="type1" preserveBlankFacetState={true} preserveBlankFacetStateOrder={false} control="button" limit={30} />
