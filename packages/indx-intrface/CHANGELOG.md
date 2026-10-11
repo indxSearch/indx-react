@@ -1,5 +1,30 @@
 # Changelog
 
+## 3.12.0
+
+### Minor Changes
+
+- 1533dad: SearchInput shows what the search is doing. A blue chip counts the active filters. A Nearest chip appears when nothing matched your words directly and the list holds the nearest results instead; its tooltip says so. A No results chip appears when a search returns nothing. There is one Clear button, and it now resets the query and the filters together, so it also shows on an empty search with filters set. `showStatus={false}` hides the chips.
+
+  SearchField leaves room for what sits on its right, such as a Clear button or chips, so typed text no longer runs underneath them.
+
+  The search icon lights up only while the input has focus. Clicking Clear used to light it for a moment.
+
+- 43b8279: SearchResults shows a failed search as a state the visitor can read, not as an error message. Each kind of failure has its own icon and a short line: the server can't be reached, the key was not accepted or has no access, the dataset doesn't exist, the dataset is getting ready, too many searches, or a server error. Under it, a small technical line tells whoever built the page what happened and what to do. Where trying again can help there is a Try again button, and a dataset that is still loading or indexing is retried by itself when the server says it is ready.
+
+  No results now shows nothing in the list, since SearchInput says it in the field.
+
+  For your own components, the context has `retry()`, and `authErrorInfo` and `state.errorInfo` next to the existing messages, with the kind of failure, whether retrying can help, and the technical line. `describeSearchError` classifies any error the same way, and `SearchResultsMessage` is the component SearchResults uses, if you want it elsewhere.
+
+  A key that cannot reach the dataset (403) used to be reported as a failed connection. The startup messages in `authError` now follow the same form as search errors, for example "Dataset status failed: HTTP 404".
+
+### Patch Changes
+
+- 383e0f5: Filter panels are calmer when something is wrong. A panel whose field isn't set up for it (not Filterable, or not Facetable for a value panel) no longer shows a red message: it keeps its title, says "Not available" in muted text, names the missing role in a small technical line, and tells the console what to change. When the search fails to start, the filter panels step aside instead of each reporting its field as broken or showing a loading skeleton that never ends; the results area explains the failure once.
+- Updated dependencies [f9400f4]
+- Updated dependencies [1533dad]
+  - @indxsearch/systm@2.20.0
+
 ## 3.11.0
 
 ### Minor Changes
