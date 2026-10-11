@@ -15,3 +15,7 @@
 /* On a catalogue: what a description was searched with, above the answer. */
 .searched { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .searchedLabel { font: var(--text-xs); color: var(--lv5); }
+
+/* An agent's steps while it works: the done ones quiet, the current one with the stream status. */
+.steps { display: flex; flex-direction: column; gap: 4px; }
+.stepDone { font: var(--text-xs); color: var(--lv5); }

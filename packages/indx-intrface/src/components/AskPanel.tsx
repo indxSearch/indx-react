@@ -165,7 +165,13 @@ export const AskPanel: React.FC<AskPanelProps> = ({
           <AssistantMessage label={label}>
             {searched(asked.filters)}
             {asked.answer && <div className={styles.answer}>{renderAnswer(asked.answer, citeFrom(asked.sources))}</div>}
-            {status === 'searching' && <StreamStatus>Searching…</StreamStatus>}
+            {status === 'searching' && asked.steps.length > 0 && (
+              <div className={styles.steps}>
+                {asked.steps.slice(0, -1).map((s, i) => <span key={i} className={styles.stepDone}>{s}</span>)}
+                <StreamStatus>{asked.steps[asked.steps.length - 1]}…</StreamStatus>
+              </div>
+            )}
+            {status === 'searching' && asked.steps.length === 0 && <StreamStatus>Searching…</StreamStatus>}
             {status === 'writing' && <StreamStatus>Writing…</StreamStatus>}
             {status === 'error' && (
               <Alert variant="default" icon={null}>

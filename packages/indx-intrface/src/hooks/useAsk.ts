@@ -32,6 +32,8 @@ export interface AskState {
   askId?: string;
   /** On a catalogue, a description's filters, as the server searched with them, and what it found. */
   filters?: AskFilters;
+  /** What the agent has done so far ("Searching: Folkehøyskole, by Elevtall"), while it works. */
+  steps: string[];
 }
 
 /** What a catalogue's description was searched with: filters, words no filter covers, and the count. */
@@ -45,7 +47,7 @@ export interface AskFilters {
   more: boolean;
 }
 
-const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [] };
+const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [], steps: [] };
 
 /**
  * Asks the dataset a question (`search-or-ask/ask`) and follows the answer as it streams: the
@@ -69,7 +71,7 @@ export function useAsk() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    setState({ question: q, status: 'searching', answer: '', sources: [] });
+    setState({ question: q, status: 'searching', answer: '', sources: [], steps: [] });
 
     // Text arrives faster than frames; one update per frame keeps the layout from re-flowing
     // several times between paints.
@@ -109,6 +111,11 @@ export function useAsk() {
 
       for await (const { event, data } of readSse(res.body)) {
         switch (event) {
+          case 'status': {
+            const step = (data as { step?: string }).step;
+            if (step) setState(s => ({ ...s, steps: [...s.steps, step] }));
+            break;
+          }
           case 'filters':
             setState(s => ({ ...s, filters: data as AskFilters }));
             break;
