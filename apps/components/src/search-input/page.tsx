@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { SearchInput } from '@indxsearch/intrface';
 import { MockSearchProvider, type MockSearchProviderProps } from '../mock/MockSearchProvider';
+import { mockFetch } from '../mock/searchOrAsk';
 import styles from './page.module.css';
 
 type State = {
@@ -47,6 +48,13 @@ const states: State[] = [
   },
 ];
 
+const offerStates: { title: string; when: ReactNode; query: string; enabled?: boolean }[] = [
+  { title: 'No offer', when: <>A lookup: the score is below 0.4, or it is an identifier, which is never sent.</>, query: 'BoostProxy' },
+  { title: 'Invite', when: <>From 0.4, or one word that scores high: an answer might help.</>, query: 'synonyms in a dataset' },
+  { title: 'Strong', when: <>From 0.65 and at least two words. Enter asks.</>, query: 'how do I add synonyms' },
+  { title: 'Off', when: <>The dataset has it off, or the instance has no key: no offer, no requests.</>, query: 'how do I add synonyms', enabled: false },
+];
+
 export default function SearchInputPage() {
   return (
     <main className={styles.main}>
@@ -68,6 +76,26 @@ export default function SearchInputPage() {
               <div className={styles.stateWhen}>{s.when}</div>
             </div>
             <div className={styles.cell}><SearchInput /></div>
+          </MockSearchProvider>
+        ))}
+      </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.heading}>With onAsk (Search or ask)</h2>
+        <p className={styles.desc}>
+          Given <code>onAsk</code>, and on a dataset with Search or ask switched on, the field offers to answer what
+          is typed: a quiet "Ask about this", or a primary "Ask" where Enter asks. Without <code>onAsk</code> nothing
+          changes and nothing is sent. The judge here is a mock (a question word scores 0.85, three words 0.5).
+        </p>
+      </div>
+      <div className={styles.grid}>
+        {offerStates.map((s) => (
+          <MockSearchProvider key={s.title} initialQuery={s.query} resultCount={8} authenticatedFetch={mockFetch('answer', { enabled: s.enabled ?? true })}>
+            <div className={styles.stateLabel}>
+              <div className={styles.stateTitle}>{s.title}</div>
+              <div className={styles.stateWhen}>{s.when}</div>
+            </div>
+            <div className={styles.cell}><SearchInput onAsk={() => {}} /></div>
           </MockSearchProvider>
         ))}
       </div>

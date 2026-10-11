@@ -64,7 +64,7 @@ export const navGroups: NavGroup[] = [
     title: 'Intrface Components',
     items: [
       { label: 'SearchInput', path: '/search-input' },
-      { label: 'Search or ask', path: '/search-or-ask' },
+      { label: 'AskPanel', path: '/ask-panel' },
       { label: 'ValueFilterPanel', path: '/value-filter-panel' },
       { label: 'RangeFilterPanel', path: '/range-filter-panel' },
       { label: 'BucketFilterPanel', path: '/bucket-filter-panel' },
@@ -77,6 +77,12 @@ export const navGroups: NavGroup[] = [
       { label: 'SearchErrorBoundary', path: '/search-error-boundary' },
       { label: 'FilterPanelSkeleton', path: '/filter-panel-skeleton' },
       { label: 'Filter panel states', path: '/filter-panel-states' },
+    ],
+  },
+  {
+    title: 'Intrface Compositions',
+    items: [
+      { label: 'Search or ask', path: '/search-or-ask' },
     ],
   },
   {
