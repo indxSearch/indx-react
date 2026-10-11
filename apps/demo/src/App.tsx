@@ -3,7 +3,7 @@ import '@indxsearch/intrface/styles.css';
 import './globals.css';
 import { SearchClient } from './SearchClient';
 import {
-  ActiveFiltersPanel,
+  // ActiveFiltersPanel,
   ValueFilterPanel,
   BucketFilterPanel,
   RangeFilterPanel,
