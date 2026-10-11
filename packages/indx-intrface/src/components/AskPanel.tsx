@@ -139,7 +139,10 @@ export const AskPanel: React.FC<AskPanelProps> = ({
     if (status === 'answered' && asked.answer) {
       const turn = { question: asked.question, answer: asked.answer, sources: asked.sources, askId: asked.askId, filters: asked.filters };
       setPast(p => [...p, turn]);
-      history.current = [...history.current, { question: turn.question, answer: turn.answer }];
+      history.current = [...history.current, {
+        question: turn.question, answer: turn.answer,
+        ...(turn.filters ? { shown: { filters: turn.filters.filters, text: turn.filters.text, sort: turn.filters.sort ?? null } } : {}),
+      }];
     }
     setDraft('');
     void ask(text, history.current);

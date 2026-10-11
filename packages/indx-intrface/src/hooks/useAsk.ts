@@ -13,6 +13,8 @@ export interface AskSource {
 export interface AskTurn {
   question: string;
   answer: string;
+  /** On a catalogue, the list that turn put on the page: a follow-up is about it. */
+  shown?: { filters: AskFilters['filters']; text: string; sort?: AskFilters['sort'] };
 }
 
 export type AskStatus = 'idle' | 'searching' | 'writing' | 'answered' | 'error' | 'limited';

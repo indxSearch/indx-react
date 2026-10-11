@@ -248,6 +248,28 @@ describe('AskPanel', () => {
     expect(picked).toEqual([11]);
   });
 
+  it('on a catalogue, sends the list a turn put on the page with the follow-up', async () => {
+    const bodies: { question: string; history?: unknown[] }[] = [];
+    server.use(http.post(`${SOA}/ask`, async ({ request }) => {
+      bodies.push(await request.json() as { question: string });
+      return sse([
+        ...(bodies.length === 1 ? [['filters', { filters: [{ field: 'Kommune.Navn', value: 'Bærum' }], text: '', sort: null, found: 45, more: false }] as [string, unknown]] : []),
+        ['sources', [{ n: 1, documentKey: 11, title: 'Levre skole' }]],
+        ['text', { delta: bodies.length === 1 ? '45 schools in Bærum.' : 'Levre is the largest.' }],
+        ['done', { model: 'm', latencyMs: 1 }],
+      ]);
+    }));
+    globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+    render(<AskPanel question="skoler i bærum" followUps />, { wrapper });
+    await screen.findByText(/45 schools in Bærum/);
+    const field = screen.getByLabelText('Ask a follow-up');
+    fireEvent.change(field, { target: { value: 'hvilken er den største?' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    await screen.findByText(/Levre is the largest/);
+    expect(bodies[1]!.history).toEqual([{ question: 'skoler i bærum', answer: '45 schools in Bærum.',
+      shown: { filters: [{ field: 'Kommune.Navn', value: 'Bærum' }], text: '', sort: null } }]);
+  });
+
   it('asks a follow-up with the conversation, and keeps the first turn on screen', async () => {
     const bodies: { question: string; history?: { question: string; answer: string }[] }[] = [];
     server.use(http.post(`${SOA}/ask`, async ({ request }) => {
