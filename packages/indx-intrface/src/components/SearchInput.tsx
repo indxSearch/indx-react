@@ -2,7 +2,8 @@ import React from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { SearchField, Button, Chip, Tooltip } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
-import { Filter, Fuzzy_search } from '@indxsearch/pixl';
+import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
+import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inputSize?: InputSize; // Optional prop with valid values
@@ -12,6 +13,10 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   /** Chips that say what the search is doing: the number of active filters, "Nearest" when no
    *  result reached the coverage bar, and "No results". */
   showStatus?: boolean;
+  /** Search or ask: when given, and the dataset has it switched on, an offer to ask appears in
+   *  the chip row while the visitor types something an answer would serve. A strong offer also
+   *  makes Enter ask. Called with the text to ask; show the answer with `AskPanel`. */
+  onAsk?: (text: string) => void;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -21,6 +26,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   showClear = true,
   showFocus = false,
   showStatus = true,
+  onAsk,
+  onKeyDown,
   ...rest
 }) => {
   const {
@@ -41,6 +48,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const nearest =
     hasQuery && searchSettings.enableCoverage && results !== null && results.length > 0 && truncationIndex === -1;
 
+  const sor = useSearchOrAsk({ enabled: !!onAsk });
+  const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none';
+
+  const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    onKeyDown?.(e);
+    if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || sor.offer !== 'strong' || !query.trim()) return;
+    e.preventDefault();
+    onAsk(query.trim());
+  };
+
   const clear = () => {
     setQuery('');
     if (filterCount > 0) resetFilters();
@@ -57,8 +74,20 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       showSearchIcon={true}
       inputSize={inputSize}
       showFocusBorder={showFocus}
+      onKeyDown={keyDown}
       {...rest}
     >
+      {offerAsk && (
+        <Button
+          variant={sor.offer === 'strong' ? 'primary' : 'ghost'}
+          size="micro"
+          iconLeft={<Ai_agent />}
+          onClick={() => onAsk!(query.trim())}
+          title={sor.offer === 'strong' ? 'Enter asks' : undefined}
+        >
+          {sor.offer === 'strong' ? 'Ask' : 'Ask about this'}
+        </Button>
+      )}
       {showStatus && noResults && <Chip>No results</Chip>}
       {showStatus && nearest && (
         <Tooltip content="No direct match. Showing the nearest results.">

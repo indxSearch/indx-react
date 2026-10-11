@@ -1,0 +1,4 @@
+.panel { display: flex; flex-direction: column; gap: 20px; }
+.answer { display: flex; flex-direction: column; gap: 10px; }
+.paragraph { margin: 0; font: var(--text-sm); line-height: 1.55; color: var(--lv8); white-space: pre-wrap; }
+.action { margin-top: 10px; }
