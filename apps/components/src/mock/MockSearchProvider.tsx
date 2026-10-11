@@ -73,6 +73,9 @@ export interface MockSearchProviderProps {
   /** Override the field roles, to show a panel on a field that lacks one. */
   filterableFields?: string[];
   facetableFields?: string[];
+  /** The page's placeholder. intrface's own default is 'Type to search', which SearchInput turns
+   *  into 'Search or ask' while asking is on. */
+  placeholderText?: string;
   /** The page sets no coverage values of its own, so each is the dataset's (SearchSettingsPanel). */
   pageSetsNothing?: boolean;
   /** Answers the requests a component sends itself (Search or ask's settings, intent and ask). */
@@ -97,6 +100,7 @@ export function MockSearchProvider({
   facetableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
   authenticatedFetch = noopFetch,
   pageSetsNothing = false,
+  placeholderText = 'Search…',
 }: MockSearchProviderProps) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
@@ -190,7 +194,7 @@ export function MockSearchProvider({
         },
         minimumScore: 0,
         showScore: false,
-        placeholderText: 'Search…',
+        placeholderText,
         ...settings,
       } as SearchContextType['state']['searchSettings'],
     },

@@ -90,7 +90,7 @@ export default function SearchInputPage() {
       </div>
       <div className={styles.grid}>
         {offerStates.map((s) => (
-          <MockSearchProvider key={s.title} initialQuery={s.query} resultCount={8} authenticatedFetch={mockFetch('answer', { enabled: s.enabled ?? true })}>
+          <MockSearchProvider key={s.title} initialQuery={s.query} resultCount={8} placeholderText="Type to search" authenticatedFetch={mockFetch('answer', { enabled: s.enabled ?? true })}>
             <div className={styles.stateLabel}>
               <div className={styles.stateTitle}>{s.title}</div>
               <div className={styles.stateWhen}>{s.when}</div>

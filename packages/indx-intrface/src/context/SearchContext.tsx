@@ -99,6 +99,10 @@ export interface SearchContextType {
   count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
 }
 
+/** The field's placeholder unless the page sets one. SearchInput says "Search or ask" instead
+ *  while asking is on, so it must know this one from a page's own. */
+export const DEFAULT_PLACEHOLDER = 'Type to search';
+
 // Create the search context
 export const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
@@ -170,7 +174,7 @@ export const SearchProvider: React.FC<{
       removeDuplicates,
       minimumScore: 0,
       showScore: true,
-      placeholderText: 'Type to search',
+      placeholderText: DEFAULT_PLACEHOLDER,
       // Only what the page sets: every value sent overrides the dataset's choice for it.
       coverageSetup: { ...initialCoverageSetup },
     },

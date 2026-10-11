@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSearchContext } from '../context/SearchContext';
+import { useSearchContext, DEFAULT_PLACEHOLDER } from '../context/SearchContext';
 import { SearchField, Button, Chip, Tooltip } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
 import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
@@ -51,6 +51,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const sor = useSearchOrAsk({ enabled: !!onAsk });
   const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none';
 
+  // While asking is on the field invites both, unless the page chose its own words (a placeholder
+  // prop, or placeholderText in the search settings).
+  const placeholder = sor.available && searchSettings.placeholderText === DEFAULT_PLACEHOLDER
+    ? 'Search or ask'
+    : searchSettings.placeholderText;
+
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(e);
     if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || sor.offer !== 'strong' || !query.trim()) return;
@@ -68,7 +74,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       type="text"
       value={query}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-      placeholder={searchSettings.placeholderText}
+      placeholder={placeholder}
       autoFocus={autoFocus}
       className={className}
       showSearchIcon={true}

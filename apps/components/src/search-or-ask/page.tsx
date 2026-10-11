@@ -29,7 +29,7 @@ function Together({ ask = 'answer' as AskBehaviour, initialQuery = '', slow = fa
   const [question, setQuestion] = useState<string | null>(null);
   const [run, setRun] = useState(0);
   return (
-    <MockSearchProvider initialQuery={initialQuery} resultCount={initialQuery ? 8 : null} authenticatedFetch={mockFetch(ask, { slow })}>
+    <MockSearchProvider placeholderText="Type to search" initialQuery={initialQuery} resultCount={initialQuery ? 8 : null} authenticatedFetch={mockFetch(ask, { slow })}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
         <SearchInput onAsk={q => { setQuestion(q); setRun(r => r + 1); }} />
         {question && (

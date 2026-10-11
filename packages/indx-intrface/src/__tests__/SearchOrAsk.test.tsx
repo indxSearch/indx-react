@@ -271,6 +271,21 @@ describe('SearchInput onAsk', () => {
     expect(screen.getByTestId('asked').textContent).toBe('how do I add synonyms');
   });
 
+  it('says Search or ask while asking is on, unless the page set its own placeholder', async () => {
+    settings(true);
+    judge({});
+    render(<><SearchInput onAsk={() => {}} /><SearchInput onAsk={() => {}} placeholder="Find a Pokémon" /></>, { wrapper });
+    await waitFor(() => expect(screen.getAllByPlaceholderText('Search or ask').length).toBe(1));
+    expect(screen.getByPlaceholderText('Find a Pokémon')).toBeTruthy();
+  });
+
+  it('keeps the usual placeholder when asking is off for the dataset', async () => {
+    settings(false);
+    render(<SearchInput onAsk={() => {}} />, { wrapper });
+    await new Promise(r => setTimeout(r, 100));
+    expect(screen.getByPlaceholderText('Type to search')).toBeTruthy();
+  });
+
   it('shows no offer without onAsk, and reads no settings', async () => {
     let read = 0;
     server.use(http.get(SOA, () => { read++; return HttpResponse.json({}); }));
