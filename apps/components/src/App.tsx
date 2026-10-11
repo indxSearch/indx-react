@@ -46,6 +46,10 @@ import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
 import DatePickerPage from './date-picker/page';
 import ChatPage from './chat/page';
+import SearchResultsMessagePage from './search-results-message/page';
+import SearchSettingsPanelPage from './search-settings-panel/page';
+import SearchErrorBoundaryPage from './search-error-boundary/page';
+import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
 import AnalyticsDashboardPage from './analytics-dashboard/page';
 
@@ -97,6 +101,10 @@ export default function App() {
         <Route path="/modal" element={<ModalPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/search-results-message" element={<SearchResultsMessagePage />} />
+        <Route path="/search-settings-panel" element={<SearchSettingsPanelPage />} />
+        <Route path="/search-error-boundary" element={<SearchErrorBoundaryPage />} />
+        <Route path="/code-copy" element={<CodeCopyPage />} />
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
         <Route path="/analytics-dashboard" element={<AnalyticsDashboardPage />} />
       </Routes>

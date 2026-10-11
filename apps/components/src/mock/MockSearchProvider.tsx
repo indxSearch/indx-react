@@ -73,6 +73,8 @@ export interface MockSearchProviderProps {
   /** Override the field roles, to show a panel on a field that lacks one. */
   filterableFields?: string[];
   facetableFields?: string[];
+  /** The page sets no coverage values of its own, so each is the dataset's (SearchSettingsPanel). */
+  pageSetsNothing?: boolean;
   /** Answers the requests a component sends itself (Search or ask's settings, intent and ask). */
   authenticatedFetch?: SearchContextType['authenticatedFetch'];
 }
@@ -94,6 +96,7 @@ export function MockSearchProvider({
   filterableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
   facetableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
   authenticatedFetch = noopFetch,
+  pageSetsNothing = false,
 }: MockSearchProviderProps) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
@@ -101,6 +104,8 @@ export function MockSearchProvider({
   const [bucketFilters, setBucketFilters] = useState<Record<string, NumericRange[]>>({});
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAscending, setSortAscending] = useState(true);
+  // Kept, so a panel that changes them (SearchSettingsPanel) shows its own changes.
+  const [settings, setSettings] = useState<Partial<SearchContextType['state']['searchSettings']>>({});
 
   const toggleFilter = (field: string, value: string, exclusive = false) => {
     setFilters(prev => {
@@ -174,10 +179,10 @@ export function MockSearchProvider({
       sortAscending,
       searchSettings: {
         maxNumberOfRecordsToReturn: 30,
-        coverageDepth: 0,
+        coverageDepth: pageSetsNothing ? undefined : 0,
         enableCoverage,
         removeDuplicates: false,
-        coverageSetup: {
+        coverageSetup: pageSetsNothing ? {} : {
           coverWholeQuery: false, coverWholeWords: false, coverFuzzyWords: false,
           coverJoinedWords: false, coverPrefixSuffix: false, truncate: false,
           includePatternMatches: false, minWordSize: 0, levenshteinMaxWordSize: 0,
@@ -186,7 +191,8 @@ export function MockSearchProvider({
         minimumScore: 0,
         showScore: false,
         placeholderText: 'Search…',
-      },
+        ...settings,
+      } as SearchContextType['state']['searchSettings'],
     },
     isFetchingInitial,
     authError: authErrorInfo?.message,
@@ -210,7 +216,10 @@ export function MockSearchProvider({
       else resetRangeFilter(field);
     },
     setSort: (field, ascending) => { setSortBy(field); setSortAscending(ascending); },
-    setSearchSettings: noop,
+    setSearchSettings: next => setSettings(prev => ({
+      ...prev, ...next,
+      coverageSetup: { ...(prev.coverageSetup ?? {}), ...(next.coverageSetup ?? {}) } as never,
+    })),
     fetchMoreResults: noop,
   };
 
