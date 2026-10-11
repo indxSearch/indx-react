@@ -4,6 +4,7 @@ import { render, renderHook, screen, act, waitFor, fireEvent } from '@testing-li
 import { http, HttpResponse } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
+import { useFilterSuggestion } from '../hooks/useFilterSuggestion';
 import { AskPanel } from '../components/AskPanel';
 import { SearchInput } from '../components/SearchInput';
 import { nextOffer, triggers, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
@@ -182,6 +183,45 @@ describe('statistics', () => {
     await screen.findByText('Copy');
     fireEvent.click(screen.getByText('Synonyms'));
     await waitFor(() => expect(selects).toEqual([{ queryId: 'ask-7', documentKey: 12, position: 2 }]));
+  });
+});
+
+describe('catalogue: a description becomes filters', () => {
+  it('says the text describes what to list, and applies the filters to the search', async () => {
+    settings(true);
+    server.use(
+      http.post(`${SOA}/intent`, () => HttpResponse.json({ p: 0.1, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, criteria: 0.9 })),
+      http.post(`${SOA}/filters`, () => HttpResponse.json({ filters: [
+        { field: 'type1', value: 'electric' }, { field: 'speed', min: 80, max: null },
+      ], text: 'cute', ms: 900 })));
+    const { result } = renderHook(() => ({ ...useBoth(), f: useFilterSuggestion() }), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('fast electric pokemon'));
+    await waitFor(() => expect(result.current.sor.describes).toBe(true));
+    expect(result.current.sor.offer).toBe('none');
+
+    await act(() => result.current.f.suggest('fast electric pokemon'));
+    expect(result.current.f.suggestion!.filters.length).toBe(2);
+    act(() => result.current.f.apply(result.current.f.suggestion!));
+    await waitFor(() => expect(result.current.ctx.state.filters).toEqual({ type1: ['electric'] }));
+    expect(result.current.ctx.state.rangeFilters.speed!.min).toBe(80);
+    expect(result.current.ctx.state.query).toBe('cute');
+  });
+
+  it('lets a page hand SearchInput the offer, so each pause is judged once', async () => {
+    settings(true);
+    const asked = judge({ 'how do I add synonyms': 0.8 });
+    function Page() {
+      const sor = useSearchOrAsk({ pauseMs: 10 });
+      return <SearchInput onAsk={() => {}} searchOrAsk={sor} />;
+    }
+    globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Ask', {}, { timeout: 2000 });
+    await new Promise(r => setTimeout(r, 400));
+    expect(asked).toEqual(['how do I add synonyms']);
   });
 });
 

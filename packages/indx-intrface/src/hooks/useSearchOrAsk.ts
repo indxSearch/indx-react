@@ -24,9 +24,13 @@ export interface SearchOrAskState {
   p: number | null;
   /** The text the offer is about: what would be asked. */
   text: string;
+  /** On a catalogue: the probability the visitor describes what to list. Null elsewhere. */
+  criteria: number | null;
+  /** On a catalogue: the text describes what to list, so it can become filters (useFilterSuggestion). */
+  describes: boolean;
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text: '' };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text: '', criteria: null, describes: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -81,7 +85,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     if (!available) { setState(IDLE); return; }
     if (!text) {
       lastAsked.current = '';
-      setState({ available, offer: 'none', p: null, text: '' });
+      setState({ ...IDLE, available });
       return;
     }
     if (!triggers(text)) {
@@ -110,11 +114,15 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         }
         if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
         if (!res.ok) return;
-        const { p } = await res.json() as { p: number };
+        const { p, criteria } = await res.json() as { p: number; criteria?: number | null };
         if (mine !== seq.current) return; // a newer pause has asked since
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
-          return { available: true, offer: offer === 'strong' && !canAnswer(text) ? 'invite' : offer, p, text };
+          const c = criteria ?? null;
+          return {
+            available: true, offer: offer === 'strong' && !canAnswer(text) ? 'invite' : offer, p, text,
+            criteria: c, describes: c != null && c >= thresholds.current.strong,
+          };
         });
       } catch {
         // No offer is the safe outcome.

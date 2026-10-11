@@ -33,6 +33,8 @@ export type { EmbeddingResult, UseVectorSearchOptions } from './hooks/useVectorS
 export { useHybridSearch } from './hooks/useHybridSearch';
 export type { UseHybridSearchOptions } from './hooks/useHybridSearch';export { useSearchOrAsk } from './hooks/useSearchOrAsk';
 export type { UseSearchOrAskOptions, SearchOrAskState } from './hooks/useSearchOrAsk';
+export { useFilterSuggestion } from './hooks/useFilterSuggestion';
+export type { FilterSuggestion, FilterSuggestionResult } from './hooks/useFilterSuggestion';
 export { useAsk } from './hooks/useAsk';
 export type { AskSource, AskStatus, AskState, AskTurn } from './hooks/useAsk';
 export { AskPanel } from './components/AskPanel';

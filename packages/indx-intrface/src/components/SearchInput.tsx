@@ -3,7 +3,7 @@ import { useSearchContext, DEFAULT_PLACEHOLDER } from '../context/SearchContext'
 import { SearchField, Button, Chip, Tooltip } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
 import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
-import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
+import { useSearchOrAsk, type SearchOrAskState } from '../hooks/useSearchOrAsk';
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inputSize?: InputSize; // Optional prop with valid values
@@ -17,6 +17,9 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
    *  the chip row while the visitor types something an answer would serve. A strong offer also
    *  makes Enter ask. Called with the text to ask; show the answer with `AskPanel`. */
   onAsk?: (text: string) => void;
+  /** The offer, when the page runs `useSearchOrAsk` itself (to show it elsewhere too, or to use
+   *  `describes`): the field then shows this one and does not judge again. */
+  searchOrAsk?: SearchOrAskState;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -27,6 +30,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   showFocus = false,
   showStatus = true,
   onAsk,
+  searchOrAsk,
   onKeyDown,
   ...rest
 }) => {
@@ -48,7 +52,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const nearest =
     hasQuery && searchSettings.enableCoverage && results !== null && results.length > 0 && truncationIndex === -1;
 
-  const sor = useSearchOrAsk({ enabled: !!onAsk });
+  const own = useSearchOrAsk({ enabled: !!onAsk && !searchOrAsk });
+  const sor = searchOrAsk ?? own;
   const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none';
 
   // While asking is on the field invites both, unless the page chose its own words (a placeholder
