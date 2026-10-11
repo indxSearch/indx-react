@@ -30,6 +30,17 @@ export interface AskState {
   retryAfterSeconds?: number;
   /** The server's id for this ask (Indx-Ask-Id). A source opened is reported against it. */
   askId?: string;
+  /** On a catalogue, a description's filters, as the server searched with them, and what it found. */
+  filters?: AskFilters;
+}
+
+/** What a catalogue's description was searched with: filters, words no filter covers, and the count. */
+export interface AskFilters {
+  filters: { field: string; value?: string | null; min?: number | null; max?: number | null }[];
+  text: string;
+  found: number;
+  /** True when the count is a cap: there are more. */
+  more: boolean;
 }
 
 const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [] };
@@ -96,6 +107,9 @@ export function useAsk() {
 
       for await (const { event, data } of readSse(res.body)) {
         switch (event) {
+          case 'filters':
+            setState(s => ({ ...s, filters: data as AskFilters }));
+            break;
           case 'sources':
             setState(s => ({ ...s, status: 'writing', sources: data as AskSource[] }));
             break;

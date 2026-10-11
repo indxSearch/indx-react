@@ -119,10 +119,10 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
           const c = criteria ?? null;
-          return {
-            available: true, offer: offer === 'strong' && !canAnswer(text) ? 'invite' : offer, p, text,
-            criteria: c, describes: c != null && c >= thresholds.current.strong,
-          };
+          const describes = c != null && c >= thresholds.current.strong;
+          // On a catalogue a description is answered too (what it finds), so it gets the full offer.
+          const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
+          return { available: true, offer: describes ? 'strong' : asked, p, text, criteria: c, describes };
         });
       } catch {
         // No offer is the safe outcome.

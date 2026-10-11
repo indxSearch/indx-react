@@ -36,7 +36,7 @@ export type { UseSearchOrAskOptions, SearchOrAskState } from './hooks/useSearchO
 export { useFilterSuggestion } from './hooks/useFilterSuggestion';
 export type { FilterSuggestion, FilterSuggestionResult } from './hooks/useFilterSuggestion';
 export { useAsk } from './hooks/useAsk';
-export type { AskSource, AskStatus, AskState, AskTurn } from './hooks/useAsk';
+export type { AskSource, AskStatus, AskState, AskTurn, AskFilters } from './hooks/useAsk';
 export { AskPanel } from './components/AskPanel';
 export type { AskPanelProps } from './components/AskPanel';
 export { nextOffer, triggers, isIdentifier, DEFAULT_THRESHOLDS } from './utils/searchOrAsk';

@@ -11,3 +11,7 @@
 .codeBlock { margin: 0; padding: 12px 14px; background: var(--lv1); border-radius: var(--radius); overflow-x: auto;
   font: var(--text-xs); font-family: var(--font-mono); line-height: 1.6; color: var(--lv8); }
 .codeBlock code { font: inherit; white-space: pre; }
+
+/* On a catalogue: what a description was searched with, above the answer. */
+.searched { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.searchedLabel { font: var(--text-xs); color: var(--lv5); }

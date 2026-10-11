@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert, AlertTitle, AlertDescription, Button,
-  UserMessage, AssistantMessage, CitationRef, CitationList, StreamStatus, AnswerActions, Composer,
+  UserMessage, AssistantMessage, CitationRef, CitationList, StreamStatus, AnswerActions, Composer, Chip,
 } from '@indxsearch/systm';
 import type { ComposerHandle } from '@indxsearch/systm';
 import { Refresh } from '@indxsearch/pixl';
-import { useAsk, type AskSource, type AskStatus, type AskTurn } from '../hooks/useAsk';
+import { useAsk, type AskSource, type AskStatus, type AskTurn, type AskFilters } from '../hooks/useAsk';
 import { answerMarkdown } from '../utils/answerMarkdown';
 import styles from './AskPanel.module.css';
 
@@ -28,6 +28,12 @@ export interface AskPanelProps {
   /** Shown under the answer as "Ask a follow-up" when `followUps` is off: e.g. back to the
    *  search field. With `followUps` on, that button goes to the follow-up field instead. */
   onFollowUp?: () => void;
+  /** On a catalogue, called with the filters a description was searched with, as soon as they are
+   *  known: give them to `useFilterSuggestion().apply` so the page's list shows the same set. */
+  onFilters?: (filters: AskFilters) => void;
+  /** How a filter reads on its chip. Default: a text value as itself, a yes/no by its field's
+   *  name, a range by its bounds. */
+  filterLabel?: (filter: AskFilters['filters'][number]) => string;
   /** Told when the answer starts and stops streaming, e.g. to show a Stop button elsewhere. */
   onStatusChange?: (status: AskStatus) => void;
   className?: string;
@@ -41,6 +47,16 @@ interface PastTurn {
   answer: string;
   sources: AskSource[];
   askId?: string;
+  filters?: AskFilters;
+}
+
+function defaultFilterLabel(f: AskFilters['filters'][number]): string {
+  const name = f.field.split('.')[0]!;
+  if (f.value === 'true') return name;
+  if (f.value === 'false') return `not ${name}`;
+  if (f.value != null) return f.value;
+  if (f.min != null && f.max != null) return f.min === f.max ? `${name} ${f.min}` : `${name} ${f.min}–${f.max}`;
+  return f.min != null ? `${name} ≥ ${f.min}` : `${name} ≤ ${f.max}`;
 }
 
 /**
@@ -51,7 +67,7 @@ interface PastTurn {
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
   question, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
-  className = '',
+  onFilters, filterLabel = defaultFilterLabel, className = '',
 }) => {
   const asked = useAsk();
   const { ask, reset, stop, status, openSource } = asked;
@@ -70,6 +86,23 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   }, [question, ask, reset]);
 
   useEffect(() => { onStatusChange?.(status); }, [status, onStatusChange]);
+
+  // Each description's filters go to the page once, when they arrive.
+  const sentFilters = useRef<AskFilters | undefined>(undefined);
+  useEffect(() => {
+    if (asked.filters && asked.filters !== sentFilters.current) {
+      sentFilters.current = asked.filters;
+      onFilters?.(asked.filters);
+    }
+  }, [asked.filters, onFilters]);
+
+  const searched = (f?: AskFilters) => f && (
+    <div className={styles.searched}>
+      <span className={styles.searchedLabel}>{f.more ? `${f.found}+` : f.found} found</span>
+      {f.filters.map((x, i) => <Chip key={i}>{filterLabel(x)}</Chip>)}
+      {f.text && <span className={styles.searchedLabel}>“{f.text}”</span>}
+    </div>
+  );
 
   if (status === 'idle' && past.length === 0) return null;
 
@@ -103,7 +136,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   const sendFollowUp = (text: string) => {
     if (asked.busy || !text.trim()) return;
     if (status === 'answered' && asked.answer) {
-      const turn = { question: asked.question, answer: asked.answer, sources: asked.sources, askId: asked.askId };
+      const turn = { question: asked.question, answer: asked.answer, sources: asked.sources, askId: asked.askId, filters: asked.filters };
       setPast(p => [...p, turn]);
       history.current = [...history.current, { question: turn.question, answer: turn.answer }];
     }
@@ -119,6 +152,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
         <div key={i} className={styles.turn}>
           <UserMessage>{t.question}</UserMessage>
           <AssistantMessage label={label}>
+            {searched(t.filters)}
             <div className={styles.answer}>{renderAnswer(t.answer, citeFrom(t.sources, t.askId))}</div>
             {sourceList(t.answer, t.sources, true, t.askId)}
           </AssistantMessage>
@@ -128,6 +162,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
         <div className={styles.turn}>
           <UserMessage>{asked.question}</UserMessage>
           <AssistantMessage label={label}>
+            {searched(asked.filters)}
             {asked.answer && <div className={styles.answer}>{renderAnswer(asked.answer, citeFrom(asked.sources))}</div>}
             {status === 'searching' && <StreamStatus>Searching…</StreamStatus>}
             {status === 'writing' && <StreamStatus>Writing…</StreamStatus>}

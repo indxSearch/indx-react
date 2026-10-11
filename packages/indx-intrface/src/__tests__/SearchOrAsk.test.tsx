@@ -198,7 +198,7 @@ describe('catalogue: a description becomes filters', () => {
     await waitFor(() => expect(result.current.sor.available).toBe(true));
     act(() => result.current.ctx.setQuery('fast electric pokemon'));
     await waitFor(() => expect(result.current.sor.describes).toBe(true));
-    expect(result.current.sor.offer).toBe('none');
+    expect(result.current.sor.offer).toBe('strong'); // a description is answered too: what it finds
 
     await act(() => result.current.f.suggest('fast electric pokemon'));
     expect(result.current.f.suggestion!.filters.length).toBe(2);
@@ -266,6 +266,23 @@ describe('AskPanel', () => {
     await screen.findByText(/Over HTTP, PUT them/);
     expect(screen.getByText(/On the Synonyms tab/)).toBeTruthy();
     expect(bodies[1]).toEqual({ question: 'and over http?', history: [{ question: 'how do I add synonyms', answer: 'On the Synonyms tab [1].' }] });
+  });
+
+  it('on a catalogue, shows what a description was searched with and hands the filters to the page', async () => {
+    server.use(http.post(`${SOA}/ask`, () => sse([
+      ['filters', { filters: [{ field: 'ErPrivatskole', value: 'true' }, { field: 'Kommune.Navn', value: 'Trondheim - Tråante' }, { field: 'Elevtall', min: 300, max: null }], text: '', found: 9, more: false }],
+      ['sources', [{ n: 1, documentKey: 11, title: 'Thora Storm' }]],
+      ['text', { delta: '9 private schools in Trondheim [1].' }],
+      ['done', { model: 'm', latencyMs: 1 }],
+    ])));
+    const got: unknown[] = [];
+    render(<AskPanel question="private skoler i trondheim" onFilters={f => got.push(f)} />, { wrapper });
+    await screen.findByText(/9 private schools/);
+    expect(screen.getByText('9 found')).toBeTruthy();
+    expect(screen.getByText('ErPrivatskole')).toBeTruthy();
+    expect(screen.getByText('Trondheim - Tråante')).toBeTruthy();
+    expect(screen.getByText('Elevtall ≥ 300')).toBeTruthy();
+    expect(got.length).toBe(1);
   });
 
   it('says when the records hold nothing to answer from', async () => {
