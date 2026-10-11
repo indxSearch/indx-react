@@ -3,6 +3,9 @@
     border-bottom: 1px solid var(--lv0);
     font: var(--text-xs);
     position: relative;
+    /* A stacking context of its own, so a layer the app stretches over the row (a hover, a whole-row
+       click target) can sit behind the row's text with z-index: -1 and still above what the row sits on. */
+    isolation: isolate;
     color: var(--lv5);
 }
 

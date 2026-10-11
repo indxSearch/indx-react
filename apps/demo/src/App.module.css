@@ -25,10 +25,26 @@ button.titleButton::after {
   cursor: pointer;
 }
 
-/* A state layer rather than a new colour: a faint wash of the strongest text tone, which
-   darkens the row in the light theme and lightens it in the dark one. */
-button.titleButton:hover::after {
-  background: color-mix(in srgb, var(--lv8) 5%, transparent);
+/* The hover is a level step, like the icon gallery's cards, so it is a solid --lv and has to sit behind
+   the row's text and chips: ::before at z-index -1 inside the row, which intrface isolates. The ::after
+   stays on top as the click target, which keeps the button hovered wherever the pointer is in the row.
+   Both themes step one level lighter than Base: lv2 to lv1 in the light theme, lv1 to lv2 in the dark. */
+button.titleButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+button.titleButton:hover::before {
+  background: var(--lv1);
+}
+
+@media (prefers-color-scheme: dark) {
+  button.titleButton:hover::before {
+    background: var(--lv2);
+  }
 }
 
 /* The keyboard focus ring moves to the row, in systm's own focus style. */
