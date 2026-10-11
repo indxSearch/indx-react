@@ -22,6 +22,7 @@ import TooltipPage from './tooltip/page';
 import IconsPage from './icons/page';
 import SearchInputPage from './search-input/page';
 import SearchResultsStatesPage from './search-results-states/page';
+import FilterPanelStatesPage from './filter-panel-states/page';
 import ValueFilterPanelPage from './value-filter-panel/page';
 import RangeFilterPanelPage from './range-filter-panel/page';
 import BucketFilterPanelPage from './bucket-filter-panel/page';
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/icons" element={<IconsPage />} />
         <Route path="/search-input" element={<SearchInputPage />} />
         <Route path="/search-results-states" element={<SearchResultsStatesPage />} />
+        <Route path="/filter-panel-states" element={<FilterPanelStatesPage />} />
         <Route path="/value-filter-panel" element={<ValueFilterPanelPage />} />
         <Route path="/range-filter-panel" element={<RangeFilterPanelPage />} />
         <Route path="/bucket-filter-panel" element={<BucketFilterPanelPage />} />

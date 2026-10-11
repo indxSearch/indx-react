@@ -179,7 +179,20 @@ describe('BucketFilterPanel', () => {
     serveSpeedDataset();
     server.use(http.get(`${DS}/fields/filterable`, () => HttpResponse.json([])));
     renderPanel({ field: 'speed', width: 20 });
-    await screen.findByText(/not filterable/);
+    await screen.findByText('speed: not Filterable');
+    expect(screen.getByText('Not available')).toBeTruthy();
+  });
+
+  it('renders nothing when the search failed to start, not a skeleton that waits forever', async () => {
+    serveSpeedDataset();
+    let statusAnswered = false;
+    server.use(http.get(`${DS}/status`, () => { statusAnswered = true; return new HttpResponse(null, { status: 500 }); }));
+    const { container } = renderPanel({ field: 'speed', width: 20 });
+    await waitFor(() => expect(statusAnswered).toBe(true));
+    await new Promise((r) => setTimeout(r, 100)); // let the failed startup settle into state
+    expect(screen.queryByText(/not Filterable/)).toBeNull();
+    // Not a skeleton either: one would wait forever for facets that no search will bring.
+    expect(container.innerHTML).toBe('');
   });
 });
 

@@ -70,6 +70,9 @@ export interface MockSearchProviderProps {
   /** Results held back, as when the query is empty and empty searches are not allowed. */
   resultsSuppressed?: boolean;
   allowEmptySearch?: boolean;
+  /** Override the field roles, to show a panel on a field that lacks one. */
+  filterableFields?: string[];
+  facetableFields?: string[];
 }
 
 export function MockSearchProvider({
@@ -86,6 +89,8 @@ export function MockSearchProvider({
   authErrorInfo,
   resultsSuppressed,
   allowEmptySearch = true,
+  filterableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+  facetableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
 }: MockSearchProviderProps) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
@@ -159,8 +164,8 @@ export function MockSearchProvider({
         ...facetStatsOverride,
       },
       facetDebounceDelayMillis: 300,
-      filterableFields: ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
-      facetableFields:  ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+      filterableFields,
+      facetableFields,
       sortableFields:   ['name', 'hp', 'attack', 'defense', 'speed'],
       sortBy: sortBy ?? undefined,
       sortAscending,

@@ -59,7 +59,7 @@ describe('field validation', () => {
       http.get('http://localhost/api/teams/team/datasets/test/fields/filterable', () => HttpResponse.json(['category'])),
     );
     renderPanel({ control: 'slider' });
-    await screen.findByText(/Cannot render filter for "price": missing filterable/);
+    await screen.findByText('price: not Filterable');
     expect(screen.queryByRole('slider')).toBeNull();
   });
 });

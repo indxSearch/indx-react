@@ -3,6 +3,7 @@ import styles from './ValueFilterPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import { Checkbox, Button, ToggleSwitch, RadioButton, FilterPanelBase } from '@indxsearch/systm';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
+import { FilterPanelNotice } from './FilterPanelNotice';
 
 export interface ValueFilterPanelProps {
   field: string;
@@ -64,6 +65,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     state: { facets, filterableFields, facetableFields, filters, query },
     toggleFilter,
     setValueMatch,
+    authError,
     isFetchingInitial,
     allowEmptySearch
   } = useSearchContext();
@@ -88,6 +90,11 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
   if (!allowEmptySearch && !query) {
     return null;
   }
+
+  // Startup failed: no search will run, so the facets never arrive and the field lists are empty.
+  // Neither a skeleton that waits forever nor a 'field is misconfigured' message is true; SearchResults
+  // explains the failure, once.
+  if (authError) return null;
 
   if (isFetchingInitial || !facets) {
     if (control === 'toggle') {
@@ -116,13 +123,7 @@ export const ValueFilterPanel: React.FC<ValueFilterPanelProps> = ({
     const missing: string[] = [];
     if (!filterableFields?.includes(field)) missing.push('filterable');
     if (!facetableFields?.includes(field))   missing.push('facetable');
-    return (
-      <FilterPanelBase collapsible={false}>
-        <div style={{ color: 'red', fontSize: '12px' }}>
-          Cannot render filter for "{field}": missing {missing.join(' and ')}.
-        </div>
-      </FilterPanelBase>
-    );
+    return <FilterPanelNotice label={label} field={field} missing={missing} />;
   }
 
   // 2) Get raw facet values & selected filters
