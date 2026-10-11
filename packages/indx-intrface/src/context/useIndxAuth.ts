@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { SystemState } from '@indxsearch/indx-types';
+import { IndxApiError } from './IndxApiError';
+import { SearchSetupError, describeSearchError, type SearchErrorInfo } from './searchError';
 
 export interface IndxAuthResult {
   token: string | null;
   isFetchingInitial: boolean;
   /** Set when initialization failed (bad token, unknown dataset, unreachable server). */
   authError: string | null;
+  /** The same failure, classified: what kind it was, whether retrying can help, and a technical line. */
+  authErrorInfo: SearchErrorInfo | null;
+  /** Runs initialisation again, after a failure. */
+  retry: () => void;
   initialFacetStats: Record<string, { min: number; max: number }>;
   initialFacetKeys: Record<string, string[]>;
   filterableFields: string[];
@@ -48,25 +54,29 @@ export function useIndxAuth({
   const [totalDocumentCount, setTotalDocumentCount] = useState(0);
 
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authErrorInfo, setAuthErrorInfo] = useState<SearchErrorInfo | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     const authenticate = async () => {
       setAuthError(null);
+      setAuthErrorInfo(null);
+      setIsFetchingInitial(true);
       try {
         if (!preAuthenticatedToken) {
           console.error('[Auth] ❌ Missing bearer token');
           console.error('[Auth] 💡 Pass preAuthenticatedToken to SearchProvider (create a token on the Indx Dashboard)');
-          throw new Error('A bearer token is required. Check console for instructions.');
+          throw new SearchSetupError('A bearer token is required. Check console for instructions.');
         }
         if (!url) {
           console.error('[Auth] ❌ Missing INDX server URL');
           console.error('[Auth] 💡 Pass a url to SearchProvider');
-          throw new Error('INDX server URL is required. Check console for instructions.');
+          throw new SearchSetupError('INDX server URL is required. Check console for instructions.');
         }
         if (!dataset) {
           console.error('[Auth] ❌ Missing dataset name');
           console.error('[Auth] 💡 Pass dataset="your-dataset-name" to SearchProvider');
-          throw new Error('Dataset name is required. Check console for instructions.');
+          throw new SearchSetupError('Dataset name is required. Check console for instructions.');
         }
 
         if (enableDebugLogs) console.log('[Auth] ✅ Using bearer token');
@@ -88,17 +98,17 @@ export function useIndxAuth({
             console.error('[Auth] ❌ Authentication failed (401 Unauthorized)');
             console.error('[Auth] 💡 Your token may be expired or invalid');
             console.error('[Auth] 💡 Create or refresh your token on the Indx Dashboard');
-            throw new Error('Authentication failed (401). Token may be expired. Check console for instructions.');
+            throw await IndxApiError.fromResponse('Dataset status', statusRes);
           } else if (statusRes.status === 404) {
             console.error('[Auth] ❌ Dataset "' + dataset + '" not found (404)');
             console.error('[Auth] 💡 Available datasets can be checked with: curl -X GET "' + url + '/api/me/datasets" -H "Authorization: Bearer YOUR_TOKEN"');
             console.error('[Auth] 💡 Make sure you spelled the dataset name correctly');
-            throw new Error('Dataset "' + dataset + '" not found. Check console for instructions.');
+            throw await IndxApiError.fromResponse('Dataset status', statusRes);
           } else {
-            const errorText = await statusRes.text();
-            console.error('[Auth] ❌ Failed to get dataset status:', statusRes.status, errorText);
-            console.error('[Auth] 💡 Check if your INDX server is running at:', url);
-            throw new Error('Failed to connect to INDX server. Check console for details.');
+            // 403 is a key that does not reach this dataset, 409 a dataset that cannot be searched
+            // yet; none of them is a connection failure, which this branch used to report.
+            console.error('[Auth] ❌ Failed to get dataset status:', statusRes.status);
+            throw await IndxApiError.fromResponse('Dataset status', statusRes);
           }
         }
 
@@ -138,16 +148,16 @@ export function useIndxAuth({
         ]);
 
         if (!filterableRes.ok) {
-          console.error('[Auth] ❌ GetFilterableFields failed:', filterableRes.status, await filterableRes.text());
-          throw new Error('Failed to get filterable fields. Check console for details.');
+          console.error('[Auth] ❌ GetFilterableFields failed:', filterableRes.status);
+          throw await IndxApiError.fromResponse('Filterable fields', filterableRes);
         }
         if (!facetableRes.ok) {
-          console.error('[Auth] ❌ GetFacetableFields failed:', facetableRes.status, await facetableRes.text());
-          throw new Error('Failed to get facetable fields. Check console for details.');
+          console.error('[Auth] ❌ GetFacetableFields failed:', facetableRes.status);
+          throw await IndxApiError.fromResponse('Facetable fields', facetableRes);
         }
         if (!sortableRes.ok) {
-          console.error('[Auth] ❌ GetSortableFields failed:', sortableRes.status, await sortableRes.text());
-          throw new Error('Failed to get sortable fields. Check console for details.');
+          console.error('[Auth] ❌ GetSortableFields failed:', sortableRes.status);
+          throw await IndxApiError.fromResponse('Sortable fields', sortableRes);
         }
 
         const [filterable, facetable, sortable] = await Promise.all([
@@ -251,18 +261,21 @@ export function useIndxAuth({
         // from the effect, so a rethrow here is an unhandled promise rejection - the
         // consumer could never catch it. authError is the supported signal.
         setAuthError(err instanceof Error ? err.message : String(err));
+        setAuthErrorInfo(describeSearchError(err, { team, dataset }));
       } finally {
         setIsFetchingInitial(false);
       }
     };
 
     authenticate();
-  }, [url, team, dataset]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
+  }, [url, team, dataset, attempt]); // preAuthenticatedToken and enableDebugLogs intentionally omitted — runtime-only
 
   return {
     token,
     isFetchingInitial,
     authError,
+    authErrorInfo,
+    retry: () => setAttempt(a => a + 1),
     initialFacetStats,
     initialFacetKeys,
     filterableFields,

@@ -51,7 +51,8 @@ describe('missing dataset', () => {
     const { result } = setup({ dataset: 'typo' });
     await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
     expect(putCalls).toBe(0);
-    expect(result.current.authError).toMatch(/not found/i);
+    expect(result.current.authError).toMatch(/404/);
+    expect(result.current.authErrorInfo?.kind).toBe('notFound');
   });
 });
 

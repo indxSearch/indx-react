@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { SearchResults, parseArrayString } from '../components/SearchResults';
@@ -10,7 +10,13 @@ import { SEARCH_RESPONSE } from './mocks/fixtures';
 vi.mock('@indxsearch/systm', () => ({
   Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
 }));
-vi.mock('@indxsearch/pixl', () => ({ Indx: () => <div data-testid="idle-logo" /> }));
+vi.mock('@indxsearch/pixl', () => {
+  const icon = () => <span />;
+  return {
+    Indx: () => <div data-testid="idle-logo" />,
+    Cloud: icon, Key: icon, Lock: icon, Search: icon, Hour_glass: icon, Speedometer: icon, Warning: icon,
+  };
+});
 vi.mock('../components/SearchResult', () => ({
   SearchResult: ({ children }: any) => <div>{children}</div>,
 }));
@@ -74,7 +80,9 @@ describe('errors', () => {
     server.use(http.get(`${MISSING}/status`, () => new HttpResponse(null, { status: 404 })));
     renderResults({}, 'typo');
     const alert = await screen.findByRole('alert');
-    expect(alert.textContent).toMatch(/not found/i);
+    expect(alert.textContent).toMatch(/Nothing to search here/);
+    expect(alert.textContent).toMatch(/404/);
+    expect(screen.queryByText('Try again')).toBeNull();
     expect(screen.queryByTestId('idle-logo')).toBeNull();
   });
 
@@ -84,6 +92,45 @@ describe('errors', () => {
     await screen.findByTestId('idle-logo');
     act(() => setQueryRef('shoes'));
     const alert = await screen.findByRole('alert');
-    expect(alert.textContent).toMatch(/HTTP 401/);
+    expect(alert.textContent).toMatch(/Search is unavailable/);
+    expect(alert.textContent).toMatch(/401/);
+    // A visitor cannot fix a key, so there is nothing to retry.
+    expect(screen.queryByText('Try again')).toBeNull();
+  });
+
+  it('offers Try again when the server cannot be reached, and recovers', async () => {
+    renderResults();
+    await screen.findByTestId('idle-logo');
+    server.use(http.post(`${DS}/search`, () => HttpResponse.error(), { once: true }));
+    act(() => setQueryRef('shoes'));
+    expect((await screen.findByRole('alert')).textContent).toMatch(/can’t be reached/);
+    act(() => screen.getByText('Try again').click());
+    expect((await screen.findAllByTestId('title')).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('retries by itself while the dataset is getting ready', async () => {
+    renderResults();
+    await screen.findByTestId('idle-logo');
+    server.use(http.post(`${DS}/search`, () => HttpResponse.json(
+      { code: 'invalidState', retryable: true, currentState: 'Indexing' },
+      { status: 409, headers: { 'Retry-After': '0' } },
+    ), { once: true }));
+    act(() => setQueryRef('shoes'));
+    expect((await screen.findByRole('alert')).textContent).toMatch(/getting ready/);
+    expect(screen.queryByText('Try again')).toBeNull();
+    expect((await screen.findAllByTestId('title')).length).toBeGreaterThan(0);
+  });
+});
+
+describe('no results', () => {
+  it('renders nothing: the search field says so', async () => {
+    server.use(http.post(`${DS}/search`, () => HttpResponse.json({ ...SEARCH_RESPONSE, records: [] })));
+    const { container } = renderResults();
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('xyzzy'));
+    await waitFor(() => expect(screen.queryByTestId('idle-logo')).toBeNull());
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(container.textContent).toBe('');
   });
 });

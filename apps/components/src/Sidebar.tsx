@@ -69,6 +69,7 @@ export const navGroups: NavGroup[] = [
       { label: 'SortByPanel', path: '/sort-by-panel' },
       { label: 'ActiveFiltersPanel', path: '/active-filters-panel' },
       { label: 'SearchResult', path: '/search-result' },
+      { label: 'SearchResults states', path: '/search-results-states' },
       { label: 'FilterPanelSkeleton', path: '/filter-panel-skeleton' },
     ],
   },

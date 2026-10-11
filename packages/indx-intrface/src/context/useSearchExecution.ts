@@ -3,6 +3,7 @@ import type { SearchState } from './SearchContext';
 import type { IndxAuthResult } from './useIndxAuth';
 import { buildFilterProxy } from './buildFilterProxy';
 import { IndxApiError } from './IndxApiError';
+import { describeSearchError } from './searchError';
 
 function debounce<F extends (...args: any[]) => void>(fn: F, delay: number) {
   let timer: ReturnType<typeof setTimeout>;
@@ -31,7 +32,10 @@ export interface UseSearchExecutionOptions {
   count: boolean;
 }
 
-export type UseSearchExecutionResult = void;
+export interface UseSearchExecutionResult {
+  /** Runs the last search again, after a failure. */
+  retrySearch: () => void;
+}
 
 export function useSearchExecution({
   state,
@@ -298,6 +302,7 @@ export function useSearchExecution({
           ...prev,
           results: filteredResults,
           error: undefined,
+          errorInfo: undefined,
           resultsSuppressed: !shouldFetchResults,
           ...(enableFacets ? { facets: displayFacets, facetStats: mergedFacetStats } : {}),
           isLoading: false,
@@ -329,6 +334,7 @@ export function useSearchExecution({
           isLoading: false,
           resultsSuppressed: false,
           error: error instanceof Error ? error.message : 'Search failed',
+          errorInfo: describeSearchError(error, { team, dataset }),
         }));
       }
     },
@@ -489,5 +495,10 @@ export function useSearchExecution({
     settingsQueryRef.current = state.query;
   }, [state.query]);
 
-}
 
+  const retrySearch = useCallback(() => {
+    performSearchRef.current?.({ enableFacets: facetsEnabled });
+  }, [facetsEnabled]);
+
+  return { retrySearch };
+}

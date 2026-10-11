@@ -1,7 +1,7 @@
 
 import React, { useState, ReactNode } from 'react';
 import { SearchContext } from '@indxsearch/intrface';
-import type { SearchContextType, NumericRange } from '@indxsearch/intrface';
+import type { SearchContextType, NumericRange, SearchErrorInfo } from '@indxsearch/intrface';
 
 // Numeric facets for range filter / histogram demos
 const numericFacets = {
@@ -63,6 +63,13 @@ export interface MockSearchProviderProps {
   /** As the server reports it: with coverage on and a text query, -1 means no result reached the coverage bar. */
   truncationIndex?: number;
   enableCoverage?: boolean;
+  /** A failed search, classified as intrface does it (describeSearchError). */
+  errorInfo?: SearchErrorInfo;
+  /** A failed initialisation (token, dataset, server), classified. */
+  authErrorInfo?: SearchErrorInfo;
+  /** Results held back, as when the query is empty and empty searches are not allowed. */
+  resultsSuppressed?: boolean;
+  allowEmptySearch?: boolean;
 }
 
 export function MockSearchProvider({
@@ -75,6 +82,10 @@ export function MockSearchProvider({
   resultCount = null,
   truncationIndex,
   enableCoverage = false,
+  errorInfo,
+  authErrorInfo,
+  resultsSuppressed,
+  allowEmptySearch = true,
 }: MockSearchProviderProps) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
@@ -124,6 +135,9 @@ export function MockSearchProvider({
       query,
       results: resultCount === null ? null : Array.from({ length: resultCount }, (_, i) => ({ documentKey: i, score: 100 - i, position: i + 1, document: {} })),
       truncationIndex,
+      error: errorInfo?.message,
+      errorInfo,
+      resultsSuppressed,
       isLoading: false,
       filters,
       valueMatch: {},
@@ -167,7 +181,10 @@ export function MockSearchProvider({
       },
     },
     isFetchingInitial,
-    allowEmptySearch: true,
+    authError: authErrorInfo?.message,
+    authErrorInfo,
+    retry: () => {},
+    allowEmptySearch,
     url: '',
     team: 'mock',
     dataset: 'mock',

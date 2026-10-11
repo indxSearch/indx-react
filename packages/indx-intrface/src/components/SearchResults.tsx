@@ -1,6 +1,8 @@
 // SearchResults.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './SearchResults.module.css';
+import { SearchResultsMessage } from './SearchResultsMessage';
+import type { SearchErrorInfo } from '../context/searchError';
 import { useSearchContext } from '../context/SearchContext';
 import type { SearchResult as SearchResultData } from '../context/SearchContext';
 import { SearchResult } from './SearchResult';
@@ -54,9 +56,11 @@ export function parseArrayString(value: string): string[] | undefined {
 
 export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error },
+    state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error, errorInfo },
     isFetchingInitial,
     authError,
+    authErrorInfo,
+    retry,
     allowEmptySearch,
     fetchMoreResults,
     selectResult,
@@ -97,21 +101,21 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   // Initialisation failures (bad token, unknown dataset) and failed searches are
   // stored in context rather than thrown, so show them here instead of the idle logo.
+  // A context built by hand may carry only the message; it shows as an unknown failure.
   const errorMessage = authError ?? error;
   if (errorMessage) {
-    return (
-      <div className={styles.invalid} role="alert">
-        <p>{errorMessage}</p>
-      </div>
-    );
+    const info: SearchErrorInfo = (authError ? authErrorInfo : errorInfo) ??
+      { kind: 'unknown', message: errorMessage, technical: errorMessage, retryable: false };
+    return <SearchResultsMessage error={info} onRetry={retry} />;
   }
 
   if (resultsSuppressed || results === null) {
     return <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
   }
 
+  // Nothing to show: SearchInput's No results chip says so.
   if (results.length === 0) {
-    return <div className={styles.invalid}><p>No results found.</p></div>;
+    return null;
   }
 
   return (

@@ -1,10 +1,14 @@
 import '@indxsearch/systm/styles.css';
 export { SearchProvider, useSearchContext, SearchContext } from './context/SearchContext';
 export type { SearchContextType, SearchState, NumericRange, ValueMatch } from './context/SearchContext';
+export { describeSearchError, SearchSetupError } from './context/searchError';
+export type { SearchErrorInfo, SearchErrorKind } from './context/searchError';
 export type { SearchResult as SearchResultData } from './context/SearchContext';
 export type { SearchResultMeta } from './components/SearchResults';
 export { useSearch } from './context/useSearch';
 export { SearchInput } from './components/SearchInput';
+export { SearchResultsMessage } from './components/SearchResultsMessage';
+export type { SearchResultsMessageProps } from './components/SearchResultsMessage';
 export { SearchResults } from './components/SearchResults';
 export { SearchResult } from './components/SearchResult';
 export type { SearchResultProps } from './components/SearchResult';
