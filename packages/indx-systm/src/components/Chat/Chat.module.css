@@ -99,6 +99,10 @@
   flex: 1;
   min-width: 0;
   margin: 0;
+  /* The field sets its own height from scrollHeight, which includes the padding: border-box keeps
+     that height whole on a page that does not make border-box the rule, which grew the field
+     by its padding and pushed the send button down. */
+  box-sizing: border-box;
   padding: 6px 0;
   min-height: 30px;
   max-height: 160px;
