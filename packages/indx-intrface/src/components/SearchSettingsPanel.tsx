@@ -190,14 +190,6 @@ export function SearchSettingsPanel() {
             </li>
             <li>
               <InputField
-                label="Levenshtein Max Word Size"
-                type="number"
-                value={searchSettings.coverageSetup.levenshteinMaxWordSize.toString()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoverageSetupNumberChange('levenshteinMaxWordSize', e.target.value)}
-              />
-            </li>
-            <li>
-              <InputField
                 label="Min Word Size"
                 type="number"
                 value={searchSettings.coverageSetup.minWordSize.toString()}
