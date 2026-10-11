@@ -38,7 +38,7 @@ const filters = (
       layout="grid"
     />
     <ValueFilterPanel label="Legendary" field="is_legendary" preserveBlankFacetState={true} control="toggle" />
-    <RangeFilterPanel label="Speed" field="speed" control="slider" expectedMin={5} expectedMax={180} />
+    <RangeFilterPanel label="Speed" field="speed" control="slider" expectedMin={5} expectedMax={180} showHistogram />
     <RangeFilterPanel label="Attack" field="attack" control="slider" startCollapsed={true} showHistogram />
     <RangeFilterPanel label="HP" field="hp" control="slider" startCollapsed={true} />
     {/* speed grouped into ranges; several buckets OR together */}
