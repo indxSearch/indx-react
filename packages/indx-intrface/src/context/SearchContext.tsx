@@ -95,6 +95,8 @@ export interface SearchContextType {
   // SearchProvider always supplies both.
   selectResult?: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
   sessionId?: string; // This page load's session id, sent with every search
+  source?: string; // The provider's source, sent with every search and with what belongs to it
+  count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
 }
 
 // Create the search context
@@ -457,6 +459,8 @@ export const SearchProvider: React.FC<{
         fetchMoreResults,
         selectResult,
         sessionId,
+        source,
+        count,
       }}
     >
       {children}

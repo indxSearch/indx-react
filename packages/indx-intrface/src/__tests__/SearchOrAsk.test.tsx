@@ -143,6 +143,48 @@ describe('useSearchOrAsk', () => {
   });
 });
 
+describe('statistics', () => {
+  it('names the search and the session with each judgement', async () => {
+    settings(true);
+    const urls: URL[] = [];
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', () =>
+        HttpResponse.json({ records: [], facets: {}, truncationIndex: -1 }, { headers: { 'Indx-Query-Id': 'q-42' } })),
+      http.post(`${SOA}/intent`, ({ request }) => {
+        urls.push(new URL(request.url));
+        return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
+      }));
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I add synonyms'));
+    await waitFor(() => expect(urls.length).toBe(1));
+    expect(urls[0]!.searchParams.get('queryId')).toBe('q-42');
+    expect(urls[0]!.searchParams.get('session')).toBe(result.current.ctx.sessionId);
+  });
+
+  it('reports an opened source against the ask, with its citation number', async () => {
+    const selects: unknown[] = [];
+    server.use(
+      http.post(`${SOA}/ask`, () => {
+        const r = sse([
+          ['sources', [{ n: 2, documentKey: 12, title: 'Synonyms' }]],
+          ['text', { delta: 'See [2].' }],
+          ['done', { model: 'm', latencyMs: 1 }],
+        ]);
+        r.headers.set('Indx-Ask-Id', 'ask-7');
+        return r;
+      }),
+      http.post('http://localhost/api/teams/team/datasets/test/events/select', async ({ request }) => {
+        selects.push(await request.json());
+        return new HttpResponse(null, { status: 202 });
+      }));
+    render(<AskPanel question="how do I add synonyms" onSourceClick={() => {}} />, { wrapper });
+    await screen.findByText('Copy');
+    fireEvent.click(screen.getByText('Synonyms'));
+    await waitFor(() => expect(selects).toEqual([{ queryId: 'ask-7', documentKey: 12, position: 2 }]));
+  });
+});
+
 describe('AskPanel', () => {
   it('streams the answer and lists the sources it cites', async () => {
     server.use(http.post(`${SOA}/ask`, () => sse([

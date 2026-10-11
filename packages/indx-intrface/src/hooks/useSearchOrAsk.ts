@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import {
-  DEFAULT_THRESHOLDS, canAnswer, isIdentifier, nextOffer, triggers,
+  DEFAULT_THRESHOLDS, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
   type Offer, type OfferThresholds,
 } from '../utils/searchOrAsk';
 
@@ -38,7 +38,11 @@ const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text:
  */
 export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAskState {
   const { enabled = true, pauseMs = 300 } = options;
-  const { url, team, dataset, authenticatedFetch, isFetchingInitial, authError, state: search } = useSearchContext();
+  const ctx = useSearchContext();
+  const { url, team, dataset, authenticatedFetch, isFetchingInitial, authError, state: search } = ctx;
+  // Read when the pause ends, so the judgement names the search the visitor is looking at.
+  const ctxRef = useRef(ctx);
+  ctxRef.current = ctx;
   const text = (options.text ?? search.query).trim();
 
   const [available, setAvailable] = useState(false);
@@ -93,7 +97,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       const mine = ++seq.current;
       lastAsked.current = text;
       try {
-        const res = await authenticatedFetch(`${base}/intent`, {
+        const res = await authenticatedFetch(`${base}/intent${statisticsParams(ctxRef.current)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text }),

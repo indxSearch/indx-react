@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
-import { readSse } from '../utils/searchOrAsk';
+import { readSse, statisticsParams } from '../utils/searchOrAsk';
 
 /** A record the answer may use, numbered as the answer cites it ([n]). */
 export interface AskSource {
@@ -22,6 +22,8 @@ export interface AskState {
   error?: { code: string; message: string };
   /** When status is 'limited': seconds until asking again may succeed. */
   retryAfterSeconds?: number;
+  /** The server's id for this ask (Indx-Ask-Id). A source opened is reported against it. */
+  askId?: string;
 }
 
 const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [] };
@@ -33,8 +35,13 @@ const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [] }
  * else, and says so when they do not hold it.
  */
 export function useAsk() {
-  const { url, team, dataset, authenticatedFetch } = useSearchContext();
+  const ctx = useSearchContext();
+  const { url, team, dataset, authenticatedFetch } = ctx;
+  const ctxRef = useRef(ctx);
+  ctxRef.current = ctx;
   const [state, setState] = useState<AskState>(IDLE);
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const abortRef = useRef<AbortController | null>(null);
 
   const ask = useCallback(async (question: string) => {
@@ -61,7 +68,7 @@ export function useAsk() {
     const fail = (code: string, message: string) => setState(s => ({ ...s, status: 'error', error: { code, message } }));
 
     try {
-      const res = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/ask`, {
+      const res = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/ask${statisticsParams(ctxRef.current)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
         body: JSON.stringify({ question: q }),
@@ -73,6 +80,8 @@ export function useAsk() {
         setState(s => ({ ...s, status: 'limited', retryAfterSeconds: body.retryAfterSeconds ?? (Number.isFinite(header) ? header : undefined) }));
         return;
       }
+      const askId = res.headers.get('Indx-Ask-Id') ?? undefined;
+      if (askId) setState(s => ({ ...s, askId }));
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => ({})) as { code?: string; detail?: string };
         fail(body.code ?? `http${res.status}`, body.detail ?? 'The question could not be asked.');
@@ -116,11 +125,30 @@ export function useAsk() {
     }
   }, [url, team, dataset, authenticatedFetch]);
 
+  /** Reports that the visitor opened a cited source: a select naming this ask, with the citation
+   *  number as the position. Fire and forget, like selectResult: statistics never break a page. */
+  const openSource = useCallback(async (source: AskSource) => {
+    const askId = stateRef.current.askId;
+    if (!askId) return;
+    try {
+      await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          queryId: askId, documentKey: source.documentKey, position: source.n,
+          ...(ctxRef.current.count === false ? { count: false } : {}),
+        }),
+      });
+    } catch {
+      // Not recorded; nothing else changes.
+    }
+  }, [url, team, dataset, authenticatedFetch]);
+
   const stop = useCallback(() => abortRef.current?.abort(), []);
   const reset = useCallback(() => { abortRef.current?.abort(); setState(IDLE); }, []);
 
   // Abandon a request in flight when the page goes away.
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  return { ...state, ask, stop, reset, busy: state.status === 'searching' || state.status === 'writing' };
+  return { ...state, ask, stop, reset, openSource, busy: state.status === 'searching' || state.status === 'writing' };
 }

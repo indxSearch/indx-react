@@ -51,7 +51,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   question, onSourceClick, label = 'Answer', renderAnswer = plainAnswer, onFollowUp, onStatusChange, className = '',
 }) => {
   const asked = useAsk();
-  const { ask, reset, status } = asked;
+  const { ask, reset, status, openSource } = asked;
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   if (status === 'idle') return null;
 
   const source = (n: number) => asked.sources.find(s => s.n === n);
-  const pick = (s: AskSource) => (e: React.MouseEvent) => { e.preventDefault(); onSourceClick?.(s); };
+  const pick = (s: AskSource) => (e: React.MouseEvent) => { e.preventDefault(); void openSource(s); onSourceClick?.(s); };
   const cite = (n: number) => {
     const s = source(n);
     return <CitationRef n={n} title={s?.title} onClick={s && onSourceClick ? pick(s) : undefined} />;

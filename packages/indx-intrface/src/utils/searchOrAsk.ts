@@ -86,3 +86,15 @@ export async function* readSse(body: ReadableStream<Uint8Array>): AsyncGenerator
     reader.releaseLock();
   }
 }
+
+/** What the statistics need to place a judgement or an ask, as a search sends it: the search
+ *  behind it, the page load's session, the surface, and whether it counts. */
+export function statisticsParams(ctx: { state: { queryId?: string }; sessionId?: string; source?: string; count?: boolean }): string {
+  const p = new URLSearchParams();
+  if (ctx.state.queryId) p.set('queryId', ctx.state.queryId);
+  if (ctx.sessionId) p.set('session', ctx.sessionId);
+  if (ctx.source) p.set('source', ctx.source);
+  if (ctx.count === false) p.set('count', 'false');
+  const s = p.toString();
+  return s ? `?${s}` : '';
+}
