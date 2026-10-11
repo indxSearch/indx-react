@@ -34,7 +34,7 @@ export { useHybridSearch } from './hooks/useHybridSearch';
 export type { UseHybridSearchOptions } from './hooks/useHybridSearch';export { useSearchOrAsk } from './hooks/useSearchOrAsk';
 export type { UseSearchOrAskOptions, SearchOrAskState } from './hooks/useSearchOrAsk';
 export { useAsk } from './hooks/useAsk';
-export type { AskSource, AskStatus, AskState } from './hooks/useAsk';
+export type { AskSource, AskStatus, AskState, AskTurn } from './hooks/useAsk';
 export { AskPanel } from './components/AskPanel';
 export type { AskPanelProps } from './components/AskPanel';
 export { nextOffer, triggers, isIdentifier, DEFAULT_THRESHOLDS } from './utils/searchOrAsk';

@@ -42,6 +42,7 @@ export default function AskPanelPage() {
         </p>
         <PropsTable rows={[
           { name: 'question', type: 'string | null', description: 'The question to answer. A new value asks it; null or empty shows nothing. To ask the same text again, give the panel a new key.' },
+          { name: 'followUps', type: 'boolean', default: 'false', description: 'A follow-up field under the answer. Each follow-up is asked with the conversation so far; earlier turns stay above it.' },
           { name: 'onSourceClick', type: '(source) => void', description: 'A cited source was picked: { n, documentKey, title }. The panel reports it to the statistics; the page opens the record.' },
           { name: 'onFollowUp', type: '() => void', description: 'Shown as "Ask a follow-up" under the answer, e.g. back to the search field.' },
           { name: 'renderAnswer', type: '(answer, cite) => ReactNode', default: 'plain paragraphs', description: 'Renders the answer, for a page with its own markdown. cite(n) gives the citation mark for source n.' },
@@ -52,7 +53,10 @@ export default function AskPanelPage() {
       <div className={styles.grid}>
         <State title="Answered" when={<>Sources first, then the text as it streams, then the sources it cited and Copy.</>} />
         <State title="Slow model" slow when={<>The same answer from a slow model: "Searching…", then "Writing…" while it streams.</>} />
-        <State title="With a follow-up" when={<><code>onFollowUp</code> given: "Ask a follow-up" under the answer.</>}>
+        <State title="Follow-ups" when={<><code>followUps</code>: a field under the answer. Ask "and over HTTP?" to see the conversation build.</>}>
+          <AskPanel question={QUESTION} followUps />
+        </State>
+        <State title="Follow-up elsewhere" when={<><code>onFollowUp</code> without <code>followUps</code>: "Ask a follow-up" hands back to the page, e.g. to the search field.</>}>
           <AskPanel question={QUESTION} onFollowUp={() => {}} />
         </State>
         <State title="Nothing found" ask="nothingFound" when={<>The search found no records to answer from. No retry: other words, or the search, will do better.</>} />

@@ -9,6 +9,12 @@ export interface AskSource {
   title: string;
 }
 
+/** An earlier question and its answer, sent with a follow-up so the answer can build on it. */
+export interface AskTurn {
+  question: string;
+  answer: string;
+}
+
 export type AskStatus = 'idle' | 'searching' | 'writing' | 'answered' | 'error' | 'limited';
 
 export interface AskState {
@@ -44,7 +50,7 @@ export function useAsk() {
   stateRef.current = state;
   const abortRef = useRef<AbortController | null>(null);
 
-  const ask = useCallback(async (question: string) => {
+  const ask = useCallback(async (question: string, history: AskTurn[] = []) => {
     const q = question.trim();
     if (!q) return;
     abortRef.current?.abort();
@@ -71,7 +77,7 @@ export function useAsk() {
       const res = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/ask${statisticsParams(ctxRef.current)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify(history.length ? { question: q, history } : { question: q }),
         signal: controller.signal,
       });
       if (res.status === 429) {
@@ -127,8 +133,8 @@ export function useAsk() {
 
   /** Reports that the visitor opened a cited source: a select naming this ask, with the citation
    *  number as the position. Fire and forget, like selectResult: statistics never break a page. */
-  const openSource = useCallback(async (source: AskSource) => {
-    const askId = stateRef.current.askId;
+  const openSource = useCallback(async (source: AskSource, ofAsk?: string) => {
+    const askId = ofAsk ?? stateRef.current.askId;
     if (!askId) return;
     try {
       await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/select`, {

@@ -204,6 +204,30 @@ describe('AskPanel', () => {
     expect(picked).toEqual([11]);
   });
 
+  it('asks a follow-up with the conversation, and keeps the first turn on screen', async () => {
+    const bodies: { question: string; history?: { question: string; answer: string }[] }[] = [];
+    server.use(http.post(`${SOA}/ask`, async ({ request }) => {
+      const body = await request.json() as { question: string };
+      bodies.push(body);
+      return sse([
+        ['sources', [{ n: 1, documentKey: 11, title: 'Synonyms' }]],
+        ['text', { delta: bodies.length === 1 ? 'On the Synonyms tab [1].' : 'Over HTTP, PUT them [1].' }],
+        ['done', { model: 'm', latencyMs: 1 }],
+      ]);
+    }));
+    globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+    render(<AskPanel question="how do I add synonyms" followUps />, { wrapper });
+    await screen.findByText(/On the Synonyms tab/);
+
+    const field = screen.getByLabelText('Ask a follow-up');
+    fireEvent.change(field, { target: { value: 'and over http?' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    await screen.findByText(/Over HTTP, PUT them/);
+    expect(screen.getByText(/On the Synonyms tab/)).toBeTruthy();
+    expect(bodies[1]).toEqual({ question: 'and over http?', history: [{ question: 'how do I add synonyms', answer: 'On the Synonyms tab [1].' }] });
+  });
+
   it('says when the records hold nothing to answer from', async () => {
     server.use(http.post(`${SOA}/ask`, () => sse([
       ['error', { code: 'nothingFound', message: 'The search found nothing to answer from.' }],

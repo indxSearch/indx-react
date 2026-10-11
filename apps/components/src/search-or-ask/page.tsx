@@ -33,8 +33,8 @@ function Together({ ask = 'answer' as AskBehaviour, initialQuery = '', slow = fa
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
         <SearchInput onAsk={q => { setQuestion(q); setRun(r => r + 1); }} />
         {question && (
-          <AskPanel key={run} question={question} onSourceClick={s => alert(`Open record ${s.documentKey}: ${s.title}`)}
-                    onFollowUp={() => setQuestion(null)} />
+          <AskPanel key={run} question={question} followUps
+                    onSourceClick={s => alert(`Open record ${s.documentKey}: ${s.title}`)} />
         )}
       </div>
     </MockSearchProvider>

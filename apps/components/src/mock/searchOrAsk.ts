@@ -24,6 +24,11 @@ const ANSWER =
   'Synonyms apply from the next search, with no reindex. Expansion makes the query longer, so ' +
   'Coverage scores come out a little lower by design [2].';
 
+// A follow-up gets an answer that builds on the first, so a conversation reads like one.
+const FOLLOW_UP =
+  'Over the HTTP API, PUT the whole list to the dataset\'s synonyms route; it replaces what is there [1]. ' +
+  'The console\'s Synonyms tab saves through the same route.';
+
 export type AskBehaviour = 'answer' | 'nothingFound' | 'limited' | 'failed';
 
 const json = (body: unknown, init: ResponseInit = {}) =>
@@ -41,6 +46,7 @@ export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: b
       return json({ p: mockScore(text), answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120 });
     }
     if (url.endsWith('/ask')) {
+      const followUp = (JSON.parse(String(init.body ?? '{}')).history ?? []).length > 0;
       if (ask === 'limited')
         return json({ code: 'rateLimited', retryAfterSeconds: 240 }, { status: 429, headers: { 'Retry-After': '240' } });
       const encoder = new TextEncoder();
@@ -57,7 +63,7 @@ export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: b
             return controller.close();
           }
           send('sources', SOURCES);
-          const words = ANSWER.split(/(?<= )/);
+          const words = (followUp ? FOLLOW_UP : ANSWER).split(/(?<= )/);
           for (let i = 0; i < words.length; i++) {
             if (signal?.aborted) return controller.close();
             if (ask === 'failed' && i === 18) {
