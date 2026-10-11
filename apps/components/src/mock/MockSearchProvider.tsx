@@ -73,6 +73,8 @@ export interface MockSearchProviderProps {
   /** Override the field roles, to show a panel on a field that lacks one. */
   filterableFields?: string[];
   facetableFields?: string[];
+  /** Answers the requests a component sends itself (Search or ask's settings, intent and ask). */
+  authenticatedFetch?: SearchContextType['authenticatedFetch'];
 }
 
 export function MockSearchProvider({
@@ -91,6 +93,7 @@ export function MockSearchProvider({
   allowEmptySearch = true,
   filterableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
   facetableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+  authenticatedFetch = noopFetch,
 }: MockSearchProviderProps) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
@@ -193,7 +196,7 @@ export function MockSearchProvider({
     url: '',
     team: 'mock',
     dataset: 'mock',
-    authenticatedFetch: noopFetch,
+    authenticatedFetch,
     setQuery,
     toggleFilter,
     setValueMatch: () => {},

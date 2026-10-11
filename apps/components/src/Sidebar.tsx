@@ -63,6 +63,7 @@ export const navGroups: NavGroup[] = [
     title: 'Intrface Components',
     items: [
       { label: 'SearchInput', path: '/search-input' },
+      { label: 'Search or ask', path: '/search-or-ask' },
       { label: 'ValueFilterPanel', path: '/value-filter-panel' },
       { label: 'RangeFilterPanel', path: '/range-filter-panel' },
       { label: 'BucketFilterPanel', path: '/bucket-filter-panel' },
