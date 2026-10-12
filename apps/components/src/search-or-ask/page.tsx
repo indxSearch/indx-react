@@ -25,13 +25,13 @@ function Row({ title, when, children }: { title: string; when: ReactNode; childr
 }
 
 /** A search field and the answer under it, as a page would put them. */
-function Together({ ask = 'answer' as AskBehaviour, initialQuery = '', slow = false }) {
+function Together({ ask = 'answer' as AskBehaviour, initialQuery = '', slow = false, askOffer = 'chip' as 'chip' | 'below' }) {
   const [question, setQuestion] = useState<string | null>(null);
   const [run, setRun] = useState(0);
   return (
     <MockSearchProvider placeholderText="Type to search" initialQuery={initialQuery} resultCount={initialQuery ? 8 : null} authenticatedFetch={mockFetch(ask, { slow })}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
-        <SearchInput onAsk={q => { setQuestion(q); setRun(r => r + 1); }} />
+        <SearchInput askOffer={askOffer} onAsk={q => { setQuestion(q); setRun(r => r + 1); }} />
         {question && (
           <AskPanel key={run} question={question} followUps
                     onSourceClick={s => alert(`Open record ${s.documentKey}: ${s.title}`)} />
@@ -64,6 +64,9 @@ export default function SearchOrAskPage() {
         </Row>
         <Row title="With a slow model" when={<>The same, with an answer that takes its time: what the visitor sees while it searches and writes.</>}>
           <Together slow />
+        </Row>
+        <Row title="Offer below the field" when={<><code>askOffer="below"</code>: the offer in a row of its own under the field, as on the Indx docs. A strong offer is a full-size button and an Enter hint; the row keeps its height, so nothing under it moves.</>}>
+          <Together askOffer="below" />
         </Row>
       </div>
     </main>

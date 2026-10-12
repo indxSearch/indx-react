@@ -99,6 +99,27 @@ export default function SearchInputPage() {
           </MockSearchProvider>
         ))}
       </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.heading}>With onAsk, offer below the field</h2>
+        <p className={styles.desc}>
+          <code>askOffer="below"</code> moves the offer out of the chip row into a row of its own under the field,
+          as on the Indx docs. A strong offer is a full-size "Ask the assistant" button with a <code>↵</code> hint;
+          the quiet one stays "Ask about this". The row keeps its height while Search or ask is on, so nothing under
+          it moves when an offer appears.
+        </p>
+      </div>
+      <div className={styles.grid}>
+        {offerStates.map((s) => (
+          <MockSearchProvider key={s.title} initialQuery={s.query} resultCount={8} placeholderText="Type to search" authenticatedFetch={mockFetch('answer', { enabled: s.enabled ?? true })}>
+            <div className={styles.stateLabel}>
+              <div className={styles.stateTitle}>{s.title}</div>
+              <div className={styles.stateWhen}>{s.when}</div>
+            </div>
+            <div className={styles.cell}><SearchInput onAsk={() => {}} askOffer="below" /></div>
+          </MockSearchProvider>
+        ))}
+      </div>
     </main>
   );
 }

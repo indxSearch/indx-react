@@ -4,6 +4,7 @@ import { SearchField, Button, Chip, Tooltip } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
 import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
 import { useSearchOrAsk, type SearchOrAskState } from '../hooks/useSearchOrAsk';
+import styles from './SearchInput.module.css';
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inputSize?: InputSize; // Optional prop with valid values
@@ -20,6 +21,10 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   /** The offer, when the page runs `useSearchOrAsk` itself (to show it elsewhere too, or to use
    *  `describes`): the field then shows this one and does not judge again. */
   searchOrAsk?: SearchOrAskState;
+  /** Where the offer to ask shows. `chip` (default): a button in the field's chip row. `below`: a
+   *  row of its own under the field, as on the Indx docs: a full-size button and an Enter hint.
+   *  The row keeps its height while Search or ask is on, so an offer appearing moves nothing under it. */
+  askOffer?: 'chip' | 'below';
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -31,6 +36,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   showStatus = true,
   onAsk,
   searchOrAsk,
+  askOffer = 'chip',
   onKeyDown,
   ...rest
 }) => {
@@ -74,7 +80,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     if (filterCount > 0) resetFilters();
   };
 
-  return (
+  const ask = () => onAsk!(query.trim());
+  const field = (
     <SearchField
       type="text"
       value={query}
@@ -88,12 +95,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       onKeyDown={keyDown}
       {...rest}
     >
-      {offerAsk && (
+      {offerAsk && askOffer === 'chip' && (
         <Button
           variant={sor.offer === 'strong' ? 'primary' : 'ghost'}
           size="micro"
           iconLeft={<Ai_agent />}
-          onClick={() => onAsk!(query.trim())}
+          onClick={ask}
           title={sor.offer === 'strong' ? 'Enter asks' : undefined}
         >
           {sor.offer === 'strong' ? 'Ask' : 'Ask about this'}
@@ -127,5 +134,23 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         </Button>
       )}
     </SearchField>
+  );
+
+  if (askOffer !== 'below' || !onAsk || !sor.available) return field;
+  const strong = sor.offer === 'strong';
+  return (
+    <div className={styles.withOffer}>
+      {field}
+      <div className={styles.offerRow} aria-live="polite">
+        {offerAsk && (
+          <>
+            <Button variant={strong ? 'primary' : 'ghost'} iconLeft={<Ai_agent />} onClick={ask}>
+              {strong ? 'Ask the assistant' : 'Ask about this'}
+            </Button>
+            {strong && <span className={styles.offerHint}><kbd className={styles.kbd}>↵</kbd> to ask</span>}
+          </>
+        )}
+      </div>
+    </div>
   );
 };
