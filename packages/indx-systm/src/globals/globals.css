@@ -73,3 +73,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Selected text: a level rather than the browser's blue, which sat badly on the dark theme. lv3 is the
+   fields' own selection; the text goes to lv8 so grey text stays readable on it in both themes. */
+::selection {
+  background: var(--lv3);
+  color: var(--lv8);
+}
