@@ -52,6 +52,7 @@ import SearchSettingsPanelPage from './search-settings-panel/page';
 import SearchErrorBoundaryPage from './search-error-boundary/page';
 import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
+import DatasetPageMockup from './dataset-page/page';
 import AskPanelPage from './ask-panel/page';
 import AnalyticsDashboardPage from './analytics-dashboard/page';
 
@@ -109,6 +110,7 @@ export default function App() {
         <Route path="/search-error-boundary" element={<SearchErrorBoundaryPage />} />
         <Route path="/code-copy" element={<CodeCopyPage />} />
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
+        <Route path="/dataset-page" element={<DatasetPageMockup />} />
         <Route path="/ask-panel" element={<AskPanelPage />} />
         <Route path="/analytics-dashboard" element={<AnalyticsDashboardPage />} />
       </Routes>
