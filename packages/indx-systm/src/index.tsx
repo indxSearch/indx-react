@@ -26,6 +26,7 @@ export { Sparkline, type SparklineProps } from './components/Sparkline/Sparkline
 export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
 export { Modal, type ModalProps } from './components/Modal/Modal';
 export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';
+export { Skeleton, type SkeletonProps } from './components/Skeleton/Skeleton';
 export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
 

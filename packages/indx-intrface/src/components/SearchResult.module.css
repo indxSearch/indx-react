@@ -47,28 +47,10 @@
     color: var(--lv4);
 }
 
-@keyframes fade {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-
-/* Skeleton bars — on Base (lv2), use lv3 so they're visibly darker than the surface */
+/* Skeleton bars (systm Skeleton, level 3): on Base (lv2), lv3 stays visibly darker than the surface */
 .skeletonBars {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.skeletonBarLg {
-    height: 12px;
-    border-radius: 1px;
-    background: var(--lv3);
-    animation: fade 2.4s ease-in-out infinite;
-}
-
-.skeletonBarSm {
-    height: 8px;
-    border-radius: 1px;
-    background: var(--lv3);
-    animation: fade 2.4s ease-in-out infinite;
-}

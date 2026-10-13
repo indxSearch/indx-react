@@ -1,21 +1,4 @@
-@keyframes skeletonAppear {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes fade {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-
-.bar {
-  height: 10px;
-  border-radius: 1px;
-  background: var(--lv2);
-  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
-}
-
+/* The bars are systm Skeletons; this lays them out as the real panel's rows and slider. */
 .listRows {
   display: flex;
   flex-direction: column;
@@ -29,25 +12,9 @@
   padding: 4px 0 10px;
 }
 
-.sliderTrack {
-  height: 6px;
-  border-radius: 1px;
-  width: 100%;
-  background: var(--lv2);
-  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
-}
-
 .inputRow {
   display: flex;
   justify-content: space-between;
-}
-
-.inputBar {
-  height: 20px;
-  width: 40px;
-  border-radius: 1px;
-  background: var(--lv2);
-  animation: skeletonAppear 0.2s ease 0.15s both, fade 2.4s ease-in-out 0.35s infinite;
 }
 
 /* same height as RangeFilterPanel's histogram (20px bars + 2px gap), less the

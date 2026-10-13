@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilterPanelBase } from '@indxsearch/systm';
+import { FilterPanelBase, Skeleton } from '@indxsearch/systm';
 import styles from './FilterPanelSkeleton.module.css';
 
 const rowWidths = [65, 80, 55, 72, 60, 75, 50, 68];
@@ -26,23 +26,16 @@ export const FilterPanelSkeleton: React.FC<FilterPanelSkeletonProps> = ({
     {variant === 'slider' ? (
       <div className={styles.sliderArea}>
         {withHistogram && <div className={styles.histogramRow} />}
-        <div className={styles.sliderTrack} />
+        <Skeleton height={6} />
         <div className={styles.inputRow}>
-          <div className={styles.inputBar} style={{ animationDelay: '0.1s' }} />
-          <div className={styles.inputBar} style={{ animationDelay: '0.15s' }} />
+          <Skeleton width={40} height={20} delay={0.1} />
+          <Skeleton width={40} height={20} delay={0.15} />
         </div>
       </div>
     ) : (
       <div className={styles.listRows}>
         {Array.from({ length: rows }).map((_, i) => (
-          <div
-            key={i}
-            className={styles.bar}
-            style={{
-              width: `${rowWidths[i % rowWidths.length]}%`,
-              animationDelay: `${i * 0.05}s`,
-            }}
-          />
+          <Skeleton key={i} width={`${rowWidths[i % rowWidths.length]}%`} delay={i * 0.05} />
         ))}
       </div>
     )}

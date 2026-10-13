@@ -47,6 +47,7 @@ export const navGroups: NavGroup[] = [
       { label: 'CodeCopy', path: '/code-copy' },
       { label: 'Alert', path: '/alert' },
       { label: 'SaveBar', path: '/save-bar' },
+      { label: 'Skeleton', path: '/skeleton' },
       { label: 'Truncate', path: '/truncate' },
       { label: 'Tooltip', path: '/tooltip' },
       { label: 'Chat', path: '/chat' },

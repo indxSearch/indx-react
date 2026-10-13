@@ -6,3 +6,7 @@
 .wrapper {
   animation: skeletonAppear 0.2s ease 0.15s both;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper { animation: none; }
+}
