@@ -1,0 +1,65 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.subTitle { font: var(--text-lg); margin: 0.5rem 0 0; color: var(--lv7); }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 72ch; }
+
+/* Two frames side by side: the team page and the dataset page of one variant. */
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 16px; }
+
+/* The page as IndxServer shows it, in a frame. The grid is the console's: a 220px column cell,
+   then the content. Frames are narrower than the real page, so the sizes are the real ones and
+   the content is simply shorter. */
+.frame { border: 1px solid var(--lv2); border-radius: var(--radius); background: var(--lv0); overflow: hidden; position: relative; }
+.frameLabel { position: absolute; top: 0; right: 0; font: var(--text-2xs); color: var(--lv4); padding: 4px 8px; pointer-events: none; }
+.header { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: center; padding: 12px 0; background: var(--lv1); border-bottom: 1px solid var(--lv2); }
+.brand { display: flex; align-items: center; gap: 6px; padding-left: 10px; min-width: 0; height: 30px; }
+.brand .brandLink { color: var(--lv8); }
+/* 24px: the content's gutter less the first crumb's own padding, as in app.css. */
+.headerMain { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 0 12px 0 24px; }
+.trail { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; }
+.right { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.rightDivider { width: 1px; height: 18px; background: var(--lv3); margin: 0 6px; }
+.agent.agent { color: var(--lv8); }
+
+/* 2c: the brand cell toned as the column's head, continuing into the column below. */
+.headerHead { background: var(--lv0); }
+.brandHead { background: var(--lv1); height: 54px; margin: -12px 0; }
+.columnHead { background: var(--lv1); }
+
+/* The switcher in the brand cell: the crumb's own trigger, no padding of its own. */
+.switcherCompact { min-width: 0; }
+
+.body { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 420px; }
+.bodyColumn { grid-template-columns: 220px minmax(0, 1fr); }
+
+.column { display: flex; flex-direction: column; gap: 18px; padding: 16px 0 16px 10px; }
+.group { display: flex; flex-direction: column; gap: 2px; }
+.groupTitle { padding: 0 10px 4px; font: var(--text-2xs); font-weight: var(--med); letter-spacing: 0.02em; text-transform: uppercase; color: var(--lv4); }
+.column .item { width: 100%; justify-content: flex-start; }
+
+.content { min-width: 0; padding: 20px 32px 28px; display: flex; flex-direction: column; gap: 14px; }
+.titleRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.title { font: var(--text-lg); margin: 0; color: var(--lv8); }
+.actions { display: flex; gap: 8px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.card { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: var(--radius); background: var(--lv1); min-height: 130px; }
+.cardHead { display: inline-flex; align-items: center; gap: 6px; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.cardBars { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.cardFoot { display: flex; align-items: center; justify-content: space-between; font: var(--text-xs); color: var(--lv6); }
+
+.contextBar { display: flex; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--lv2); }
+.contextBar > :first-child { flex: 1; min-width: 0; }
+.contextBar > :last-child { padding-bottom: 4px; }
+
+.placeholder { display: flex; flex-direction: column; gap: 10px; }
+.bar { height: 8px; border-radius: 2px; background: var(--lv2); }
+.block { height: 140px; border-radius: var(--radius); background: var(--lv1); border: 1px solid var(--lv2); }
+
+/* The row of every variant's team page, small. */
+.all { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 16px; }
+.allItem { display: flex; flex-direction: column; gap: 6px; }
+.allLabel { font: var(--text-xs); color: var(--lv5); }
+.allItem .body { min-height: 260px; }
