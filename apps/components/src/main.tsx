@@ -5,7 +5,7 @@ import '@indxsearch/systm/styles.css';
 import '@indxsearch/systm/cursors.css';
 import '@indxsearch/systm/patterns.css';
 import '@indxsearch/intrface/styles.css';
-// import '@indxsearch/fonts/fonts.css';
+import './brand-fonts.css';
 import './globals.css';
 import App from './App';
 

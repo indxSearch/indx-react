@@ -25,9 +25,12 @@
   border-bottom: 1px dotted var(--lv3);
 }
 
+/* Light (300) rather than the token's Book (350): in FunktionalGrotesk, Book reads heavy at 24px,
+   and the number is the one large thing on the stat. Same as the Blazor Stat. */
 .value {
   max-width: 100%;
   font: var(--text-2xl);
+  font-weight: 300;
   color: var(--lv8);
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;

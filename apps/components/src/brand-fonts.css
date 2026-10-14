@@ -1,0 +1,103 @@
+/* FunktionalGrotesk, the Indx brand font, for this design area only.
+
+   It is a paid font that may not be distributed, and indx-react is pushed to a public repository,
+   so only these rules are tracked, NEVER the files: they are copied into public/fonts/ (gitignored,
+   see the root .gitignore) on the machines that design. Where the files are missing the requests
+   404 and the text renders in the fallback, as a self-hosted IndxServer renders Geist. The rules
+   are IndxServer's (Indx.Systm.Blazor/wwwroot/fonts/fonts.css) with this app's paths. */
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Book.woff2') format('woff2');
+  font-weight: 350;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-BookItalic.woff2') format('woff2');
+  font-weight: 350;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-SemiboldItalic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FunktionalGrotesk';
+  src: url('/fonts/FunktionalGrotesk-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}

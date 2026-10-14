@@ -1,3 +1,9 @@
+/* The design area draws the brand font, as IndxServer's own deployments do, so a component looks
+   here as it will there. systm's text tokens all read --font-family. */
+:root {
+  --font-family: 'FunktionalGrotesk', 'Inter', sans-serif;
+}
+
 :root {
   --maxWidth: 1400px;
 }
