@@ -54,16 +54,35 @@ export function nextOffer(current: Offer, p: number, t: OfferThresholds = DEFAUL
 
 /** One word can show a question starting ("how" scores high) but holds nothing to answer yet, so
  *  it gets the invitation at most; the strong offer waits for a second word or a question mark. */
+/** The cut's two lines, the dataset's (`cutShareOfTop`, `cutTopFloor`), as the intent answer carries them. */
+export interface CutRule {
+  /** A result stays while it scores at least this share of the top result. */
+  shareOfTop: number;
+  /** The list shows at all only when the top result scores at least this share of the scale. */
+  topFloor: number;
+}
+
+export const DEFAULT_CUT: CutRule = { shareOfTop: 0.5, topFloor: 0.2 };
+
+/** The search score's scale: coverage scores run to 65535. */
+export const SCORE_SCALE = 65535;
+
 /**
- * The results a page shows under the "coverage hits only while asking" rule (the dataset's
- * `cutWhileAsking`, on by default): while the offer is strong, the list up to the truncation
- * point, which is where coverage's confirmed matches end and the pattern matches begin; with
- * nothing confirmed, nothing, and the offer stands alone. Otherwise the list as it came.
+ * The results a page shows under the "strong matches only while asking" rule (the dataset's
+ * `cutWhileAsking`, on by default). While the offer is strong: nothing when the top result is
+ * under the floor (a flat, weak list says the search has nothing for a question), else the
+ * results scoring at least the share of the top, never past the truncation point. Otherwise the
+ * list as it came. The truncation index alone was too lenient: coverage confirms a record on a
+ * two-letter word, so "is" and "or" confirmed forty-four Pokémon (14 Oct 2026).
  */
-export function visibleResults<T>(results: T[], truncationIndex: number | undefined, cut: boolean): T[] {
-  if (!cut) return results;
-  if (truncationIndex == null || truncationIndex < 0) return results;
-  return results.slice(0, truncationIndex);
+export function visibleResults<T extends { score: number }>(results: T[], truncationIndex: number | undefined, cut: boolean, rule: CutRule = DEFAULT_CUT): T[] {
+  if (!cut || results.length === 0) return results;
+  const top = results[0].score;
+  if (top < rule.topFloor * SCORE_SCALE) return [];
+  const confirmed = truncationIndex == null || truncationIndex < 0 ? results : results.slice(0, truncationIndex);
+  const line = rule.shareOfTop * top;
+  const end = confirmed.findIndex(r => r.score < line);
+  return end < 0 ? confirmed : confirmed.slice(0, end);
 }
 
 export function canAnswer(text: string): boolean {

@@ -63,13 +63,18 @@ describe('the rules', () => {
     expect(nextOffer('none', 0.35)).toBe('none');
   });
 
-  it('cuts the list at the truncation point only while the offer is strong and the rule is on', () => {
-    const results = ['pikachu', 'bulbasaur', 'pattern tail'];
-    expect(visibleResults(results, 2, true)).toEqual(['pikachu', 'bulbasaur']);
-    expect(visibleResults(results, 0, true)).toEqual([]);
-    expect(visibleResults(results, 2, false)).toEqual(results);
-    expect(visibleResults(results, -1, true)).toEqual(results);
-    expect(visibleResults(results, undefined, true)).toEqual(results);
+  it('keeps the strong matches only while the offer is strong and the rule is on', () => {
+    // The pokedex, 14 Oct 2026: coverage confirmed 44 records on "is" and "or", so the scores decide.
+    const pikachuOrBulbasaur = [{ score: 19843 }, { score: 15871 }, { score: 4527 }, { score: 4459 }, { score: 3744 }];
+    expect(visibleResults(pikachuOrBulbasaur, 44, true)).toEqual([{ score: 19843 }, { score: 15871 }]);
+    const whichIsStrongest = [{ score: 7029 }, { score: 6767 }, { score: 6633 }];
+    expect(visibleResults(whichIsStrongest, 60, true)).toEqual([]);
+    const whatTypeIsPikachu = [{ score: 22921 }, { score: 16367 }, { score: 9830 }];
+    expect(visibleResults(whatTypeIsPikachu, 2, true)).toEqual([{ score: 22921 }, { score: 16367 }], 'never past the truncation point');
+    expect(visibleResults(pikachuOrBulbasaur, 44, false)).toEqual(pikachuOrBulbasaur);
+    expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.9, topFloor: 0.2 })).toEqual([{ score: 19843 }]);
+    expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.5, topFloor: 0.5 })).toEqual([]);
+    expect(visibleResults([], 0, true)).toEqual([]);
   });
 
   it('never judges an identifier', () => {

@@ -89,7 +89,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
   }, [results, pageSize, query]);
 
   // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
-  const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults) : [];
+  const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
   const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {

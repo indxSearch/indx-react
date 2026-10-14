@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import {
-  DEFAULT_THRESHOLDS, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
-  type Offer, type OfferThresholds,
+  DEFAULT_CUT, DEFAULT_THRESHOLDS, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
+  type CutRule, type Offer, type OfferThresholds,
 } from '../utils/searchOrAsk';
 
 export interface UseSearchOrAskOptions {
@@ -22,6 +22,8 @@ export interface SearchOrAskState {
   offer: Offer;
   /** The latest probability from the server, for a readout; null before the first judgement. */
   p: number | null;
+  /** The judge's reading of whether the top results could answer what is typed; null when it did not say. */
+  answerable: number | null;
   /** The text the offer is about: what would be asked. */
   text: string;
   /** On a catalogue: the probability the visitor describes what to list. Null elsewhere. */
@@ -31,9 +33,11 @@ export interface SearchOrAskState {
   /** The list should show coverage hits only: the offer is strong and the dataset has the rule on
    *  (`cutWhileAsking`). SearchResults applies it when handed this state; `visibleResults` is the rule. */
   cutResults: boolean;
+  /** The cut's two lines, the dataset's, for `visibleResults`. */
+  cutRule: CutRule;
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text: '', criteria: null, describes: false, cutResults: false };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -56,6 +60,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const [state, setState] = useState<SearchOrAskState>(IDLE);
   const thresholds = useRef<OfferThresholds>(DEFAULT_THRESHOLDS);
   const cutWhileAsking = useRef(true);
+  const cutRule = useRef<CutRule>(DEFAULT_CUT);
   const offerRef = useRef<Offer>('none');
   const lastAsked = useRef('');
   const seq = useRef(0);
@@ -74,10 +79,11 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
         thresholds.current = { ...DEFAULT_THRESHOLDS, ...body.settings.thresholds };
         cutWhileAsking.current = body.settings.cutWhileAsking ?? true;
+        cutRule.current = { shareOfTop: body.settings.cutShareOfTop ?? DEFAULT_CUT.shareOfTop, topFloor: body.settings.cutTopFloor ?? DEFAULT_CUT.topFloor };
         setAvailable(true);
       } catch {
         // Off is the safe reading.
@@ -119,10 +125,12 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         }
         if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
         if (!res.ok) return;
-        const { p, criteria, cutWhileAsking: cut } = await res.json() as { p: number; criteria?: number | null; cutWhileAsking?: boolean };
+        const { p, answerable, criteria, cutWhileAsking: cut, cutShareOfTop, cutTopFloor } = await res.json() as
+          { p: number; answerable?: number | null; criteria?: number | null; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number };
         if (mine !== seq.current) return; // a newer pause has asked since
         // The rule travels with every judgement, so an editor's change applies on the next pause.
         if (cut != null) cutWhileAsking.current = cut;
+        if (cutShareOfTop != null && cutTopFloor != null) cutRule.current = { shareOfTop: cutShareOfTop, topFloor: cutTopFloor };
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
           const c = criteria ?? null;
@@ -131,7 +139,8 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
           const final = describes ? 'strong' : asked;
           // A description becomes filters, which replace the list; the cut is for questions.
-          return { available: true, offer: final, p, text, criteria: c, describes, cutResults: cutWhileAsking.current && final === 'strong' && !describes };
+          return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
+            cutResults: cutWhileAsking.current && final === 'strong' && !describes, cutRule: cutRule.current };
         });
       } catch {
         // No offer is the safe outcome.
