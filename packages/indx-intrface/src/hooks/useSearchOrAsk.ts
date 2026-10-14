@@ -146,8 +146,9 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           // On a catalogue a description is answered too (what it finds), so it gets the full offer.
           const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
           const final = describes ? 'strong' : asked;
-          // A description becomes filters, which replace the list; the cut is for questions.
-          const asking = final === 'strong' && !describes;
+          // Both can be high ("what is the largest": question 0.79, description 0.67). The larger
+          // decides: a description becomes filters, which replace the list; a question cuts it.
+          const asking = final === 'strong' && !(describes && c! > p);
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
             cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking };
         });
