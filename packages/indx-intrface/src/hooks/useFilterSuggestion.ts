@@ -113,19 +113,17 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
 
   const clear = useCallback(() => { seq.current++; setSuggestion(null); setLoading(false); }, []);
 
-  // While typing: once per text, when the offer is strong and the dataset allows it. The facet
-  // pass first (instant); in 'model' mode, on a description, the model then reads what the facets left, and
+  // While typing: once per text, when the offer says description and the dataset allows it. The
+  // facet pass first (instant); in 'model' mode the model then reads what the facets left, and
   // its filters are put on beside the facets' (one apply, since an apply resets the filters).
   // Texts already handled: the one the filters came from, and the text they left, which becomes
   // the query and must not start the pass again.
   const handled = useRef(new Set<string>());
   const [appliedText, setAppliedText] = useState<string | null>(null);
   const mode = auto?.filtersWhileTyping ?? 'off';
-  // A facet value typed is that filter whether the sentence asks or describes ("hvilken skole i
-  // bærum er størst" names Bærum as much as "bærum skoleoversikt" does); only the model pass,
-  // which costs a call, is for descriptions.
-  const wants = !!auto && auto.available && auto.offer === 'strong' && mode !== 'off';
-  const describes = !!auto && auto.describes;
+  // Descriptions only. A question that names a facet value is not asking for that filter:
+  // "great against dark" on the pokedex means strong against the dark type, not dark types.
+  const wants = !!auto && auto.available && auto.describes && auto.offer === 'strong' && mode !== 'off';
   const text = auto?.text ?? '';
   const textRef = useRef(text);
   textRef.current = text;
@@ -139,7 +137,7 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
     handled.current.add(text);
     const local = localFilters(text, facets);
     if (local) { handled.current.add(local.text); apply(local); setAppliedText(text); }
-    if (mode !== 'model' || !describes) return;
+    if (mode !== 'model') return;
     const rest = local ? local.text : text;
     if (!rest) return;
     // The model's answer is for this text and the text the facets left; anything else typed in
@@ -167,7 +165,7 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
         if (mine === seq.current) setLoading(false);
       }
     })();
-  }, [wants, describes, text, mode, searching, facets, apply, url, team, dataset, authenticatedFetch]);
+  }, [wants, text, mode, searching, facets, apply, url, team, dataset, authenticatedFetch]);
 
   return { suggestion, forText, loading, suggest, apply, clear, appliedText };
 }

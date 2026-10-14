@@ -267,11 +267,13 @@ describe('catalogue: a description becomes filters while typing', () => {
     expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] });
     expect(result.current.ctx.state.rangeFilters.price!.max).toBe(50);
     expect(modelAsked).toEqual(['shoes', 'cheap ones', 'cheap ones']);
-    // A question that names a facet value: the facets' filter, and no model, since the model pass is for descriptions.
+    // A question that names a facet value is not asking for that filter ("great against dark").
     server.use(http.post(`${SOA}/intent`, () => HttpResponse.json({ p: 0.9, answerable: 0.8, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, criteria: 0.1, filtersWhileTyping: 'model' })));
     act(() => result.current.ctx.setQuery('which trail shoe is lightest'));
-    await waitFor(() => expect(result.current.ctx.state.query).toBe('which shoe is lightest'), { timeout: 3000 });
-    expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] });
+    await waitFor(() => expect(result.current.sor.p).toBe(0.9), { timeout: 3000 });
+    await new Promise(r => setTimeout(r, 700));
+    expect(result.current.ctx.state.query).toBe('which trail shoe is lightest');
+    expect(result.current.ctx.state.filters).toEqual({});
     expect(modelAsked).toEqual(['shoes', 'cheap ones', 'cheap ones']);
   });
 });
