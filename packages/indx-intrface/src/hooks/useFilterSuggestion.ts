@@ -25,11 +25,17 @@ export interface FilterSuggestionResult {
  * municipality filter and "skoleoversikt". Case does not matter; a value matches whole words only,
  * and a longer value wins over a shorter one it contains. No model, no delay.
  */
+/** A number or a boolean typed is a condition ("over 500"), not a value to equal; the model reads those. */
+function literal(key: string): boolean {
+  const k = key.trim().toLowerCase();
+  return k === 'true' || k === 'false' || (k !== '' && !Number.isNaN(Number(k)));
+}
+
 export function localFilters(text: string, facets: Record<string, { key: string }[]> | null | undefined): FilterSuggestionResult | null {
   if (!facets) return null;
   const candidates: { field: string; value: string }[] = [];
   for (const [field, values] of Object.entries(facets))
-    for (const v of values ?? []) if (v?.key && v.key.trim().length >= 2) candidates.push({ field, value: v.key });
+    for (const v of values ?? []) if (v?.key && v.key.trim().length >= 2 && !literal(v.key)) candidates.push({ field, value: v.key });
   candidates.sort((a, b) => b.value.length - a.value.length);
   let rest = ' ' + text.toLowerCase() + ' ';
   const filters: FilterSuggestion[] = [];
@@ -94,7 +100,9 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
   const apply = useCallback((result: FilterSuggestionResult) => {
     // setQuery clears the filters, so the text goes first and the filters after it.
     setQuery(result.text);
-    const bounds = ctxRef.current.state.rangeBounds;
+    // An open end ("over 500") closes at the dataset's own bound, not at the bound of whatever
+    // the typed text happened to match.
+    const bounds = { ...ctxRef.current.state.rangeBounds, ...ctxRef.current.datasetBounds };
     for (const f of result.filters) {
       if (f.value != null) toggleFilter(f.field, f.value);
       else setRangeFilter(f.field, f.min ?? bounds[f.field]?.min ?? 0, f.max ?? bounds[f.field]?.max ?? Number.MAX_SAFE_INTEGER);
@@ -106,8 +114,8 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
   const clear = useCallback(() => { seq.current++; setSuggestion(null); setLoading(false); }, []);
 
   // While typing: once per text, when the offer says description and the dataset allows it. The
-  // facet pass first (instant); the model only in 'model' mode and only when the facets named
-  // nothing, since a second apply would reset what the first put on.
+  // facet pass first (instant); in 'model' mode the model then reads what the facets left, and
+  // its filters are put on beside the facets' (one apply, since an apply resets the filters).
   // Texts already handled: the one the filters came from, and the text they left, which becomes
   // the query and must not start the pass again.
   const handled = useRef(new Set<string>());
@@ -115,6 +123,8 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
   const mode = auto?.filtersWhileTyping ?? 'off';
   const wants = !!auto && auto.available && auto.describes && auto.offer === 'strong' && mode !== 'off';
   const text = auto?.text ?? '';
+  const textRef = useRef(text);
+  textRef.current = text;
   // The facets come with the search's answer, so the pass waits for the search that is running;
   // the judge usually answers first. On a page with facets the first search of all has none yet
   // (the facet search is the debounced one), so the pass also waits for the first facets.
@@ -124,27 +134,35 @@ export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
     if (!wants || !text || searching || handled.current.has(text)) return;
     handled.current.add(text);
     const local = localFilters(text, facets);
-    if (local) { handled.current.add(local.text); apply(local); setAppliedText(text); return; }
+    if (local) { handled.current.add(local.text); apply(local); setAppliedText(text); }
     if (mode !== 'model') return;
-    let cancelled = false;
+    const rest = local ? local.text : text;
+    if (!rest) return;
+    // The model's answer is for this text and the text the facets left; anything else typed in
+    // the meantime makes it stale. (The facets' apply changes the query, so the effect's own
+    // cleanup cannot be the signal.)
+    const still = () => textRef.current === text || textRef.current === rest;
     (async () => {
       const mine = ++seq.current;
       setLoading(true);
       try {
         const res = await authenticatedFetch(
           `${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/filters${statisticsParams(ctxRef.current)}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: rest }),
           });
-        if (cancelled || mine !== seq.current) return;
+        if (mine !== seq.current || !still()) return;
         const result = res.ok ? await res.json() as FilterSuggestionResult : null;
-        if (result && result.filters.length > 0) { handled.current.add(result.text); apply(result); setAppliedText(text); }
+        if (result && result.filters.length > 0) {
+          handled.current.add(result.text);
+          apply({ filters: [...(local?.filters ?? []), ...result.filters], text: result.text, sort: result.sort });
+          setAppliedText(text);
+        }
       } catch {
         // No filter is the safe outcome.
       } finally {
         if (mine === seq.current) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
   }, [wants, text, mode, searching, facets, apply, url, team, dataset, authenticatedFetch]);
 
   return { suggestion, forText, loading, suggest, apply, clear, appliedText };

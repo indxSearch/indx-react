@@ -75,6 +75,7 @@ export interface SearchContextType {
   retry?: () => void; // Tries again after a failure: initialisation when that failed, otherwise the last search. Optional so a hand-built context stays valid
   allowEmptySearch: boolean; // Whether empty searches are allowed
   facetsEnabled: boolean; // Whether this page fetches facets (the debounced facet search)
+  datasetBounds: Record<string, { min: number; max: number }>; // Min and max per numeric field over the whole dataset; rangeBounds follows the query
   url: string;
   team: string;
   dataset: string;
@@ -446,6 +447,7 @@ export const SearchProvider: React.FC<{
         retry: auth.authError ? auth.retry : retrySearch,
         allowEmptySearch,
         facetsEnabled,
+        datasetBounds: auth.initialFacetStats,
         url,
         team,
         dataset,

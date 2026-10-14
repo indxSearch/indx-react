@@ -226,6 +226,10 @@ describe('catalogue: a description becomes filters while typing', () => {
     expect(localFilters('skoler i nordre follo', facets)).toEqual({ filters: [{ field: 'Kommune.Navn', value: 'Nordre Follo' }], text: 'skoler i', sort: null });
     expect(localFilters('osloveien 3', facets)).toBeNull();
     expect(localFilters('bærum', null)).toBeNull();
+    // A number or a boolean is a condition for the model ("over 500"), never a value to equal.
+    const numeric = { ...facets, Elevtall: [{ key: '500' }, { key: '120' }] };
+    expect(localFilters('skoler med over 500 elever', numeric)).toBeNull();
+    expect(localFilters('privatskoler true', numeric)).toBeNull();
   });
 
   it('applies the filters on its own while typing when the dataset says so, facets first', async () => {
@@ -234,7 +238,9 @@ describe('catalogue: a description becomes filters while typing', () => {
     server.use(
       http.post(`${SOA}/intent`, () => HttpResponse.json({ p: 0.1, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, criteria: 0.9, filtersWhileTyping: 'model' })),
       http.post(`${SOA}/filters`, async ({ request }) => {
-        modelAsked.push((await request.json() as { text: string }).text);
+        const text = (await request.json() as { text: string }).text;
+        modelAsked.push(text);
+        if (text === 'shoes') return HttpResponse.json({ filters: [], text, ms: 900 });
         return HttpResponse.json({ filters: [{ field: 'price', min: 0, max: 50 }], text: 'cheap', ms: 900 });
       }));
     // Facets on: the local pass reads the facet values the page holds.
@@ -243,16 +249,24 @@ describe('catalogue: a description becomes filters while typing', () => {
     );
     const { result } = renderHook(() => { const b = useBoth(); return { ...b, f: useFilterSuggestion({ auto: b.sor }) }; }, { wrapper: facetWrapper });
     await waitFor(() => expect(result.current.sor.available).toBe(true));
-    // A facet value typed: the filter at once, no model. The facets come with the first search.
+    // A facet value typed: the filter at once, before any model. The facets come with the first
+    // search. The model then reads what the facets left, and here names nothing for it.
     act(() => result.current.ctx.setQuery('trail shoes'));
     await waitFor(() => expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] }), { timeout: 3000 });
     expect(result.current.ctx.state.query).toBe('shoes');
-    expect(modelAsked).toEqual([]);
+    await waitFor(() => expect(modelAsked).toEqual(['shoes']), { timeout: 3000 });
+    expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] });
     // Nothing the facets name: the model, once for the text.
     act(() => result.current.ctx.setQuery('cheap ones'));
     await waitFor(() => expect(result.current.ctx.state.rangeFilters.price!.max).toBe(50), { timeout: 3000 });
-    expect(modelAsked).toEqual(['cheap ones']);
+    expect(modelAsked).toEqual(['shoes', 'cheap ones']);
     expect(result.current.f.appliedText).toBe('cheap ones');
+    // A facet value and more: the facets' filter stays beside the model's, one apply.
+    act(() => result.current.ctx.setQuery('cheap trail ones'));
+    await waitFor(() => expect(result.current.ctx.state.query).toBe('cheap'), { timeout: 3000 });
+    expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] });
+    expect(result.current.ctx.state.rangeFilters.price!.max).toBe(50);
+    expect(modelAsked).toEqual(['shoes', 'cheap ones', 'cheap ones']);
   });
 });
 
