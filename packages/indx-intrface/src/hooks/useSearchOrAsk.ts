@@ -28,9 +28,12 @@ export interface SearchOrAskState {
   criteria: number | null;
   /** On a catalogue: the text describes what to list, so it can become filters (useFilterSuggestion). */
   describes: boolean;
+  /** The list should show coverage hits only: the offer is strong and the dataset has the rule on
+   *  (`cutWhileAsking`). SearchResults applies it when handed this state; `visibleResults` is the rule. */
+  cutResults: boolean;
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text: '', criteria: null, describes: false };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, text: '', criteria: null, describes: false, cutResults: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -52,6 +55,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const [available, setAvailable] = useState(false);
   const [state, setState] = useState<SearchOrAskState>(IDLE);
   const thresholds = useRef<OfferThresholds>(DEFAULT_THRESHOLDS);
+  const cutWhileAsking = useRef(true);
   const offerRef = useRef<Offer>('none');
   const lastAsked = useRef('');
   const seq = useRef(0);
@@ -70,9 +74,10 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
         thresholds.current = { ...DEFAULT_THRESHOLDS, ...body.settings.thresholds };
+        cutWhileAsking.current = body.settings.cutWhileAsking ?? true;
         setAvailable(true);
       } catch {
         // Off is the safe reading.
@@ -114,15 +119,19 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         }
         if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
         if (!res.ok) return;
-        const { p, criteria } = await res.json() as { p: number; criteria?: number | null };
+        const { p, criteria, cutWhileAsking: cut } = await res.json() as { p: number; criteria?: number | null; cutWhileAsking?: boolean };
         if (mine !== seq.current) return; // a newer pause has asked since
+        // The rule travels with every judgement, so an editor's change applies on the next pause.
+        if (cut != null) cutWhileAsking.current = cut;
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
           const c = criteria ?? null;
           const describes = c != null && c >= thresholds.current.strong;
           // On a catalogue a description is answered too (what it finds), so it gets the full offer.
           const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
-          return { available: true, offer: describes ? 'strong' : asked, p, text, criteria: c, describes };
+          const final = describes ? 'strong' : asked;
+          // A description becomes filters, which replace the list; the cut is for questions.
+          return { available: true, offer: final, p, text, criteria: c, describes, cutResults: cutWhileAsking.current && final === 'strong' && !describes };
         });
       } catch {
         // No offer is the safe outcome.

@@ -54,6 +54,18 @@ export function nextOffer(current: Offer, p: number, t: OfferThresholds = DEFAUL
 
 /** One word can show a question starting ("how" scores high) but holds nothing to answer yet, so
  *  it gets the invitation at most; the strong offer waits for a second word or a question mark. */
+/**
+ * The results a page shows under the "coverage hits only while asking" rule (the dataset's
+ * `cutWhileAsking`, on by default): while the offer is strong, the list up to the truncation
+ * point, which is where coverage's confirmed matches end and the pattern matches begin; with
+ * nothing confirmed, nothing, and the offer stands alone. Otherwise the list as it came.
+ */
+export function visibleResults<T>(results: T[], truncationIndex: number | undefined, cut: boolean): T[] {
+  if (!cut) return results;
+  if (truncationIndex == null || truncationIndex < 0) return results;
+  return results.slice(0, truncationIndex);
+}
+
 export function canAnswer(text: string): boolean {
   const t = text.trim();
   return t.includes(' ') || t.endsWith('?');

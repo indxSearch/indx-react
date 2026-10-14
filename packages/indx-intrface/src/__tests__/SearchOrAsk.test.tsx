@@ -7,7 +7,7 @@ import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
 import { useFilterSuggestion } from '../hooks/useFilterSuggestion';
 import { AskPanel } from '../components/AskPanel';
 import { SearchInput } from '../components/SearchInput';
-import { nextOffer, triggers, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
+import { nextOffer, triggers, visibleResults, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
 import { server } from './mocks/server';
 
 // Search or ask from the page's side: the settings decide whether anything is sent, a typing pause
@@ -61,6 +61,15 @@ describe('the rules', () => {
     expect(nextOffer('strong', 0.4)).toBe('invite');
     expect(nextOffer('invite', 0.35)).toBe('invite');
     expect(nextOffer('none', 0.35)).toBe('none');
+  });
+
+  it('cuts the list at the truncation point only while the offer is strong and the rule is on', () => {
+    const results = ['pikachu', 'bulbasaur', 'pattern tail'];
+    expect(visibleResults(results, 2, true)).toEqual(['pikachu', 'bulbasaur']);
+    expect(visibleResults(results, 0, true)).toEqual([]);
+    expect(visibleResults(results, 2, false)).toEqual(results);
+    expect(visibleResults(results, -1, true)).toEqual(results);
+    expect(visibleResults(results, undefined, true)).toEqual(results);
   });
 
   it('never judges an identifier', () => {

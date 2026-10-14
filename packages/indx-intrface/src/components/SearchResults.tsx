@@ -9,6 +9,8 @@ import { SearchResult } from './SearchResult';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Indx } from '@indxsearch/pixl';
 import { Button } from '@indxsearch/systm';
+import type { SearchOrAskState } from '../hooks/useSearchOrAsk';
+import { visibleResults } from '../utils/searchOrAsk';
 
 export interface SearchResultsProps {
   fields?: string[];
@@ -26,6 +28,12 @@ export interface SearchResultsProps {
    * result, so the dataset's statistics get click-through and click position.
    */
   children: (item: Record<string, any>, meta: SearchResultMeta) => React.ReactNode;
+  /**
+   * The offer, when the page runs `useSearchOrAsk`: while it is strong and the dataset has the
+   * rule on, the list shows coverage hits only (up to the truncation point), and nothing when
+   * nothing is confirmed, so the offer stands alone. Without it the list is never cut.
+   */
+  searchOrAsk?: SearchOrAskState;
 }
 
 export interface SearchResultMeta {
@@ -54,7 +62,7 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, children }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, children }) => {
   const {
     state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error, errorInfo },
     isFetchingInitial,
@@ -80,7 +88,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     previousQuery.current = query;
   }, [results, pageSize, query]);
 
-  const canLoadMore = results && results.length > visibleCount;
+  // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
+  const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults) : [];
+  const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {
     const newVisibleCount = visibleCount + pageSize;
@@ -113,15 +123,15 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     return <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
   }
 
-  // Nothing to show: SearchInput's No results chip says so.
-  if (results.length === 0) {
+  // Nothing to show: SearchInput's No results chip says so; under the rule, the offer stands alone.
+  if (shown.length === 0) {
     return null;
   }
 
   return (
     <>
       <div>
-        {(results ?? []).slice(0, visibleCount).map((result, idx) => {
+        {shown.slice(0, visibleCount).map((result, idx) => {
           const rawItem = result.document;
           const score = result.score;
           let parsed: Record<string, any>;

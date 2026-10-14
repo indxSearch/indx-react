@@ -39,5 +39,5 @@ export { useAsk } from './hooks/useAsk';
 export type { AskSource, AskStatus, AskState, AskTurn, AskFilters } from './hooks/useAsk';
 export { AskPanel } from './components/AskPanel';
 export type { AskPanelProps } from './components/AskPanel';
-export { nextOffer, triggers, isIdentifier, DEFAULT_THRESHOLDS } from './utils/searchOrAsk';
+export { nextOffer, triggers, isIdentifier, visibleResults, DEFAULT_THRESHOLDS } from './utils/searchOrAsk';
 export type { Offer, OfferThresholds } from './utils/searchOrAsk';
