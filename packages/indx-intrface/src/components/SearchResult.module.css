@@ -26,8 +26,10 @@
     line-height: 1.8;
 }
 
-/* Chips inside a result row sit on a Base (lv2) surface — override to lv0 so they read as elevated pills */
-.content span {
+/* Chips inside a result row sit on a Base (lv2) surface: lv0 makes them read as raised pills.
+   Chips only, by systm's stable class: this was every span, so any text an app put in a span
+   (an item number, a category trail) got a pill's background without a pill's shape. */
+.content :global(.indx-chip) {
     background-color: var(--lv0);
 }
 

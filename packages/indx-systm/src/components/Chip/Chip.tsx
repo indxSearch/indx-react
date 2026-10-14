@@ -17,6 +17,8 @@ export interface ChipProps {
   size?: 'default' | 'large';
 }
 
+/** `indx-chip` is a stable class beside the hashed one, as the Blazor Chip has, so a container can
+ *  style the chips inside it (intrface's result rows set their background). */
 export function Chip({ children, color, textColor, className, icon, size = 'default' }: ChipProps) {
   const style: React.CSSProperties = {};
   if (color) style.backgroundColor = color;
@@ -24,7 +26,7 @@ export function Chip({ children, color, textColor, className, icon, size = 'defa
 
   return (
     <span
-      className={[styles.chip, size === 'large' && styles.large, className].filter(Boolean).join(' ')}
+      className={[styles.chip, 'indx-chip', size === 'large' && styles.large, className].filter(Boolean).join(' ')}
       style={style}
     >
       {icon && React.cloneElement(icon, { size: 14, color: 'currentColor' })}
