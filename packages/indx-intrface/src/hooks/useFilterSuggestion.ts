@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import { statisticsParams } from '../utils/searchOrAsk';
+import type { SearchOrAskState } from './useSearchOrAsk';
 
 /** One filter a description asked for: a value (text, or "true"/"false") or a number range. */
 export interface FilterSuggestion {
@@ -19,14 +20,47 @@ export interface FilterSuggestionResult {
 }
 
 /**
+ * The local pass: a typed word or phrase that equals a facet value, as a filter, with the text it
+ * leaves. "bærum skoleoversikt" on a register whose municipality facet holds "Bærum" gives the
+ * municipality filter and "skoleoversikt". Case does not matter; a value matches whole words only,
+ * and a longer value wins over a shorter one it contains. No model, no delay.
+ */
+export function localFilters(text: string, facets: Record<string, { key: string }[]> | null | undefined): FilterSuggestionResult | null {
+  if (!facets) return null;
+  const candidates: { field: string; value: string }[] = [];
+  for (const [field, values] of Object.entries(facets))
+    for (const v of values ?? []) if (v?.key && v.key.trim().length >= 2) candidates.push({ field, value: v.key });
+  candidates.sort((a, b) => b.value.length - a.value.length);
+  let rest = ' ' + text.toLowerCase() + ' ';
+  const filters: FilterSuggestion[] = [];
+  for (const c of candidates) {
+    const needle = ' ' + c.value.toLowerCase().trim() + ' ';
+    const at = rest.indexOf(needle);
+    if (at < 0) continue;
+    filters.push({ field: c.field, value: c.value });
+    rest = rest.slice(0, at) + ' ' + rest.slice(at + needle.length);
+  }
+  if (filters.length === 0) return null;
+  return { filters, text: rest.replace(/[?!.,]+\s*$/, '').replace(/\s+/g, ' ').trim(), sort: null };
+}
+
+export interface UseFilterSuggestionOptions {
+  /** The offer from `useSearchOrAsk`. With it, a description is turned into filters while the
+   *  visitor types, the way the dataset's `filtersWhileTyping` says: facet values at once, the
+   *  model for the rest, or nothing until Ask. */
+  auto?: SearchOrAskState;
+}
+
+/**
  * Search or ask on a catalogue: turns a description of what to list ("private videregående i
  * bergen") into filters on the dataset's own fields (`search-or-ask/filters`), and applies them
  * to the search, where ActiveFiltersPanel shows them and the visitor can remove each. Ask for it
- * when `useSearchOrAsk` says `describes`.
+ * when `useSearchOrAsk` says `describes`, or hand it the offer (`auto`) and it acts on its own.
  */
-export function useFilterSuggestion() {
+export function useFilterSuggestion(options: UseFilterSuggestionOptions = {}) {
   const ctx = useSearchContext();
   const { url, team, dataset, authenticatedFetch, setQuery, toggleFilter, setRangeFilter, setSort } = ctx;
+  const { auto } = options;
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
   const [suggestion, setSuggestion] = useState<FilterSuggestionResult | null>(null);
@@ -71,5 +105,47 @@ export function useFilterSuggestion() {
 
   const clear = useCallback(() => { seq.current++; setSuggestion(null); setLoading(false); }, []);
 
-  return { suggestion, forText, loading, suggest, apply, clear };
+  // While typing: once per text, when the offer says description and the dataset allows it. The
+  // facet pass first (instant); the model only in 'model' mode and only when the facets named
+  // nothing, since a second apply would reset what the first put on.
+  // Texts already handled: the one the filters came from, and the text they left, which becomes
+  // the query and must not start the pass again.
+  const handled = useRef(new Set<string>());
+  const [appliedText, setAppliedText] = useState<string | null>(null);
+  const mode = auto?.filtersWhileTyping ?? 'off';
+  const wants = !!auto && auto.available && auto.describes && auto.offer === 'strong' && mode !== 'off';
+  const text = auto?.text ?? '';
+  // The facets come with the search's answer, so the pass waits for the search that is running;
+  // the judge usually answers first. On a page with facets the first search of all has none yet
+  // (the facet search is the debounced one), so the pass also waits for the first facets.
+  const facets = ctx.state.facets;
+  const searching = ctx.state.isLoading || (ctx.facetsEnabled && facets == null);
+  useEffect(() => {
+    if (!wants || !text || searching || handled.current.has(text)) return;
+    handled.current.add(text);
+    const local = localFilters(text, facets);
+    if (local) { handled.current.add(local.text); apply(local); setAppliedText(text); return; }
+    if (mode !== 'model') return;
+    let cancelled = false;
+    (async () => {
+      const mine = ++seq.current;
+      setLoading(true);
+      try {
+        const res = await authenticatedFetch(
+          `${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/filters${statisticsParams(ctxRef.current)}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+          });
+        if (cancelled || mine !== seq.current) return;
+        const result = res.ok ? await res.json() as FilterSuggestionResult : null;
+        if (result && result.filters.length > 0) { handled.current.add(result.text); apply(result); setAppliedText(text); }
+      } catch {
+        // No filter is the safe outcome.
+      } finally {
+        if (mine === seq.current) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [wants, text, mode, searching, facets, apply, url, team, dataset, authenticatedFetch]);
+
+  return { suggestion, forText, loading, suggest, apply, clear, appliedText };
 }

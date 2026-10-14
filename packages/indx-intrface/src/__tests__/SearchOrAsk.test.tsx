@@ -4,7 +4,7 @@ import { render, renderHook, screen, act, waitFor, fireEvent } from '@testing-li
 import { http, HttpResponse } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
-import { useFilterSuggestion } from '../hooks/useFilterSuggestion';
+import { useFilterSuggestion, localFilters } from '../hooks/useFilterSuggestion';
 import { AskPanel } from '../components/AskPanel';
 import { SearchInput } from '../components/SearchInput';
 import { nextOffer, triggers, visibleResults, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
@@ -216,6 +216,43 @@ describe('statistics', () => {
     await screen.findByText('Copy');
     fireEvent.click(screen.getByText('Synonyms'));
     await waitFor(() => expect(selects).toEqual([{ queryId: 'ask-7', documentKey: 12, position: 2 }]));
+  });
+});
+
+describe('catalogue: a description becomes filters while typing', () => {
+  it('turns a typed facet value into that filter, and leaves the rest as the text', () => {
+    const facets = { 'Kommune.Navn': [{ key: 'Bærum' }, { key: 'Oslo' }, { key: 'Nordre Follo' }], ErPrivatskole: [{ key: 'true' }] };
+    expect(localFilters('bærum skoleoversikt?', facets)).toEqual({ filters: [{ field: 'Kommune.Navn', value: 'Bærum' }], text: 'skoleoversikt', sort: null });
+    expect(localFilters('skoler i nordre follo', facets)).toEqual({ filters: [{ field: 'Kommune.Navn', value: 'Nordre Follo' }], text: 'skoler i', sort: null });
+    expect(localFilters('osloveien 3', facets)).toBeNull();
+    expect(localFilters('bærum', null)).toBeNull();
+  });
+
+  it('applies the filters on its own while typing when the dataset says so, facets first', async () => {
+    server.use(http.get(SOA, () => HttpResponse.json({ settings: { enabled: true, thresholds: DEFAULT_THRESHOLDS, filtersWhileTyping: 'model' }, effective: {}, available: true })));
+    const modelAsked: string[] = [];
+    server.use(
+      http.post(`${SOA}/intent`, () => HttpResponse.json({ p: 0.1, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, criteria: 0.9, filtersWhileTyping: 'model' })),
+      http.post(`${SOA}/filters`, async ({ request }) => {
+        modelAsked.push((await request.json() as { text: string }).text);
+        return HttpResponse.json({ filters: [{ field: 'price', min: 0, max: 50 }], text: 'cheap', ms: 900 });
+      }));
+    // Facets on: the local pass reads the facet values the page holds.
+    const facetWrapper = ({ children }: { children: React.ReactNode }) => (
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token">{children}</SearchProvider>
+    );
+    const { result } = renderHook(() => { const b = useBoth(); return { ...b, f: useFilterSuggestion({ auto: b.sor }) }; }, { wrapper: facetWrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    // A facet value typed: the filter at once, no model. The facets come with the first search.
+    act(() => result.current.ctx.setQuery('trail shoes'));
+    await waitFor(() => expect(result.current.ctx.state.filters).toEqual({ category: ['trail'] }), { timeout: 3000 });
+    expect(result.current.ctx.state.query).toBe('shoes');
+    expect(modelAsked).toEqual([]);
+    // Nothing the facets name: the model, once for the text.
+    act(() => result.current.ctx.setQuery('cheap ones'));
+    await waitFor(() => expect(result.current.ctx.state.rangeFilters.price!.max).toBe(50), { timeout: 3000 });
+    expect(modelAsked).toEqual(['cheap ones']);
+    expect(result.current.f.appliedText).toBe('cheap ones');
   });
 });
 

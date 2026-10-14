@@ -14,6 +14,7 @@ const sliderProps = vi.hoisted(() => ({ current: null as null | Record<string, a
 // that conflicts with the global Object in the test environment. Mock systm
 // with minimal stubs so the component logic can be exercised without the crash.
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="filter-panel">{children}</div>
   ),

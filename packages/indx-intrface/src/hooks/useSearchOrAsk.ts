@@ -38,9 +38,13 @@ export interface SearchOrAskState {
   /** The page's searches run with whole-word coverage: the offer is strong and the dataset has
    *  that rule on. The hook sets and clears it on the search context itself. */
   strictCoverage: boolean;
+  /** On a catalogue, what to do with a description while typing (the dataset's `filtersWhileTyping`):
+   *  'off' leaves the list until Ask, 'facets' applies typed facet values at once, 'model' also asks
+   *  the filters route for the rest. `useFilterSuggestion({ auto })` acts on it. */
+  filtersWhileTyping: 'off' | 'facets' | 'model';
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false, filtersWhileTyping: 'off' };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -65,6 +69,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const cutWhileAsking = useRef(true);
   const cutRule = useRef<CutRule>(DEFAULT_CUT);
   const strictWhileAsking = useRef(true);
+  const filtersWhileTyping = useRef<'off' | 'facets' | 'model'>('off');
   // The coverage values the strict setup replaced, to put back when the offer drops.
   const relaxed = useRef<Partial<typeof STRICT_COVERAGE> | null>(null);
   const offerRef = useRef<Offer>('none');
@@ -85,8 +90,9 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model' }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
+        filtersWhileTyping.current = body.settings.filtersWhileTyping ?? 'off';
         thresholds.current = { ...DEFAULT_THRESHOLDS, ...body.settings.thresholds };
         cutWhileAsking.current = body.settings.cutWhileAsking ?? true;
         strictWhileAsking.current = body.settings.strictCoverageWhileAsking ?? true;
@@ -132,8 +138,9 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         }
         if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
         if (!res.ok) return;
-        const { p, answerable, criteria, cutWhileAsking: cut, cutShareOfTop, cutTopFloor, strictCoverageWhileAsking: strict } = await res.json() as
-          { p: number; answerable?: number | null; criteria?: number | null; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean };
+        const { p, answerable, criteria, cutWhileAsking: cut, cutShareOfTop, cutTopFloor, strictCoverageWhileAsking: strict, filtersWhileTyping: fwt } = await res.json() as
+          { p: number; answerable?: number | null; criteria?: number | null; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model' };
+        if (fwt != null) filtersWhileTyping.current = fwt;
         if (mine !== seq.current) return; // a newer pause has asked since
         // The rules travel with every judgement, so an editor's change applies on the next pause.
         if (cut != null) cutWhileAsking.current = cut;
@@ -150,7 +157,8 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           // decides: a description becomes filters, which replace the list; a question cuts it.
           const asking = final === 'strong' && !(describes && c! > p);
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
-            cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking };
+            cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking,
+            filtersWhileTyping: filtersWhileTyping.current };
         });
       } catch {
         // No offer is the safe outcome.

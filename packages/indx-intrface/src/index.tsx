@@ -32,6 +32,8 @@ export { useVectorSearch } from './hooks/useVectorSearch';
 export type { EmbeddingResult, UseVectorSearchOptions } from './hooks/useVectorSearch';
 export { useHybridSearch } from './hooks/useHybridSearch';
 export type { UseHybridSearchOptions } from './hooks/useHybridSearch';export { useSearchOrAsk } from './hooks/useSearchOrAsk';
+export { localFilters } from './hooks/useFilterSuggestion';
+export type { UseFilterSuggestionOptions } from './hooks/useFilterSuggestion';
 export type { UseSearchOrAskOptions, SearchOrAskState } from './hooks/useSearchOrAsk';
 export { useFilterSuggestion } from './hooks/useFilterSuggestion';
 export type { FilterSuggestion, FilterSuggestionResult } from './hooks/useFilterSuggestion';

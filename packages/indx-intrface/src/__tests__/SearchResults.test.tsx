@@ -8,6 +8,7 @@ import { server } from './mocks/server';
 import { SEARCH_RESPONSE } from './mocks/fixtures';
 
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
 }));
 vi.mock('@indxsearch/pixl', () => {

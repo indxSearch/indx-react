@@ -8,6 +8,7 @@ import { ActiveFiltersPanel } from '../components/ActiveFiltersPanel';
 import { server } from './mocks/server';
 
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   FilterPanelBase: ({ title, children }: { title?: string; children: React.ReactNode }) => (
     <div data-testid="filter-panel">{title && <h3>{title}</h3>}{children}</div>
   ),

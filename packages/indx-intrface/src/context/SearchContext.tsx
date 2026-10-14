@@ -74,6 +74,7 @@ export interface SearchContextType {
   authErrorInfo?: SearchErrorInfo; // The same failure, classified
   retry?: () => void; // Tries again after a failure: initialisation when that failed, otherwise the last search. Optional so a hand-built context stays valid
   allowEmptySearch: boolean; // Whether empty searches are allowed
+  facetsEnabled: boolean; // Whether this page fetches facets (the debounced facet search)
   url: string;
   team: string;
   dataset: string;
@@ -444,6 +445,7 @@ export const SearchProvider: React.FC<{
         authErrorInfo: auth.authErrorInfo ?? undefined,
         retry: auth.authError ? auth.retry : retrySearch,
         allowEmptySearch,
+        facetsEnabled,
         url,
         team,
         dataset,
