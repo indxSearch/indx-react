@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
-  Alert, AlertDescription, Base, Chart, Chip, Select, Table, TableHeader, TableRow, Tabs, Tooltip, Truncate,
+  Alert, AlertDescription, Base, Chart, Chip, Select, Stat, StatGroup, Table, TableHeader, TableRow, Tabs, Truncate,
 } from '@indxsearch/systm';
 import { ArrowDown, ArrowUp, Database, Graph } from '@indxsearch/pixl';
 import { buildPeriod, type Kpi, type PeriodKey, type TermRow } from './data';
@@ -55,13 +55,9 @@ function Delta({ kpi, direction, format }: { kpi: Kpi; direction: Direction; for
 
 function KpiTile({ label, value, hint, children }: { label: string; value: string; hint: string; children: React.ReactNode }) {
   return (
-    <Base className={styles.tile}>
-      <Tooltip content={hint}>
-        <span className={styles.tileLabel}>{label}</span>
-      </Tooltip>
-      <span className={styles.tileValue}>{value}</span>
-      <span className={styles.tileFoot}>{children}<span className={styles.tileVs}>vs previous period</span></span>
-    </Base>
+    <Stat label={label} value={value} hint={hint}>
+      {children}<span className={styles.tileVs}>vs previous period</span>
+    </Stat>
   );
 }
 
@@ -147,7 +143,7 @@ export default function AnalyticsDashboardPage() {
       </header>
 
       {/* ── KPIs, each against the previous period of the same length ── */}
-      <section className={styles.tiles}>
+      <StatGroup columns={6}>
         <KpiTile label="Searches" value={nf.format(k.searches.value)} hint="Every search request in the period.">
           <Delta kpi={k.searches} direction="higherIsBetter" format="relative" />
         </KpiTile>
@@ -169,7 +165,7 @@ export default function AnalyticsDashboardPage() {
         <KpiTile label="Click rate" value={pct(k.clickRate.value)} hint="Searches that ended in a chosen result.">
           <Delta kpi={k.clickRate} direction="higherIsBetter" format="points" />
         </KpiTile>
-      </section>
+      </StatGroup>
 
       {/* ── Searches per day ── */}
       <section className={styles.panel}>
