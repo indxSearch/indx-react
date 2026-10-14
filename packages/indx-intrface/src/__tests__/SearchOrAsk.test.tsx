@@ -70,7 +70,10 @@ describe('the rules', () => {
     const whichIsStrongest = [{ score: 7029 }, { score: 6767 }, { score: 6633 }];
     expect(visibleResults(whichIsStrongest, 60, true)).toEqual([]);
     const whatTypeIsPikachu = [{ score: 22921 }, { score: 16367 }, { score: 9830 }];
-    expect(visibleResults(whatTypeIsPikachu, 2, true)).toEqual([{ score: 22921 }, { score: 16367 }], 'never past the truncation point');
+    expect(visibleResults(whatTypeIsPikachu, 2, true)).toEqual([{ score: 22921 }, { score: 16367 }]);
+    // The index is the last confirmed position: 0 means one confirmed, -1 none.
+    expect(visibleResults(whatTypeIsPikachu, 0, true, { shareOfTop: 0, topFloor: 0 })).toEqual([{ score: 22921 }]);
+    expect(visibleResults(whatTypeIsPikachu, -1, true, { shareOfTop: 0, topFloor: 0 })).toEqual([]);
     expect(visibleResults(pikachuOrBulbasaur, 44, false)).toEqual(pikachuOrBulbasaur);
     expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.9, topFloor: 0.2 })).toEqual([{ score: 19843 }]);
     expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.5, topFloor: 0.5 })).toEqual([]);

@@ -79,7 +79,9 @@ export function visibleResults<T extends { score: number }>(results: T[], trunca
   if (!cut || results.length === 0) return results;
   const top = results[0].score;
   if (top < rule.topFloor * SCORE_SCALE) return [];
-  const confirmed = truncationIndex == null || truncationIndex < 0 ? results : results.slice(0, truncationIndex);
+  // The truncation index is the position of the last confirmed result (-1: none), so the
+  // confirmed list is one longer than the index.
+  const confirmed = truncationIndex == null ? results : truncationIndex < 0 ? [] : results.slice(0, truncationIndex + 1);
   const line = rule.shareOfTop * top;
   const end = confirmed.findIndex(r => r.score < line);
   return end < 0 ? confirmed : confirmed.slice(0, end);
