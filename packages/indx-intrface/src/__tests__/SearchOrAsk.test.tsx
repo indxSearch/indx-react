@@ -121,6 +121,22 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.p).toBe(0.8);
   });
 
+  it('puts whole-word coverage on the search while the offer is strong, and takes it off after', async () => {
+    settings(true);
+    judge({ 'how do I add synonyms': 0.8, 'synonyms': 0.1 });
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.ctx.isFetchingInitial).toBe(false));
+    expect(result.current.ctx.state.searchSettings.coverageSetup.coverFuzzyWords).toBeUndefined();
+    act(() => result.current.ctx.setQuery('how do I add synonyms'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.coverageSetup).toMatchObject({ coverFuzzyWords: false, coverPrefixSuffix: false, coverJoinedWords: false, minWordSize: 3 }));
+    expect(result.current.sor).toMatchObject({ cutResults: true, strictCoverage: true });
+    act(() => result.current.ctx.setQuery('synonyms'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('none'));
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.coverageSetup.coverFuzzyWords).toBeUndefined());
+    expect(result.current.sor.strictCoverage).toBe(false);
+  });
+
   it('gives one word the invitation at most', async () => {
     settings(true);
     judge({ synonyms: 0.9 });

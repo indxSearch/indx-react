@@ -64,6 +64,15 @@ export interface CutRule {
 
 export const DEFAULT_CUT: CutRule = { shareOfTop: 0.5, topFloor: 0.2 };
 
+/**
+ * Coverage while asking (the dataset's `strictCoverageWhileAsking`, on by default): whole words
+ * only, no typos, prefixes or joined words, words of three letters or more. The forgiving matching
+ * that is right for a typed name confirms the wrong records under a question: "ullern
+ * videregående" confirmed seven other schools by prefix and fuzzy matches of the second word.
+ * The hook puts these on the page's searches while the offer is strong and takes them off after.
+ */
+export const STRICT_COVERAGE = { coverFuzzyWords: false, coverPrefixSuffix: false, coverJoinedWords: false, minWordSize: 3 } as const;
+
 /** The search score's scale: coverage scores run to 65535. */
 export const SCORE_SCALE = 65535;
 

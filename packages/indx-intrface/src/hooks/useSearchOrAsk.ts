@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import {
-  DEFAULT_CUT, DEFAULT_THRESHOLDS, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
+  DEFAULT_CUT, DEFAULT_THRESHOLDS, STRICT_COVERAGE, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
   type CutRule, type Offer, type OfferThresholds,
 } from '../utils/searchOrAsk';
 
@@ -35,9 +35,12 @@ export interface SearchOrAskState {
   cutResults: boolean;
   /** The cut's two lines, the dataset's, for `visibleResults`. */
   cutRule: CutRule;
+  /** The page's searches run with whole-word coverage: the offer is strong and the dataset has
+   *  that rule on. The hook sets and clears it on the search context itself. */
+  strictCoverage: boolean;
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -61,6 +64,9 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const thresholds = useRef<OfferThresholds>(DEFAULT_THRESHOLDS);
   const cutWhileAsking = useRef(true);
   const cutRule = useRef<CutRule>(DEFAULT_CUT);
+  const strictWhileAsking = useRef(true);
+  // The coverage values the strict setup replaced, to put back when the offer drops.
+  const relaxed = useRef<Partial<typeof STRICT_COVERAGE> | null>(null);
   const offerRef = useRef<Offer>('none');
   const lastAsked = useRef('');
   const seq = useRef(0);
@@ -79,10 +85,11 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
         thresholds.current = { ...DEFAULT_THRESHOLDS, ...body.settings.thresholds };
         cutWhileAsking.current = body.settings.cutWhileAsking ?? true;
+        strictWhileAsking.current = body.settings.strictCoverageWhileAsking ?? true;
         cutRule.current = { shareOfTop: body.settings.cutShareOfTop ?? DEFAULT_CUT.shareOfTop, topFloor: body.settings.cutTopFloor ?? DEFAULT_CUT.topFloor };
         setAvailable(true);
       } catch {
@@ -125,11 +132,12 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         }
         if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
         if (!res.ok) return;
-        const { p, answerable, criteria, cutWhileAsking: cut, cutShareOfTop, cutTopFloor } = await res.json() as
-          { p: number; answerable?: number | null; criteria?: number | null; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number };
+        const { p, answerable, criteria, cutWhileAsking: cut, cutShareOfTop, cutTopFloor, strictCoverageWhileAsking: strict } = await res.json() as
+          { p: number; answerable?: number | null; criteria?: number | null; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean };
         if (mine !== seq.current) return; // a newer pause has asked since
-        // The rule travels with every judgement, so an editor's change applies on the next pause.
+        // The rules travel with every judgement, so an editor's change applies on the next pause.
         if (cut != null) cutWhileAsking.current = cut;
+        if (strict != null) strictWhileAsking.current = strict;
         if (cutShareOfTop != null && cutTopFloor != null) cutRule.current = { shareOfTop: cutShareOfTop, topFloor: cutTopFloor };
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
@@ -139,8 +147,9 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
           const final = describes ? 'strong' : asked;
           // A description becomes filters, which replace the list; the cut is for questions.
+          const asking = final === 'strong' && !describes;
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
-            cutResults: cutWhileAsking.current && final === 'strong' && !describes, cutRule: cutRule.current };
+            cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking };
         });
       } catch {
         // No offer is the safe outcome.
@@ -148,6 +157,23 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     }, pauseMs);
     return () => clearTimeout(timer);
   }, [text, available, base, authenticatedFetch, pauseMs]);
+
+  // The strict coverage goes on the page's own searches while the offer is strong, and comes off
+  // after; each change is a search, so the list tightens as the offer appears and loosens as it
+  // goes. Only the values the strict setup names are touched, and they are put back as they were.
+  const strictOn = available && state.strictCoverage;
+  useEffect(() => {
+    const { setSearchSettings, state: search } = ctxRef.current;
+    if (strictOn) {
+      if (relaxed.current) return;
+      const before = search.searchSettings.coverageSetup ?? {};
+      relaxed.current = Object.fromEntries(Object.keys(STRICT_COVERAGE).map(k => [k, (before as Record<string, unknown>)[k]])) as Partial<typeof STRICT_COVERAGE>;
+      setSearchSettings({ coverageSetup: { ...STRICT_COVERAGE } });
+    } else if (relaxed.current) {
+      setSearchSettings({ coverageSetup: { ...relaxed.current } });
+      relaxed.current = null;
+    }
+  }, [strictOn]);
 
   return available ? state : IDLE;
 }
