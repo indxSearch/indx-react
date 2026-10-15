@@ -139,8 +139,7 @@ export function Sparkline({
 
   // The idle stretches: a gradient across the viewBox painted segment by segment, with hard edges.
   // A segment between two zero points is idleColor; one that touches a non-zero point keeps the
-  // colour. Each segment's two stops sit at its ends, so where the next begins the colour switches
-  // rather than easing (an eased fade read as a soft gradient). userSpaceOnUse keeps it the same
+  // colour, with a short blend where the two meet. userSpaceOnUse keeps it the same
   // across the split line's parts. Applied as a style: the classes' currentColor would otherwise
   // win over a stroke attribute.
   const idle = idleColor != null && clean.some((v) => v === 0);
@@ -152,14 +151,23 @@ export function Sparkline({
       {idle && (
         <defs>
           <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={VB_W} y2="0">
-            {clean.slice(1).flatMap((v, i) => {
-              const c = clean[i] === 0 && v === 0 ? idleColor : 'currentColor';
+            {(() => {
               const n = clean.length - 1;
-              return [
-                <stop key={`${i}a`} offset={i / n} style={{ stopColor: c }} />,
-                <stop key={`${i}b`} offset={(i + 1) / n} style={{ stopColor: c }} />,
-              ];
-            })}
+              const colour = (i: number) => (clean[i] === 0 && clean[i + 1] === 0 ? idleColor : 'currentColor');
+              // Where a segment's colour differs from its neighbour's, it stops this far short of
+              // the shared point, and the gradient blends across the gap: a fifth of a segment on
+              // each side. A hard switch read as too sharp, an eased one per point as a gradient.
+              const soft = 0.2 / n;
+              return Array.from({ length: n }, (_, i) => {
+                const c = colour(i);
+                const start = i / n + (i > 0 && colour(i - 1) !== c ? soft : 0);
+                const end = (i + 1) / n - (i < n - 1 && colour(i + 1) !== c ? soft : 0);
+                return [
+                  <stop key={`${i}a`} offset={start} style={{ stopColor: c }} />,
+                  <stop key={`${i}b`} offset={end} style={{ stopColor: c }} />,
+                ];
+              }).flat();
+            })()}
           </linearGradient>
         </defs>
       )}
