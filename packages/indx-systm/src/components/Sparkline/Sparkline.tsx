@@ -32,8 +32,8 @@ export interface SparklineProps {
    */
   lastIsPartial?: boolean;
   /**
-   * Line only: where the series is zero, the line and its fill fade to this colour, and back where
-   * it rises, so a quiet stretch reads as quiet rather than as a line like any other. Most useful
+   * Line only: where the series stays at zero, the line and its fill take this colour, switching
+   * sharply where it rises, so a quiet stretch reads as quiet rather than as a line like any other. Most useful
    * on many sparklines at once, where most are idle. Off when not given.
    */
   idleColor?: string;
@@ -137,11 +137,12 @@ export function Sparkline({
     clean.slice(from, from + count).map((v, i) => `${(from + i) * step},${y(v)}`).join(' ');
   const points = pointsOf(0, clean.length);
 
-  // The idle fade: a gradient across the viewBox with a stop at every point, the colour where it is
-  // above zero and idleColor where it is zero. Between a zero and a non-zero point the gradient
-  // eases from one to the other, so the line fades rather than switching. userSpaceOnUse keeps it
-  // the same across the split line's parts. Applied as a style: the classes' currentColor would
-  // otherwise win over a stroke attribute.
+  // The idle stretches: a gradient across the viewBox painted segment by segment, with hard edges.
+  // A segment between two zero points is idleColor; one that touches a non-zero point keeps the
+  // colour. Each segment's two stops sit at its ends, so where the next begins the colour switches
+  // rather than easing (an eased fade read as a soft gradient). userSpaceOnUse keeps it the same
+  // across the split line's parts. Applied as a style: the classes' currentColor would otherwise
+  // win over a stroke attribute.
   const idle = idleColor != null && clean.some((v) => v === 0);
   const paint = idle ? { stroke: `url(#${gradientId})` } : undefined;
   const fillPaint = idle ? { fill: `url(#${gradientId})` } : undefined;
@@ -151,10 +152,14 @@ export function Sparkline({
       {idle && (
         <defs>
           <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={VB_W} y2="0">
-            {clean.map((v, i) => (
-              <stop key={i} offset={clean.length > 1 ? i / (clean.length - 1) : 0}
-                    style={{ stopColor: v === 0 ? idleColor : 'currentColor' }} />
-            ))}
+            {clean.slice(1).flatMap((v, i) => {
+              const c = clean[i] === 0 && v === 0 ? idleColor : 'currentColor';
+              const n = clean.length - 1;
+              return [
+                <stop key={`${i}a`} offset={i / n} style={{ stopColor: c }} />,
+                <stop key={`${i}b`} offset={(i + 1) / n} style={{ stopColor: c }} />,
+              ];
+            })}
           </linearGradient>
         </defs>
       )}

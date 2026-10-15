@@ -201,11 +201,11 @@ export default function DatasetCardPage() {
         </div>
       </div>
 
-      <h2 className={styles.heading}>D &mdash; idle stretches fade</h2>
+      <h2 className={styles.heading}>D &mdash; idle stretches step back</h2>
       <p className={styles.note}>
-        Most datasets are idle, and every one draws the same line. Here the line and its fill fade to
-        a weaker tone (<code>idleColor</code>, --lv3: toward the background in both themes) where the
-        series is zero, and back where it rises. A busy dataset is untouched; an idle one all but
+        Most datasets are idle, and every one draws the same line. Here the line and its fill take a
+        weaker tone (<code>idleColor</code>, --lv3: toward the background in both themes) where the
+        series stays at zero, and switch back sharply where it rises. A busy dataset is untouched; an idle one all but
         steps back. Top row as built, bottom row with the fade.
       </p>
       <div className={styles.grid}>
