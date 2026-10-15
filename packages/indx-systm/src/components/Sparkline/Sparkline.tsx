@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './Sparkline.module.css';
 
 /**
@@ -31,6 +31,12 @@ export interface SparklineProps {
    * so a count that is only partway through does not read as a drop.
    */
   lastIsPartial?: boolean;
+  /**
+   * Line only: where the series is zero, the line and its fill fade to this colour, and back where
+   * it rises, so a quiet stretch reads as quiet rather than as a line like any other. Most useful
+   * on many sparklines at once, where most are idle. Off when not given.
+   */
+  idleColor?: string;
   /** Bar only: the gap between bars, in real pixels whatever the width. */
   gap?: number;
   /**
@@ -55,9 +61,11 @@ export function Sparkline({
   baseline = false,
   lastIsPartial = false,
   gap = 1,
+  idleColor,
   ariaLabel,
   className,
 }: SparklineProps) {
+  const gradientId = `spark-${useId().replace(/:/g, '')}`;
   const clean = values.filter((v) => Number.isFinite(v));
   const hidden = ariaLabel == null;
 
@@ -129,10 +137,29 @@ export function Sparkline({
     clean.slice(from, from + count).map((v, i) => `${(from + i) * step},${y(v)}`).join(' ');
   const points = pointsOf(0, clean.length);
 
+  // The idle fade: a gradient across the viewBox with a stop at every point, the colour where it is
+  // above zero and idleColor where it is zero. Between a zero and a non-zero point the gradient
+  // eases from one to the other, so the line fades rather than switching. userSpaceOnUse keeps it
+  // the same across the split line's parts. Applied as a style: the classes' currentColor would
+  // otherwise win over a stroke attribute.
+  const idle = idleColor != null && clean.some((v) => v === 0);
+  const paint = idle ? { stroke: `url(#${gradientId})` } : undefined;
+  const fillPaint = idle ? { fill: `url(#${gradientId})` } : undefined;
+
   return svg(
     <>
+      {idle && (
+        <defs>
+          <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={VB_W} y2="0">
+            {clean.map((v, i) => (
+              <stop key={i} offset={clean.length > 1 ? i / (clean.length - 1) : 0}
+                    style={{ stopColor: v === 0 ? idleColor : 'currentColor' }} />
+            ))}
+          </linearGradient>
+        </defs>
+      )}
       {fill && (
-        <polygon className={styles.fill} points={`0,${VB_H} ${points} ${VB_W},${VB_H}`} />
+        <polygon className={styles.fill} points={`0,${VB_H} ${points} ${VB_W},${VB_H}`} style={fillPaint} />
       )}
       {/* non-scaling-stroke: preserveAspectRatio="none" stretches the viewBox, which would
           otherwise stretch the stroke with it and give a line thicker one way than the other. */}
@@ -141,13 +168,13 @@ export function Sparkline({
           {/* The last point is a period still running: solid up to the one before it, dashed
               into it, so "so far" does not read as a fall. */}
           {clean.length > 2 && (
-            <polyline className={styles.line} points={pointsOf(0, clean.length - 1)} vectorEffect="non-scaling-stroke" />
+            <polyline className={styles.line} points={pointsOf(0, clean.length - 1)} vectorEffect="non-scaling-stroke" style={paint} />
           )}
           <polyline className={`${styles.line} ${styles.partial}`} points={pointsOf(clean.length - 2, 2)}
-                    vectorEffect="non-scaling-stroke" />
+                    vectorEffect="non-scaling-stroke" style={paint} />
         </>
       ) : (
-        <polyline className={styles.line} points={points} vectorEffect="non-scaling-stroke" />
+        <polyline className={styles.line} points={points} vectorEffect="non-scaling-stroke" style={paint} />
       )}
     </>
   );
