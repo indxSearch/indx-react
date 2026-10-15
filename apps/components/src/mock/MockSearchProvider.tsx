@@ -224,6 +224,9 @@ export function MockSearchProvider({
       ...prev, ...next,
       coverageSetup: { ...(prev.coverageSetup ?? {}), ...(next.coverageSetup ?? {}) } as never,
     })),
+    // No facet search and no dataset bounds in a mock; intrface asks for both since its Search or ask filters (8fc98e04).
+    facetsEnabled: false,
+    datasetBounds: {},
     fetchMoreResults: noop,
   };
 
