@@ -15,7 +15,7 @@ export interface StatProps {
   value: ReactNode;
   /** A pixl icon before the value, for a state ("Up", "Key set"): drawn at STAT_ICON_SIZE in the value's colour. */
   icon?: ReactElement<{ size?: number | string; color?: string }>;
-  /** The value's colour, and the icon's: a health check's green, a warning's red. */
+  /** The value's colour, and the icon's: the signal red for a state that is wrong. A good state stays in the ink; the icon says it. */
   color?: string;
   /** Shown on the label, which gets a dotted underline to say there is more. */
   hint?: string;

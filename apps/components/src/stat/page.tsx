@@ -42,14 +42,15 @@ export default function StatPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>A state with an icon</h2>
         <p className={styles.desc}>
-          <code>icon</code> puts a pixl icon before the value, in the value's colour (<code>color</code>). The icon
-          is drawn at 28, a multiple of the pixl grid's 7 cells, so its cells stay whole pixels; 14, 21, 28 and 35
-          are the sizes that do.
+          <code>icon</code> puts a pixl icon before the value, in the value's colour. A good state is the plain ink:
+          the icon says it. <code>color</code> is for the one that is wrong, in the signal red. The icon is drawn at
+          28, a multiple of the pixl grid's 7 cells, so its cells stay whole pixels; 14, 21, 28 and 35 are the sizes
+          that do.
         </p>
         <StatGroup columns={5}>
-          <Stat label="Service" value="Up" icon={<Check />} color="var(--CPositive)"><span>4 min · build 0a23004e</span></Stat>
-          <Stat label="Model" value="Key set" icon={<Key />} color="var(--CPositive)"><span>claude-opus-5-5</span></Stat>
-          <Stat label="Licence portal" value="Reachable" icon={<Cloud />} color="var(--CPositive)"><span>license.indx.co</span></Stat>
+          <Stat label="Service" value="Up" icon={<Check />}><span>4 min · build 0a23004e</span></Stat>
+          <Stat label="Model" value="Key set" icon={<Key />}><span>claude-opus-5-5</span></Stat>
+          <Stat label="Licence portal" value="Reachable" icon={<Cloud />}><span>license.indx.co</span></Stat>
           <Stat label="Licence portal" value="Unreachable" icon={<Cloud />} color="var(--CSignal)"><span>last tried 2 min ago</span></Stat>
           <Stat label="Database" value="92 kB"><span>26 asks kept</span></Stat>
         </StatGroup>
@@ -81,7 +82,7 @@ export default function StatPage() {
           { name: 'label', type: 'ReactNode', description: 'What the number is.' },
           { name: 'value', type: 'ReactNode', description: 'The number, formatted; or a chip, for a state.' },
           { name: 'icon', type: 'ReactElement', description: 'A pixl icon before the value, drawn at 28 in the value\'s colour.' },
-          { name: 'color', type: 'string', description: 'The value\'s colour, and the icon\'s.' },
+          { name: 'color', type: 'string', description: 'The value\'s colour, and the icon\'s: the signal red for a state that is wrong. A good state stays in the ink.' },
           { name: 'hint', type: 'string', description: 'A tooltip on the label, which gets a dotted underline.' },
           { name: 'children', type: 'ReactNode', description: 'A line under the value: a change, a unit, a note.' },
         ]} />
