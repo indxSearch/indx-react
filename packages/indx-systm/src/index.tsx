@@ -27,7 +27,7 @@ export { Textarea, type TextareaProps } from './components/Textarea/Textarea';
 export { Modal, type ModalProps } from './components/Modal/Modal';
 export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePicker';
 export { Skeleton, type SkeletonProps } from './components/Skeleton/Skeleton';
-export { Stat, StatGroup, type StatProps, type StatGroupProps } from './components/Stat/Stat';
+export { Stat, StatGroup, STAT_ICON_SIZE, type StatProps, type StatGroupProps } from './components/Stat/Stat';
 export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
 
