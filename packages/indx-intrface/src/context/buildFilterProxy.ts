@@ -27,8 +27,10 @@ async function postFilter(
 }
 
 /**
- * Folds a list of filter proxies into one with the given operator. `and` = every
- * filter must match (intersection), `or` = any may match (union).
+ * Combines a list of filter proxies into one with the given operator, in one request: `and` =
+ * every filter must match (intersection), `or` = any may match (union). The server makes one
+ * filter of the whole list, where pairs combined in turn were a request and a cached filter per
+ * pair.
  */
 async function combineAll(
   filters: any[],
@@ -40,17 +42,12 @@ async function combineAll(
 ): Promise<any> {
   if (filters.length === 0) return null;
   if (filters.length === 1) return filters[0];
-
-  let current = filters[0];
-  for (let i = 1; i < filters.length; i++) {
-    current = await postFilter(
-      'combine',
-      { a: current, b: filters[i], useAndOperation: operator === 'and' },
-      'CombineFilters',
-      url, team, dataset, authenticatedFetch
-    );
-  }
-  return current;
+  return postFilter(
+    'combine',
+    { filters, useAndOperation: operator === 'and' },
+    'CombineFilters',
+    url, team, dataset, authenticatedFetch
+  );
 }
 
 export type ValueMatch = 'all' | 'any';

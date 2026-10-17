@@ -226,9 +226,9 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
 #### Combine filters
 - **Endpoint:** `POST …/filters/combine`
 - **Auth Required:** Yes
-- **Body:** `{ A: FilterProxy, B: FilterProxy, useAndOperation: boolean }`
+- **Body:** `{ filters: FilterProxy[], useAndOperation: boolean }`
 - **Returns:** Combined `FilterProxy` object
-- **Purpose:** Combine two filters with AND/OR logic
+- **Purpose:** Combine two or more filters with AND/OR logic into one, in one request
 
 #### Create boost from filter
 - **Endpoint:** `POST …/boosts/from-filter`
@@ -315,7 +315,7 @@ const filter2 = await filter2Res.json();
 // 2. Combine filters
 const combinedRes = await authenticatedFetch(`${base}/filters/combine`, {
   method: 'POST',
-  body: JSON.stringify({ A: filter1, B: filter2, useAndOperation: true })
+  body: JSON.stringify({ filters: [filter1, filter2], useAndOperation: true })
 });
 const combinedFilter = await combinedRes.json();
 

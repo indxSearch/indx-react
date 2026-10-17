@@ -56,9 +56,9 @@ export const handlers = [
   }),
 
   http.post(`${DS_BASE}/filters/combine`, async ({ request }) => {
-    const { a, b, useAndOperation } = await request.json() as {
-      a: { hashString: string }; b: { hashString: string }; useAndOperation: boolean;
+    const { filters, useAndOperation } = await request.json() as {
+      filters: { hashString: string }[]; useAndOperation: boolean;
     };
-    return HttpResponse.json({ hashString: `(${a.hashString} ${useAndOperation ? 'AND' : 'OR'} ${b.hashString})` });
+    return HttpResponse.json({ hashString: `(${filters.map(f => f.hashString).join(useAndOperation ? ' AND ' : ' OR ')})` });
   }),
 ];

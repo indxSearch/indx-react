@@ -40,7 +40,21 @@ describe('buildFilterProxy', () => {
       { price: { min: 10, max: 50 } },
       { category: 'any' }
     );
-    expect(proxy.hashString).toBe('(((category=running OR category=trail) AND brand=acme) AND range:price)');
+    expect(proxy.hashString).toBe('((category=running OR category=trail) AND brand=acme AND range:price)');
+  });
+
+  it('combines a list in one request, not a request per pair', async () => {
+    let combines = 0;
+    server.use(
+      http.post(`${URL}/api/teams/team/datasets/test/filters/combine`, async ({ request }) => {
+        combines++;
+        const { filters, useAndOperation } = await request.json() as { filters: { hashString: string }[]; useAndOperation: boolean };
+        return HttpResponse.json({ hashString: `(${filters.map(f => f.hashString).join(useAndOperation ? ' AND ' : ' OR ')})` });
+      }),
+    );
+    const proxy = await build({ genre: ['horror', 'comedy', 'drama'] });
+    expect(proxy.hashString).toBe('(genre=horror AND genre=comedy AND genre=drama)');
+    expect(combines).toBe(1);
   });
 
   it('rejects when a filter call fails instead of dropping it', async () => {

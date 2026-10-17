@@ -60,8 +60,7 @@ const valueFilter: ValueFilterProxy = {
 
 // Combined filter
 const combinedFilter: CombinedFilterProxy = {
-  a: rangeFilter,
-  b: valueFilter,
+  filters: [rangeFilter, valueFilter],
   useAndOperation: true
 };
 ```
