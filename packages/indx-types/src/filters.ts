@@ -13,9 +13,13 @@ export interface ValueFilterProxy {
   value?: any | null;
 }
 
+/**
+ * The body of POST filters/combine: two or more filters combined with AND or OR into one
+ * filter. One request for the whole list; the same set in any order gives the same token, and
+ * one filter gives its own.
+ */
 export interface CombinedFilterProxy {
-  a: FilterProxy;
-  b: FilterProxy;
+  filters: FilterProxy[];
   useAndOperation: boolean;
 }
 
