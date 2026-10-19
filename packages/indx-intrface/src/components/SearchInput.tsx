@@ -92,6 +92,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       showSearchIcon={true}
       inputSize={inputSize}
       showFocusBorder={showFocus}
+      clearable={false}
       onKeyDown={keyDown}
       {...rest}
     >
