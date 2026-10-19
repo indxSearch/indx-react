@@ -147,11 +147,13 @@ function ComposerDemo() {
   const [empty, setEmpty] = useState('');
   const [typed, setTyped] = useState('Can I move a dataset to another team?');
   const [long, setLong] = useState('Enter sends.\nShift+Enter breaks the line, and the field grows with it\nup to maxLines, then scrolls.');
+  const [over, setOver] = useState('A pasted finding or a log line can run past what the receiver takes. The field says so instead of a silent bounce.');
   return (
     <div className={styles.stack}>
       <Demo label="Empty — Send disabled"><Composer value={empty} onChange={setEmpty} onSend={() => setEmpty('')} placeholder="Ask about Indx…" /></Demo>
       <Demo label="Typed — Enter or the button sends"><Composer value={typed} onChange={setTyped} onSend={() => setTyped('')} /></Demo>
       <Demo label="Multi-line"><Composer value={long} onChange={setLong} onSend={() => setLong('')} /></Demo>
+      <Demo label="Over maxLength — the field says so, Send waits"><Composer value={over} onChange={setOver} onSend={() => setOver('')} maxLength={80} /></Demo>
       <Demo label="Streaming — Send is Stop, Enter does nothing"><Composer value="" onChange={() => {}} onSend={() => {}} onStop={() => {}} streaming placeholder="Ask a follow-up…" /></Demo>
     </div>
   );

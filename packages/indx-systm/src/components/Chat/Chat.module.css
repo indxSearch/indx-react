@@ -87,6 +87,12 @@
 }
 .composer:hover,
 .composer:focus-within { border-color: var(--lv5); }
+/* Over maxLength: the edge takes the signal colour and the note under the field says how far over. */
+.composerWrap { display: flex; flex-direction: column; gap: 4px; }
+.composerOver,
+.composerOver:hover,
+.composerOver:focus-within { border-color: var(--CSignal); }
+.composerNote { margin: 0; padding: 0 2px; font: var(--text-2xs); color: var(--CSignal); }
 .composerField {
   flex: 1;
   min-width: 0;

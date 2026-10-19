@@ -19,6 +19,9 @@ export interface ComposerProps {
   icon?: React.ReactNode;
   /** Tallest the field grows before it scrolls, in lines. */
   maxLines?: number;
+  /** Longest text that can be sent, in characters. Over it the field says so under itself and Send
+   *  waits, so a limit the receiver enforces is never met as a silent refusal. */
+  maxLength?: number;
   className?: string;
   'aria-label'?: string;
 }
@@ -30,9 +33,9 @@ export interface ComposerHandle {
 const LINE = 18;
 
 /** The message field. Enter sends, Shift+Enter breaks the line; the field grows with its text up
- *  to `maxLines`. Send becomes Stop while an answer streams. */
+ *  to `maxLines`; over `maxLength` it says so and Send waits. Send becomes Stop while an answer streams. */
 export const Composer = React.forwardRef<ComposerHandle, ComposerProps>(function Composer(
-  { value, onChange, onSend, onStop, streaming = false, placeholder = 'Ask a question…', disabled = false, autoFocus = false, icon, maxLines = 6, className = '', 'aria-label': ariaLabel = 'Message' },
+  { value, onChange, onSend, onStop, streaming = false, placeholder = 'Ask a question…', disabled = false, autoFocus = false, icon, maxLines = 6, maxLength, className = '', 'aria-label': ariaLabel = 'Message' },
   ref,
 ) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -47,7 +50,8 @@ export const Composer = React.forwardRef<ComposerHandle, ComposerProps>(function
     el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
   }, [value, maxLines]);
 
-  const canSend = !streaming && !disabled && value.trim().length > 0;
+  const over = maxLength !== undefined && maxLength > 0 && value.length > maxLength;
+  const canSend = !streaming && !disabled && !over && value.trim().length > 0;
 
   const send = useCallback(() => {
     if (!canSend) return;
@@ -62,7 +66,8 @@ export const Composer = React.forwardRef<ComposerHandle, ComposerProps>(function
   };
 
   return (
-    <div className={`${styles.composer} ${className}`}>
+    <div className={styles.composerWrap}>
+    <div className={`${styles.composer} ${over ? styles.composerOver : ''} ${className}`}>
       <div className={styles.composerField}>
         {icon !== null && (
           <span className={styles.composerIcon} aria-hidden="true">
@@ -87,6 +92,12 @@ export const Composer = React.forwardRef<ComposerHandle, ComposerProps>(function
           ? <Button variant="secondary" size="micro" aria-label="Stop" iconLeft={<Stop />} onClick={onStop} />
           : <Button variant="primary" size="micro" aria-label="Send" iconLeft={<ArrowUp />} disabled={!canSend} onClick={send} />}
       </div>
+    </div>
+    {over && (
+      <p className={styles.composerNote} role="status">
+        {value.length.toLocaleString()} of {maxLength!.toLocaleString()} characters. Shorten it to send.
+      </p>
+    )}
     </div>
   );
 });
