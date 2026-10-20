@@ -12,3 +12,7 @@
     padding: 25px;
     font: var(--text-base);
 }
+
+/* Ask phrases took a question's words off: what the list searched, and the way back. */
+.searchedFor { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px; font: var(--text-sm); color: var(--lv5); }
+.searchedFor strong { color: var(--lv8); font-weight: var(--med); }

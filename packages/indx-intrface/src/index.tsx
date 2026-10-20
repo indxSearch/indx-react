@@ -43,3 +43,5 @@ export { AskPanel } from './components/AskPanel';
 export type { AskPanelProps } from './components/AskPanel';
 export { nextOffer, triggers, isIdentifier, visibleResults, DEFAULT_THRESHOLDS, DEFAULT_CUT, SCORE_SCALE, STRICT_COVERAGE } from './utils/searchOrAsk';
 export type { Offer, OfferThresholds, CutRule } from './utils/searchOrAsk';
+export { stripAskPhrases } from './utils/askPhrases';
+export type { AskPhrases } from './utils/askPhrases';

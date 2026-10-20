@@ -99,6 +99,13 @@ export interface SearchContextType {
   sessionId?: string; // This page load's session id, sent with every search
   source?: string; // The provider's source, sent with every search and with what belongs to it
   count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
+  /** What the search runs on: `state.query`, or what `searchTextOf` or a registered rewrite made of it. */
+  searchText?: string;
+  /** Searches the typed text as it is, this once: the way back from a rewrite ("Search for your exact words"). */
+  searchAsTyped?: () => void;
+  /** Registers what the search runs on for what is typed, for a hook inside the provider
+   *  (useSearchOrAsk's Ask phrases); null takes it off. The provider's own `searchTextOf` wins. */
+  setSearchRewrite?: (rewrite: ((typed: string) => string) | null) => void;
 }
 
 /** The field's placeholder unless the page sets one. SearchInput says "Search or ask" instead
@@ -126,6 +133,11 @@ export const SearchProvider: React.FC<{
   preAuthenticatedToken?: string; // Bearer token used for all requests
   source?: string; // Names this search surface in the statistics: a search box, an app ("header", "app")
   count?: boolean; // false: searches and selects from here are stored but not counted (a test page, an agent)
+  /** The text to search for what is typed, when it is not the typed text itself: the field keeps
+   *  showing what the visitor typed, and the search runs on this. Search or ask's Ask phrases use
+   *  it ("help me find the movie about the green ogre" searches "green ogre"). Called on every
+   *  render with the typed text; return it unchanged to search it as typed. */
+  searchTextOf?: (typed: string) => string;
 }> = ({
   children,
   url,
@@ -143,9 +155,19 @@ export const SearchProvider: React.FC<{
   preAuthenticatedToken,
   source,
   count = true,
+  searchTextOf,
 }) => {
   const shouldFetchMore = useRef(false);
   const sessionId = useRef(newSessionId()).current;
+  // What the search runs on: the prop, else a rewrite a hook registered, else the typed text; and
+  // the one typed text the visitor asked to have searched as typed.
+  const [rewrite, setRewrite] = useState<{ fn: ((typed: string) => string) | null }>({ fn: null });
+  const [asTyped, setAsTyped] = useState<string | null>(null);
+  const textOf = useCallback((typed: string) => {
+    const fn = searchTextOf ?? rewrite.fn;
+    return !fn || typed === asTyped ? typed : fn(typed);
+  }, [searchTextOf, rewrite, asTyped]);
+  const setSearchRewrite = useCallback((fn: ((typed: string) => string) | null) => setRewrite({ fn }), []);
   // The page size the user wants. Starts at the maxResults prop and follows
   // setSearchSettings({ maxNumberOfRecordsToReturn }); a new query resets the
   // "load more" expansion back to this value rather than to the prop.
@@ -228,6 +250,7 @@ export const SearchProvider: React.FC<{
     sessionId,
     source,
     count,
+    searchTextOf: textOf,
   });
 
   // Reports a chosen result to the dataset's statistics: the queryId of the search it came from,
@@ -469,6 +492,9 @@ export const SearchProvider: React.FC<{
         sessionId,
         source,
         count,
+        searchText: textOf(state.query),
+        searchAsTyped: () => setAsTyped(state.query),
+        setSearchRewrite,
       }}
     >
       {children}

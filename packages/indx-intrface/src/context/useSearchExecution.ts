@@ -30,6 +30,8 @@ export interface UseSearchExecutionOptions {
   sessionId: string;
   source?: string;
   count: boolean;
+  /** The text to search for what is typed (SearchProvider's `searchTextOf`). Absent: the typed text. */
+  searchTextOf?: (typed: string) => string;
 }
 
 export interface UseSearchExecutionResult {
@@ -52,7 +54,12 @@ export function useSearchExecution({
   sessionId,
   source,
   count,
+  searchTextOf,
 }: UseSearchExecutionOptions): UseSearchExecutionResult {
+  // What is searched: the typed text, or what the page makes of it. Everything below reads this
+  // and keys on it, so a change of the searched text alone (the visitor asking for their exact
+  // words back) searches again, and an unchanged one does not.
+  const query = searchTextOf ? searchTextOf(state.query) : state.query;
   const latestRequestId = useRef(0);
   const performSearchRef = useRef<((options: { enableFacets: boolean }) => Promise<void>) | undefined>(undefined);
   const hasInitialized = useRef(false);
@@ -103,7 +110,7 @@ export function useSearchExecution({
       setState(prev => ({ ...prev, isLoading: true }));
 
       // Backend rejects empty text + enableFacets=false
-      const isEmptyQuery = state.query.trim() === '';
+      const isEmptyQuery = query.trim() === '';
       if (isEmptyQuery) {
         if (!allowEmptySearch) return; // should not reach here, but guard defensively
         enableFacets = true;           // backend requires facets=true for empty searches
@@ -139,9 +146,9 @@ export function useSearchExecution({
         ]);
 
         // 2) Determine if we should fetch results
-        const shouldFetchResults = allowEmptySearch || state.query.trim() !== '';
+        const shouldFetchResults = allowEmptySearch || query.trim() !== '';
         const commonBody = {
-          text: state.query,
+          text: query,
           enableCoverage: settingsEnableCoverage,
           removeDuplicates: settingsRemoveDuplicates,
           coverageDepth: settingsCoverageDepth,
@@ -256,15 +263,15 @@ export function useSearchExecution({
         if (currentRequestId !== latestRequestId.current) return;
 
         // 7) Determine if query changed
-        const queryChanged = state.query !== lastQueryText;
-        const rangeBoundsNeedsUpdate = state.query !== lastRangeBoundsQuery;
+        const queryChanged = query !== lastQueryText;
+        const rangeBoundsNeedsUpdate = query !== lastRangeBoundsQuery;
 
         // 8) Merge facetStats: global bounds layer + live narrowed stats on top
         let mergedFacetStats = state.facetStats ?? {};
         if (queryChanged) {
           mergedFacetStats = { ...auth.initialFacetStats, ...newFacetStats };
           setFixedFacetStats(mergedFacetStats);
-          setLastQueryText(state.query);
+          setLastQueryText(query);
         } else {
           mergedFacetStats = { ...fixedFacetStats, ...newFacetStats };
         }
@@ -276,7 +283,7 @@ export function useSearchExecution({
             updatedBounds[field] = stats;
           }
           setState(prev => ({ ...prev, rangeBounds: updatedBounds }));
-          setLastRangeBoundsQuery(state.query);
+          setLastRangeBoundsQuery(query);
         }
 
         // 10) Prepare displayFacets (fallback to initial keys for non-coverage fields)
@@ -293,8 +300,8 @@ export function useSearchExecution({
         // 11) Final state update
 
         const filteredResults = combinedResults.filter(result => {
-          const query = state.query.trim();
-          if (query === '' || query.length === 1) return true;
+          const searched = query.trim();
+          if (searched === '' || searched.length === 1) return true;
           return result.score >= settingsMinimumScore;
         }).map((result, idx) => ({ ...result, position: idx + 1 }));
 
@@ -339,7 +346,7 @@ export function useSearchExecution({
       }
     },
     [
-      state.query,
+      query,
       state.filters,
       state.valueMatch,
       state.rangeFilters,
@@ -404,7 +411,7 @@ export function useSearchExecution({
     if (!auth.token) return;
     if (!hasInitialized.current) return;
 
-    const trimmedQuery = state.query.trim();
+    const trimmedQuery = query.trim();
     const isEmptySearch = trimmedQuery === '' && allowEmptySearch;
     const shouldSkipEmptySearch = trimmedQuery === '' && !allowEmptySearch;
 
@@ -427,7 +434,7 @@ export function useSearchExecution({
     }
 
     return () => { searchWithFacetsDebounced.current?.cancel(); };
-  }, [state.query, allowEmptySearch, facetsEnabled]);
+  }, [query, allowEmptySearch, facetsEnabled]);
 
   // Trigger: user-initiated filter changes. Keyed on filterRevision, which the
   // context bumps inside the same state update as the change, so the search
@@ -438,7 +445,7 @@ export function useSearchExecution({
     if (!hasInitialized.current || !auth.token) return;
     if (state.filterRevision === 0) return;
 
-    const trimmedQuery = state.query.trim();
+    const trimmedQuery = query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
     if (!shouldSkipSearch) {
       performSearchRef.current?.({ enableFacets: facetsEnabled });
@@ -448,7 +455,7 @@ export function useSearchExecution({
   // Trigger: sort changes
   useEffect(() => {
     if (!hasInitialized.current || !auth.token) return;
-    const trimmedQuery = state.query.trim();
+    const trimmedQuery = query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
     if (!shouldSkipSearch) {
       performSearchRef.current?.({ enableFacets: facetsEnabled });
@@ -459,7 +466,7 @@ export function useSearchExecution({
   // setSearchSettings), or fetchMore raised maxNumberOfRecordsToReturn.
   // Display-only settings (showScore, placeholderText) are deliberately not deps.
   const isFirstSettingsRun = useRef(true);
-  const settingsQueryRef = useRef(state.query);
+  const settingsQueryRef = useRef(query);
   useEffect(() => {
     if (isFirstSettingsRun.current) {
       isFirstSettingsRun.current = false;
@@ -467,7 +474,7 @@ export function useSearchExecution({
     }
     // setQuery resets maxNumberOfRecordsToReturn in the same commit that changes
     // the query; the query trigger owns that search, so don't fire a second one.
-    if (settingsQueryRef.current !== state.query) return;
+    if (settingsQueryRef.current !== query) return;
     if (!hasInitialized.current || !auth.token) return;
 
     if (shouldFetchMore.current) {
@@ -476,7 +483,7 @@ export function useSearchExecution({
       return;
     }
 
-    const trimmedQuery = state.query.trim();
+    const trimmedQuery = query.trim();
     const shouldSkipSearch = !allowEmptySearch && trimmedQuery === '';
     if (!shouldSkipSearch) {
       performSearchRef.current?.({ enableFacets: facetsEnabled });
@@ -492,8 +499,8 @@ export function useSearchExecution({
   // Declared after the settings trigger so that, within one commit, the trigger
   // still sees the previous query and can tell a query-driven reset apart.
   useEffect(() => {
-    settingsQueryRef.current = state.query;
-  }, [state.query]);
+    settingsQueryRef.current = query;
+  }, [query]);
 
 
   const retrySearch = useCallback(() => {

@@ -77,6 +77,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     allowEmptySearch,
     fetchMoreResults,
     selectResult,
+    searchText,
+    searchAsTyped,
   } = useSearchContext();
 
   const pageSize = resultsPerPage ?? 30;
@@ -95,6 +97,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
   const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
+  // The list searched something other than what was typed (Ask phrases): say so, with the way back.
+  const rewritten = searchText != null && searchText.trim() !== query.trim() ? searchText : null;
   const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {
@@ -135,6 +139,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   return (
     <>
+      {rewritten && (
+        <div className={styles.searchedFor} aria-live="polite">
+          <span>Searching for <strong>{rewritten}</strong></span>
+          {searchAsTyped && <Button variant="ghost" size="micro" onClick={searchAsTyped}>Search for your exact words</Button>}
+        </div>
+      )}
       <div>
         {shown.slice(0, visibleCount).map((result, idx) => {
           const rawItem = result.document;
