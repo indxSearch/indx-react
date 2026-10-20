@@ -1,4 +1,10 @@
 .panel { display: flex; flex-direction: column; gap: 20px; }
+/* The turns, one under the other. In a fill panel they scroll on their own and the follow-up
+   field under them stays put at the bottom. */
+.thread { display: flex; flex-direction: column; gap: 20px; }
+.fill { height: 100%; min-height: 0; gap: 12px; }
+.fill .thread { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.fill > :last-child:not(.thread) { flex-shrink: 0; }
 .answer { display: flex; flex-direction: column; gap: 10px; }
 .paragraph { margin: 0; font: var(--text-sm); line-height: 1.55; color: var(--lv8); }
 .action { margin-top: 10px; }

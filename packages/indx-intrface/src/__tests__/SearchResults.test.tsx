@@ -19,7 +19,7 @@ vi.mock('@indxsearch/pixl', () => {
   };
 });
 vi.mock('../components/SearchResult', () => ({
-  SearchResult: ({ children }: any) => <div>{children}</div>,
+  SearchResult: ({ children, showScore }: any) => <div data-testid="result" data-show-score={String(!!showScore)}>{children}</div>,
 }));
 
 const DS = 'http://localhost/api/teams/team/datasets/test';
@@ -72,6 +72,24 @@ describe('array-like strings', () => {
     const titles = await screen.findAllByTestId('title');
     expect(titles[0].dataset.type).toBe('array');
     expect(titles[1].dataset.type).toBe('string');
+  });
+});
+
+describe('showScore', () => {
+  it('follows the search setting, on by default, when not given', async () => {
+    renderResults();
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('report'));
+    const results = await screen.findAllByTestId('result');
+    expect(results[0].dataset.showScore).toBe('true');
+  });
+
+  it('wins over the setting when given', async () => {
+    renderResults({ showScore: false });
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('report'));
+    const results = await screen.findAllByTestId('result');
+    expect(results.every(r => r.dataset.showScore === 'false')).toBe(true);
   });
 });
 

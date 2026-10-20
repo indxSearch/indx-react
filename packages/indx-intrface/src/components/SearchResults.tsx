@@ -34,6 +34,11 @@ export interface SearchResultsProps {
    * nothing is confirmed, so the offer stands alone. Without it the list is never cut.
    */
   searchOrAsk?: SearchOrAskState;
+  /**
+   * Shows each result's score beside it. Given, it wins over the `showScore` search setting (the
+   * toggle in SearchSettingsPanel); left out, that setting decides, and it is on by default.
+   */
+  showScore?: boolean;
 }
 
 export interface SearchResultMeta {
@@ -62,7 +67,7 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, children }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, showScore, children }) => {
   const {
     state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error, errorInfo },
     isFetchingInitial,
@@ -172,7 +177,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
               key={idx}
               index={idx}
               score={score}
-              showScore={searchSettings.showScore}
+              showScore={showScore ?? searchSettings.showScore}
             >
               {children(displayData, { result, select: () => selectResult?.(result) ?? Promise.resolve() })}
             </SearchResult>

@@ -36,6 +36,11 @@ export interface AskPanelProps {
   filterLabel?: (filter: AskFilters['filters'][number]) => string;
   /** Told when the answer starts and stops streaming, e.g. to show a Stop button elsewhere. */
   onStatusChange?: (status: AskStatus) => void;
+  /** Fills the height its container gives it, for a panel beside the results: the conversation
+   *  scrolls on its own, the follow-up field stays at the bottom, and the view follows an answer
+   *  as it streams while the visitor is at the end of it. Give the container a height (or make it
+   *  a flex child that has one). Without it the panel is as tall as its content. */
+  fill?: boolean;
   className?: string;
 }
 
@@ -67,7 +72,7 @@ function defaultFilterLabel(f: AskFilters['filters'][number]): string {
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
   question, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
-  onFilters, filterLabel = defaultFilterLabel, className = '',
+  onFilters, filterLabel = defaultFilterLabel, fill = false, className = '',
 }) => {
   const asked = useAsk();
   const { ask, reset, stop, status, openSource } = asked;
@@ -76,6 +81,9 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   const [draft, setDraft] = useState('');
   const history = useRef<AskTurn[]>([]);
   const composer = useRef<ComposerHandle>(null);
+  const thread = useRef<HTMLDivElement>(null);
+  // At the end of the conversation the view follows what streams in; scrolled up to read, it stays.
+  const atEnd = useRef(true);
 
   // A new question from the page starts a new conversation.
   useEffect(() => {
@@ -95,6 +103,16 @@ export const AskPanel: React.FC<AskPanelProps> = ({
       onFilters?.(asked.filters);
     }
   }, [asked.filters, onFilters]);
+
+  // With fill, keep the end in view as the answer grows and as turns are added.
+  useEffect(() => {
+    const el = thread.current;
+    if (fill && el && atEnd.current) el.scrollTop = el.scrollHeight;
+  }, [fill, asked.answer, asked.steps.length, status, past.length]);
+  const onThreadScroll = () => {
+    const el = thread.current;
+    if (el) atEnd.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+  };
 
   const searched = (f?: AskFilters) => f && (
     <div className={styles.searched}>
@@ -151,7 +169,8 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   const followUpAction = followUps ? () => composer.current?.focus() : onFollowUp;
 
   return (
-    <div className={`${styles.panel} ${className}`} aria-live="polite" aria-busy={asked.busy}>
+    <div className={`${styles.panel} ${fill ? styles.fill : ''} ${className}`} aria-live="polite" aria-busy={asked.busy}>
+      <div ref={thread} className={styles.thread} onScroll={fill ? onThreadScroll : undefined}>
       {past.map((t, i) => (
         <div key={i} className={styles.turn}>
           <UserMessage>{t.question}</UserMessage>
@@ -204,6 +223,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
           </AssistantMessage>
         </div>
       )}
+      </div>
       {followUps && (
         <Composer ref={composer} value={draft} onChange={setDraft} onSend={sendFollowUp} onStop={stop}
                   streaming={asked.busy} placeholder="Ask a follow-up…" aria-label="Ask a follow-up" />
