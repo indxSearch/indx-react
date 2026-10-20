@@ -11,6 +11,19 @@ export interface AskPhrases {
 const words = (s: string) => s.toLowerCase().replace(/’/g, "'").split(/\s+/).filter(Boolean);
 const endPunctuation = /[?!.,]+$/;
 
+/** The words that must stand before what is asked for at the end for it to come off. */
+const MIN_WORDS_BEFORE_END = 2;
+
+/** The longest phrase of the list that the words end with, as a word count. */
+function takeEnd(ws: string[], list: string[]): number {
+  let best = 0;
+  for (const phrase of list) {
+    const p = words(phrase);
+    if (p.length > best && p.length <= ws.length && p.every((w, i) => ws[ws.length - p.length + i].replace(endPunctuation, '') === w)) best = p.length;
+  }
+  return best;
+}
+
 /** The longest phrase of the list that the words start with at `at`, as a word count. */
 function take(ws: string[], at: number, list: string[]): number {
   let best = 0;
@@ -27,7 +40,10 @@ function take(ws: string[], at: number, list: string[]): number {
  * article; nothing is taken unless the start has a question's shape (a lead-in of two words or
  * more, a one-word lead-in with what is asked for, or what is asked for with its link) and a word
  * of substance is left, so a title ("help", "what we do in the shadows"), a genre ("film noir") and
- * an unfinished "help me find" search as typed. The same rule as the server's.
+ * an unfinished "help me find" search as typed. Then what is asked for comes off the end too
+ * ("show me green ogre movie" searches "green ogre"), once the start was a question and while two
+ * words stay before it, so a one-word title ("bee movie", "the lego movie") keeps its "movie".
+ * The same rule as the server's.
  */
 export function stripAskPhrases(typed: string, phrases: AskPhrases): { text: string; taken: string[] } {
   const original = typed.trim().split(/\s+/).filter(Boolean);
@@ -48,5 +64,12 @@ export function stripAskPhrases(typed: string, phrases: AskPhrases): { text: str
   step(phrases.articles);
   const rest = original.slice(at).join(' ').replace(/[?!.]+$/, '').trim();
   if (!/\p{L}{3,}/u.test(rest)) return { text: typed, taken: [] };
+
+  const restOriginal = rest.split(/\s+/).filter(Boolean);
+  const end = takeEnd(words(rest), phrases.frames);
+  if (end > 0 && restOriginal.length - end >= MIN_WORDS_BEFORE_END) {
+    const front = restOriginal.slice(0, restOriginal.length - end).join(' ');
+    if (/\p{L}{3,}/u.test(front)) return { text: front, taken: [...taken, restOriginal.slice(-end).join(' ')] };
+  }
   return { text: rest, taken };
 }

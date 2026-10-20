@@ -3,8 +3,8 @@ import { stripAskPhrases, type AskPhrases } from '../utils/askPhrases';
 
 // The server's defaults with a film catalogue's frames, as SearchOrAskPhrasesTests has them.
 const FILMS: AskPhrases = {
-  leadIns: ['help me find', 'can you help me find', "i'm looking for", 'looking for', 'is there', 'which', 'what'],
-  frames: ['the one', 'something', 'the movie', 'the film', 'a movie', 'movies', 'film'],
+  leadIns: ['help me find', 'can you help me find', "i'm looking for", 'looking for', 'show me', 'is there', 'which', 'what'],
+  frames: ['the one', 'something', 'the movie', 'the film', 'a movie', 'movies', 'movie', 'film'],
   links: ['where there is', 'about', 'where', 'with', 'has', 'that'],
   articles: ['the', 'a', 'an'],
 };
@@ -27,6 +27,26 @@ describe('stripAskPhrases', () => {
     '%s searches as typed', typed => {
       expect(stripAskPhrases(typed, FILMS)).toEqual({ text: typed, taken: [] });
     });
+
+  it.each([
+    ['show me green ogre movie', 'green ogre', 'movie'],
+    ['Show me green ogre movies?', 'green ogre', 'movies'],
+    ["i'm looking for a green ogre the movie", 'green ogre', 'the movie'],
+  ])('%s searches %s, what is asked for off the end', (typed, searched, end) => {
+    const r = stripAskPhrases(typed, FILMS);
+    expect(r.text).toBe(searched);
+    expect(r.taken[r.taken.length - 1]).toBe(end);
+  });
+
+  it.each([
+    ['bee movie', 'bee movie'],
+    ['the lego movie', 'the lego movie'],
+    ['show me bee movie', 'bee movie'],
+    ['show me the lego movie', 'lego movie'],
+    ['show me the movie', 'show me the movie'],
+  ])('%s keeps its end: %s', (typed, searched) => {
+    expect(stripAskPhrases(typed, FILMS).text).toBe(searched);
+  });
 
   it('takes the longest phrase, whatever the case and punctuation', () => {
     expect(stripAskPhrases('CAN YOU HELP ME FIND the movie about the green ogre?', FILMS))
