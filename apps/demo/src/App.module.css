@@ -7,6 +7,7 @@ button.titleButton {
   color: inherit;
   height: auto;
   padding: 0;
+  border: 0;
   background: transparent;
   text-align: left;
 }
