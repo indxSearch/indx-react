@@ -28,7 +28,7 @@ export { SynonymList, SynonymEntry } from './synonyms';
 export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
 
 // Result
-export { Result, ScoreEntry } from './result';
+export { Result, QueryFitResult, ScoreEntry } from './result';
 
 // Status
 export { SystemStatus, LicenseInfo } from './status';

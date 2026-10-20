@@ -32,6 +32,8 @@ export interface QueryProxy {
   boosts?: BoostProxy[] | null;
   fieldBoosts?: Record<string, number> | null;
   logPrefix?: string | null;
+  /** The result then also says how well it explains the text: a {@link QueryFitResult}. */
+  measureFit?: boolean;
 }
 
 /** @deprecated Renamed to {@link QueryProxy} in 2.3.0 (the server dropped its "cloud" vocabulary); removed in 3.0. */
