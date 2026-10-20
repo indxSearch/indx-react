@@ -121,6 +121,27 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.p).toBe(0.8);
   });
 
+  it('stands while the visitor types on from the judged text, and not after a backspace into it', async () => {
+    settings(true);
+    judge({ 'which film has tom hanks': 0.9 });
+    const { result } = renderHook(() => useBoth(500), { wrapper });
+    await waitFor(() => expect(result.current.ctx.isFetchingInitial).toBe(false));
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+
+    act(() => result.current.ctx.setQuery('which film has tom hanks'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(result.current.sor.stands).toBe(true);
+
+    // Typing on, before the next pause: the offer still stands for what is in the field.
+    act(() => result.current.ctx.setQuery('which film has tom hanks stranded'));
+    expect(result.current.sor.offer).toBe('strong');
+    expect(result.current.sor.stands).toBe(true);
+
+    // A backspace into the judged text: the offer was for a text the field no longer holds.
+    act(() => result.current.ctx.setQuery('which film has tom han'));
+    expect(result.current.sor.stands).toBe(false);
+  });
+
   it('puts whole-word coverage on the search while the offer is strong, and takes it off after', async () => {
     settings(true);
     judge({ 'how do I add synonyms': 0.8, 'synonyms': 0.1 });

@@ -60,7 +60,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   const own = useSearchOrAsk({ enabled: !!onAsk && !searchOrAsk });
   const sor = searchOrAsk ?? own;
-  const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none';
+  // Only while the offer is for what is in the field (it extends the judged text): typing on keeps
+  // it, a backspace takes it away until the judge has read the new text.
+  const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none' && sor.stands;
 
   // While asking is on the field invites both, unless the page chose its own words (a placeholder
   // prop, or placeholderText in the search settings).
@@ -70,7 +72,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(e);
-    if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || sor.offer !== 'strong' || !query.trim()) return;
+    if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || sor.offer !== 'strong' || !sor.stands || !query.trim()) return;
     e.preventDefault();
     onAsk(query.trim());
   };

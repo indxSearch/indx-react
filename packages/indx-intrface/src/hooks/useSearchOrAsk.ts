@@ -43,9 +43,14 @@ export interface SearchOrAskState {
    *  'off' leaves the list until Ask, 'facets' applies typed facet values at once, 'model' also asks
    *  the filters route for the rest. `useFilterSuggestion({ auto })` acts on it. */
   filtersWhileTyping: 'off' | 'facets' | 'model';
+  /** The offer is for what is in the field now: the field still extends the text it was judged on.
+   *  Typing on from a question keeps it (the hook does not ask again while the text only grows);
+   *  backspacing into it, or changing it, does not, until the judge has read the new text. Show an
+   *  offer only while this holds, or it blinks out on every keystroke or lingers after a change. */
+  stands: boolean;
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false, filtersWhileTyping: 'off' };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false, filtersWhileTyping: 'off', stands: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -181,7 +186,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const asking = final === 'strong' && !(describes && c! > p);
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
             cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking,
-            filtersWhileTyping: filtersWhileTyping.current };
+            filtersWhileTyping: filtersWhileTyping.current, stands: true };
         });
       } catch {
         // No offer is the safe outcome.
@@ -207,5 +212,5 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     }
   }, [strictOn]);
 
-  return available ? state : IDLE;
+  return available ? { ...state, stands: !!state.text && text.startsWith(state.text) } : IDLE;
 }
