@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "@indxsearch/indx-types": "^3.0.0",
-    "@indxsearch/pixl": "^1.5.0",
+    "@indxsearch/pixl": "^1.5.1",
     "@indxsearch/systm": "^2.20.0",
     "react-range": "^1.10.0"
   },
