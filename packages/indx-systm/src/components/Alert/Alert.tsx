@@ -24,7 +24,7 @@ const defaultIcons: Partial<Record<AlertVariant, React.ReactNode>> = {
 
 function sizedIcon(icon: React.ReactNode) {
   return React.isValidElement<{ size?: string | number; color?: string }>(icon)
-    ? React.cloneElement(icon, { size: 16, color: 'currentColor' })
+    ? React.cloneElement(icon, { size: 14, color: 'currentColor' })
     : icon;
 }
 

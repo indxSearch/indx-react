@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
           )}
           {showClose && (
             <RadixDialog.Close className={styles.close} aria-label="Close">
-              <X_or_error size={16} color="currentColor" />
+              <X_or_error size={14} color="currentColor" />
             </RadixDialog.Close>
           )}
           {children}

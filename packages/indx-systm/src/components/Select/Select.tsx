@@ -92,7 +92,7 @@ export const Select: React.FC<SelectProps> = ({
                   <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
                 </span>
                 <RadixSelect.ItemIndicator className={styles.itemIndicator}>
-                  <Check size={12} color="currentColor" />
+                  <Check size={14} color="currentColor" />
                 </RadixSelect.ItemIndicator>
               </RadixSelect.Item>
             ))}

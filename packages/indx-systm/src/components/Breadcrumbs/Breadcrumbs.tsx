@@ -107,7 +107,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                             <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
                           </span>
                           <RadixSelect.ItemIndicator className={selectStyles.itemIndicator}>
-                            <Check size={12} color="currentColor" />
+                            <Check size={14} color="currentColor" />
                           </RadixSelect.ItemIndicator>
                         </RadixSelect.Item>
                       ))}
