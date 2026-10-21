@@ -60,6 +60,10 @@ export function useSearchExecution({
   // and keys on it, so a change of the searched text alone (the visitor asking for their exact
   // words back) searches again, and an unchanged one does not.
   const query = searchTextOf ? searchTextOf(state.query) : state.query;
+  // What was typed, read when a search is sent: the statistics fold a visitor's keystrokes into one
+  // search by the typing, which the searched text leaves when Ask phrases start to match.
+  const typedRef = useRef(state.query);
+  typedRef.current = state.query;
   const latestRequestId = useRef(0);
   const performSearchRef = useRef<((options: { enableFacets: boolean }) => Promise<void>) | undefined>(undefined);
   const hasInitialized = useRef(false);
@@ -174,6 +178,7 @@ export function useSearchExecution({
         const searchParams = new URLSearchParams({ session: sessionId });
         if (source) searchParams.set('source', source);
         if (!count) searchParams.set('count', 'false');
+        if (typedRef.current.trim() !== query.trim()) searchParams.set('typed', typedRef.current);
         const postSearch = (body: unknown) =>
           authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search?${searchParams}`, {
             method: 'POST',
