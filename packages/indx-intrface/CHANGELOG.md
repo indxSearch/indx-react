@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.13.0
+
+### Minor Changes
+
+- SearchResults takes `showScore`, to show or hide each result's score from code. Given, it wins over the toggle in SearchSettingsPanel; left out, the toggle decides, as before.
+
+### Patch Changes
+
+- bac9b80: SearchField has a built-in Clear button. It shows while the field holds text and puts the focus back in the field. Turn it off with `clearable={false}`. SearchInput keeps its own Clear, which also resets the filters.
+- Updated dependencies [ffda712]
+- Updated dependencies
+- Updated dependencies [bac9b80]
+- Updated dependencies
+- Updated dependencies [f1bb38b]
+  - @indxsearch/systm@2.21.0
+
 ## 3.12.0
 
 ### Minor Changes

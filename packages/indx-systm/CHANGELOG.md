@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.21.0
+
+### Minor Changes
+
+- bac9b80: SearchField has a built-in Clear button. It shows while the field holds text and puts the focus back in the field. Turn it off with `clearable={false}`. SearchInput keeps its own Clear, which also resets the filters.
+- Three new spinners for search: `searching`, a glint moving around the lens of a magnifying glass; `search-as-you-type`, a text cursor stepping forward and leaving typed characters behind it; and `blinking-cursor`, a text cursor blinking in place. The `terminal` spinner has a third frame. `<Spinner name="searching" />`.
+- f1bb38b: New `typing` spinner, drawn from the pixl `typing` icon: keystrokes land above and below a row of keys in short bursts, with a pause between words. `<Spinner name="typing" />`.
+
+### Patch Changes
+
+- ffda712: The `analytics` spinner is 7×5 like every other spinner. It drew at 8×5, so it came out wider than the rest and showed an extra bar at the right edge on every other frame.
+- Every Button variant now has the same 1px border, transparent where none shows. A button that changed variant used to move by a pixel, so a ghost tab jumped when it became the selected one.
+
 ## 2.20.0
 
 ### Minor Changes
