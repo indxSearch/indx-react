@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.13.1
+
+### Patch Changes
+
+- When the page searches something other than what the visitor typed, the search also carries the typed text. The statistics then count a visitor's typing as one search, instead of a search for every step along the way.
+- Updated dependencies
+  - @indxsearch/systm@2.21.1
+
 ## 3.13.0
 
 ### Minor Changes

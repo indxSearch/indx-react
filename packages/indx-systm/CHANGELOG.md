@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.21.1
+
+### Patch Changes
+
+- Alert, Modal, Select and Breadcrumbs draw their icons at 14px. Pixel icons are a 7×5 grid and are only sharp at a multiple of seven, so at 12 or 16px they looked uneven on a standard (1x) screen.
+
 ## 2.21.0
 
 ### Minor Changes
