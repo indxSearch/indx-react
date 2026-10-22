@@ -94,7 +94,6 @@ const coverageSetup: CoverageSetup = {
   coverWholeWords: true,
   coverFuzzyWords: true,
   minWordSize: 2,
-  levenshteinMaxWordSize: 20,
   truncate: true,
   truncationScore: 255
 };

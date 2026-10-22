@@ -132,7 +132,7 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
         coverageSetup: {
           coverWholeQuery: false, coverWholeWords: false, coverFuzzyWords: false,
           coverJoinedWords: false, coverPrefixSuffix: false, truncate: false,
-          includePatternMatches: false, minWordSize: 0, levenshteinMaxWordSize: 0,
+          includePatternMatches: false, minWordSize: 0,
           truncateWordHitLimit: 0, truncateWordHitTolerance: 0, truncationScore: 0,
         },
         minimumScore: 0,

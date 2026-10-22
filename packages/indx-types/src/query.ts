@@ -10,7 +10,6 @@ export interface CoverageSetup {
   truncate?: boolean;
   includePatternMatches?: boolean;
   minWordSize?: number;
-  levenshteinMaxWordSize?: number;
   truncateWordHitLimit?: number;
   truncateWordHitTolerance?: number;
   truncationScore?: number;

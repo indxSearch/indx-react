@@ -176,7 +176,6 @@ export const SearchProvider: React.FC<{
         truncate: true,
         includePatternMatches: true,
         minWordSize: 2,
-        levenshteinMaxWordSize: 20,
         truncateWordHitLimit: 1,
         truncateWordHitTolerance: 0,
         truncationScore: 65024,
