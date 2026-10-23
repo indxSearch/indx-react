@@ -36,3 +36,7 @@
   background: var(--lv2);
   border-radius: 3px;
 }
+
+/* The strong offer's Enter key-cap, inside the primary button: a faint rectangle in the button's own
+   text colour, so the button pops and the key does not. */
+.askStrong kbd { background: var(--lv3); color: var(--lv7); }

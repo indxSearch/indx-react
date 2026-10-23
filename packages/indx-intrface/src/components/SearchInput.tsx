@@ -103,6 +103,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       {offerAsk && askOffer === 'chip' && (
         <Button
           variant={sor.offer === 'strong' ? 'primary' : 'ghost'}
+          className={sor.offer === 'strong' ? styles.askStrong : undefined}
           size="micro"
           iconLeft={<Ai_agent />}
           // A strong offer is what Enter asks, so the button says so with the key.
@@ -151,7 +152,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       <div className={styles.offerRow} aria-live="polite">
         {offerAsk && (
           <>
-            <Button variant={strong ? 'primary' : 'ghost'} iconLeft={<Ai_agent />} onClick={ask}>
+            <Button variant={strong ? 'primary' : 'ghost'} className={strong ? styles.askStrong : undefined} iconLeft={<Ai_agent />} onClick={ask}>
               {strong ? 'Ask the assistant' : 'Ask about this'}
             </Button>
             {strong && <span className={styles.offerHint}><kbd className={styles.kbd}>↵</kbd> to ask</span>}
