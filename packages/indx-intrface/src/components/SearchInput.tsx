@@ -23,8 +23,10 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   searchOrAsk?: SearchOrAskState;
   /** Where the offer to ask shows. `chip` (default): a button in the field's chip row. `below`: a
    *  row of its own under the field, as on the Indx docs: a full-size button and an Enter hint.
-   *  The row keeps its height while Search or ask is on, so an offer appearing moves nothing under it. */
-  askOffer?: 'chip' | 'below';
+   *  The row keeps its height while Search or ask is on, so an offer appearing moves nothing under it.
+   *  `none`: the field shows no offer; the page shows it itself from `searchOrAsk` (as the indx.co
+   *  demo does, above the results). Enter still asks on a strong offer. */
+  askOffer?: 'chip' | 'below' | 'none';
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
