@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSearchContext, DEFAULT_PLACEHOLDER } from '../context/SearchContext';
-import { SearchField, Button, Chip, Tooltip } from '@indxsearch/systm';
+import { SearchField, Button, Chip, Tooltip, Kbd } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
-import { Ai_agent, Enter_key, Filter, Fuzzy_search } from '@indxsearch/pixl';
+import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
 import { useSearchOrAsk, type SearchOrAskState } from '../hooks/useSearchOrAsk';
 import styles from './SearchInput.module.css';
 
@@ -104,7 +104,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           size="micro"
           iconLeft={<Ai_agent />}
           // A strong offer is what Enter asks, so the button says so with the key.
-          iconRight={sor.offer === 'strong' ? <Enter_key /> : undefined}
+          iconRight={sor.offer === 'strong' ? <Kbd>Enter ↵</Kbd> : undefined}
           onClick={ask}
           title={sor.offer === 'strong' ? 'Enter asks' : undefined}
         >
