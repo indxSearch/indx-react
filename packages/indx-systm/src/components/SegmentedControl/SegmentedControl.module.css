@@ -1,0 +1,88 @@
+/* A hairline frame of cells; a hairline between each pair, so the dividers read as one line. */
+.control {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+  background: var(--lv0);
+  max-width: 100%;
+}
+
+.stretch {
+  display: flex;
+}
+
+.stretch .cell {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  border: none;
+  border-left: 1px solid var(--lv3);
+  background: transparent;
+  color: var(--lv5);
+  font: var(--text-xs);
+  font-weight: var(--med);
+  white-space: nowrap;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.cell:first-child {
+  border-left: none;
+}
+
+.cell:hover {
+  color: var(--lv7);
+}
+
+/* The chosen cell: the surface tone under it and the ink on it. */
+.active,
+.active:hover {
+  background: var(--lv2);
+  color: var(--lv8);
+}
+
+.cell:focus-visible {
+  outline: 1px solid var(--lv8);
+  outline-offset: -1px;
+  z-index: 1;
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.disabled {
+  opacity: 0.6;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.micro .cell {
+  height: 22px;
+  padding: 0 8px;
+}
+
+.micro .iconOnly {
+  padding: 0 6px;
+}
+
+.default .cell {
+  height: 28px;
+  padding: 0 10px;
+}
+
+.default .iconOnly {
+  padding: 0 8px;
+}

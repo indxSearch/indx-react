@@ -22,6 +22,7 @@ export default function Home() {
     { name: 'Table', path: '/table', desc: 'Composable table component system' },
     { name: 'Base', path: '/base', desc: 'Base container component' },
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
+    { name: 'SegmentedControl', path: '/segmented-control', desc: 'One choice from a few, side by side in a hairline frame' },
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'BarMeter', path: '/bar-meter', desc: 'A level against its ceiling, as bars' },
     { name: 'Waffle', path: '/waffle', desc: 'Shares of a whole as a grid of pixel squares' },

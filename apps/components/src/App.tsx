@@ -37,6 +37,7 @@ import FilterPanelSkeletonPage from './filter-panel-skeleton/page';
 import SearchResultPage from './search-result/page';
 import TablePage from './table/page';
 import TabsPage from './tabs/page';
+import SegmentedControlPage from './segmented-control/page';
 import DisclosurePage from './disclosure/page';
 import BreadcrumbsPage from './breadcrumbs/page';
 import NavigationMenuPage from './navigation-menu/page';
@@ -92,6 +93,7 @@ export default function App() {
         <Route path="/tooltip" element={<TooltipPage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
+        <Route path="/segmented-control" element={<SegmentedControlPage />} />
         <Route path="/disclosure" element={<DisclosurePage />} />
         <Route path="/breadcrumbs" element={<BreadcrumbsPage />} />
         <Route path="/navigation-menu" element={<NavigationMenuPage />} />

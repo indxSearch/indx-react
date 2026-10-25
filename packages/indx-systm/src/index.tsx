@@ -17,6 +17,7 @@ export { Select, type SelectOption, type SelectProps } from './components/Select
 export { Popover, type PopoverProps } from './components/Popover';
 export { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon } from './components/Table';
 export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
+export { SegmentedControl, type SegmentedControlProps, type SegmentedItem, type SegmentedSize } from './components/SegmentedControl/SegmentedControl';
 export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './components/Breadcrumbs/Breadcrumbs';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';
 export { BarMeter, type BarMeterProps, type BarMeterShape } from './components/BarMeter/BarMeter';
