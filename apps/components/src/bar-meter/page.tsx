@@ -3,6 +3,8 @@ import { BarMeter, Stat, StatGroup } from '@indxsearch/systm';
 import styles from './page.module.css';
 
 const gb = (n: number) => `${n.toFixed(1)} GB`;
+// A warning from 70 %, the signal red from 85 %: the zones a pressure gauge has.
+const PRESSURE_ZONES = [{ from: 0.7, color: 'var(--CWarning)' }, { from: 0.85, color: 'var(--CSignal)' }];
 
 export default function BarMeterPage() {
   // A live reading, the way a monitor would feed it: a random walk, with the odd spike.
@@ -29,7 +31,7 @@ export default function BarMeterPage() {
         <h2 className={styles.heading}>An instance</h2>
         <div className={styles.grid}>
           <div className={styles.card}>
-            <BarMeter label="CPU pressure" value={Math.round(cpu)} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" color={cpu > 85 ? 'var(--CSignal)' : undefined} />
+            <BarMeter label="CPU pressure" value={Math.round(cpu)} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
           </div>
           <div className={styles.card}>
             <BarMeter label="Memory" value={6.2} max={16} format={gb} />
@@ -47,7 +49,7 @@ export default function BarMeterPage() {
           diameter: 48 is the smallest that holds a short value, and from 96 the ceiling joins it on a second line.
         </p>
         <div className={styles.rings}>
-          <BarMeter shape="ring" label="CPU pressure" value={Math.round(cpu)} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" color={cpu > 85 ? 'var(--CSignal)' : undefined} />
+          <BarMeter shape="ring" label="CPU pressure" value={Math.round(cpu)} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
           <BarMeter shape="ring" label="Memory" value={6.2} max={16} format={gb} maxLabel="of 16 GB" />
           <BarMeter shape="ring" label="Documents" value={312_400} max={500_000} format={(v) => `${Math.round(v / 1000)}k`} maxLabel="of 500k" />
           <BarMeter shape="ring" label="Past the threshold" value={93} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" color="var(--CSignal)" />
@@ -90,6 +92,26 @@ export default function BarMeterPage() {
           A segment under 8 % of the row gets no head (the last one apart, it has the right edge to itself), so heads never pile up; with many or narrow segments,
           labels="legend" lists them all under the bars instead.
         </p>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Zones</h2>
+        <p className={styles.desc}>
+          zones are levels from which the filled bars change colour: a warning from 70 %, the signal red from 85 %.
+          The bars past the level show each zone faintly, so the thresholds are seen before they are reached. A
+          color prop overrides them.
+        </p>
+        <div className={styles.rings}>
+          <BarMeter shape="ring" label="Below" value={45} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
+          <BarMeter shape="ring" label="Warning" value={76} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
+          <BarMeter shape="ring" label="Signal" value={92} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
+          <BarMeter shape="ring" size={96} label="96, at 76 %" value={76} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+        </div>
+        <div className={styles.stack}>
+          <BarMeter label="Below" value={45} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+          <BarMeter label="Warning" value={76} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+          <BarMeter label="Signal" value={92} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+        </div>
       </div>
 
       <div className={styles.section}>

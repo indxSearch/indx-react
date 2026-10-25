@@ -14,6 +14,21 @@ import styles from './BarMeter.module.css';
 
 export type BarMeterShape = 'bar' | 'ring';
 
+/** A level from which the meter changes colour: warning from 70 %, the signal red from 85 %. */
+export interface BarMeterZone {
+  /** Where the zone starts, as a share of max, 0 to 1. */
+  from: number;
+  color: string;
+}
+
+/** The colour of the zone the level has reached, or none below the first. */
+const zoneColor = (zones: BarMeterZone[] | undefined, fraction: number) =>
+  zones?.filter((z) => fraction >= z.from).sort((a, b) => b.from - a.from)[0]?.color;
+
+/** The track's tone for a bar past the level: the zone it lies in, or the plain dim tone. */
+const zoneAt = (zones: BarMeterZone[] | undefined, at: number) =>
+  zones?.filter((z) => at >= z.from).sort((a, b) => b.from - a.from)[0]?.color;
+
 export interface BarMeterSegment {
   label: ReactNode;
   value: number;
@@ -51,8 +66,14 @@ export interface BarMeterProps {
   format?: (value: number) => ReactNode;
   /** The ceiling as shown at the right; defaults to "of" and the formatted max. */
   maxLabel?: ReactNode;
-  /** The filled bars' colour, for a level that has become a problem: the signal red past a threshold. */
+  /** The filled bars' colour, for a level that has become a problem: the signal red past a threshold. Overrides the zones. */
   color?: string;
+  /**
+   * Levels from which the filled bars change colour: a warning from 70 %, the signal red from
+   * 85 %. The bars past the level show each zone faintly, so the thresholds can be seen before
+   * they are reached.
+   */
+  zones?: BarMeterZone[];
   /** A row of bars (default) or a ring of them. */
   shape?: BarMeterShape;
   /** The ring's diameter in pixels; 72 by default, 48 the smallest that holds a value. From 96 the ceiling joins the value in the middle. The row ignores it. */
@@ -76,11 +97,13 @@ export function BarMeter({
   format,
   maxLabel,
   color,
+  zones,
   shape = 'bar',
   size = 72,
   className = '',
 }: BarMeterProps) {
   const fraction = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
+  const fillColor = color ?? zoneColor(zones, fraction);
   const show = (n: number) => (format ? format(n) : n.toLocaleString());
   const ceiling = maxLabel ?? <>of {show(max)}</>;
 
@@ -144,10 +167,10 @@ export function BarMeter({
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={max}
-        style={{ '--meter-size': `${size}px`, color } as CSSProperties}
+        style={{ '--meter-size': `${size}px`, color: fillColor } as CSSProperties}
       >
         <div className={styles.dial}>
-          <RingBars fraction={fraction} size={size} />
+          <RingBars fraction={fraction} size={size} zones={zones} />
           <div className={styles.centre} aria-hidden="true">
             <span className={styles.value}>{show(value)}</span>
             {size >= RING_CEILING_FROM && <span className={styles.max}>{ceiling}</span>}
@@ -168,9 +191,16 @@ export function BarMeter({
     >
       {label != null && <span className={styles.label}>{label}</span>}
       <div className={styles.bars} aria-hidden="true">
+        {zones?.map((z, i) => (
+          <div
+            key={i}
+            className={`${styles.fill} ${styles.zone}`}
+            style={{ '--zone-from': `${z.from * 100}%`, color: z.color } as CSSProperties}
+          />
+        ))}
         <div
           className={styles.fill}
-          style={{ '--meter-fill': `${fraction * 100}%`, color } as CSSProperties}
+          style={{ '--meter-fill': `${fraction * 100}%`, color: fillColor } as CSSProperties}
         />
       </div>
       <div className={styles.foot} aria-hidden="true">
@@ -183,8 +213,9 @@ export function BarMeter({
 
 // The ring's bars: 2px radial lines from the inner to the outer radius, as many as give a 4px
 // pitch along the middle of the band, the first at the top and the rest clockwise. The filled
-// ones are the first round(fraction * count), in currentColor; the rest dim.
-function RingBars({ fraction, size }: { fraction: number; size: number }) {
+// ones are the first round(fraction * count), in currentColor; the rest dim, or faintly in the
+// colour of the zone they lie in.
+function RingBars({ fraction, size, zones }: { fraction: number; size: number; zones?: BarMeterZone[] }) {
   const outer = size / 2;
   const inner = Math.max(0, outer - ringBand(size));
   const middle = (outer + inner) / 2;
@@ -195,10 +226,12 @@ function RingBars({ fraction, size }: { fraction: number; size: number }) {
     const angle = (-90 + (360 * i) / count) * (Math.PI / 180);
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
+    const zone = i < filled ? undefined : zoneAt(zones, i / count);
     lines.push(
       <line
         key={i}
-        className={i < filled ? styles.lit : styles.dim}
+        className={i < filled ? styles.lit : zone ? styles.zoneBar : styles.dim}
+        style={zone ? { stroke: zone } : undefined}
         x1={outer + inner * cos}
         y1={outer + inner * sin}
         x2={outer + outer * cos}

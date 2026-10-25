@@ -20,7 +20,7 @@ export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
 export { SegmentedControl, type SegmentedControlProps, type SegmentedItem, type SegmentedSize } from './components/SegmentedControl/SegmentedControl';
 export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './components/Breadcrumbs/Breadcrumbs';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';
-export { BarMeter, type BarMeterProps, type BarMeterShape, type BarMeterSegment } from './components/BarMeter/BarMeter';
+export { BarMeter, type BarMeterProps, type BarMeterShape, type BarMeterSegment, type BarMeterZone } from './components/BarMeter/BarMeter';
 export { Waffle, allocateCells, type WaffleProps, type WaffleSegment } from './components/Waffle/Waffle';
 export { Heatmap, calendarCells, levelOf, type HeatmapProps, type HeatmapLabel, type CalendarCells } from './components/Heatmap/Heatmap';
 export { Chip, type ChipProps } from './components/Chip/Chip';
