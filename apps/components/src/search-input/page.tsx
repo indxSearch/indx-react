@@ -84,7 +84,7 @@ export default function SearchInputPage() {
         <h2 className={styles.heading}>With onAsk (Search or ask)</h2>
         <p className={styles.desc}>
           Given <code>onAsk</code>, and on a dataset with Search or ask switched on, the field offers to answer what
-          is typed: a quiet "Ask about this", or a primary "Ask" where Enter asks. Without <code>onAsk</code> nothing
+          is typed: a quiet "Ask about this", or a primary "Ask" with an Enter key-cap, where Enter asks. Without <code>onAsk</code> nothing
           changes and nothing is sent. The judge here is a mock (a question word scores 0.85, three words 0.5).
         </p>
       </div>
@@ -117,6 +117,26 @@ export default function SearchInputPage() {
               <div className={styles.stateWhen}>{s.when}</div>
             </div>
             <div className={styles.cell}><SearchInput onAsk={() => {}} askOffer="below" /></div>
+          </MockSearchProvider>
+        ))}
+      </div>
+
+      <div className={styles.section} style={{ marginTop: '3rem' }}>
+        <h2 className={styles.heading}>With onAsk, no offer in the field</h2>
+        <p className={styles.desc}>
+          <code>askOffer="none"</code>: the field shows no offer at all, for a page that shows it itself from{' '}
+          <code>searchOrAsk</code>, as the Search or ask demo on indx.co does with its own prompt block. Enter still
+          asks on a strong offer.
+        </p>
+      </div>
+      <div className={styles.grid}>
+        {offerStates.filter((s) => s.title === 'Strong').map((s) => (
+          <MockSearchProvider key={s.title} initialQuery={s.query} resultCount={8} placeholderText="Type to search" authenticatedFetch={mockFetch('answer', { enabled: true })}>
+            <div className={styles.stateLabel}>
+              <div className={styles.stateTitle}>{s.title}, nothing shown</div>
+              <div className={styles.stateWhen}>The judge says strong; the field stays plain and Enter asks.</div>
+            </div>
+            <div className={styles.cell}><SearchInput onAsk={() => {}} askOffer="none" /></div>
           </MockSearchProvider>
         ))}
       </div>
