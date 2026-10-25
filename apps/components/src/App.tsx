@@ -17,6 +17,7 @@ import WafflePage from './waffle/page';
 import HeatmapPage from './heatmap/page';
 import RadialChartPage from './radial-chart/page';
 import RadarChartPage from './radar-chart/page';
+import GroupedBarsPage from './grouped-bars/page';
 import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
@@ -86,6 +87,7 @@ export default function App() {
         <Route path="/heatmap" element={<HeatmapPage />} />
         <Route path="/radial-chart" element={<RadialChartPage />} />
         <Route path="/radar-chart" element={<RadarChartPage />} />
+        <Route path="/grouped-bars" element={<GroupedBarsPage />} />
         <Route path="/toggle-switch" element={<ToggleSwitchPage />} />
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />

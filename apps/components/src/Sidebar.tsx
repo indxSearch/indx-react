@@ -48,6 +48,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Heatmap', path: '/heatmap' },
       { label: 'RadialChart', path: '/radial-chart' },
       { label: 'RadarChart', path: '/radar-chart' },
+      { label: 'GroupedBars', path: '/grouped-bars' },
       { label: 'Chart', path: '/chart' },
       { label: 'Sparkline', path: '/sparkline' },
       { label: 'FilterPanelBase', path: '/filter-panel-base' },
