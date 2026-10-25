@@ -182,6 +182,39 @@ export default function ChartPage() {
         />
       </div>
 
+      {/* Stacked bars */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Stacked bars</h2>
+        <p className={styles.subdesc}>
+          <code>stacked</code> puts the series on top of each other in one bar per label, in series order from the
+          baseline, so the bar's height is the total. The tooltip lists each part and the total. With patterns the
+          parts tell apart in one tone.
+        </p>
+        <Chart
+          type="bar"
+          labels={MONTHS}
+          stacked
+          yAxis="right"
+          series={[
+            { label: 'Website', data: [310, 420, 390, 480, 510, 470, 530, 560, 540, 610, 640, 690] },
+            { label: 'App', data: [160, 190, 250, 260, 240, 300, 310, 290, 330, 350, 360, 400], fill: 'hatch' },
+            { label: 'API', data: [90, 110, 105, 140, 150, 160, 170, 180, 200, 210, 230, 260], fill: 'dots' },
+          ]}
+          height={220}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          stacked
+          series={[
+            { label: 'Served', data: [1240, 1310, 1190, 1420, 1510, 820, 760] },
+            { label: 'Timed out', data: [12, 9, 31, 18, 44, 4, 3], color: 'var(--CSignal)' },
+          ]}
+          height={180}
+        />
+      </div>
+
       {/* Multi-series line */}
       <div className={styles.section}>
         <h2 className={styles.heading}>Multi-series Line</h2>

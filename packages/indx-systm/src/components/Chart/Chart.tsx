@@ -71,6 +71,11 @@ export interface ChartProps {
   yFormat?: (value: number) => string;
   /** Levels to read the data against, each a dashed line with its label in a tag at the right. */
   references?: ChartReference[];
+  /**
+   * Bars only: the series on top of each other in one bar per label, in series order from the
+   * baseline, so the bar's height is the total. The tooltip lists each part and the total.
+   */
+  stacked?: boolean;
 }
 
 // A round step for about four ticks over the range: 1, 2 or 5 times a power of ten.
@@ -114,7 +119,9 @@ export function Chart({
   yAxis = 'none',
   yFormat = compact,
   references,
+  stacked = false,
 }: ChartProps) {
+  const isStacked = stacked && type === 'bar';
   const containerRef = useRef<HTMLDivElement>(null);
   const patternId = useId();
   const [containerWidth, setContainerWidth] = useState(0);
@@ -134,7 +141,12 @@ export function Chart({
 
   // The range: the data, and any reference, which must be in view to be read against. With an
   // axis the range widens to round ticks, so the top gridline carries a label.
-  const allValues = series.flatMap(s => s.data.filter(Number.isFinite));
+  const dataLenAll = Math.max(...series.map(s => s.data.length), 0);
+  // Stacked, the range is set by the totals per label, not the parts.
+  const totals = isStacked
+    ? Array.from({ length: dataLenAll }, (_, i) => series.reduce((a, s) => a + Math.max(0, s.data[i] ?? 0), 0))
+    : [];
+  const allValues = isStacked ? totals : series.flatMap(s => s.data.filter(Number.isFinite));
   const refValues = (references ?? []).map(r => r.value).filter(Number.isFinite);
   let maxVal = allValues.length || refValues.length ? Math.max(...allValues, ...refValues, 0) : 1;
   let minVal = type === 'bar' ? Math.min(0, ...refValues) : Math.min(...allValues, ...refValues, 0);
@@ -365,17 +377,22 @@ export function Chart({
 
   const renderBars = () => {
     if (!dataLen) return null;
-    const seriesCount = series.length;
+    const seriesCount = isStacked ? 1 : series.length;
     const groupW = cw / dataLen;
     const barGap = 2;
     const barW = Math.max((groupW - barGap * (seriesCount + 1)) / seriesCount, 2);
     const bottom = PAD_TOP + ch;
+    // Stacked: each series starts where the ones before it ended.
+    const stackBase = new Array<number>(dataLen).fill(0);
 
     return series.map((s, si) =>
       s.data.map((v, i) => {
-        const bx = padLeft + i * groupW + barGap + si * (barW + barGap);
-        const by = toY(v);
-        const bh = Math.max(bottom - by, 0);
+        const bx = isStacked ? padLeft + i * groupW + barGap : padLeft + i * groupW + barGap + si * (barW + barGap);
+        const part = isStacked ? Math.max(0, v) : v;
+        const from = isStacked ? stackBase[i] : 0;
+        if (isStacked) stackBase[i] += part;
+        const by = toY(from + part);
+        const bh = isStacked ? Math.max(toY(from) - by, 0) : Math.max(bottom - by, 0);
         return (
           <rect
             key={`${si}-${i}`}
@@ -443,6 +460,13 @@ export function Chart({
             <span className={styles.tooltipValue}>{formatValue(s.data[tooltip.index] ?? 0)}</span>
           </div>
         ))}
+        {isStacked && series.length > 1 && (
+          <div className={`${styles.tooltipRow} ${styles.tooltipTotal}`}>
+            <span className={styles.tooltipDot} style={{ visibility: 'hidden' }} />
+            <span className={styles.tooltipName}>Total</span>
+            <span className={styles.tooltipValue}>{formatValue(totals[tooltip.index] ?? 0)}</span>
+          </div>
+        )}
         {markers?.filter(m => m.index === tooltip.index).map((m, mi) => (
           <div key={`m${mi}`} className={`${styles.tooltipRow} ${styles.tooltipMarker}`}>
             <span className={`${styles.tooltipDot} ${styles.markerDot}`} />

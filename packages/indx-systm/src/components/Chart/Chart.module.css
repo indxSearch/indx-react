@@ -81,6 +81,13 @@
   color: var(--lv6);
 }
 
+/* The total of a stacked bar, under its parts with a rule between. */
+.tooltipTotal {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--lv2);
+}
+
 /* Legend */
 .legend {
   display: flex;
