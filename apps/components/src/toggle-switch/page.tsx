@@ -62,6 +62,16 @@ export default function ToggleSwitchPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Marks</h2>
+        <p className={styles.desc}>A 0 on the track when off and a | when on, the marks of a power switch, drawn in whole pixels.</p>
+        <div className={styles.column}>
+          <ToggleSwitch marks label="Search or ask" checked={toggle1} onChange={setToggle1} />
+          <ToggleSwitch marks label="Observr" checked={toggle2} onChange={setToggle2} />
+          <ToggleSwitch marks variant="positive" label="Coverage truncation" checked={toggle3} onChange={setToggle3} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Disabled State</h2>
         <div className={styles.column}>
           <ToggleSwitch
