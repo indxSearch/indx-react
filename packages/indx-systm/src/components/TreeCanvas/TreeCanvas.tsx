@@ -1,12 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { Plus, Minus } from '@indxsearch/pixl';
+import { Button } from '../Button/Button';
 import styles from './TreeCanvas.module.css';
 
 // A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out
 // to the right on soft connectors, the chosen node and the path to it lit, the rest collapsed
 // until opened. For a catalogue's categories, "Shoes > Running > Trail", where the picture of
-// the hierarchy is the point and the products are not in it. Nodes are real buttons placed
-// over the connectors, so they focus and read; arrows move between them, right opens, left
-// closes. A node with many children shows the first so many by count and a step to the rest.
+// the hierarchy is the point and the products are not in it. Nodes are focusable tree items
+// placed over the connectors, with a ghost Button to open and close each, so the step has a
+// hover of its own; arrows move between them, right opens, left closes, Enter chooses. A node with many children shows the first so many by count and a step to the rest.
 // The list view is the same tree as nested rows, for a phone and for a screen reader.
 
 export interface TreeNode {
@@ -179,13 +181,14 @@ export function TreeCanvas({
   const width = columns.length ? columns[columns.length - 1] + Math.max(...placed.filter((p) => p.depth === columns.length - 1).map((p) => p.width)) : 0;
   const order = placed.map((p) => p.node.id);
 
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>, p: Placed) => {
+  const onKey = (e: KeyboardEvent<HTMLElement>, p: Placed) => {
     const i = order.indexOf(p.node.id);
     let to: string | undefined;
     if (e.key === 'ArrowDown') to = order[Math.min(order.length - 1, i + 1)];
     else if (e.key === 'ArrowUp') to = order[Math.max(0, i - 1)];
     else if (e.key === 'ArrowRight') { if (p.node.children?.length && !p.open) { toggle(p.node.id); e.preventDefault(); return; } to = placed.find((q) => q.parent === p)?.node.id; }
     else if (e.key === 'ArrowLeft') { if (p.open) { toggle(p.node.id); e.preventDefault(); return; } to = p.parent?.node.id; }
+    else if (e.key === 'Enter' || e.key === ' ') { onSelect?.(p.node.id); e.preventDefault(); return; }
     else if (e.key === 'Home') to = order[0];
     else if (e.key === 'End') to = order[order.length - 1];
     if (!to) return;
@@ -203,7 +206,9 @@ export function TreeCanvas({
             <li key={n.id} role="treeitem" aria-expanded={n.children?.length ? open : undefined} aria-selected={isSelected}>
               <div className={`${styles.row} ${isSelected ? styles.rowSelected : ''} ${n.muted ? styles.muted : ''}`} style={{ paddingLeft: 8 + depth * 18 }}>
                 {n.children?.length ? (
-                  <button type="button" className={styles.disclosure} aria-label={open ? 'Close' : 'Open'} onClick={() => toggle(n.id)}>{open ? '−' : '+'}</button>
+                  <span className={styles.disclosure}>
+                    <Button variant="secondary" size="micro" aria-label={open ? 'Close' : 'Open'} iconLeft={open ? <Minus /> : <Plus />} onClick={() => toggle(n.id)} />
+                  </span>
                 ) : <span className={styles.disclosureSpace} />}
                 <button type="button" className={styles.rowName} onClick={() => onSelect?.(n.id)}>{n.label}</button>
                 {n.count != null && <span className={styles.chip}>{format ? format(n.count) : n.count.toLocaleString()}</span>}
@@ -237,9 +242,9 @@ export function TreeCanvas({
           const onPath = pathIds.has(n.id) && !isSelected;
           return (
             <div key={n.id} className={styles.slot} style={{ left: p.x, top: p.y - 15 }}>
-              <button
-                type="button"
+              <div
                 role="treeitem"
+                tabIndex={0}
                 aria-selected={isSelected}
                 aria-expanded={n.children?.length ? p.open : undefined}
                 aria-level={p.depth + 1}
@@ -252,17 +257,11 @@ export function TreeCanvas({
                 {n.count != null && <span className={styles.chip}>{format ? format(n.count) : n.count.toLocaleString()}</span>}
                 {n.marks?.map((m, i) => <span key={i} className={styles.mark} title={m.title}>{m.icon}</span>)}
                 {n.children?.length ? (
-                  <span
-                    role="button"
-                    tabIndex={-1}
-                    className={styles.toggle}
-                    aria-label={p.open ? 'Close' : 'Open'}
-                    onClick={(e) => { e.stopPropagation(); toggle(n.id); }}
-                  >
-                    {p.open ? '−' : '+'}
+                  <span className={styles.toggle} onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="micro" tabIndex={-1} aria-label={p.open ? 'Close' : 'Open'} iconLeft={p.open ? <Minus /> : <Plus />} onClick={() => toggle(n.id)} />
                   </span>
                 ) : null}
-              </button>
+              </div>
               {p.more > 0 && (
                 <button
                   type="button"

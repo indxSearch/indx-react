@@ -56,6 +56,7 @@
   white-space: nowrap;
   cursor: pointer;
   text-align: left;
+  user-select: none;
 }
 
 .pill:hover {
@@ -116,23 +117,23 @@
   color: var(--CPositiveHandle);
 }
 
-/* The open or close step at the pill's end, a plus or a minus. */
+/* The open or close step at the pill's end: a ghost micro Button with the plus or minus pixl,
+   squared to fit the pill, so the step has a hover of its own. */
 .toggle {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  margin-left: 2px;
-  font: var(--text-xs);
-  color: var(--lv5);
-  border: 1px solid var(--lv3);
-  border-radius: var(--radius);
+  margin-right: -6px;
 }
 
-.pillSelected .toggle {
+.toggle > button,
+.disclosure > button {
+  width: 22px;
+  height: 22px;
+  min-width: 0;
+  padding: 0;
+}
+
+.pillSelected .toggle > button {
   color: var(--CPositiveHandle);
-  border-color: var(--CPositiveHandle);
 }
 
 /* The step to the rest of a node's children, under the ones shown. */
@@ -196,19 +197,12 @@
 }
 
 .disclosure {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 1px solid var(--lv3);
-  border-radius: var(--radius);
-  background: none;
-  color: var(--lv5);
-  font: var(--text-xs);
-  cursor: pointer;
+  display: inline-flex;
+  flex: none;
 }
 
 .disclosureSpace {
-  width: 18px;
+  width: 22px;
   flex: none;
 }
 
