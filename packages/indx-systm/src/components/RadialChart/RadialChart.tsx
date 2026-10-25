@@ -32,8 +32,10 @@ export interface RadialChartProps {
   labels?: string[];
   /** The rose: a wedge a group, its radius the group's value, the name and value in it. */
   groups?: RadialGroup[];
-  /** The gap between the rose's wedges, in degrees; 2 by default. */
+  /** The gap between the rose's wedges, in pixels, the same at the hollow and the rim; 4 by default. */
   gap?: number;
+  /** The rose's corner radius in pixels; 8 by default, less on a small face. */
+  rounding?: number;
   /** The diameter in pixels; 240 by default. */
   size?: number;
   /** The hollow centre's share of the radius; 0.4 by default. */
@@ -60,7 +62,8 @@ export function RadialChart({
   series,
   labels,
   groups,
-  gap = 2,
+  gap = 4,
+  rounding = 8,
   size = 240,
   hollow = 0.4,
   max,
@@ -95,13 +98,21 @@ export function RadialChart({
   const barWidth = Math.max(0.5, Math.min(2, ((2 * Math.PI * inner) / Math.max(1, slots * lanes)) * 0.55));
   const colorOf = (s: number) => all[s].color ?? DEFAULT_COLOR;
 
-  // A wedge of the rose: from the hollow out to r, between the slot's edges less the gap.
+  // A wedge of the rose, from the hollow out to r. Its edges stand off the slot's boundaries by a
+  // fixed number of pixels, so the gap is as wide at the rim as at the hollow, and the corners
+  // are rounded by drawing the path inset by the corner radius and stroking it that wide in its
+  // own colour with round joins. The path is the inset one; the stroke brings it out to size.
+  const corner = Math.min(rounding, span * 0.12);
+  const inset = gap / 2 + corner;
   const wedge = (slot: number, r: number) => {
-    const half = Math.max(0, step / 2 - (gap * Math.PI) / 360);
-    const a0 = angleOf(slot) - half, a1 = angleOf(slot) + half;
-    const p = (rad: number, a: number) => `${(outer + rad * Math.cos(a)).toFixed(2)} ${(outer + rad * Math.sin(a)).toFixed(2)}`;
-    const large = a1 - a0 > Math.PI ? 1 : 0;
-    return `M ${p(inner, a0)} L ${p(r, a0)} A ${r} ${r} 0 ${large} 1 ${p(r, a1)} L ${p(inner, a1)} A ${inner} ${inner} 0 ${large} 0 ${p(inner, a0)} Z`;
+    const ri = inner + inset;
+    const ro = Math.max(ri + 0.5, r - inset);
+    const a = angleOf(slot);
+    const hi = Math.max(0.01, step / 2 - inset / ri);
+    const ho = Math.max(0.01, step / 2 - inset / ro);
+    const p = (rad: number, ang: number) => `${(outer + rad * Math.cos(ang)).toFixed(2)} ${(outer + rad * Math.sin(ang)).toFixed(2)}`;
+    const large = 2 * ho > Math.PI ? 1 : 0;
+    return `M ${p(ri, a - hi)} L ${p(ro, a - ho)} A ${ro.toFixed(2)} ${ro.toFixed(2)} 0 ${large} 1 ${p(ro, a + ho)} L ${p(ri, a + hi)} A ${ri.toFixed(2)} ${ri.toFixed(2)} 0 ${large} 0 ${p(ri, a - hi)} Z`;
   };
 
   // The slot under the pointer: by its angle from the centre, clockwise from the top. Outside
@@ -125,13 +136,14 @@ export function RadialChart({
       // The rose: the dim wedge the full radius, the lit one to the value over it.
       const g = groups![slot];
       const len = lengthOf(g.value);
-      bars.push(<path key={`t${slot}`} className={styles.wedgeTrack} d={wedge(slot, outer)} />);
+      bars.push(<path key={`t${slot}`} className={styles.wedgeTrack} style={{ strokeWidth: corner * 2 }} d={wedge(slot, outer)} />);
       if (len > 0) {
+        const fill = g.color ?? color ?? DEFAULT_COLOR;
         bars.push(
           <path
             key={`w${slot}`}
             className={`${styles.wedge} ${hover === slot ? styles.wedgeHovered : ''}`}
-            style={{ fill: g.color ?? color ?? DEFAULT_COLOR }}
+            style={{ fill, stroke: fill, strokeWidth: corner * 2 }}
             d={wedge(slot, inner + len)}
           />,
         );
@@ -158,12 +170,14 @@ export function RadialChart({
     }
   }
 
-  // The rose's names and values, upright at the wedge's middle, out near the rim, when the
-  // wedges are few enough and the face large enough to hold them; the tooltip has them always.
+  // The rose's names and values, upright at the wedge's middle, when the wedges are few enough
+  // and the face large enough to hold them; the tooltip has them always. A tall wedge carries
+  // its text inside, in the page tone as print on it; a short one has it in the dim remainder
+  // above, in the ink.
   const sectorLabels = grouped && groups!.length <= 12 && size >= 200 ? groups!.map((g, i) => {
-    const [tx, ty] = point(i, inner + span * 0.72);
-    // On a wedge tall enough to reach the text, the text is in the page tone, as print on it.
-    const onLit = lengthOf(g.value) >= span * 0.78;
+    const len = lengthOf(g.value);
+    const onLit = len >= span * 0.5;
+    const [tx, ty] = point(i, onLit ? inner + len * 0.62 : inner + len + (span - len) * 0.55);
     return (
       <text key={`l${i}`} className={`${styles.sectorText} ${onLit ? styles.sectorTextOnLit : ''}`} x={tx} y={ty} textAnchor="middle">
         <tspan className={styles.sectorValue} x={tx} dy="-0.2em">{format ? format(g.value, i) : g.value}</tspan>
