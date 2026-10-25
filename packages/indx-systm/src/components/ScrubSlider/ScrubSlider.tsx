@@ -161,10 +161,16 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
   // The phase is taken modulo a major period, so the number stays small however far the value goes.
   const period = TICK_SPACING * MAJOR_EVERY;
   const shift = -(((value / step) * TICK_SPACING) % period);
+  // With a bound, the ticks stop where it is: the bound sits this many pixels from the middle,
+  // and the ticks beyond it are clipped away, so the ruler visibly ends there.
+  const toPx = (bound: number) => ((bound - value) / step) * TICK_SPACING;
+  const clipLeft = typeof min === 'number' ? `max(0px, calc(50% + ${toPx(min)}px))` : '0px';
+  const clipRight = typeof max === 'number' ? `max(0px, calc(50% - ${toPx(max)}px))` : '0px';
   const rulerStyle = {
     '--scrub-shift': `${shift}px`,
     '--scrub-tick': `${TICK_SPACING}px`,
     '--scrub-period': `${period}px`,
+    '--scrub-clip': `inset(0 ${clipRight} 0 ${clipLeft})`,
   } as React.CSSProperties;
 
   const rowClassName = [styles.row, disabled ? styles.disabled : '', className ?? ''].filter(Boolean).join(' ');

@@ -50,6 +50,8 @@
     calc(50% + var(--scrub-shift)) center;
   mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+  /* The bounds, when there are any: the component sets the insets. */
+  clip-path: var(--scrub-clip, none);
   pointer-events: none;
 }
 
