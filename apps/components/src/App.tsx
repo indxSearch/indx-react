@@ -14,6 +14,7 @@ import BarSliderPage from './bar-slider/page';
 import ScrubSliderPage from './scrub-slider/page';
 import BarMeterPage from './bar-meter/page';
 import WafflePage from './waffle/page';
+import HeatmapPage from './heatmap/page';
 import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/scrub-slider" element={<ScrubSliderPage />} />
         <Route path="/bar-meter" element={<BarMeterPage />} />
         <Route path="/waffle" element={<WafflePage />} />
+        <Route path="/heatmap" element={<HeatmapPage />} />
         <Route path="/toggle-switch" element={<ToggleSwitchPage />} />
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />
