@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import styles from './Heatmap.module.css';
 
 // A grid of pixel cells toned by value: columns of `rows` cells, filled top to bottom then the
@@ -26,7 +26,7 @@ export interface HeatmapProps {
   rowLabels?: HeatmapLabel[];
   /** A cell's side in pixels; 6 by default, with a 2px gap. */
   cell?: number;
-  /** A cell's title on hover: the value and what it is. Nothing by default. */
+  /** What a cell says on hover, in a tooltip beside it: the value and what it is. Nothing by default. */
   format?: (value: number, index: number) => string;
   /** A name for assistive technology: "Days woken, last six months". */
   'aria-label'?: string;
@@ -55,6 +55,8 @@ export function Heatmap({
   const top = max ?? values.reduce<number>((a, v) => (v != null && v > a ? v : a), 0);
   const columns = Math.ceil(values.length / rows);
   const pitch = cell + 2;
+  // The hovered cell: outlined, with the tooltip at its right, or at its left near the far edge.
+  const [hover, setHover] = useState<number | null>(null);
   const cells = [];
   for (let i = 0; i < columns * rows; i++) {
     const v = i < values.length ? values[i] : null;
@@ -66,12 +68,25 @@ export function Heatmap({
     cells.push(
       <span
         key={i}
-        className={styles.cell}
+        className={`${styles.cell} ${hover === i ? styles.hovered : ''}`}
         style={level ? { background: LEVELS[level - 1] } : undefined}
-        title={format ? format(v, i) : undefined}
+        onMouseEnter={format ? () => setHover(i) : undefined}
       />,
     );
   }
+  const tip = hover != null && format && values[hover] != null ? (() => {
+    const col = Math.floor(hover / rows);
+    const row = hover % rows;
+    const rightHalf = col > columns / 2;
+    return (
+      <div
+        className={`${styles.tooltip} ${rightHalf ? styles.tooltipLeft : ''}`}
+        style={{ top: row * pitch + cell / 2, left: rightHalf ? col * pitch - 6 : col * pitch + cell + 6 }}
+      >
+        {format(values[hover]!, hover)}
+      </div>
+    );
+  })() : null;
   return (
     <div
       className={`${styles.heatmap} ${rowLabels ? styles.withRows : ''} ${className}`}
@@ -84,8 +99,11 @@ export function Heatmap({
           ))}
         </div>
       )}
-      <div className={styles.grid} role="img" aria-label={ariaLabel}>
-        {cells}
+      <div className={styles.gridWrap} onMouseLeave={() => setHover(null)}>
+        <div className={styles.grid} role="img" aria-label={ariaLabel}>
+          {cells}
+        </div>
+        {tip}
       </div>
       {columnLabels && (
         <div className={styles.columnLabels} aria-hidden="true">
