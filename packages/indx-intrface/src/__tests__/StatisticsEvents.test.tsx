@@ -11,7 +11,7 @@ import { SEARCH_RESPONSE } from './mocks/fixtures';
 
 const DS_BASE = 'http://localhost/api/teams/team/datasets/test';
 
-function setup(options: { source?: string; count?: boolean } = {}) {
+function setup(options: { source?: string; count?: boolean; locale?: string } = {}) {
   return renderHook(() => useSearchContext(), {
     wrapper: ({ children }) => (
       <SearchProvider url="http://localhost" team="team" dataset="test"
@@ -52,6 +52,30 @@ describe('session', () => {
     expect(sessions[0]).toBeTruthy();
     expect(new Set(sessions).size).toBe(1);
     expect(sessions[0]).toBe(result.current.sessionId);
+  });
+});
+
+describe('locale', () => {
+  it('sends the browser language when the page names none', async () => {
+    const sent: URLSearchParams[] = [];
+    captureSearchParams(sent);
+    const { result } = setup();
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    act(() => result.current.setQuery('shoe'));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0));
+
+    expect(sent[0].get('locale')).toBe(navigator.language);
+  });
+
+  it('sends the page language when the page names one', async () => {
+    const sent: URLSearchParams[] = [];
+    captureSearchParams(sent);
+    const { result } = setup({ locale: 'nb-NO' });
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    act(() => result.current.setQuery('shoe'));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0));
+
+    expect(sent[0].get('locale')).toBe('nb-NO');
   });
 });
 

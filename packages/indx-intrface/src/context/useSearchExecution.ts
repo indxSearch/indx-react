@@ -29,6 +29,8 @@ export interface UseSearchExecutionOptions {
   shouldFetchMore: React.MutableRefObject<boolean>;
   sessionId: string;
   source?: string;
+  /** The page's language, sent as `locale`; absent, the document's `lang`, else the browser's. */
+  locale?: string;
   count: boolean;
   /** The text to search for what is typed (SearchProvider's `searchTextOf`). Absent: the typed text. */
   searchTextOf?: (typed: string) => string;
@@ -53,6 +55,7 @@ export function useSearchExecution({
   shouldFetchMore,
   sessionId,
   source,
+  locale,
   count,
   searchTextOf,
 }: UseSearchExecutionOptions): UseSearchExecutionResult {
@@ -177,6 +180,10 @@ export function useSearchExecution({
         // (`source`) and `count=false` go along when the page set them.
         const searchParams = new URLSearchParams({ session: sessionId });
         if (source) searchParams.set('source', source);
+        // The language of the page, for "which languages do people search in": what the page
+        // says it is, else what the browser prefers. Never where the visitor is.
+        const lang = locale ?? pageLanguage();
+        if (lang) searchParams.set('locale', lang);
         if (!count) searchParams.set('count', 'false');
         if (typedRef.current.trim() !== query.trim()) searchParams.set('typed', typedRef.current);
         const postSearch = (body: unknown) =>
@@ -381,6 +388,7 @@ export function useSearchExecution({
       setState,
       sessionId,
       source,
+      locale,
       count,
     ]
   );
@@ -513,4 +521,11 @@ export function useSearchExecution({
   }, [facetsEnabled]);
 
   return { retrySearch };
+}
+
+/** The document's lang, else the browser's preferred language; undefined off the browser. */
+function pageLanguage(): string | undefined {
+  if (typeof document !== 'undefined' && document.documentElement.lang) return document.documentElement.lang;
+  if (typeof navigator !== 'undefined' && navigator.language) return navigator.language;
+  return undefined;
 }

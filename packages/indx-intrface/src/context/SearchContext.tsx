@@ -132,6 +132,8 @@ export const SearchProvider: React.FC<{
   enableDebugLogs?: boolean;
   preAuthenticatedToken?: string; // Bearer token used for all requests
   source?: string; // Names this search surface in the statistics: a search box, an app ("header", "app")
+  /** The page's language for the statistics, a BCP 47 tag ("nb-NO"). Absent, the document's `lang`, else the browser's. */
+  locale?: string;
   count?: boolean; // false: searches and selects from here are stored but not counted (a test page, an agent)
   /** The text to search for what is typed, when it is not the typed text itself: the field keeps
    *  showing what the visitor typed, and the search runs on this. Search or ask's Ask phrases use
@@ -154,6 +156,7 @@ export const SearchProvider: React.FC<{
   enableDebugLogs = false,
   preAuthenticatedToken,
   source,
+  locale,
   count = true,
   searchTextOf,
 }) => {
@@ -249,6 +252,7 @@ export const SearchProvider: React.FC<{
     shouldFetchMore,
     sessionId,
     source,
+    locale,
     count,
     searchTextOf: textOf,
   });
