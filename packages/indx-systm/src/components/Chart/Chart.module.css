@@ -101,6 +101,12 @@
   flex-shrink: 0;
 }
 
+/* A patterned series shows its pattern, not a line, so the legend says which bar is which. */
+.legendSwatch {
+  display: block;
+  flex-shrink: 0;
+}
+
 .legendLabel {
   font: var(--text-xs);
   color: var(--lv5);

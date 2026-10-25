@@ -92,6 +92,55 @@ export default function ChartPage() {
         />
       </div>
 
+      {/* Fills and patterns */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Fills and patterns</h2>
+        <p className={styles.subdesc}>
+          <code>fill</code> per series: <code>solid</code> is the series colour, flat on a bar and faint under a
+          line; <code>hatch</code>, <code>dots</code> and <code>checker</code> are drawn in the colour on the 2px
+          pixel grid, so two series tell apart in one tone. A bar is solid unless told otherwise; a line stays a
+          wire unless given an area.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'Searches', data: monthSearches, fill: 'solid' }]}
+          height={160}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Searches', data: searches, fill: 'checker' },
+            { label: 'Conversions', data: conversions, color: 'var(--CTeal)', fill: 'solid' },
+          ]}
+          height={180}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={MONTHS.slice(0, 5)}
+          series={[
+            { label: 'Buys', data: [18, 12, 9, 15, 22], fill: 'hatch' },
+            { label: 'Sells', data: [14, 20, 11, 17, 24] },
+          ]}
+          height={180}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={QUARTERS}
+          series={[
+            { label: 'Website', data: [310, 420, 390, 480] },
+            { label: 'App', data: [160, 190, 250, 260], fill: 'hatch' },
+            { label: 'API', data: [90, 110, 105, 140], fill: 'dots' },
+          ]}
+          height={180}
+        />
+      </div>
+
       {/* Multi-series line */}
       <div className={styles.section}>
         <h2 className={styles.heading}>Multi-series Line</h2>

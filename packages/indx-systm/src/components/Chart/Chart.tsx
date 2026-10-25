@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useId } from 'react';
 import styles from './Chart.module.css';
 
 const DEFAULT_LINE_COLOR = 'var(--lv4)';
@@ -9,12 +9,31 @@ const PAD_BOTTOM_BASE = 8;
 const PAD_BOTTOM_LABELS = 28;
 const PAD_LEFT = 20;
 
+/**
+ * How a series is filled: a bar, or the area under a line. 'solid' is the series colour, flat
+ * on a bar and faint under a line; the patterns are drawn in the series colour on the 2px pixel
+ * grid, so two series tell apart in one tone. 'none' leaves a line as a line.
+ */
+export type ChartFill = 'none' | 'solid' | 'hatch' | 'dots' | 'checker';
+
 export interface ChartSeries {
   label: string;
   data: number[];
   color?: string;
   hoverColor?: string;
+  /** Bars are 'solid' unless told otherwise; a line is 'none', a wire, unless given an area. */
+  fill?: ChartFill;
 }
+
+// The pixel patterns, each a 4px tile of 1px or 2px cells in the series colour.
+const PATTERN_CELLS: Record<Exclude<ChartFill, 'none' | 'solid'>, [x: number, y: number, w: number, h: number][]> = {
+  hatch: [[0, 3, 1, 1], [1, 2, 1, 1], [2, 1, 1, 1], [3, 0, 1, 1]],
+  dots: [[0, 0, 2, 2]],
+  checker: [[0, 0, 2, 2], [2, 2, 2, 2]],
+};
+
+/** The faintness of a solid area under a line, so the midline and other lines show through. */
+const AREA_OPACITY = 0.14;
 
 /** A point where something happened (a change, a release), and what it was. */
 export interface ChartMarker {
@@ -57,6 +76,7 @@ export function Chart({
   markers,
 }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const patternId = useId();
   const [containerWidth, setContainerWidth] = useState(0);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -96,6 +116,35 @@ export function Chart({
   const roomForMarkers = dataLen <= 1 || cw / (dataLen - 1) >= MIN_MARKER_SPACING;
 
   const toY = (v: number) => PAD_TOP + (1 - (v - minVal) / range) * ch;
+  const baseY = toY(Math.max(minVal, 0));
+
+  // ── Fills ────────────────────────────────────────────────────────
+
+  const fillOf = (s: ChartSeries): ChartFill => s.fill ?? (type === 'bar' ? 'solid' : 'none');
+  const colorOf = (s: ChartSeries) => s.color ?? (type === 'bar' ? 'var(--chart-bar)' : DEFAULT_LINE_COLOR);
+  const patternRef = (si: number) => `url(#${patternId}-${si})`;
+  // What a shape is painted with: the colour, or the series' pattern in that colour.
+  const paintOf = (s: ChartSeries, si: number) => {
+    const fill = fillOf(s);
+    return fill === 'hatch' || fill === 'dots' || fill === 'checker' ? patternRef(si) : colorOf(s);
+  };
+
+  const patternDefs = series.some((s) => fillOf(s) in PATTERN_CELLS) ? (
+    <defs>
+      {series.map((s, si) => {
+        const fill = fillOf(s);
+        if (!(fill in PATTERN_CELLS)) return null;
+        const cells = PATTERN_CELLS[fill as keyof typeof PATTERN_CELLS];
+        return (
+          <pattern key={si} id={`${patternId}-${si}`} width={4} height={4} patternUnits="userSpaceOnUse">
+            {cells.map(([x, y, w, h], ci) => (
+              <rect key={ci} x={x} y={y} width={w} height={h} fill={colorOf(s)} />
+            ))}
+          </pattern>
+        );
+      })}
+    </defs>
+  ) : null;
   const toX = (i: number) =>
     dataLen <= 1 ? PAD_LEFT + cw / 2 : PAD_LEFT + (i / (dataLen - 1)) * cw;
 
@@ -167,9 +216,20 @@ export function Chart({
       if (!s.data.length) return null;
       const color = s.color ?? DEFAULT_LINE_COLOR;
       const pts = s.data.map((v, i) => `${toX(i).toFixed(2)},${toY(v).toFixed(2)}`).join(' ');
+      const fill = fillOf(s);
+      // The area under the line, down to the baseline (or zero, where the range goes below it).
+      const area = fill !== 'none' && s.data.length > 1 ? (
+        <polygon
+          points={`${toX(0).toFixed(2)},${baseY.toFixed(2)} ${pts} ${toX(s.data.length - 1).toFixed(2)},${baseY.toFixed(2)}`}
+          fill={paintOf(s, si)}
+          fillOpacity={fill === 'solid' ? AREA_OPACITY : 1}
+          stroke="none"
+        />
+      ) : null;
 
       return (
         <g key={si}>
+          {area}
           <polyline points={pts} fill="none" stroke={color} strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
           {s.data.map((v, i) => {
             const active = tooltip?.index === i;
@@ -209,7 +269,7 @@ export function Chart({
             key={`${si}-${i}`}
             x={bx} y={by}
             width={barW} height={bh}
-            fill={s.color ?? 'var(--chart-bar)'}
+            fill={paintOf(s, si)}
           />
         );
       })
@@ -293,6 +353,7 @@ export function Chart({
             onPointerDown={handleMouseMove}
             onPointerLeave={handlePointerLeave}
           >
+            {patternDefs}
             {midline}
             {baseline}
             {columnHighlight}
@@ -313,7 +374,14 @@ export function Chart({
         <div className={styles.legend}>
           {series.map((s, i) => (
             <div key={i} className={styles.legendItem}>
-              <div className={styles.legendMark} style={{ background: s.color ?? DEFAULT_LINE_COLOR }} />
+              {fillOf(s) in PATTERN_CELLS ? (
+                <svg className={styles.legendSwatch} width={12} height={8} aria-hidden="true">
+                  <rect width={12} height={8} fill={patternRef(i)} />
+                </svg>
+              ) : (
+                // The bar tone token lives on the chart frame, so out here a bar's mark takes the line grey.
+                <div className={styles.legendMark} style={{ background: s.color ?? DEFAULT_LINE_COLOR }} />
+              )}
               <span className={styles.legendLabel}>{s.label}</span>
             </div>
           ))}
