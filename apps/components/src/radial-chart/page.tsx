@@ -90,12 +90,12 @@ export default function RadialChartPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Groups, the rose</h2>
         <p className={styles.desc}>
-          A sector of bars per group, all at the group's value over a dim track, a gap between sectors, the name and
-          value in the sector. A handful of kinds compared. Past twelve groups the names go to the tooltip.
+          A wedge per group, its radius the group's value, over a dim wedge the full radius; the number and the name
+          upright in it. A handful of kinds compared. Past twelve groups, or under 200px, the names go to the tooltip.
         </p>
         <div className={styles.row}>
           <RadialChart groups={kinds} size={320} hollow={0.18} format={(v) => v.toLocaleString()} aria-label="Searches by kind" />
-          <RadialChart groups={kinds} size={120} hollow={0.2} barsPerGroup={4} format={(v) => v.toLocaleString()} />
+          <RadialChart groups={kinds} size={120} hollow={0.2} format={(v) => v.toLocaleString()} />
         </div>
       </div>
 
@@ -104,8 +104,8 @@ export default function RadialChartPage() {
         <PropsTable rows={[
           { name: 'values', type: 'number[]', description: 'One series: a value a sample, from the top clockwise.' },
           { name: 'series', type: '{ label, values, color? }[]', description: 'Several series over the same samples; the first is the ink.' },
-          { name: 'groups', type: '{ label, value, color? }[]', description: 'The rose: a sector a group, with its name and value in it.' },
-          { name: 'barsPerGroup', type: 'number', default: '6', description: "Bars in a group's sector." },
+          { name: 'groups', type: '{ label, value, color? }[]', description: 'The rose: a wedge a group, its radius the value, with its name and value in it.' },
+          { name: 'gap', type: 'number', default: '2', description: "The gap between the rose's wedges, in degrees." },
           { name: 'showLegend', type: 'boolean', default: 'true', description: 'The legend under several series.' },
           { name: 'labels', type: 'string[]', description: 'What each sample is, for the tooltip.' },
           { name: 'size', type: 'number', default: '240', description: 'The diameter in pixels.' },
