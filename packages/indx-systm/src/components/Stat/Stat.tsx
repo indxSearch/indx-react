@@ -40,17 +40,22 @@ export function Stat({ label, value, figure, icon, color, hint, children, classN
     </span>
   );
   const footEl = children != null && <span className={styles.foot}>{children}</span>;
-  // With a figure the label stays on top, where every tile has it; the figure sits under it
-  // with the value and foot beside.
+  // Three rows: the label on top, the body in the middle, the foot at the bottom. The body takes
+  // the height the others leave and centres what it holds, so in a StatGroup, whose tiles are as
+  // tall as the tallest, the labels line up at the top, the feet at the bottom, and a ring, a
+  // number and a chip sit on one middle. With a figure the label stays on top too; the figure
+  // sits in the body with the value and foot beside it. Same as the Blazor Stat.
   if (figure != null) {
     return (
       <div className={`${styles.stat} ${className}`}>
         {labelled}
-        <span className={styles.figured}>
-          <span className={styles.figure}>{figure}</span>
-          <span className={styles.text}>
-            {valueEl}
-            {footEl}
+        <span className={styles.body}>
+          <span className={styles.figured}>
+            <span className={styles.figure}>{figure}</span>
+            <span className={styles.text}>
+              {valueEl}
+              {footEl}
+            </span>
           </span>
         </span>
       </div>
@@ -59,8 +64,8 @@ export function Stat({ label, value, figure, icon, color, hint, children, classN
   return (
     <div className={`${styles.stat} ${className}`}>
       {labelled}
-      {valueEl}
-      {footEl}
+      <span className={styles.body}>{valueEl}</span>
+      {footEl && <span className={styles.footRow}>{footEl}</span>}
     </div>
   );
 }
