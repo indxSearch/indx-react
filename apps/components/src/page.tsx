@@ -13,6 +13,7 @@ export default function Home() {
     { name: 'SearchField', path: '/search-field', desc: 'Search input with icon' },
     { name: 'Select', path: '/select', desc: 'Radix UI select dropdown' },
     { name: 'Slider', path: '/slider', desc: 'Range slider component' },
+    { name: 'BarSlider', path: '/bar-slider', desc: 'Slider that fills its own row' },
     { name: 'ToggleSwitch', path: '/toggle-switch', desc: 'Toggle switch input' },
     { name: 'DatePicker', path: '/date-picker', desc: 'Single-date calendar picker' },
     { name: 'Popover', path: '/popover', desc: 'Radix UI popover component' },

@@ -1,0 +1,130 @@
+/* The row is the track: full height, our radius, the pixel pattern as its texture. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background-color: var(--lv1);
+  overflow: hidden;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--pattern-checkerboard-light);
+  background-repeat: repeat;
+  background-size: 2px 2px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .row::before {
+    background-image: var(--pattern-checkerboard-dark);
+  }
+}
+
+/* Sizes match Button: the same heights, paddings and type. */
+.default {
+  height: 40px;
+  padding: 0 15px;
+  font: var(--text-sm);
+}
+
+.micro {
+  height: 30px;
+  padding: 0 10px;
+  font: var(--text-xs);
+}
+
+/* The fill covers the pattern from the left edge to the value. */
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--lv2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.label {
+  position: relative;
+  z-index: 3;
+  color: var(--lv6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.value {
+  position: relative;
+  z-index: 3;
+  margin-left: auto;
+  color: var(--lv7);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Dots: one per step, 2x2 in the row's centre line, on the track only (the fill covers them). */
+.stepmarks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stepmark {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  background-color: var(--lv5);
+  transform: translate(-50%, -50%);
+}
+
+/* The handle is a line at the fill's edge, inset from the top and bottom. */
+.handle {
+  width: 2px;
+  height: calc(100% - 16px);
+  background-color: var(--lv7);
+  border-radius: var(--radius);
+  outline: none;
+  z-index: 2;
+}
+
+.micro .handle {
+  height: calc(100% - 12px);
+}
+
+/* A wider invisible hit area, so a 2px line is easy to grab. */
+.handle::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: 50%;
+  width: 20px;
+  transform: translateX(-50%);
+}
+
+/* The row carries the focus ring; a ring around a 2px line would read as a stray mark. */
+.row:focus-within {
+  outline: 2px solid var(--lv5);
+  outline-offset: 2px;
+}
+
+.row:has(.handle:focus:not(:focus-visible)) {
+  outline: none;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

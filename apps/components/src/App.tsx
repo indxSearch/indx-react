@@ -10,6 +10,7 @@ import RadioButtonPage from './radio-button/page';
 import SearchFieldPage from './search-field/page';
 import SelectPage from './select/page';
 import SliderPage from './slider/page';
+import BarSliderPage from './bar-slider/page';
 import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
@@ -71,6 +72,7 @@ export default function App() {
         <Route path="/search-field" element={<SearchFieldPage />} />
         <Route path="/select" element={<SelectPage />} />
         <Route path="/slider" element={<SliderPage />} />
+        <Route path="/bar-slider" element={<BarSliderPage />} />
         <Route path="/toggle-switch" element={<ToggleSwitchPage />} />
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />
