@@ -119,6 +119,12 @@ export function TreeCanvas({
   });
   const toggle = (id: string) =>
     setExpanded((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  // Choosing a node opens it as well, when it has children and is closed: the one click a
+  // reader makes should show what is under it. The step closes it again.
+  const choose = (n: TreeNode) => {
+    onSelect?.(n.id);
+    if (n.children?.length && !isOpen(n.id)) setExpanded((s) => new Set(s).add(n.id));
+  };
 
   // The path to the chosen node, for lighting it; by id, walked once a render.
   const pathIds = useMemo(() => {
@@ -188,7 +194,7 @@ export function TreeCanvas({
     else if (e.key === 'ArrowUp') to = order[Math.max(0, i - 1)];
     else if (e.key === 'ArrowRight') { if (p.node.children?.length && !p.open) { toggle(p.node.id); e.preventDefault(); return; } to = placed.find((q) => q.parent === p)?.node.id; }
     else if (e.key === 'ArrowLeft') { if (p.open) { toggle(p.node.id); e.preventDefault(); return; } to = p.parent?.node.id; }
-    else if (e.key === 'Enter' || e.key === ' ') { onSelect?.(p.node.id); e.preventDefault(); return; }
+    else if (e.key === 'Enter' || e.key === ' ') { choose(p.node); e.preventDefault(); return; }
     else if (e.key === 'Home') to = order[0];
     else if (e.key === 'End') to = order[order.length - 1];
     if (!to) return;
@@ -210,7 +216,7 @@ export function TreeCanvas({
                     <Button variant="secondary" size="micro" aria-label={open ? 'Close' : 'Open'} iconLeft={open ? <Minus /> : <Plus />} onClick={() => toggle(n.id)} />
                   </span>
                 ) : <span className={styles.disclosureSpace} />}
-                <button type="button" className={styles.rowName} onClick={() => onSelect?.(n.id)}>{n.label}</button>
+                <button type="button" className={styles.rowName} onClick={() => choose(n)}>{n.label}</button>
                 {n.count != null && <span className={styles.chip}>{format ? format(n.count) : n.count.toLocaleString()}</span>}
                 {n.marks?.map((m, i) => <span key={i} className={styles.mark} title={m.title}>{m.icon}</span>)}
               </div>
@@ -250,7 +256,7 @@ export function TreeCanvas({
                 aria-level={p.depth + 1}
                 data-node={n.id}
                 className={`${styles.pill} ${isSelected ? styles.pillSelected : ''} ${onPath ? styles.pillPath : ''} ${n.muted ? styles.muted : ''}`}
-                onClick={() => onSelect?.(n.id)}
+                onClick={() => choose(n)}
                 onKeyDown={(e) => onKey(e, p)}
               >
                 <span className={styles.name}>{n.label}</span>

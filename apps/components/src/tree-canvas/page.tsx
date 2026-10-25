@@ -64,7 +64,7 @@ export default function TreeCanvasPage() {
         <p className={styles.desc}>
           A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out to the right
           on soft connectors, the chosen node and the path to it lit, the rest collapsed until opened. For a
-          catalogue's categories. Arrows move between nodes, right opens, left closes. The list view is the same tree
+          catalogue's categories. Choosing a node opens it; the step closes it. Arrows move between nodes, right opens, left closes. The list view is the same tree
           as nested rows, for a phone.
         </p>
       </div>
