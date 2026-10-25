@@ -110,13 +110,15 @@
   transform: translate(-50%, -50%);
 }
 
-/* The handle is a line at the fill's edge in the inverted ink, inset from the top and bottom.
-   react-range keeps it inside the row, so it slides from just outside the fill at min to just
-   inside it at max. */
+/* The handle is a 2px line in the inverted ink with a 2px ring of ink around it: the core shows
+   on the fill, the ring shows on the track, so it is visible wherever it sits. react-range keeps
+   it inside the row, so it slides from just outside the fill at min to just inside it at max. */
 .handle {
+  box-sizing: content-box;
   width: 2px;
   height: calc(100% - 16px);
   background-color: var(--lv1);
+  border: 2px solid var(--lv6);
   border-radius: var(--radius);
   outline: none;
   z-index: 3;
