@@ -20,6 +20,7 @@ export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
 export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './components/Breadcrumbs/Breadcrumbs';
 export { ProgressBar, type ProgressBarProps } from './components/ProgressBar/ProgressBar';
 export { BarMeter, type BarMeterProps, type BarMeterShape } from './components/BarMeter/BarMeter';
+export { Waffle, allocateCells, type WaffleProps, type WaffleSegment } from './components/Waffle/Waffle';
 export { Chip, type ChipProps } from './components/Chip/Chip';
 export { Alert, AlertTitle, AlertDescription, type AlertProps, type AlertVariant } from './components/Alert/Alert';
 export { SaveBar, type SaveBarProps } from './components/SaveBar/SaveBar';

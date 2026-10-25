@@ -24,6 +24,7 @@ export default function Home() {
     { name: 'Tabs', path: '/tabs', desc: 'Tab navigation with border-bottom indicator' },
     { name: 'ProgressBar', path: '/progress-bar', desc: 'Progress indicator with pattern background' },
     { name: 'BarMeter', path: '/bar-meter', desc: 'A level against its ceiling, as bars' },
+    { name: 'Waffle', path: '/waffle', desc: 'Shares of a whole as a grid of pixel squares' },
     { name: 'Chart', path: '/chart', desc: 'Line and bar charts with 12×12 dot grid background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
