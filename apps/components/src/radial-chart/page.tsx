@@ -78,8 +78,8 @@ export default function RadialChartPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Inverse, a dial</h2>
         <p className={styles.desc}>
-          The bars hung from the rim, growing inward over the ticks, with the reading in the centre: a dial. The
-          hours of a day again, and a level with its value in the middle.
+          The bars hung from the rim, growing inward over the ticks: a dial, with a reading in the centre or not. The
+          hours of a day, and the same small, as a tile would hold it.
         </p>
         <div className={styles.row}>
           <RadialChart
@@ -92,15 +92,9 @@ export default function RadialChartPage() {
             aria-label="Searches by hour"
             centre={<Stat label="Busiest" value="12:00" className={styles.centreStat} />}
           />
-          <RadialChart
-            values={Array.from({ length: 60 }, (_, i) => (i < 28 ? 1 : 0))}
-            size={200}
-            inverse
-            hollow={0.62}
-            max={1}
-            centre={<Stat label="Extraction" value="46 %" className={styles.centreStat} />}
-            aria-label="Extraction 46 percent"
-          />
+          <RadialChart values={hours} size={120} inverse hollow={0.45} format={(v) => `${v}`} />
+          <RadialChart values={hours} size={72} inverse hollow={0.4} />
+          <RadialChart values={hours} size={48} inverse hollow={0.35} />
         </div>
       </div>
 
