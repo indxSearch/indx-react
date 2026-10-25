@@ -498,16 +498,26 @@ export function Chart({
 
   const tooltipEl = tooltip ? (() => {
     const label = labels?.[tooltip.index] ?? String(tooltip.index + 1);
-    const tipX = Math.min(Math.max(tooltip.x, 60), containerWidth - 60);
+    // Kept inside the frame, which clips. The box's size is estimated from its rows and its
+    // longest name (a row is 20px, a character about 6.5px), since it is not measured before it
+    // is drawn: below the pointer when that fits, else above, else pinned to the top.
+    const rowCount = series.length
+      + series.filter(s => s.low && s.high && s.low[tooltip.index] != null && s.high[tooltip.index] != null).length
+      + (isStacked && series.length > 1 ? 1 : 0)
+      + (markers?.filter(m => m.index === tooltip.index).length ?? 0);
+    const longest = Math.max(label.length, ...series.map(s => s.label.length + 8), ...(markers?.map(m => m.label.length) ?? [0]));
+    const tipW = Math.min(Math.max(90, longest * 6.5 + 36), Math.max(120, containerWidth - 16));
+    const tipH = 30 + rowCount * 20;
+    const tipX = Math.min(Math.max(tooltip.x, tipW / 2 + 4), containerWidth - tipW / 2 - 4);
+    const below = tooltip.y + 12 + tipH <= height;
+    const above = tooltip.y - 8 - tipH >= 0;
+    const style = below
+      ? { left: tipX, top: tooltip.y + 12, transform: 'translate(-50%, 0)' }
+      : above
+        ? { left: tipX, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }
+        : { left: tipX, top: 4, transform: 'translate(-50%, 0)' };
     return (
-      <div
-        className={styles.tooltip}
-        style={
-          tooltip.y < 80
-            ? { left: tipX, top: tooltip.y + 12, transform: 'translate(-50%, 0)' }
-            : { left: tipX, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }
-        }
-      >
+      <div className={styles.tooltip} style={style}>
         <div className={styles.tooltipLabel}>{label}</div>
         {series.map((s, si) => (
           <React.Fragment key={si}>
