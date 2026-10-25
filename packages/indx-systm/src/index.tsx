@@ -24,6 +24,7 @@ export { BarMeter, type BarMeterProps, type BarMeterShape, type BarMeterSegment,
 export { Waffle, allocateCells, type WaffleProps, type WaffleSegment } from './components/Waffle/Waffle';
 export { Heatmap, calendarCells, levelOf, type HeatmapProps, type HeatmapLabel, type CalendarCells } from './components/Heatmap/Heatmap';
 export { RadialChart, type RadialChartProps, type RadialSeries, type RadialGroup } from './components/RadialChart/RadialChart';
+export { RadarChart, type RadarChartProps, type RadarAxis, type RadarSeries, type RadarFill } from './components/RadarChart/RadarChart';
 export { Chip, type ChipProps } from './components/Chip/Chip';
 export { Alert, AlertTitle, AlertDescription, type AlertProps, type AlertVariant } from './components/Alert/Alert';
 export { SaveBar, type SaveBarProps } from './components/SaveBar/SaveBar';
