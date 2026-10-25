@@ -8,7 +8,7 @@ type ToggleSwitchProps = {
   disabled?: boolean;
   label?: string;
   'aria-label'?: string;
-  /** `positive` turns the track green (teal in dark mode) when on, for settings where on versus off must be seen at a glance. */
+  /** `positive` turns the track blue (teal in dark mode) when on, for settings where on versus off must be seen at a glance. */
   variant?: 'default' | 'positive';
   /** Draws a 0 on the track when off and a | when on, the marks of a power switch, in whole pixels. */
   marks?: boolean;
