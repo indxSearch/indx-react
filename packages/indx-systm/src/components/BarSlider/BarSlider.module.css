@@ -43,35 +43,25 @@
   font: var(--text-xs);
 }
 
-/* The fill covers the pattern from the left edge to the value, in the ink. It clips a copy of
-   the row's text in the inverted ink, so the label and value turn light as the fill reaches them. */
+/* The fill is a full-width copy of the row in the ink, text in the inverted ink, clipped from the
+   right at the value (plus a few pixels past the handle). Being full width, its text lines up
+   with the row's own, so the letters invert at the exact pixel the fill reaches them. */
 .fill {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
   background-color: var(--lv6);
-  overflow: hidden;
   pointer-events: none;
   z-index: 2;
 }
 
-.fillInner {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  color: var(--lv1);
-}
+.default .fill { padding: 0 15px; }
+.micro .fill { padding: 0 10px; }
 
-.default .fillInner { padding: 0 15px; }
-.micro .fillInner { padding: 0 10px; }
-
-.fillInner .label,
-.fillInner .value {
+.fill .label,
+.fill .value {
   color: var(--lv1);
 }
 
@@ -110,22 +100,15 @@
   transform: translate(-50%, -50%);
 }
 
-/* The handle is a 2px line in the inverted ink with a 2px ring of ink around it: the core shows
-   on the fill, the ring shows on the track, so it is visible wherever it sits. react-range keeps
-   it inside the row, so it slides from just outside the fill at min to just inside it at max. */
+/* The handle: a 2px line, 80% of the row's height, centred, in lv0. The fill runs a few pixels
+   past its centre, so it stands on the fill rather than at its edge. */
 .handle {
-  box-sizing: content-box;
   width: 2px;
-  height: calc(100% - 16px);
-  background-color: var(--lv1);
-  border: 2px solid var(--lv6);
+  height: 80%;
+  background-color: var(--lv0);
   border-radius: var(--radius);
   outline: none;
   z-index: 3;
-}
-
-.micro .handle {
-  height: calc(100% - 12px);
 }
 
 /* A wider invisible hit area, so a 2px line is easy to grab. */

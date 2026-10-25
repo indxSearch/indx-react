@@ -9,6 +9,9 @@ import { Range } from 'react-range';
 // column (weight, slant, size…).
 
 const MAX_STEP_MARKS = 50;
+const HANDLE_WIDTH = 2;
+// How far the fill runs past the handle's centre, so the handle sits on the fill, not at its edge.
+const FILL_PAST_HANDLE = 4;
 
 export type BarSliderSize = 'micro' | 'default';
 
@@ -97,15 +100,19 @@ export const BarSlider: React.FC<BarSliderProps> = ({
         const { key, ...restTrackProps } = trackProps as any;
         return (
           <div key={key} {...restTrackProps} className={rowClassName} style={restTrackProps.style}>
-            {/* The fill carries its own copy of the label and value in the inverted ink, clipped to
-                its width, so the text turns light where the fill has reached it. */}
-            <div className={styles.fill} style={{ width: `${fillPct}%` }}>
-              {fillPct > 0 && (
-                <div className={styles.fillInner} style={{ width: `${10000 / fillPct}%` }}>
-                  {label && <span className={styles.label}>{label}</span>}
-                  {showValue && <span className={styles.value}>{format ? format(clamped) : clamped}</span>}
-                </div>
-              )}
+            {/* The fill is a full-width overlay in the ink with the label and value in the inverted
+                ink, clipped at the value plus FILL_PAST_HANDLE, so the handle sits on it and the
+                text turns light as the fill reaches it. The handle's centre is at
+                fraction * (row - 2px) + 1px, because react-range keeps it inside the row. */}
+            <div
+              className={styles.fill}
+              style={{
+                clipPath: `inset(0 calc(${100 - fillPct}% - ${FILL_PAST_HANDLE + 1 - (fillPct / 100) * HANDLE_WIDTH}px) 0 0)`,
+              }}
+              aria-hidden="true"
+            >
+              {label && <span className={styles.label}>{label}</span>}
+              {showValue && <span className={styles.value}>{format ? format(clamped) : clamped}</span>}
             </div>
             {showStepMarks && (
               <div className={styles.stepmarks} aria-hidden="true">
