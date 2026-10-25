@@ -30,6 +30,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Select', path: '/select' },
       { label: 'Slider', path: '/slider' },
       { label: 'BarSlider', path: '/bar-slider' },
+      { label: 'ScrubSlider', path: '/scrub-slider' },
       { label: 'ToggleSwitch', path: '/toggle-switch' },
       { label: 'DatePicker', path: '/date-picker' },
       { label: 'Popover', path: '/popover' },

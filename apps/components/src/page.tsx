@@ -14,6 +14,7 @@ export default function Home() {
     { name: 'Select', path: '/select', desc: 'Radix UI select dropdown' },
     { name: 'Slider', path: '/slider', desc: 'Range slider component' },
     { name: 'BarSlider', path: '/bar-slider', desc: 'Slider that fills its own row' },
+    { name: 'ScrubSlider', path: '/scrub-slider', desc: 'Endless slider with a number field' },
     { name: 'ToggleSwitch', path: '/toggle-switch', desc: 'Toggle switch input' },
     { name: 'DatePicker', path: '/date-picker', desc: 'Single-date calendar picker' },
     { name: 'Popover', path: '/popover', desc: 'Radix UI popover component' },
