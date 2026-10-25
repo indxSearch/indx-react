@@ -1,5 +1,5 @@
 import { BarMeter, Chip, Stat, StatGroup } from '@indxsearch/systm';
-import { ArrowUp, Status, Check, Key, Cloud } from '@indxsearch/pixl';
+import { ArrowUp, Status, Check, Key, Cloud, Search, Click_select, Shopping_cart, Cpu } from '@indxsearch/pixl';
 import { PropsTable } from '../PropsTable';
 import styles from './page.module.css';
 
@@ -36,6 +36,17 @@ export default function StatPage() {
           <Stat label="Click-through" value="11.7 %" hint="Share of searches that ended in a chosen result." />
           <Stat label="Avg. click position" value="2.0" hint="Mean position of the chosen result." />
           <Stat label="Conversions" value="0" hint="Conversions the storefront reported." />
+        </StatGroup>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>With an icon on the label</h2>
+        <p className={styles.desc}>What the tile is about, before its label, in the label's tone: a row of tiles read at a glance.</p>
+        <StatGroup columns={4}>
+          <Stat label="Searches" labelIcon={<Search />} value="12 480" />
+          <Stat label="Click-through" labelIcon={<Click_select />} value="31 %" hint="Share of searches that ended in a chosen result." />
+          <Stat label="Conversions" labelIcon={<Shopping_cart />} value="214" />
+          <Stat label="CPU" labelIcon={<Cpu />} value="42 %" />
         </StatGroup>
       </div>
 
@@ -89,6 +100,7 @@ export default function StatPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Props</h2>
         <PropsTable rows={[
+          { name: 'labelIcon', type: 'ReactElement', description: "A pixl icon before the label, at 14, in the label's tone." },
           { name: 'label', type: 'ReactNode', description: 'What the number is.' },
           { name: 'value', type: 'ReactNode', description: 'The number, formatted; or a chip, for a state. Left out when the figure carries it.' },
           { name: 'figure', type: 'ReactNode', description: 'A graphic under the label, the value and foot beside it: a BarMeter ring.' },

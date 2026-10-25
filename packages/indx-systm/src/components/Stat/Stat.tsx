@@ -7,10 +7,15 @@ import styles from './Stat.module.css';
  * 28, 35. The value is set at 24px; 28 wide (20 tall) sits on its cap height.
  */
 export const STAT_ICON_SIZE = 28;
+/** Two cells of the pixl grid: 14 wide, 10 tall, on the label's x-height. */
+export const STAT_LABEL_ICON_SIZE = 14;
 
 export interface StatProps {
   /** What the number is: "Searches", "Click-through". */
   label: ReactNode;
+  /** A pixl icon before the label, at STAT_LABEL_ICON_SIZE in the label's tone: what the tile is
+   *  about, a search, a cart, a CPU, for a row of tiles read at a glance. */
+  labelIcon?: ReactElement<{ size?: number | string; color?: string }>;
   /** The number, formatted; or a chip, for a state. Left out when the figure carries it. */
   value?: ReactNode;
   /** A graphic under the label, the value and foot beside it: a BarMeter ring with the number in it. */
@@ -27,8 +32,16 @@ export interface StatProps {
 }
 
 /** One number with its label, on the Base surface: a KPI, a count, a state. Put several in a StatGroup. */
-export function Stat({ label, value, figure, icon, color, hint, children, className = '' }: StatProps) {
-  const labelEl = <span className={`${styles.label} ${hint ? styles.hinted : ''}`}>{label}</span>;
+export function Stat({ label, labelIcon, value, figure, icon, color, hint, children, className = '' }: StatProps) {
+  const labelIconEl = labelIcon && isValidElement(labelIcon)
+    ? cloneElement(labelIcon, { size: labelIcon.props.size ?? STAT_LABEL_ICON_SIZE, color: labelIcon.props.color ?? 'currentColor' })
+    : labelIcon;
+  const labelEl = (
+    <span className={`${styles.label} ${hint ? styles.hinted : ''}`}>
+      {labelIconEl != null && <span className={styles.labelIcon} aria-hidden="true">{labelIconEl}</span>}
+      {label}
+    </span>
+  );
   const iconEl = icon && isValidElement(icon)
     ? cloneElement(icon, { size: icon.props.size ?? STAT_ICON_SIZE, color: icon.props.color ?? 'currentColor' })
     : icon;
