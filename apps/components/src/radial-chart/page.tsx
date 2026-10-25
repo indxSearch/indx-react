@@ -76,6 +76,35 @@ export default function RadialChartPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Inverse, a dial</h2>
+        <p className={styles.desc}>
+          The bars hung from the rim, growing inward over the ticks, with the reading in the centre: a dial. The
+          hours of a day again, and a level with its value in the middle.
+        </p>
+        <div className={styles.row}>
+          <RadialChart
+            values={hours}
+            labels={hours.map((_, h) => `${h}:00`)}
+            size={200}
+            inverse
+            hollow={0.55}
+            format={(v) => `${v} searches`}
+            aria-label="Searches by hour"
+            centre={<Stat label="Busiest" value="12:00" className={styles.centreStat} />}
+          />
+          <RadialChart
+            values={Array.from({ length: 60 }, (_, i) => (i < 28 ? 1 : 0))}
+            size={200}
+            inverse
+            hollow={0.62}
+            max={1}
+            centre={<Stat label="Extraction" value="46 %" className={styles.centreStat} />}
+            aria-label="Extraction 46 percent"
+          />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Two series</h2>
         <p className={styles.desc}>Searches and asks by hour: the sample's slot is shared between the series, each in its colour, with a legend; the tooltip lists both.</p>
         <RadialChart
@@ -111,6 +140,7 @@ export default function RadialChartPage() {
           { name: 'labels', type: 'string[]', description: 'What each sample is, for the tooltip.' },
           { name: 'size', type: 'number', default: '240', description: 'The diameter in pixels.' },
           { name: 'hollow', type: 'number', default: '0.4', description: "The hollow centre's share of the radius." },
+          { name: 'inverse', type: 'boolean', default: 'false', description: 'Bars hung from the rim, growing inward: a dial.' },
           { name: 'max', type: 'number', description: 'The value that reaches the rim; the largest by default.' },
           { name: 'color', type: 'string', description: "The bars' colour; the ink by default." },
           { name: 'format', type: '(value, index) => string', description: "The tooltip's text. Without it, no hover." },

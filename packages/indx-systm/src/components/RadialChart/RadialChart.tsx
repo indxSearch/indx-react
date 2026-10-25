@@ -40,6 +40,8 @@ export interface RadialChartProps {
   size?: number;
   /** The hollow centre's share of the radius; 0.4 by default. */
   hollow?: number;
+  /** Bars hung from the rim, growing inward over the ticks, as a dial; the value sits in the centre. */
+  inverse?: boolean;
   /** The value that reaches the rim; the largest by default. */
   max?: number;
   /** The bars' colour for one series; the ink by default. The hovered bar is always the ink. */
@@ -66,6 +68,7 @@ export function RadialChart({
   rounding = 8,
   size = 240,
   hollow = 0.4,
+  inverse = false,
   max,
   color,
   format,
@@ -93,6 +96,9 @@ export function RadialChart({
   const angleOf = (slot: number, lane = 0) => -Math.PI / 2 + step * (slot + (lanes > 1 ? (lane + 0.5) / lanes - 0.5 : 0));
   const point = (slot: number, r: number, lane = 0) => [outer + r * Math.cos(angleOf(slot, lane)), outer + r * Math.sin(angleOf(slot, lane))] as const;
   const lengthOf = (v: number) => (top > 0 && Number.isFinite(v) ? (Math.max(0, v) / top) * span : 0);
+  // Where a bar starts and where it ends: from the hollow out, or from the rim in.
+  const barFrom = inverse ? outer : inner;
+  const barTo = (len: number) => (inverse ? outer - len : inner + len);
   // A bar is 2px, as the BarMeter's, where the hollow's edge has room for that; with many it
   // thins so they stay apart there, down to a hairline.
   const barWidth = Math.max(0.5, Math.min(2, ((2 * Math.PI * inner) / Math.max(1, slots * lanes)) * 0.55));
@@ -156,8 +162,8 @@ export function RadialChart({
     for (let s = 0; s < lanes; s++) {
       const len = lengthOf(valueAt(s, slot));
       if (len <= 0) continue;
-      const [bx1, by1] = point(slot, inner, s);
-      const [bx2, by2] = point(slot, inner + len, s);
+      const [bx1, by1] = point(slot, barFrom, s);
+      const [bx2, by2] = point(slot, barTo(len), s);
       const hovered = hover === slot;
       bars.push(
         <line
@@ -191,7 +197,8 @@ export function RadialChart({
       ? [{ name: groups![hover].label, color: colorOf(0), text: format(groups![hover].value, hover) }]
       : all.map((s, i) => ({ name: s.label, color: colorOf(i), text: format(s.values[hover] ?? 0, hover) }));
     const longest = Math.max(...all.map((_, i) => lengthOf(valueAt(i, hover))), span * 0.15);
-    const [tx, ty] = point(hover, inner + longest + 6);
+    // At the bar's end: past it from the hollow, or inside it from the rim.
+    const [tx, ty] = point(hover, inverse && !grouped ? outer - longest - 6 : inner + longest + 6);
     return (
       <div className={`${styles.tooltip} ${tx > outer ? styles.tooltipLeft : ''}`} style={{ left: tx, top: ty }}>
         {!grouped && <span className={styles.tooltipLabel}>{labels?.[hover] ?? String(hover + 1)}</span>}
