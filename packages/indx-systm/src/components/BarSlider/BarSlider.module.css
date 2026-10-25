@@ -43,20 +43,41 @@
   font: var(--text-xs);
 }
 
-/* The fill covers the pattern from the left edge to the value. */
+/* The fill covers the pattern from the left edge to the value, in the ink. It clips a copy of
+   the row's text in the inverted ink, so the label and value turn light as the fill reaches them. */
 .fill {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  background-color: var(--lv2);
+  background-color: var(--lv6);
+  overflow: hidden;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
+}
+
+.fillInner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  color: var(--lv1);
+}
+
+.default .fillInner { padding: 0 15px; }
+.micro .fillInner { padding: 0 10px; }
+
+.fillInner .label,
+.fillInner .value {
+  color: var(--lv1);
 }
 
 .label {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   color: var(--lv6);
   pointer-events: none;
   white-space: nowrap;
@@ -64,7 +85,7 @@
 
 .value {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   margin-left: auto;
   color: var(--lv7);
   font-variant-numeric: tabular-nums;
@@ -89,14 +110,16 @@
   transform: translate(-50%, -50%);
 }
 
-/* The handle is a line at the fill's edge, inset from the top and bottom. */
+/* The handle is a line at the fill's edge in the inverted ink, inset from the top and bottom.
+   react-range keeps it inside the row, so it slides from just outside the fill at min to just
+   inside it at max. */
 .handle {
   width: 2px;
   height: calc(100% - 16px);
-  background-color: var(--lv7);
+  background-color: var(--lv1);
   border-radius: var(--radius);
   outline: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 .micro .handle {

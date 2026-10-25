@@ -97,7 +97,16 @@ export const BarSlider: React.FC<BarSliderProps> = ({
         const { key, ...restTrackProps } = trackProps as any;
         return (
           <div key={key} {...restTrackProps} className={rowClassName} style={restTrackProps.style}>
-            <div className={styles.fill} style={{ width: `${fillPct}%` }} />
+            {/* The fill carries its own copy of the label and value in the inverted ink, clipped to
+                its width, so the text turns light where the fill has reached it. */}
+            <div className={styles.fill} style={{ width: `${fillPct}%` }}>
+              {fillPct > 0 && (
+                <div className={styles.fillInner} style={{ width: `${10000 / fillPct}%` }}>
+                  {label && <span className={styles.label}>{label}</span>}
+                  {showValue && <span className={styles.value}>{format ? format(clamped) : clamped}</span>}
+                </div>
+              )}
+            </div>
             {showStepMarks && (
               <div className={styles.stepmarks} aria-hidden="true">
                 {Array.from({ length: stepCount + 1 }, (_, i) => (
