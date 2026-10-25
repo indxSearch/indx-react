@@ -125,14 +125,12 @@
   transform: translateX(-50%);
 }
 
-/* The row carries the focus ring; a ring around a 2px line would read as a stray mark. */
-.row:focus-within {
+/* The focus ring is on the row, and only once the keyboard has reached the handle (the
+   component tracks that itself; see BarSlider.tsx). A ring around a 2px line would read as a
+   stray mark, and a ring after every drag was noise. */
+.keyboardFocus {
   outline: 2px solid var(--lv5);
   outline-offset: 2px;
-}
-
-.row:has(.handle:focus:not(:focus-visible)) {
-  outline: none;
 }
 
 .disabled {

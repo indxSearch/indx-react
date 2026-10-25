@@ -57,13 +57,16 @@ export const BarSlider: React.FC<BarSliderProps> = ({
 }) => {
   const generatedId = React.useId();
   const sliderId = id || generatedId;
+  // The focus ring shows only after the keyboard reached the handle. react-range focuses the handle
+  // from script on a drag, which the browser's :focus-visible can count as keyboard focus.
+  const [keyboardFocus, setKeyboardFocus] = React.useState(false);
 
   if (import.meta.env.DEV && !label && !ariaLabel) {
     console.warn('BarSlider: Component should have either a label or aria-label for accessibility.');
   }
 
   const hasValidRange = Number.isFinite(min) && Number.isFinite(max) && max > min;
-  const rowClassName = [styles.row, styles[size], disabled ? styles.disabled : '', className ?? '']
+  const rowClassName = [styles.row, styles[size], disabled ? styles.disabled : '', keyboardFocus ? styles.keyboardFocus : '', className ?? '']
     .filter(Boolean)
     .join(' ');
 
@@ -99,7 +102,14 @@ export const BarSlider: React.FC<BarSliderProps> = ({
       renderTrack={({ props: trackProps, children }) => {
         const { key, ...restTrackProps } = trackProps as any;
         return (
-          <div key={key} {...restTrackProps} className={rowClassName} style={restTrackProps.style}>
+          <div
+            key={key}
+            {...restTrackProps}
+            className={rowClassName}
+            style={restTrackProps.style}
+            onMouseDown={(e: React.MouseEvent) => { setKeyboardFocus(false); restTrackProps.onMouseDown?.(e); }}
+            onTouchStart={(e: React.TouchEvent) => { setKeyboardFocus(false); restTrackProps.onTouchStart?.(e); }}
+          >
             {/* The fill is a full-width overlay in the ink with the label and value in the inverted
                 ink, clipped at the value plus FILL_PAST_HANDLE, so the handle sits on it and the
                 text turns light as the fill reaches it. The handle's centre is at
@@ -145,6 +155,8 @@ export const BarSlider: React.FC<BarSliderProps> = ({
             className={styles.handle}
             // react-range writes z-index: 0 inline, which would put the handle under the fill.
             style={{ ...restThumbProps.style, zIndex: 3 }}
+            onKeyDown={(e: React.KeyboardEvent) => { setKeyboardFocus(true); restThumbProps.onKeyDown?.(e); }}
+            onBlur={() => setKeyboardFocus(false)}
             aria-label={ariaLabel || label}
             aria-valuemin={min}
             aria-valuemax={max}
