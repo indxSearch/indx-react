@@ -8,15 +8,34 @@ import styles from './BarMeter.module.css';
 // Stat. Where ProgressBar is a percentage on its way to done,
 // BarMeter is a level that goes up and down: CPU pressure, memory in use, a quota. The row's bars
 // are drawn by a repeating gradient, so their number follows the width; the ring's are SVG lines,
-// as many as keep the same 4px pitch at the middle of the band.
+// as many as keep the same 4px pitch at the middle of the band. With segments the row is shares
+// of a whole instead of a level: each segment its share of the bars in a tone of its own, the
+// name and share above it, a hairline between; a colour stays on the bars, the share is ink.
 
 export type BarMeterShape = 'bar' | 'ring';
+
+export interface BarMeterSegment {
+  label: ReactNode;
+  value: number;
+  /** The segment's colour; without it, the tone ladder from the ink down, four steps. */
+  color?: string;
+}
+
+// The same four steps as Waffle, apart enough to tell at 2px.
+const SEGMENT_TONES = ['var(--lv8)', 'var(--lv5)', 'var(--lv4)', 'var(--lv3)'];
 
 export interface BarMeterProps {
   /** What is measured: "CPU pressure", "Memory". A ring inside a Stat leaves it to the Stat. */
   label?: ReactNode;
-  value: number;
-  max: number;
+  /** The level; with segments, left out: the segments are the whole. */
+  value?: number;
+  max?: number;
+  /**
+   * The row as shares of a whole: each segment its share of the bars in its own tone, with its
+   * name and share above it and a hairline between. Holders by kind, documents by type. The
+   * row shape only; value, max and the foot are not used.
+   */
+  segments?: BarMeterSegment[];
   /** The value as shown at the left; defaults to the number itself. */
   format?: (value: number) => ReactNode;
   /** The ceiling as shown at the right; defaults to "of" and the formatted max. */
@@ -39,8 +58,9 @@ const ringBand = (size: number) => (size < 72 ? 6 : 14);
 
 export function BarMeter({
   label,
-  value,
-  max,
+  value = 0,
+  max = 100,
+  segments,
   format,
   maxLabel,
   color,
@@ -51,6 +71,47 @@ export function BarMeter({
   const fraction = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
   const show = (n: number) => (format ? format(n) : n.toLocaleString());
   const ceiling = maxLabel ?? <>of {show(max)}</>;
+
+  if (segments && shape !== 'ring') {
+    const sum = segments.reduce((a, g) => a + Math.max(0, g.value), 0);
+    const showShare = (g: BarMeterSegment) => (format ? format(g.value) : `${Math.round((sum > 0 ? g.value / sum : 0) * 100)} %`);
+    let start = 0;
+    const parts = segments.map((g, i) => {
+      const from = start;
+      const share = sum > 0 ? Math.max(0, g.value) / sum : 0;
+      start += share;
+      return { g, i, from, to: i === segments.length - 1 ? 1 : start, color: g.color ?? SEGMENT_TONES[i % SEGMENT_TONES.length] };
+    });
+    return (
+      <div className={`${styles.meter} ${styles.segmented} ${className}`} role="img" aria-label={typeof label === 'string' ? label : undefined}>
+        {label != null && <span className={styles.label}>{label}</span>}
+        <div className={styles.shares}>
+          {parts.map(({ g, i, from, to, color }) => (
+            <div
+              key={i}
+              className={`${styles.head} ${i === parts.length - 1 ? styles.headLast : ''}`}
+              style={{ '--seg-from': `${from * 100}%`, '--seg-to': `${to * 100}%` } as CSSProperties}
+            >
+              <span className={styles.headName}>{g.label}</span>
+              <span className={styles.headShare}>{showShare(g)}</span>
+            </div>
+          ))}
+          <div className={styles.bars} aria-hidden="true">
+            {parts.map(({ i, from, to, color }) => (
+              <div
+                key={i}
+                className={`${styles.fill} ${styles.segment}`}
+                style={{ '--seg-from': `${from * 100}%`, '--seg-to': `${to * 100}%`, color } as CSSProperties}
+              />
+            ))}
+          </div>
+          {parts.slice(1).map(({ i, from }) => (
+            <span key={`d${i}`} className={styles.divider} style={{ '--seg-from': `${from * 100}%` } as CSSProperties} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (shape === 'ring') {
     return (

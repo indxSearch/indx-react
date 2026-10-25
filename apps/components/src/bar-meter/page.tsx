@@ -74,6 +74,20 @@ export default function BarMeterPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Segments</h2>
+        <p className={styles.desc}>
+          With segments the row is shares of a whole instead of a level: each segment its share of the bars in a
+          tone of its own, its name and share above it, a hairline between. Where Waffle is a grid of shares, this
+          is the row.
+        </p>
+        <div className={styles.stack} style={{ maxWidth: 520 }}>
+          <BarMeter label="Searchers" segments={[{ label: 'Returning', value: 20 }, { label: 'Regular', value: 75 }, { label: 'New', value: 5 }]} />
+          <BarMeter label="Fields by type" segments={[{ label: 'Text', value: 14 }, { label: 'Number', value: 6 }, { label: 'Date', value: 2 }, { label: 'Array', value: 3 }]} format={(v) => `${v}`} />
+          <BarMeter label="Requests" segments={[{ label: 'Served', value: 96.4 }, { label: 'Timed out', value: 3.6, color: 'var(--CSignal)' }]} format={(v) => `${v.toFixed(1)} %`} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Levels</h2>
         <div className={styles.stack}>
           <BarMeter label="Empty" value={0} max={100} />
