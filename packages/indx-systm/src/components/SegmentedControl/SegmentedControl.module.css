@@ -69,18 +69,18 @@
 
 .micro .cell {
   height: 24px;
-  padding: 0 8px;
+  padding: 0 11px;
 }
 
 .micro .iconOnly {
-  padding: 0 6px;
+  padding: 0 8px;
 }
 
 .default .cell {
   height: 30px;
-  padding: 0 10px;
+  padding: 0 14px;
 }
 
 .default .iconOnly {
-  padding: 0 8px;
+  padding: 0 11px;
 }
