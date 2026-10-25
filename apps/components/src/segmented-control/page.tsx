@@ -62,7 +62,17 @@ export default function SegmentedControlPage() {
               { value: 'log', label: 'Log', disabled: true },
             ]}
           />
+          <SegmentedControl
+            aria-label="Findings shown"
+            value={view === 'archive' ? 'archive' : 'open'}
+            onChange={(v) => setView(v)}
+            items={[
+              { value: 'open', label: 'Open', badge: 3, badgeTone: 'info' },
+              { value: 'archive', label: 'Archive' },
+            ]}
+          />
         </div>
+        <p className={styles.desc}>A badge after the label, as on a Tab: a count that asks for attention in the signal red, or information in the info blue.</p>
       </div>
 
       <div className={styles.section}>
@@ -93,7 +103,7 @@ export default function SegmentedControlPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Props</h2>
         <PropsTable rows={[
-          { name: 'items', type: '{ value, label?, icon?, aria-label?, disabled? }[]', description: 'The cells, in order.' },
+          { name: 'items', type: '{ value, label?, icon?, aria-label?, disabled?, badge?, badgeTone? }[]', description: 'The cells, in order. A badge is a count after the label, signal red or info blue.' },
           { name: 'value', type: 'string', description: 'The chosen cell.' },
           { name: 'onChange', type: '(value) => void', description: 'Called with the cell chosen by click or arrow key.' },
           { name: 'size', type: "'micro' | 'default'", default: "'micro'", description: '24px or 30px tall.' },

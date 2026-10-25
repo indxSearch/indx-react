@@ -14,6 +14,9 @@ export interface SegmentedItem<T extends string = string> {
   /** The cell's name when it is only an icon. */
   'aria-label'?: string;
   disabled?: boolean;
+  /** A small count after the label, as on a Tab: the signal red asks for attention, 'info' is information. */
+  badge?: ReactNode;
+  badgeTone?: 'signal' | 'info';
 }
 
 export type SegmentedSize = 'micro' | 'default';
@@ -86,6 +89,9 @@ export function SegmentedControl<T extends string = string>({
           >
             {item.icon && <span className={styles.icon} aria-hidden="true">{item.icon}</span>}
             {item.label}
+            {item.badge != null && item.badge !== false && (
+              <span className={item.badgeTone === 'info' ? `${styles.badge} ${styles.badgeInfo}` : styles.badge}>{item.badge}</span>
+            )}
           </button>
         );
       })}
