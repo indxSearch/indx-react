@@ -35,6 +35,15 @@ const PATTERN_CELLS: Record<Exclude<ChartFill, 'none' | 'solid'>, [x: number, y:
 /** The faintness of a solid area under a line, so the midline and other lines show through. */
 const AREA_OPACITY = 0.14;
 
+/** A level to read the data against: a threshold, an average, a quota, the value now. */
+export interface ChartReference {
+  value: number;
+  /** Shown in a tag at the right end of the line; the formatted value when left out. */
+  label?: string;
+  /** The line's and the tag's colour: the signal red for a limit. The ink by default. */
+  color?: string;
+}
+
 /** A point where something happened (a change, a release), and what it was. */
 export interface ChartMarker {
   index: number;
@@ -53,6 +62,34 @@ export interface ChartProps {
    * listed in its tooltip. Several may share a point.
    */
   markers?: ChartMarker[];
+  /**
+   * A value axis at the left or right: round ticks with a faint gridline each, the range widened
+   * to the ticks. Without it the chart keeps its midline and reads by the tooltip.
+   */
+  yAxis?: 'none' | 'left' | 'right';
+  /** The tick labels, and a reference's label when it has none; compact by default: 1.2k, 3M. */
+  yFormat?: (value: number) => string;
+  /** Levels to read the data against, each a dashed line with its label in a tag at the right. */
+  references?: ChartReference[];
+}
+
+// A round step for about four ticks over the range: 1, 2 or 5 times a power of ten.
+function niceStep(range: number, count = 4): number {
+  const raw = range / count || 1;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / magnitude;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * magnitude;
+}
+
+function compact(v: number): string {
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return `${trim(v / 1e6)}M`;
+  if (abs >= 1e3) return `${trim(v / 1e3)}k`;
+  return trim(v);
+}
+
+function trim(v: number): string {
+  return v.toLocaleString(undefined, { maximumFractionDigits: Math.abs(v) < 10 ? 2 : 1 });
 }
 
 interface TooltipState {
@@ -74,6 +111,9 @@ export function Chart({
   showLegend = true,
   className,
   markers,
+  yAxis = 'none',
+  yFormat = compact,
+  references,
 }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const patternId = useId();
@@ -90,17 +130,36 @@ export function Chart({
   }, []);
 
   const padBottom = labels?.length ? PAD_BOTTOM_LABELS : PAD_BOTTOM_BASE;
-  const cw = Math.max(containerWidth - PAD_LEFT - PAD_RIGHT, 0);
   const ch = Math.max(height - PAD_TOP - padBottom, 0);
 
+  // The range: the data, and any reference, which must be in view to be read against. With an
+  // axis the range widens to round ticks, so the top gridline carries a label.
   const allValues = series.flatMap(s => s.data.filter(Number.isFinite));
-  const maxVal = allValues.length ? Math.max(...allValues, 0) : 1;
-  const minVal = type === 'bar' ? 0 : Math.min(...allValues, 0);
+  const refValues = (references ?? []).map(r => r.value).filter(Number.isFinite);
+  let maxVal = allValues.length || refValues.length ? Math.max(...allValues, ...refValues, 0) : 1;
+  let minVal = type === 'bar' ? Math.min(0, ...refValues) : Math.min(...allValues, ...refValues, 0);
+  const hasAxis = yAxis !== 'none';
+  const step = niceStep(maxVal - minVal);
+  if (hasAxis) {
+    maxVal = Math.ceil(maxVal / step - 1e-9) * step;
+    minVal = Math.floor(minVal / step + 1e-9) * step;
+  }
   const range = maxVal - minVal || 1;
-  const dataLen = Math.max(...series.map(s => s.data.length), 0);
+  const ticks: number[] = [];
+  if (hasAxis) for (let t = minVal; t <= maxVal + step / 2; t += step) ticks.push(Number(t.toFixed(10)));
 
   // Roughly the width of one --text-2xs character, and the gap kept between two labels.
   const LABEL_CHAR_WIDTH = 6, LABEL_GAP = 12, MIN_MARKER_SPACING = 12;
+
+  // The side paddings make room for the axis labels and the reference tags, which sit outside
+  // the plot at the right. 20px is the margin a chart has without either.
+  const refLabelOf = (r: ChartReference) => r.label ?? yFormat(r.value);
+  const axisWidth = hasAxis ? Math.max(...ticks.map(t => yFormat(t).length)) * LABEL_CHAR_WIDTH + 10 : 0;
+  const tagWidth = references?.length ? Math.max(...references.map(r => refLabelOf(r).length)) * LABEL_CHAR_WIDTH + 8 : 0;
+  const padLeft = yAxis === 'left' ? axisWidth + 4 : PAD_LEFT;
+  const padRight = Math.max(yAxis === 'right' ? axisWidth + 4 : PAD_RIGHT, tagWidth ? tagWidth + 6 : 0);
+  const cw = Math.max(containerWidth - padLeft - padRight, 0);
+  const dataLen = Math.max(...series.map(s => s.data.length), 0);
 
   // Every how many points a label is drawn: as many as fit side by side at the current width,
   // so 90 daily labels on a phone become a readable handful.
@@ -146,7 +205,7 @@ export function Chart({
     </defs>
   ) : null;
   const toX = (i: number) =>
-    dataLen <= 1 ? PAD_LEFT + cw / 2 : PAD_LEFT + (i / (dataLen - 1)) * cw;
+    dataLen <= 1 ? padLeft + cw / 2 : padLeft + (i / (dataLen - 1)) * cw;
 
   // ── Hover ────────────────────────────────────────────────────────
 
@@ -157,11 +216,11 @@ export function Chart({
     const mouseY = e.clientY - rect.top;
 
     if (type === 'line') {
-      const idx = Math.round(((mouseX - PAD_LEFT) / cw) * (dataLen - 1));
+      const idx = Math.round(((mouseX - padLeft) / cw) * (dataLen - 1));
       setTooltip({ index: Math.max(0, Math.min(dataLen - 1, idx)), x: mouseX, y: mouseY });
     } else {
       const colW = cw / dataLen;
-      const idx = Math.floor((mouseX - PAD_LEFT) / colW);
+      const idx = Math.floor((mouseX - padLeft) / colW);
       setTooltip({ index: Math.max(0, Math.min(dataLen - 1, idx)), x: mouseX, y: mouseY });
     }
   }, [type, dataLen, cw]);
@@ -174,21 +233,74 @@ export function Chart({
 
   // ── Midline ──────────────────────────────────────────────────────
 
-  const midline = (
+  // With an axis the ticks' gridlines take the midline's place.
+  const midline = hasAxis ? null : (
     <line
-      x1={PAD_LEFT} y1={PAD_TOP + ch * 0.5}
-      x2={PAD_LEFT + cw} y2={PAD_TOP + ch * 0.5}
+      x1={padLeft} y1={PAD_TOP + ch * 0.5}
+      x2={padLeft + cw} y2={PAD_TOP + ch * 0.5}
       stroke="var(--chart-midline)"
       strokeWidth="0.5"
     />
   );
 
+  // ── Value axis ───────────────────────────────────────────────────
+
+  // A reference's tag takes a tick label's place at the right, so a label the tag would cover
+  // is left out.
+  const refYs = (references ?? []).filter(r => Number.isFinite(r.value)).map(r => toY(r.value));
+  const coveredByTag = (y: number) => yAxis === 'right' && refYs.some(ry => Math.abs(ry - y) < 12);
+
+  const axis = hasAxis ? (
+    <g>
+      {ticks.map(t => {
+        const y = toY(t);
+        const labelX = yAxis === 'left' ? padLeft - 6 : padLeft + cw + 6;
+        return (
+          <g key={t}>
+            {t !== minVal && (
+              <line x1={padLeft} y1={y} x2={padLeft + cw} y2={y} stroke="var(--chart-midline)" strokeWidth="0.5" />
+            )}
+            {!coveredByTag(y) && <text
+              x={labelX}
+              y={y + 3}
+              textAnchor={yAxis === 'left' ? 'end' : 'start'}
+              fill="var(--lv4)"
+              style={{ font: 'var(--text-2xs)' }}
+            >
+              {yFormat(t)}
+            </text>}
+          </g>
+        );
+      })}
+    </g>
+  ) : null;
+
+  // ── References ───────────────────────────────────────────────────
+
+  // A dashed line across the plot at the value, its label in an inverted tag just outside the
+  // right edge, centred on the line.
+  const referenceLines = references?.filter(r => Number.isFinite(r.value)).map((r, ri) => {
+    const y = toY(r.value);
+    const color = r.color ?? 'var(--lv8)';
+    const label = refLabelOf(r);
+    const w = label.length * LABEL_CHAR_WIDTH + 8;
+    return (
+      <g key={ri}>
+        <line x1={padLeft} y1={y} x2={padLeft + cw} y2={y} stroke={color} strokeWidth="1" strokeDasharray="3 3" />
+        <rect x={padLeft + cw + 4} y={y - 7} width={w} height={14} fill={color} />
+        <text x={padLeft + cw + 8} y={y + 3} fill="var(--lv0)" style={{ font: 'var(--text-2xs)' }}>
+          {label}
+        </text>
+      </g>
+    );
+  });
+
   // ── Baseline ─────────────────────────────────────────────────────
 
   const baseline = (
     <line
-      x1={PAD_LEFT} y1={PAD_TOP + ch}
-      x2={PAD_LEFT + cw} y2={PAD_TOP + ch}
+      x1={padLeft} y1={PAD_TOP + ch}
+      x2={padLeft + cw} y2={PAD_TOP + ch}
       stroke="var(--chart-baseline)"
       strokeWidth="1"
     />
@@ -200,7 +312,7 @@ export function Chart({
     const colW = cw / dataLen;
     return (
       <rect
-        x={PAD_LEFT + tooltip.index * colW}
+        x={padLeft + tooltip.index * colW}
         y={PAD_TOP}
         width={colW}
         height={ch}
@@ -261,7 +373,7 @@ export function Chart({
 
     return series.map((s, si) =>
       s.data.map((v, i) => {
-        const bx = PAD_LEFT + i * groupW + barGap + si * (barW + barGap);
+        const bx = padLeft + i * groupW + barGap + si * (barW + barGap);
         const by = toY(v);
         const bh = Math.max(bottom - by, 0);
         return (
@@ -285,7 +397,7 @@ export function Chart({
     return labels.map((lbl, i) => {
       // Counted from the end, so the latest point always keeps its label.
       if ((last - i) % labelStep !== 0) return null;
-      const x = type === 'line' ? toX(i) : PAD_LEFT + (i + 0.5) * (cw / dataLen);
+      const x = type === 'line' ? toX(i) : padLeft + (i + 0.5) * (cw / dataLen);
       // On a line chart the end labels sit on the plot's edges; anchor them inwards so the frame
       // does not clip them.
       const anchor = type !== 'line' || last === 0 ? 'middle' : i === 0 ? 'start' : i === last ? 'end' : 'middle';
@@ -355,6 +467,7 @@ export function Chart({
           >
             {patternDefs}
             {midline}
+            {axis}
             {baseline}
             {columnHighlight}
             {crosshair}
@@ -362,10 +475,12 @@ export function Chart({
             {/* Markers: drawn after the data so a bar cannot hide them, one square per point. */}
             {markers && dataLen > 0 &&
               [...new Set(markers.map(m => m.index).filter(i => i >= 0 && i < dataLen))].map(i => {
-                const mx = type === 'line' ? toX(i) : PAD_LEFT + (i + 0.5) * (cw / dataLen);
+                const mx = type === 'line' ? toX(i) : padLeft + (i + 0.5) * (cw / dataLen);
                 return <rect key={`m${i}`} className={styles.marker} x={mx - 3} y={PAD_TOP + ch - 3} width={6} height={6} />;
               })}
             {renderLabels()}
+            {/* References last, so a bar or an area cannot cover the line or its tag. */}
+            {referenceLines}
           </svg>
         )}
         {tooltipEl}

@@ -141,6 +141,47 @@ export default function ChartPage() {
         />
       </div>
 
+      {/* Value axis and references */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Value axis and references</h2>
+        <p className={styles.subdesc}>
+          <code>yAxis</code> puts round ticks at the left or right, each with a faint gridline, and widens the
+          range to them. <code>references</code> are levels to read the data against: a dashed line with its label
+          in a tag at the right, in the ink, or in the signal red for a limit. A reference outside the data pulls
+          the range out to include it.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'Searches', data: monthSearches, fill: 'solid' }]}
+          yAxis="right"
+          references={[{ value: Math.round(monthSearches.reduce((a, b) => a + b, 0) / monthSearches.length), label: 'avg' }]}
+          height={200}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          series={[{ label: 'p95 latency', data: [38, 41, 36, 52, 61, 29, 27] }]}
+          yAxis="left"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit 50 ms', color: 'var(--CSignal)' }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[{ label: 'Documents', data: [120_000, 128_000, 131_000, 150_000, 162_000, 171_000, 170_000, 188_000, 201_000, 199_000, 214_000, 236_000] }]}
+          yAxis="right"
+          references={[{ value: 250_000, label: 'quota 250k' }]}
+          height={180}
+          showLegend={false}
+        />
+      </div>
+
       {/* Multi-series line */}
       <div className={styles.section}>
         <h2 className={styles.heading}>Multi-series Line</h2>
