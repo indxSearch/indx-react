@@ -30,6 +30,7 @@ export default function Home() {
     { name: 'RadialChart', path: '/radial-chart', desc: 'One series around a clock face, a bar a sample' },
     { name: 'RadarChart', path: '/radar-chart', desc: 'A shape across a few dimensions, for comparing profiles' },
     { name: 'GroupedBars', path: '/grouped-bars', desc: 'Thin bars in labelled groups: a day of hours, a week of days' },
+    { name: 'TreeCanvas', path: '/tree-canvas', desc: 'A hierarchy as a horizontal tree of pills, for categories' },
     { name: 'Chart', path: '/chart', desc: 'Line and bar charts with 12×12 dot grid background' },
     { name: 'FilterPanelBase', path: '/filter-panel-base', desc: 'Filter panel container' },
     { name: 'Chip', path: '/chip', desc: 'Pill-shaped label for categories, states, and attributes' },
