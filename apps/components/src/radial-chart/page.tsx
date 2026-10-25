@@ -27,6 +27,11 @@ export default function RadialChartPage() {
     return { values, labels };
   }, []);
   const hours = useMemo(() => Array.from({ length: 24 }, (_, h) => Math.round((h >= 8 && h <= 17 ? 320 : 40) * (0.6 + noise(h) * 0.8))), []);
+  const asks = useMemo(() => hours.map((v, h) => Math.round(v * (0.08 + noise(h * 5) * 0.1))), [hours]);
+  const kinds = [
+    { label: 'Lookups', value: 1240 }, { label: 'Questions', value: 380 }, { label: 'Browsing', value: 910 },
+    { label: 'Filters', value: 560 }, { label: 'Fuzzy finds', value: 140 }, { label: 'Zero hits', value: 60 },
+  ];
   const total = year.values.reduce((a, b) => a + b, 0);
 
   return (
@@ -71,9 +76,37 @@ export default function RadialChartPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Two series</h2>
+        <p className={styles.desc}>Searches and asks by hour: the sample's slot is shared between the series, each in its colour, with a legend; the tooltip lists both.</p>
+        <RadialChart
+          series={[{ label: 'Searches', values: hours }, { label: 'Asks', values: asks, color: 'var(--CTeal)' }]}
+          labels={hours.map((_, h) => `${h}:00`)}
+          size={240}
+          format={(v) => v.toLocaleString()}
+          aria-label="Searches and asks by hour"
+        />
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Groups, the rose</h2>
+        <p className={styles.desc}>
+          A sector of bars per group, all at the group's value over a dim track, a gap between sectors, the name and
+          value in the sector. A handful of kinds compared. Past twelve groups the names go to the tooltip.
+        </p>
+        <div className={styles.row}>
+          <RadialChart groups={kinds} size={320} hollow={0.18} format={(v) => v.toLocaleString()} aria-label="Searches by kind" />
+          <RadialChart groups={kinds} size={120} hollow={0.2} barsPerGroup={4} format={(v) => v.toLocaleString()} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Props</h2>
         <PropsTable rows={[
-          { name: 'values', type: 'number[]', description: 'One value a sample, from the top clockwise.' },
+          { name: 'values', type: 'number[]', description: 'One series: a value a sample, from the top clockwise.' },
+          { name: 'series', type: '{ label, values, color? }[]', description: 'Several series over the same samples; the first is the ink.' },
+          { name: 'groups', type: '{ label, value, color? }[]', description: 'The rose: a sector a group, with its name and value in it.' },
+          { name: 'barsPerGroup', type: 'number', default: '6', description: "Bars in a group's sector." },
+          { name: 'showLegend', type: 'boolean', default: 'true', description: 'The legend under several series.' },
           { name: 'labels', type: 'string[]', description: 'What each sample is, for the tooltip.' },
           { name: 'size', type: 'number', default: '240', description: 'The diameter in pixels.' },
           { name: 'hollow', type: 'number', default: '0.4', description: "The hollow centre's share of the radius." },
