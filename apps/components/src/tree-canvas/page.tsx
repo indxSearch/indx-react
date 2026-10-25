@@ -7,6 +7,7 @@ import styles from './page.module.css';
 // A sports shop's categories, as a Google product_type field would give them: "Run > Running
 // shoes > Trail shoes". Counts are products in the category, overlapping across branches.
 const boost = { icon: <Boost size={14} color="currentColor" />, title: 'Boosted' };
+const isBoosted = (n: TreeNode) => !!n.marks?.some((m) => m.title === 'Boosted');
 const SHOP: TreeNode[] = [
   {
     id: 'run', label: 'Run', count: 372,
@@ -37,7 +38,7 @@ const SHOP: TreeNode[] = [
           {
             id: 'run/clothes/women', label: 'Women', count: 121,
             children: ['Jackets and vests', 'Sweaters', 'Tops', 'Tights and trousers', 'Shorts', 'Singlets', 'Accessories']
-              .map((l, i) => ({ id: `run/clothes/women/${i}`, label: l, count: 121 })),
+              .map((l, i) => ({ id: `run/clothes/women/${i}`, label: l, count: 121, marks: i === 3 ? [boost] : undefined })),
           },
         ],
       },
@@ -52,6 +53,7 @@ const SHOP: TreeNode[] = [
 export default function TreeCanvasPage() {
   const [selected, setSelected] = useState<string | undefined>('run/shoes/types/trail');
   const [view, setView] = useState<'tree' | 'list'>('tree');
+  const [only, setOnly] = useState<'all' | 'boosted'>('all');
 
   return (
     <main className={styles.main}>
@@ -68,11 +70,14 @@ export default function TreeCanvasPage() {
       <div className={styles.section}>
         <div className={styles.bar}>
           <h2 className={styles.heading} style={{ margin: 0 }}>A shop's categories</h2>
-          <SegmentedControl aria-label="View" value={view} onChange={setView} items={[{ value: 'tree', label: 'Tree' }, { value: 'list', label: 'List' }]} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <SegmentedControl aria-label="Show" value={only} onChange={setOnly} items={[{ value: 'all', label: 'All' }, { value: 'boosted', label: 'Boosted', icon: <Boost size={14} color="currentColor" /> }]} />
+            <SegmentedControl aria-label="View" value={view} onChange={setView} items={[{ value: 'tree', label: 'Tree' }, { value: 'list', label: 'List' }]} />
+          </div>
         </div>
         <p className={styles.desc}>
-          Run and Cycling open at first; Types is muted, a level that is hidden from search; Trail shoes carries a
-          boost mark. Cycling has 70 children, so it shows 50 and a step to the rest. Chosen: <span className={styles.chosen}>{selected ?? 'none'}</span>
+          Run and Cycling open at first; Types is muted, a level that is hidden from search; Trail shoes and the women's
+          tights carry a boost mark, and Boosted prunes the tree to those two with the way down to each. Cycling has 70 children, so it shows 50 and a step to the rest. Chosen: <span className={styles.chosen}>{selected ?? 'none'}</span>
         </p>
         <TreeCanvas
           roots={SHOP}
@@ -80,6 +85,7 @@ export default function TreeCanvasPage() {
           onSelect={setSelected}
           defaultExpanded={['run', 'run/shoes', 'run/shoes/types', 'run/clothes', 'run/clothes/men']}
           view={view}
+          visible={only === 'boosted' ? isBoosted : undefined}
           aria-label="Categories of the shop"
         />
       </div>
@@ -94,6 +100,7 @@ export default function TreeCanvasPage() {
           { name: 'view', type: "'tree' | 'list'", default: "'tree'", description: 'The canvas, or the same as nested rows.' },
           { name: 'maxChildren', type: 'number', default: '50', description: 'Children shown before the step to the rest.' },
           { name: 'format', type: '(count) => string', description: 'The count as shown.' },
+          { name: 'visible', type: '(node) => boolean', description: 'A filter: only nodes it accepts stay, with the path down to each; the way down is muted and opened.' },
           { name: 'aria-label', type: 'string', description: 'A name for assistive technology.' },
         ]} />
       </div>

@@ -34,6 +34,9 @@ export interface TreeCanvasProps {
   maxChildren?: number;
   /** The count as shown; the number by default. */
   format?: (count: number) => string;
+  /** A filter: only nodes it accepts stay, with the path down to each; an ancestor kept only as
+   *  the way down is drawn muted, and a branch holding a match is opened. "Only boosted." */
+  visible?: (node: TreeNode) => boolean;
   /** A name for assistive technology: "Categories of shop". */
   'aria-label'?: string;
   className?: string;
@@ -73,6 +76,7 @@ export function TreeCanvas({
   view = 'tree',
   maxChildren = 50,
   format,
+  visible,
   'aria-label': ariaLabel,
   className = '',
 }: TreeCanvasProps) {
@@ -107,6 +111,22 @@ export function TreeCanvas({
     return path;
   }, [roots, selected]);
 
+  // The tree after the filter: a node stays when it matches or a descendant does; one that stays
+  // only as the way down is muted. Without a filter the tree is as given.
+  const { tree, opened } = useMemo(() => {
+    if (!visible) return { tree: roots, opened: null as Set<string> | null };
+    const opened = new Set<string>();
+    const prune = (n: TreeNode): TreeNode | null => {
+      const kids = n.children?.map(prune).filter((c): c is TreeNode => !!c) ?? [];
+      const match = visible(n);
+      if (!match && kids.length === 0) return null;
+      if (kids.length) opened.add(n.id);
+      return { ...n, children: kids.length ? kids : undefined, muted: n.muted || !match };
+    };
+    return { tree: roots.map(prune).filter((r): r is TreeNode => !!r), opened };
+  }, [roots, visible]);
+  const isOpen = (id: string) => expanded.has(id) || (opened?.has(id) ?? false);
+
   // The tidy layout: each open leaf takes a row, a parent sits at the middle of its children,
   // and a column is as wide as its widest pill. Only what is open is placed.
   const { placed, columns, height } = useMemo(() => {
@@ -114,7 +134,7 @@ export function TreeCanvas({
     const widths: number[] = [];
     let row = 0;
     const place = (n: TreeNode, depth: number, parent?: Placed): Placed => {
-      const open = !!n.children?.length && expanded.has(n.id);
+      const open = !!n.children?.length && isOpen(n.id);
       const kids = open ? (showAll.has(n.id) ? n.children! : n.children!.slice(0, maxChildren)) : [];
       const more = open ? n.children!.length - kids.length : 0;
       const self: Placed = { node: n, depth, x: 0, y: 0, width: measured.get(n.id) ?? pillWidth(n, format), parent, open, more };
@@ -130,26 +150,26 @@ export function TreeCanvas({
       }
       return self;
     };
-    roots.forEach((r) => place(r, 0));
+    tree.forEach((r) => place(r, 0));
     const columns: number[] = [];
     let x = 0;
     widths.forEach((w, d) => { columns[d] = x; x += w + COLUMN_GAP; });
     placed.forEach((p) => { p.x = columns[p.depth]; });
     return { placed, columns, height: Math.max(row, 1) * ROW };
-  }, [roots, expanded, showAll, maxChildren, format, measured]);
+  }, [tree, opened, expanded, showAll, maxChildren, format, measured]);
 
   const width = columns.length ? columns[columns.length - 1] + Math.max(...placed.filter((p) => p.depth === columns.length - 1).map((p) => p.width)) : 0;
-  const visible = placed.map((p) => p.node.id);
+  const order = placed.map((p) => p.node.id);
 
   const onKey = (e: KeyboardEvent<HTMLButtonElement>, p: Placed) => {
-    const i = visible.indexOf(p.node.id);
+    const i = order.indexOf(p.node.id);
     let to: string | undefined;
-    if (e.key === 'ArrowDown') to = visible[Math.min(visible.length - 1, i + 1)];
-    else if (e.key === 'ArrowUp') to = visible[Math.max(0, i - 1)];
+    if (e.key === 'ArrowDown') to = order[Math.min(order.length - 1, i + 1)];
+    else if (e.key === 'ArrowUp') to = order[Math.max(0, i - 1)];
     else if (e.key === 'ArrowRight') { if (p.node.children?.length && !p.open) { toggle(p.node.id); e.preventDefault(); return; } to = placed.find((q) => q.parent === p)?.node.id; }
     else if (e.key === 'ArrowLeft') { if (p.open) { toggle(p.node.id); e.preventDefault(); return; } to = p.parent?.node.id; }
-    else if (e.key === 'Home') to = visible[0];
-    else if (e.key === 'End') to = visible[visible.length - 1];
+    else if (e.key === 'Home') to = order[0];
+    else if (e.key === 'End') to = order[order.length - 1];
     if (!to) return;
     e.preventDefault();
     (e.currentTarget.parentElement?.querySelector(`[data-node="${CSS.escape(to)}"]`) as HTMLElement | null)?.focus();
@@ -159,7 +179,7 @@ export function TreeCanvas({
     const List = ({ nodes, depth }: { nodes: TreeNode[]; depth: number }) => (
       <ul className={styles.list} role={depth === 0 ? 'tree' : 'group'} aria-label={depth === 0 ? ariaLabel : undefined}>
         {nodes.map((n) => {
-          const open = expanded.has(n.id);
+          const open = isOpen(n.id);
           const isSelected = n.id === selected;
           return (
             <li key={n.id} role="treeitem" aria-expanded={n.children?.length ? open : undefined} aria-selected={isSelected}>
@@ -177,11 +197,12 @@ export function TreeCanvas({
         })}
       </ul>
     );
-    return <div className={`${styles.listWrap} ${className}`}><List nodes={roots} depth={0} /></div>;
+    return <div className={`${styles.listWrap} ${className}`}><List nodes={tree} depth={0} /></div>;
   }
 
   return (
     <div className={`${styles.canvas} ${className}`} role="tree" aria-label={ariaLabel}>
+      {placed.length === 0 && <div className={styles.empty}>Nothing matches</div>}
       <div ref={sheetRef} className={styles.sheet} style={{ width, height } as CSSProperties}>
         <svg className={styles.edges} width={width} height={height} aria-hidden="true">
           {placed.filter((p) => p.parent).map((p) => {

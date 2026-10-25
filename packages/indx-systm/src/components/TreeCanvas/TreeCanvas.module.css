@@ -209,3 +209,10 @@
   width: 18px;
   flex: none;
 }
+
+/* When the filter leaves nothing. */
+.empty {
+  padding: 24px 16px;
+  font: var(--text-sm);
+  color: var(--lv5);
+}
