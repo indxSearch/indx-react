@@ -3,8 +3,14 @@ import { BarMeter, Stat, StatGroup } from '@indxsearch/systm';
 import styles from './page.module.css';
 
 const gb = (n: number) => `${n.toFixed(1)} GB`;
-// A warning from 70 %, the signal red from 85 %: the zones a pressure gauge has.
-const PRESSURE_ZONES = [{ from: 0.7, color: 'var(--CWarning)' }, { from: 0.85, color: 'var(--CSignal)' }];
+// The zones a pressure gauge has: cool blue when idle, teal when fine, a warning from 70 %, the
+// signal red from 85 %.
+const PRESSURE_ZONES = [
+  { from: 0, color: 'var(--CLightBlue)' },
+  { from: 0.3, color: 'var(--CTeal)' },
+  { from: 0.7, color: 'var(--CWarning)' },
+  { from: 0.85, color: 'var(--CSignal)' },
+];
 
 export default function BarMeterPage() {
   // A live reading, the way a monitor would feed it: a random walk, with the odd spike.
@@ -97,18 +103,20 @@ export default function BarMeterPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>Zones</h2>
         <p className={styles.desc}>
-          zones are levels from which the filled bars change colour: a warning from 70 %, the signal red from 85 %.
-          The bars past the level show each zone faintly, so the thresholds are seen before they are reached. A
-          color prop overrides them.
+          zones are levels from which the filled bars change colour: cool blue when idle, teal when fine, a warning
+          from 70 %, the signal red from 85 %. One bar in each zone's colour marks where it starts, so the thresholds
+          are seen before they are reached. A color prop overrides them.
         </p>
         <div className={styles.rings}>
-          <BarMeter shape="ring" label="Below" value={45} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
+          <BarMeter shape="ring" label="Idle" value={12} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
+          <BarMeter shape="ring" label="Fine" value={45} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
           <BarMeter shape="ring" label="Warning" value={76} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
           <BarMeter shape="ring" label="Signal" value={92} max={100} format={(v) => `${v} %`} zones={PRESSURE_ZONES} />
           <BarMeter shape="ring" size={96} label="96, at 76 %" value={76} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
         </div>
         <div className={styles.stack}>
-          <BarMeter label="Below" value={45} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+          <BarMeter label="Idle" value={12} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
+          <BarMeter label="Fine" value={45} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
           <BarMeter label="Warning" value={76} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
           <BarMeter label="Signal" value={92} max={100} format={(v) => `${v} %`} maxLabel="of 100 %" zones={PRESSURE_ZONES} />
         </div>

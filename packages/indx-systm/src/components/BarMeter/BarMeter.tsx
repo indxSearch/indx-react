@@ -25,9 +25,9 @@ export interface BarMeterZone {
 const zoneColor = (zones: BarMeterZone[] | undefined, fraction: number) =>
   zones?.filter((z) => fraction >= z.from).sort((a, b) => b.from - a.from)[0]?.color;
 
-/** The track's tone for a bar past the level: the zone it lies in, or the plain dim tone. */
-const zoneAt = (zones: BarMeterZone[] | undefined, at: number) =>
-  zones?.filter((z) => at >= z.from).sort((a, b) => b.from - a.from)[0]?.color;
+/** The zone that starts at this bar of `count`, if one does: the bar is its tick. */
+const zoneStartingAt = (zones: BarMeterZone[] | undefined, i: number, count: number) =>
+  zones?.find((z) => z.from > 0 && Math.round(z.from * count) === i);
 
 export interface BarMeterSegment {
   label: ReactNode;
@@ -69,9 +69,9 @@ export interface BarMeterProps {
   /** The filled bars' colour, for a level that has become a problem: the signal red past a threshold. Overrides the zones. */
   color?: string;
   /**
-   * Levels from which the filled bars change colour: a warning from 70 %, the signal red from
-   * 85 %. The bars past the level show each zone faintly, so the thresholds can be seen before
-   * they are reached.
+   * Levels from which the filled bars change colour: cool blue when idle, teal when fine, a
+   * warning from 70 %, the signal red from 85 %. One bar in each zone's colour marks where it
+   * starts, so the thresholds can be seen before they are reached.
    */
   zones?: BarMeterZone[];
   /** A row of bars (default) or a ring of them. */
@@ -191,10 +191,10 @@ export function BarMeter({
     >
       {label != null && <span className={styles.label}>{label}</span>}
       <div className={styles.bars} aria-hidden="true">
-        {zones?.map((z, i) => (
+        {zones?.filter((z) => z.from > 0).map((z, i) => (
           <div
             key={i}
-            className={`${styles.fill} ${styles.zone}`}
+            className={`${styles.fill} ${styles.zoneMark}`}
             style={{ '--zone-from': `${z.from * 100}%`, color: z.color } as CSSProperties}
           />
         ))}
@@ -213,8 +213,8 @@ export function BarMeter({
 
 // The ring's bars: 2px radial lines from the inner to the outer radius, as many as give a 4px
 // pitch along the middle of the band, the first at the top and the rest clockwise. The filled
-// ones are the first round(fraction * count), in currentColor; the rest dim, or faintly in the
-// colour of the zone they lie in.
+// ones are the first round(fraction * count), in currentColor; the rest dim. The bar where a
+// zone starts is its tick, in the zone's colour, lit or not.
 function RingBars({ fraction, size, zones }: { fraction: number; size: number; zones?: BarMeterZone[] }) {
   const outer = size / 2;
   const inner = Math.max(0, outer - ringBand(size));
@@ -226,12 +226,12 @@ function RingBars({ fraction, size, zones }: { fraction: number; size: number; z
     const angle = (-90 + (360 * i) / count) * (Math.PI / 180);
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
-    const zone = i < filled ? undefined : zoneAt(zones, i / count);
+    const mark = zoneStartingAt(zones, i, count);
     lines.push(
       <line
         key={i}
-        className={i < filled ? styles.lit : zone ? styles.zoneBar : styles.dim}
-        style={zone ? { stroke: zone } : undefined}
+        className={mark ? styles.zoneBar : i < filled ? styles.lit : styles.dim}
+        style={mark ? { stroke: mark.color } : undefined}
         x1={outer + inner * cos}
         y1={outer + inner * sin}
         x2={outer + outer * cos}
