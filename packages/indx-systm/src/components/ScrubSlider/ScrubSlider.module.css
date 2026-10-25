@@ -15,14 +15,13 @@
   text-overflow: ellipsis;
 }
 
-/* The ruler is a field: the same border and radius as an InputField. */
+/* The ruler has no border: the ticks are its shape. Keyboard focus shows as a thin line. */
 .ruler {
   position: relative;
   flex: 1;
   min-width: 0;
   height: 30px;
   box-sizing: border-box;
-  border: 1px solid var(--lv3);
   border-radius: var(--radius);
   background: transparent;
   overflow: hidden;
@@ -31,10 +30,8 @@
   touch-action: none;
 }
 
-.row:not(.disabled) .ruler:hover,
-.dragging,
-.ruler:focus-visible {
-  border-color: var(--lv5);
+.keyboardFocus {
+  outline: 1px solid var(--lv3);
 }
 
 /* Two repeating tiles: a minor tick every --scrub-tick, a major one every --scrub-period, each

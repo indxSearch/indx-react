@@ -71,39 +71,63 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
     [min, max, decimals],
   );
 
-  // The drag: where it started, in pixels and in value. Pointer capture keeps the moves coming
-  // past the ruler's edges and the window's, which is what makes the slider endless.
-  const drag = React.useRef<{ x: number; value: number; moved: boolean } | null>(null);
+  // The drag: where it started, in pixels and in value. The moves and the release are read on the
+  // window from the press itself, so letting go anywhere ends the drag, and the ruler takes
+  // pointer capture too so the moves keep coming past the window's edge: that is what makes the
+  // slider endless. The listeners are attached in the press, not in an effect, so a release that
+  // comes before the next render is still seen.
+  const drag = React.useRef<{ x: number; value: number; moved: boolean; stop: () => void } | null>(null);
   const [dragging, setDragging] = React.useState(false);
+  // The focus line shows only once the keyboard has reached the ruler; a press focuses it too,
+  // for the arrow keys, but should not light it.
+  const [keyboardFocus, setKeyboardFocus] = React.useState(false);
+  const latest = React.useRef({ value, onChange, onFinalChange, clamp, step });
+  latest.current = { value, onChange, onFinalChange, clamp, step };
+
+  React.useEffect(() => () => drag.current?.stop(), []);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (disabled || e.button !== 0) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { x: e.clientX, value, moved: false };
+    e.preventDefault();
+    setKeyboardFocus(false);
+    drag.current?.stop();
+    const target = e.currentTarget;
+    const pointerId = e.pointerId;
+    try { target.setPointerCapture(pointerId); } catch { /* not every pointer can be captured */ }
+
+    const move = (ev: PointerEvent) => {
+      const d = drag.current;
+      if (!d) return;
+      const { value, onChange, clamp, step } = latest.current;
+      const ticks = Math.round((ev.clientX - d.x) / TICK_SPACING);
+      const next = clamp(d.value + ticks * step);
+      if (ticks !== 0) d.moved = true;
+      if (next !== value) onChange(next);
+    };
+    const stop = () => {
+      const d = drag.current;
+      drag.current = null;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+      window.removeEventListener('blur', stop);
+      try { if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId); } catch { /* gone */ }
+      setDragging(false);
+      if (d?.moved) latest.current.onFinalChange?.(latest.current.value);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
+    window.addEventListener('blur', stop);
+
+    drag.current = { x: e.clientX, value, moved: false, stop };
     setDragging(true);
-    e.currentTarget.focus();
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const d = drag.current;
-    if (!d) return;
-    const ticks = Math.round((e.clientX - d.x) / TICK_SPACING);
-    const next = clamp(d.value + ticks * step);
-    if (ticks !== 0) d.moved = true;
-    if (next !== value) onChange(next);
-  };
-
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    const d = drag.current;
-    if (!d) return;
-    drag.current = null;
-    setDragging(false);
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-    if (d.moved) onFinalChange?.(value);
+    target.focus();
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (disabled) return;
+    setKeyboardFocus(true);
     const big = e.shiftKey ? 10 : 1;
     let next: number | undefined;
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = clamp(value + step * big);
@@ -153,7 +177,7 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
         </label>
       )}
       <div
-        className={`${styles.ruler} ${dragging ? styles.dragging : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-resize-ew'}`}
+        className={`${styles.ruler} ${dragging ? styles.dragging : ''} ${keyboardFocus ? styles.keyboardFocus : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-resize-ew'}`}
         style={rulerStyle}
         role="slider"
         tabIndex={disabled ? -1 : 0}
@@ -163,10 +187,8 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
         aria-valuemax={max}
         aria-disabled={disabled || undefined}
         onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
         onKeyDown={onKeyDown}
+        onBlur={() => setKeyboardFocus(false)}
       >
         <div className={styles.ticks} aria-hidden="true" />
         <div className={styles.handle} aria-hidden="true" />
