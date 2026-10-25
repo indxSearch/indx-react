@@ -31,7 +31,7 @@ export interface WaffleProps {
 }
 
 // Four steps apart enough to tell at 4px: lv6 is all but lv8 in both themes. A fifth segment
-// repeats the ladder, so give it a colour.
+// and on keep the last step, never back to the ink, so give them a colour to tell apart.
 const TONES = ['var(--lv8)', 'var(--lv5)', 'var(--lv4)', 'var(--lv3)'];
 
 // Each segment's cells, by largest remainder, so they always sum to the grid. A segment with a
@@ -75,7 +75,7 @@ export function Waffle({
   const total = columns * rows;
   const sum = segments.reduce((a, s) => a + Math.max(0, s.value), 0);
   const counts = allocateCells(segments.map((s) => s.value), total);
-  const colorOf = (i: number) => segments[i].color ?? TONES[i % TONES.length];
+  const colorOf = (i: number) => segments[i].color ?? TONES[Math.min(i, TONES.length - 1)];
   const show = (s: WaffleSegment) => {
     const fraction = sum > 0 ? Math.max(0, s.value) / sum : 0;
     return format ? format(fraction, s.value) : `${Math.round(fraction * 100)} %`;

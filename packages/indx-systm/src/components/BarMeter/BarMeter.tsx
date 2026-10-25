@@ -21,8 +21,13 @@ export interface BarMeterSegment {
   color?: string;
 }
 
-// The same four steps as Waffle, apart enough to tell at 2px.
+// The same four steps as Waffle, apart enough to tell at 2px; a fifth segment and on keep the
+// last, never back to the ink.
 const SEGMENT_TONES = ['var(--lv8)', 'var(--lv5)', 'var(--lv4)', 'var(--lv3)'];
+const toneOf = (i: number) => SEGMENT_TONES[Math.min(i, SEGMENT_TONES.length - 1)];
+// A head needs room: a segment narrower than this gets none, so heads never pile up. The last
+// keeps its head whatever its width, since it sits against the right edge with the edge to itself.
+const MIN_HEAD_SHARE = 0.08;
 
 export interface BarMeterProps {
   /** What is measured: "CPU pressure", "Memory". A ring inside a Stat leaves it to the Stat. */
@@ -36,6 +41,12 @@ export interface BarMeterProps {
    * row shape only; value, max and the foot are not used.
    */
   segments?: BarMeterSegment[];
+  /**
+   * Where the segments' names and shares go: 'heads' above each segment (a segment under 8 %
+   * of the row gets none, the last one apart), or 'legend', a list under the bars, for many or
+   * narrow segments.
+   */
+  labels?: 'heads' | 'legend';
   /** The value as shown at the left; defaults to the number itself. */
   format?: (value: number) => ReactNode;
   /** The ceiling as shown at the right; defaults to "of" and the formatted max. */
@@ -61,6 +72,7 @@ export function BarMeter({
   value = 0,
   max = 100,
   segments,
+  labels = 'heads',
   format,
   maxLabel,
   color,
@@ -80,13 +92,13 @@ export function BarMeter({
       const from = start;
       const share = sum > 0 ? Math.max(0, g.value) / sum : 0;
       start += share;
-      return { g, i, from, to: i === segments.length - 1 ? 1 : start, color: g.color ?? SEGMENT_TONES[i % SEGMENT_TONES.length] };
+      return { g, i, from, to: i === segments.length - 1 ? 1 : start, share, color: g.color ?? toneOf(i) };
     });
     return (
       <div className={`${styles.meter} ${styles.segmented} ${className}`} role="img" aria-label={typeof label === 'string' ? label : undefined}>
         {label != null && <span className={styles.label}>{label}</span>}
-        <div className={styles.shares}>
-          {parts.map(({ g, i, from, to, color }) => (
+        <div className={`${styles.shares} ${labels === 'legend' ? styles.sharesLegend : ''}`}>
+          {labels === 'heads' && parts.map(({ g, i, from, to, share }) => (share >= MIN_HEAD_SHARE || i === parts.length - 1) && (
             <div
               key={i}
               className={`${styles.head} ${i === parts.length - 1 ? styles.headLast : ''}`}
@@ -109,6 +121,17 @@ export function BarMeter({
             <span key={`d${i}`} className={styles.divider} style={{ '--seg-from': `${from * 100}%` } as CSSProperties} />
           ))}
         </div>
+        {labels === 'legend' && (
+          <ul className={styles.legend}>
+            {parts.map(({ g, i, color }) => (
+              <li key={i} className={styles.legendItem}>
+                <span className={styles.swatch} style={{ background: color }} />
+                <span className={styles.legendName}>{g.label}</span>
+                <span className={styles.legendShare}>{showShare(g)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     );
   }

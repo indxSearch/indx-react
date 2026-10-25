@@ -84,7 +84,12 @@ export default function BarMeterPage() {
           <BarMeter label="Searchers" segments={[{ label: 'Returning', value: 20 }, { label: 'Regular', value: 75 }, { label: 'New', value: 5 }]} />
           <BarMeter label="Fields by type" segments={[{ label: 'Text', value: 14 }, { label: 'Number', value: 6 }, { label: 'Date', value: 2 }, { label: 'Array', value: 3 }]} format={(v) => `${v}`} />
           <BarMeter label="Requests" segments={[{ label: 'Served', value: 96.4 }, { label: 'Timed out', value: 3.6, color: 'var(--CSignal)' }]} format={(v) => `${v.toFixed(1)} %`} />
+          <BarMeter label="Documents by dataset, as a legend" labels="legend" segments={[{ label: 'furniture', value: 41_438 }, { label: 'tmdb23k', value: 23_439 }, { label: 'gyldendal-sanity', value: 17_087 }, { label: 'norsk skoleregister', value: 5_897 }, { label: 'Others', value: 5_387 }]} format={(v) => v.toLocaleString()} />
         </div>
+        <p className={styles.desc}>
+          A segment under 8 % of the row gets no head (the last one apart, it has the right edge to itself), so heads never pile up; with many or narrow segments,
+          labels="legend" lists them all under the bars instead.
+        </p>
       </div>
 
       <div className={styles.section}>
