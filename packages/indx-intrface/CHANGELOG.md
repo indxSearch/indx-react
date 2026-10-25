@@ -1,5 +1,35 @@
 # Changelog
 
+## 3.13.2
+
+### Patch Changes
+
+- f7ff44a: `SearchInput` takes `askOffer="none"`: the field shows no offer to ask, for a page that shows the offer itself from `searchOrAsk`. Enter still asks on a strong offer. The Ask button's Enter hint is a key-cap reading Enter ↵.
+- 4ba7f51: Every search carries `locale`, the page's language for the statistics: `SearchProvider`'s `locale` prop, else the document's `lang`, else the browser's. The dataset's Statistics overview shows which languages people search in. Nothing about where they are is sent.
+- Updated dependencies [a848bf1]
+- Updated dependencies [1bcaa7f]
+- Updated dependencies [79f891e]
+- Updated dependencies [029a381]
+- Updated dependencies [a8c906a]
+- Updated dependencies [c946a3c]
+- Updated dependencies [1e09a2a]
+- Updated dependencies [f684405]
+- Updated dependencies [6e9b5f5]
+- Updated dependencies [7a0fa0c]
+- Updated dependencies [24d1515]
+- Updated dependencies [2eb549c]
+- Updated dependencies [9f9190f]
+- Updated dependencies [e542d87]
+- Updated dependencies [9e71991]
+- Updated dependencies [0e126c1]
+- Updated dependencies [3dcb304]
+- Updated dependencies [13eb480]
+- Updated dependencies [b6456d0]
+- Updated dependencies [ce4a08f]
+- Updated dependencies [373382a]
+- Updated dependencies [c659761]
+  - @indxsearch/systm@2.22.0
+
 ## 3.13.1
 
 ### Patch Changes
