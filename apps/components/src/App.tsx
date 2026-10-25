@@ -12,6 +12,7 @@ import SelectPage from './select/page';
 import SliderPage from './slider/page';
 import BarSliderPage from './bar-slider/page';
 import ScrubSliderPage from './scrub-slider/page';
+import BarMeterPage from './bar-meter/page';
 import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import BasePage from './base/page';
@@ -75,6 +76,7 @@ export default function App() {
         <Route path="/slider" element={<SliderPage />} />
         <Route path="/bar-slider" element={<BarSliderPage />} />
         <Route path="/scrub-slider" element={<ScrubSliderPage />} />
+        <Route path="/bar-meter" element={<BarMeterPage />} />
         <Route path="/toggle-switch" element={<ToggleSwitchPage />} />
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/base" element={<BasePage />} />
