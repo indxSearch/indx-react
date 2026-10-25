@@ -32,6 +32,11 @@ export interface ChartSeries {
   high?: number[];
   /** What the range is, for the tooltip: "p5 to p95". "Range" when left out. */
   rangeLabel?: string;
+  /**
+   * Lines only: the value holds flat until the next point and then jumps, for what does not
+   * move between samples: a record count, a state, a quota that changes on a date.
+   */
+  step?: boolean;
 }
 
 // The pixel patterns, each a 4px tile of 1px or 2px cells in the series colour.
@@ -51,7 +56,11 @@ export interface ChartReference {
   label?: string;
   /** The line's and the tag's colour: the signal red for a limit. The ink by default. */
   color?: string;
+  /** A limit: whatever lies above the line is drawn in the signal red, bars and points alike. */
+  signal?: boolean;
 }
+
+const SIGNAL = 'var(--CSignal)';
 
 /** A point where something happened (a change, a release), and what it was. */
 export interface ChartMarker {
@@ -200,6 +209,23 @@ export function Chart({
   const toY = (v: number) => PAD_TOP + (1 - (v - minVal) / range) * ch;
   const baseY = toY(Math.max(minVal, 0));
 
+  // The points of a series as "x,y" pairs; with step, a corner at each new x holding the last
+  // value, so the line runs flat and then jumps.
+  const pointsOf = (values: number[], step: boolean | undefined, n = values.length) => {
+    const out: string[] = [];
+    for (let i = 0; i < n; i++) {
+      if (step && i > 0) out.push(`${toX(i).toFixed(2)},${toY(values[i - 1]).toFixed(2)}`);
+      out.push(`${toX(i).toFixed(2)},${toY(values[i]).toFixed(2)}`);
+    }
+    return out;
+  };
+
+  // A limit: the plot above the lowest signal reference is drawn again in the signal red,
+  // clipped to that region, so what lies past the limit says so.
+  const signalRefs = (references ?? []).filter(r => r.signal && Number.isFinite(r.value));
+  const signalY = signalRefs.length ? toY(Math.min(...signalRefs.map(r => r.value))) : null;
+  const signalClipId = `${patternId}-signal`;
+
   // ── Fills ────────────────────────────────────────────────────────
 
   const fillOf = (s: ChartSeries): ChartFill => s.fill ?? (type === 'bar' ? 'solid' : 'none');
@@ -346,19 +372,20 @@ export function Chart({
 
   // ── Line chart ───────────────────────────────────────────────────
 
-  const renderLines = () =>
+  // With a paint, the signal copy: the line and its points in that colour, no band or area.
+  const renderLines = (paint?: string) =>
     series.map((s, si) => {
       if (!s.data.length) return null;
-      const color = s.color ?? DEFAULT_LINE_COLOR;
-      const pts = s.data.map((v, i) => `${toX(i).toFixed(2)},${toY(v).toFixed(2)}`).join(' ');
+      const color = paint ?? s.color ?? DEFAULT_LINE_COLOR;
+      const pts = pointsOf(s.data, s.step).join(' ');
       const fill = fillOf(s);
-      const hasBand = !!(s.low && s.high && s.low.length && s.high.length);
+      const hasBand = !paint && !!(s.low && s.high && s.low.length && s.high.length);
       // The band between low and high: along high to the right, back along low.
       const band = hasBand ? (() => {
         const n = Math.min(s.data.length, s.low!.length, s.high!.length);
         if (n < 2) return null;
-        const top = Array.from({ length: n }, (_, i) => `${toX(i).toFixed(2)},${toY(s.high![i]).toFixed(2)}`);
-        const back = Array.from({ length: n }, (_, i) => `${toX(n - 1 - i).toFixed(2)},${toY(s.low![n - 1 - i]).toFixed(2)}`);
+        const top = pointsOf(s.high!, s.step, n);
+        const back = pointsOf(s.low!, s.step, n).reverse();
         const patterned = fill in PATTERN_CELLS;
         return (
           <polygon
@@ -370,7 +397,7 @@ export function Chart({
         );
       })() : null;
       // The area under the line, down to the baseline (or zero, where the range goes below it).
-      const area = !hasBand && fill !== 'none' && s.data.length > 1 ? (
+      const area = !paint && !hasBand && fill !== 'none' && s.data.length > 1 ? (
         <polygon
           points={`${toX(0).toFixed(2)},${baseY.toFixed(2)} ${pts} ${toX(s.data.length - 1).toFixed(2)},${baseY.toFixed(2)}`}
           fill={paintOf(s, si)}
@@ -380,7 +407,7 @@ export function Chart({
       ) : null;
 
       return (
-        <g key={si}>
+        <g key={`${paint ? 'signal-' : ''}${si}`}>
           {band}
           {area}
           <polyline points={pts} fill="none" stroke={color} strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
@@ -404,7 +431,7 @@ export function Chart({
 
   // ── Bar chart ────────────────────────────────────────────────────
 
-  const renderBars = () => {
+  const renderBars = (paint?: string) => {
     if (!dataLen) return null;
     const seriesCount = isStacked ? 1 : series.length;
     const groupW = cw / dataLen;
@@ -424,10 +451,10 @@ export function Chart({
         const bh = isStacked ? Math.max(toY(from) - by, 0) : Math.max(bottom - by, 0);
         return (
           <rect
-            key={`${si}-${i}`}
+            key={`${paint ? 'signal-' : ''}${si}-${i}`}
             x={bx} y={by}
             width={barW} height={bh}
-            fill={paintOf(s, si)}
+            fill={paint ?? paintOf(s, si)}
           />
         );
       })
@@ -534,6 +561,18 @@ export function Chart({
             {columnHighlight}
             {crosshair}
             {type === 'line' ? renderLines() : renderBars()}
+            {signalY != null && signalY > PAD_TOP && (
+              <>
+                <defs>
+                  <clipPath id={signalClipId}>
+                    <rect x={padLeft} y={PAD_TOP} width={cw} height={signalY - PAD_TOP} />
+                  </clipPath>
+                </defs>
+                <g clipPath={`url(#${signalClipId})`}>
+                  {type === 'line' ? renderLines(SIGNAL) : renderBars(SIGNAL)}
+                </g>
+              </>
+            )}
             {/* Markers: drawn after the data so a bar cannot hide them, one square per point. */}
             {markers && dataLen > 0 &&
               [...new Set(markers.map(m => m.index).filter(i => i >= 0 && i < dataLen))].map(i => {

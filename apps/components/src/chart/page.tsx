@@ -250,6 +250,49 @@ export default function ChartPage() {
         />
       </div>
 
+      {/* Step lines and a limit */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Step lines and a limit</h2>
+        <p className={styles.subdesc}>
+          <code>step</code> on a line series holds the value flat until the next point and then jumps, for what
+          does not move between samples: a record count, a quota that changes on a date. <code>signal</code> on a
+          reference makes it a limit: whatever lies above it is drawn in the signal red, bars and points alike.
+        </p>
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Documents', data: [120_000, 120_000, 131_000, 131_000, 131_000, 171_000, 171_000, 188_000, 188_000, 188_000, 214_000, 214_000], step: true, fill: 'solid' },
+          ]}
+          yAxis="right"
+          references={[{ value: 200_000, label: 'quota 200k', signal: true }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          series={[{ label: 'p95 latency', data: [38, 41, 36, 52, 61, 29, 27] }]}
+          yAxis="left"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit 50 ms', color: 'var(--CSignal)', signal: true }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'p50 latency', data: p50.map((v, i) => (i % 9 === 4 ? v + 32 : v)) }]}
+          yAxis="right"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 40, label: 'limit', color: 'var(--CSignal)', signal: true }]}
+          height={180}
+          showLegend={false}
+        />
+      </div>
+
       {/* Multi-series line */}
       <div className={styles.section}>
         <h2 className={styles.heading}>Multi-series Line</h2>
