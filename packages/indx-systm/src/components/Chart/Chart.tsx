@@ -23,6 +23,15 @@ export interface ChartSeries {
   hoverColor?: string;
   /** Bars are 'solid' unless told otherwise; a line is 'none', a wire, unless given an area. */
   fill?: ChartFill;
+  /**
+   * Lines only: a range around the line, one value per point, drawn as a band behind it. The
+   * band is faint in the series colour, or its pattern when `fill` is one; the area under the
+   * line is then not drawn. Latency as p50 with p5 to p95, a forecast with its spread.
+   */
+  low?: number[];
+  high?: number[];
+  /** What the range is, for the tooltip: "p5 to p95". "Range" when left out. */
+  rangeLabel?: string;
 }
 
 // The pixel patterns, each a 4px tile of 1px or 2px cells in the series colour.
@@ -146,7 +155,9 @@ export function Chart({
   const totals = isStacked
     ? Array.from({ length: dataLenAll }, (_, i) => series.reduce((a, s) => a + Math.max(0, s.data[i] ?? 0), 0))
     : [];
-  const allValues = isStacked ? totals : series.flatMap(s => s.data.filter(Number.isFinite));
+  const allValues = isStacked
+    ? totals
+    : series.flatMap(s => [...s.data, ...(type === 'line' ? [...(s.low ?? []), ...(s.high ?? [])] : [])].filter(Number.isFinite));
   const refValues = (references ?? []).map(r => r.value).filter(Number.isFinite);
   let maxVal = allValues.length || refValues.length ? Math.max(...allValues, ...refValues, 0) : 1;
   let minVal = type === 'bar' ? Math.min(0, ...refValues) : Math.min(...allValues, ...refValues, 0);
@@ -341,8 +352,25 @@ export function Chart({
       const color = s.color ?? DEFAULT_LINE_COLOR;
       const pts = s.data.map((v, i) => `${toX(i).toFixed(2)},${toY(v).toFixed(2)}`).join(' ');
       const fill = fillOf(s);
+      const hasBand = !!(s.low && s.high && s.low.length && s.high.length);
+      // The band between low and high: along high to the right, back along low.
+      const band = hasBand ? (() => {
+        const n = Math.min(s.data.length, s.low!.length, s.high!.length);
+        if (n < 2) return null;
+        const top = Array.from({ length: n }, (_, i) => `${toX(i).toFixed(2)},${toY(s.high![i]).toFixed(2)}`);
+        const back = Array.from({ length: n }, (_, i) => `${toX(n - 1 - i).toFixed(2)},${toY(s.low![n - 1 - i]).toFixed(2)}`);
+        const patterned = fill in PATTERN_CELLS;
+        return (
+          <polygon
+            points={[...top, ...back].join(' ')}
+            fill={patterned ? patternRef(si) : color}
+            fillOpacity={patterned ? 1 : AREA_OPACITY}
+            stroke="none"
+          />
+        );
+      })() : null;
       // The area under the line, down to the baseline (or zero, where the range goes below it).
-      const area = fill !== 'none' && s.data.length > 1 ? (
+      const area = !hasBand && fill !== 'none' && s.data.length > 1 ? (
         <polygon
           points={`${toX(0).toFixed(2)},${baseY.toFixed(2)} ${pts} ${toX(s.data.length - 1).toFixed(2)},${baseY.toFixed(2)}`}
           fill={paintOf(s, si)}
@@ -353,6 +381,7 @@ export function Chart({
 
       return (
         <g key={si}>
+          {band}
           {area}
           <polyline points={pts} fill="none" stroke={color} strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" />
           {s.data.map((v, i) => {
@@ -454,11 +483,20 @@ export function Chart({
       >
         <div className={styles.tooltipLabel}>{label}</div>
         {series.map((s, si) => (
-          <div key={si} className={styles.tooltipRow}>
-            <span className={styles.tooltipDot} style={{ background: s.color ?? DEFAULT_LINE_COLOR }} />
-            <span className={styles.tooltipName}>{s.label}</span>
-            <span className={styles.tooltipValue}>{formatValue(s.data[tooltip.index] ?? 0)}</span>
-          </div>
+          <React.Fragment key={si}>
+            <div className={styles.tooltipRow}>
+              <span className={styles.tooltipDot} style={{ background: s.color ?? DEFAULT_LINE_COLOR }} />
+              <span className={styles.tooltipName}>{s.label}</span>
+              <span className={styles.tooltipValue}>{formatValue(s.data[tooltip.index] ?? 0)}</span>
+            </div>
+            {s.low && s.high && s.low[tooltip.index] != null && s.high[tooltip.index] != null && (
+              <div className={`${styles.tooltipRow} ${styles.tooltipRange}`}>
+                <span className={styles.tooltipDot} style={{ visibility: 'hidden' }} />
+                <span className={styles.tooltipName}>{s.rangeLabel ?? 'Range'}</span>
+                <span className={styles.tooltipRangeValue}>{formatValue(s.low[tooltip.index])} to {formatValue(s.high[tooltip.index])}</span>
+              </div>
+            )}
+          </React.Fragment>
         ))}
         {isStacked && series.length > 1 && (
           <div className={`${styles.tooltipRow} ${styles.tooltipTotal}`}>

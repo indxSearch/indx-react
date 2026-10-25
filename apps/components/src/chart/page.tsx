@@ -25,6 +25,10 @@ const monthChanges: ChartMarker[] = [
   { index: 25, label: '1 240 documents updated by filter' },
   { index: 27, label: 'Reindexed' },
 ];
+// Latency over the month: a median with its p5 to p95 spread, the spread widest on the busy days.
+const p50 = DAYS_30.map((_, i) => Math.round(24 + 4 * Math.sin(i / 4) + ((i * 7) % 5)));
+const p5 = p50.map((v, i) => Math.round(v * 0.55 - ((i * 3) % 4)));
+const p95 = p50.map((v, i) => Math.round(v * (1.8 + (i % 7 >= 5 ? 0.9 : 0)) + ((i * 11) % 9)));
 const DAYS_90 = Array.from({ length: 90 }, (_, i) => dayLabel(new Date(Date.UTC(2026, 6, 4 + i))));
 const quarter = DAYS_90.map((_, i) => Math.round(80 + i * 1.2 + 25 * Math.sin(i / 3.5) + ((i * 29) % 13)));
 
@@ -212,6 +216,37 @@ export default function ChartPage() {
             { label: 'Timed out', data: [12, 9, 31, 18, 44, 4, 3], color: 'var(--CSignal)' },
           ]}
           height={180}
+        />
+      </div>
+
+      {/* Range bands */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Range bands</h2>
+        <p className={styles.subdesc}>
+          <code>low</code> and <code>high</code> on a line series, one value per point, draw a band behind the line:
+          faint in the series colour, or in its pattern when <code>fill</code> is one. The tooltip adds the range
+          under the value, named by <code>rangeLabel</code>. Latency as the median with its p5 to p95 spread; a
+          forecast with its margin.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'p50 latency', data: p50, low: p5, high: p95, rangeLabel: 'p5 to p95' }]}
+          yAxis="right"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit', color: 'var(--CSignal)' }]}
+          height={220}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Searches', data: searches },
+            { label: 'Forecast', data: searches.map((v) => Math.round(v * 1.08)), low: searches.map((v) => Math.round(v * 0.92)), high: searches.map((v) => Math.round(v * 1.25)), color: 'var(--CTeal)', fill: 'checker', rangeLabel: 'Margin' },
+          ]}
+          height={200}
         />
       </div>
 
