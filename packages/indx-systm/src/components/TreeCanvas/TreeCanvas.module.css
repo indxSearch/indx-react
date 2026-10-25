@@ -126,6 +126,7 @@
 
 .toggle > button,
 .disclosure > button {
+  justify-content: center; /* a Button lays its content from the left; squared, it must centre */
   width: 22px;
   height: 22px;
   min-width: 0;
