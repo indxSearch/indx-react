@@ -11,8 +11,10 @@ export const STAT_ICON_SIZE = 28;
 export interface StatProps {
   /** What the number is: "Searches", "Click-through". */
   label: ReactNode;
-  /** The number, formatted; or a chip, for a state. */
-  value: ReactNode;
+  /** The number, formatted; or a chip, for a state. Left out when the figure carries it. */
+  value?: ReactNode;
+  /** A graphic at the left, the label and foot beside it: a BarMeter ring with the number in it. */
+  figure?: ReactNode;
   /** A pixl icon before the value, for a state ("Up", "Key set"): drawn at STAT_ICON_SIZE in the value's colour. */
   icon?: ReactElement<{ size?: number | string; color?: string }>;
   /** The value's colour, and the icon's: the signal red for a state that is wrong. A good state stays in the ink; the icon says it. */
@@ -25,21 +27,32 @@ export interface StatProps {
 }
 
 /** One number with its label, on the Base surface: a KPI, a count, a state. Put several in a StatGroup. */
-export function Stat({ label, value, icon, color, hint, children, className = '' }: StatProps) {
+export function Stat({ label, value, figure, icon, color, hint, children, className = '' }: StatProps) {
   const labelEl = <span className={`${styles.label} ${hint ? styles.hinted : ''}`}>{label}</span>;
   const iconEl = icon && isValidElement(icon)
     ? cloneElement(icon, { size: icon.props.size ?? STAT_ICON_SIZE, color: icon.props.color ?? 'currentColor' })
     : icon;
-  return (
-    <div className={`${styles.stat} ${className}`}>
+  const text = (
+    <>
       {hint ? <Tooltip content={hint}>{labelEl}</Tooltip> : labelEl}
-      <span className={styles.value} style={color ? { color } : undefined}>
-        {iconEl != null && <span className={styles.icon} aria-hidden="true">{iconEl}</span>}
-        {value}
-      </span>
+      {(value != null || iconEl != null) && (
+        <span className={styles.value} style={color ? { color } : undefined}>
+          {iconEl != null && <span className={styles.icon} aria-hidden="true">{iconEl}</span>}
+          {value}
+        </span>
+      )}
       {children != null && <span className={styles.foot}>{children}</span>}
-    </div>
+    </>
   );
+  if (figure != null) {
+    return (
+      <div className={`${styles.stat} ${styles.figured} ${className}`}>
+        <span className={styles.figure}>{figure}</span>
+        <span className={styles.text}>{text}</span>
+      </div>
+    );
+  }
+  return <div className={`${styles.stat} ${className}`}>{text}</div>;
 }
 
 export interface StatGroupProps {
