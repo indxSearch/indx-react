@@ -100,11 +100,15 @@
   transform: translate(-50%, -50%);
 }
 
-/* The handle: a 2px line, 80% of the row's height, centred, in lv0. The fill runs a few pixels
+/* The handle: a 2px line, 60% of the row's height, centred, in lv0. The fill runs a few pixels
    past its centre, so it stands on the fill rather than at its edge. */
 .handle {
+  /* react-range centres the handle by translating it down from the top. The row is a flex row
+     with align-items: center, so without top: 0 the static position is already centred and the
+     translate would push the handle below the middle. */
+  top: 0;
   width: 2px;
-  height: 80%;
+  height: 60%;
   background-color: var(--lv0);
   border-radius: var(--radius);
   outline: none;
