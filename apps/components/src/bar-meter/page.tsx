@@ -63,7 +63,7 @@ export default function BarMeterPage() {
       <div className={styles.section}>
         <h2 className={styles.heading}>In a Stat</h2>
         <p className={styles.desc}>
-          The 48px ring as a Stat's figure, the Stat's label and foot to its right: a level on a dashboard row of numbers.
+          The 48px ring as a Stat's figure, under the Stat's label with the foot to its right: a level on a dashboard row of numbers.
         </p>
         <StatGroup columns={4}>
           <Stat label="CPU pressure" figure={<BarMeter shape="ring" size={48} value={Math.round(cpu)} max={100} format={(v) => `${v} %`} color={cpu > 85 ? 'var(--CSignal)' : undefined} />}>of 100 %</Stat>

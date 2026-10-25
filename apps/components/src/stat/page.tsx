@@ -78,7 +78,7 @@ export default function StatPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>With a figure</h2>
-        <p className={styles.desc}>A graphic at the left carries the number; the label and foot sit to its right.</p>
+        <p className={styles.desc}>A graphic under the label carries the number; the foot sits to its right.</p>
         <StatGroup columns={3}>
           <Stat label="CPU pressure" figure={<BarMeter shape="ring" size={48} value={64} max={100} format={(v) => `${v} %`} />}>of 100 %</Stat>
           <Stat label="Memory" figure={<BarMeter shape="ring" size={48} value={39} max={100} format={(v) => `${v} %`} />}>6.2 of 16 GB</Stat>
@@ -91,7 +91,7 @@ export default function StatPage() {
         <PropsTable rows={[
           { name: 'label', type: 'ReactNode', description: 'What the number is.' },
           { name: 'value', type: 'ReactNode', description: 'The number, formatted; or a chip, for a state. Left out when the figure carries it.' },
-          { name: 'figure', type: 'ReactNode', description: 'A graphic at the left, the label and foot beside it: a BarMeter ring.' },
+          { name: 'figure', type: 'ReactNode', description: 'A graphic under the label, the value and foot beside it: a BarMeter ring.' },
           { name: 'icon', type: 'ReactElement', description: 'A pixl icon before the value, drawn at 28 in the value\'s colour.' },
           { name: 'color', type: 'string', description: 'The value\'s colour, and the icon\'s: the signal red for a state that is wrong. A good state stays in the ink.' },
           { name: 'hint', type: 'string', description: 'A tooltip on the label, which gets a dotted underline.' },
