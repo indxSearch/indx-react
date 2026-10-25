@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import styles from './TreeCanvas.module.css';
 
 // A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out
@@ -37,6 +37,11 @@ export interface TreeCanvasProps {
   /** A filter: only nodes it accepts stay, with the path down to each; an ancestor kept only as
    *  the way down is drawn muted, and a branch holding a match is opened. "Only boosted." */
   visible?: (node: TreeNode) => boolean;
+  /** The canvas drawn at this scale, 1 by default: 0.5 shows twice the tree in the same room. */
+  zoom?: number;
+  /** When set or changed, the tree is opened to this many levels and closed below: 1 shows the
+   *  roots, 2 their children. Left out, the opening is the component's own. */
+  openDepth?: number;
   /** A name for assistive technology: "Categories of shop". */
   'aria-label'?: string;
   className?: string;
@@ -77,11 +82,24 @@ export function TreeCanvas({
   maxChildren = 50,
   format,
   visible,
+  zoom = 1,
+  openDepth,
   'aria-label': ariaLabel,
   className = '',
 }: TreeCanvasProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(defaultExpanded ?? roots.map((r) => r.id)));
   const [showAll, setShowAll] = useState<Set<string>>(() => new Set());
+  // Opened to a depth on request: every node above it open, the rest closed.
+  useEffect(() => {
+    if (openDepth == null) return;
+    const open = new Set<string>();
+    const walk = (n: TreeNode, depth: number) => {
+      if (depth < openDepth - 1 && n.children?.length) { open.add(n.id); n.children.forEach((c) => walk(c, depth + 1)); }
+    };
+    roots.forEach((r) => walk(r, 0));
+    setExpanded(open);
+  }, [openDepth, roots]);
+
   // The pills' real widths, read off the DOM after a render; the layout uses these over the guess.
   const [measured, setMeasured] = useState<Map<string, number>>(() => new Map());
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -91,7 +109,7 @@ export function TreeCanvas({
     let changed = false;
     const next = new Map(measured);
     sheet.querySelectorAll<HTMLElement>('[data-node]').forEach((el) => {
-      const w = Math.ceil(el.getBoundingClientRect().width);
+      const w = Math.ceil(el.getBoundingClientRect().width / zoom);
       const id = el.dataset.node!;
       if (w > 0 && next.get(id) !== w) { next.set(id, w); changed = true; }
     });
@@ -203,7 +221,7 @@ export function TreeCanvas({
   return (
     <div className={`${styles.canvas} ${className}`} role="tree" aria-label={ariaLabel}>
       {placed.length === 0 && <div className={styles.empty}>Nothing matches</div>}
-      <div ref={sheetRef} className={styles.sheet} style={{ width, height } as CSSProperties}>
+      <div ref={sheetRef} className={styles.sheet} style={{ width, height, transform: zoom === 1 ? undefined : `scale(${zoom})`, marginRight: zoom === 1 ? undefined : -(width + 32) * (1 - zoom), marginBottom: zoom === 1 ? undefined : -(height + 32) * (1 - zoom) } as CSSProperties}>
         <svg className={styles.edges} width={width} height={height} aria-hidden="true">
           {placed.filter((p) => p.parent).map((p) => {
             const a = p.parent!;
