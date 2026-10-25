@@ -11,7 +11,7 @@ import { Range } from 'react-range';
 const MAX_STEP_MARKS = 50;
 const HANDLE_WIDTH = 2;
 // How far the fill runs past the handle's centre, so the handle sits on the fill, not at its edge.
-const FILL_PAST_HANDLE = 4;
+const FILL_PAST_HANDLE = 6;
 
 export type BarSliderSize = 'micro' | 'default';
 
