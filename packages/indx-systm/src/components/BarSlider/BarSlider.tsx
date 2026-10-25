@@ -143,7 +143,8 @@ export const BarSlider: React.FC<BarSliderProps> = ({
             {...restThumbProps}
             id={sliderId}
             className={styles.handle}
-            style={restThumbProps.style}
+            // react-range writes z-index: 0 inline, which would put the handle under the fill.
+            style={{ ...restThumbProps.style, zIndex: 3 }}
             aria-label={ariaLabel || label}
             aria-valuemin={min}
             aria-valuemax={max}

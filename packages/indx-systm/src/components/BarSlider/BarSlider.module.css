@@ -108,7 +108,6 @@
   background-color: var(--lv0);
   border-radius: var(--radius);
   outline: none;
-  z-index: 3;
 }
 
 /* A wider invisible hit area, so a 2px line is easy to grab. */
