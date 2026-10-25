@@ -55,3 +55,53 @@
     clip-path: inset(0 calc(100% - round(var(--meter-fill, 0%), 4px)) 0 0);
   }
 }
+
+/* The ring: the same bars as radial lines around a circle.
+   The value and ceiling sit in the middle, the label beneath. currentColor is the ink, or the
+   colour prop set inline on the meter. */
+.ring {
+  align-items: center;
+  width: var(--meter-size, 72px);
+  color: var(--lv8);
+}
+
+.dial {
+  position: relative;
+  width: var(--meter-size, 72px);
+  height: var(--meter-size, 72px);
+}
+
+.svg {
+  display: block;
+}
+
+.svg line {
+  stroke-width: 2px;
+  stroke-linecap: butt;
+}
+
+.lit {
+  stroke: currentColor;
+}
+
+.dim {
+  stroke: var(--lv3);
+}
+
+.centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.ring .label {
+  text-align: center;
+}

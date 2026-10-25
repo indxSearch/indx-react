@@ -53,3 +53,11 @@
 @media (prefers-color-scheme: dark) {
   .card { background: var(--lv1); }
 }
+
+.rings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-top: 1rem;
+}

@@ -1,14 +1,20 @@
 import type { CSSProperties, ReactNode } from 'react';
 import styles from './BarMeter.module.css';
 
-// A quantity against its ceiling, as a row of bars: the filled ones in the ink, the rest dim. A
-// label above, the value at the left below and the ceiling at the right. Where ProgressBar is a
-// percentage on its way to done, BarMeter is a level that goes up and down: CPU pressure, memory
-// in use, a quota. The bars are drawn by a repeating gradient, so their number follows the width.
+// A quantity against its ceiling, as bars: the filled ones in the ink, the rest dim. Two shapes.
+// 'bar' is a row with a label above, the value at the left below and the ceiling at the right.
+// 'ring' is the same bars around a circle, from the top clockwise, the value in the middle, the
+// ceiling under it from 96px, and the label beneath; a 48px ring holds a short value and fits a
+// Stat. Where ProgressBar is a percentage on its way to done,
+// BarMeter is a level that goes up and down: CPU pressure, memory in use, a quota. The row's bars
+// are drawn by a repeating gradient, so their number follows the width; the ring's are SVG lines,
+// as many as keep the same 4px pitch at the middle of the band.
+
+export type BarMeterShape = 'bar' | 'ring';
 
 export interface BarMeterProps {
-  /** What is measured: "CPU pressure", "Memory". */
-  label: ReactNode;
+  /** What is measured: "CPU pressure", "Memory". A ring inside a Stat leaves it to the Stat. */
+  label?: ReactNode;
   value: number;
   max: number;
   /** The value as shown at the left; defaults to the number itself. */
@@ -17,12 +23,57 @@ export interface BarMeterProps {
   maxLabel?: ReactNode;
   /** The filled bars' colour, for a level that has become a problem: the signal red past a threshold. */
   color?: string;
+  /** A row of bars (default) or a ring of them. */
+  shape?: BarMeterShape;
+  /** The ring's diameter in pixels; 72 by default, 48 the smallest that holds a value. From 96 the ceiling joins the value in the middle. The row ignores it. */
+  size?: number;
   className?: string;
 }
 
-export function BarMeter({ label, value, max, format, maxLabel, color, className = '' }: BarMeterProps) {
+const RING_PITCH = 4;
+// The band is 14px like the row, 6px below 72px so the hole still holds a short value ("84 %"
+// at 48px); the ceiling joins the value in the hole from 96px, where there is room for a second
+// line.
+const RING_CEILING_FROM = 96;
+const ringBand = (size: number) => (size < 72 ? 6 : 14);
+
+export function BarMeter({
+  label,
+  value,
+  max,
+  format,
+  maxLabel,
+  color,
+  shape = 'bar',
+  size = 72,
+  className = '',
+}: BarMeterProps) {
   const fraction = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
   const show = (n: number) => (format ? format(n) : n.toLocaleString());
+  const ceiling = maxLabel ?? <>of {show(max)}</>;
+
+  if (shape === 'ring') {
+    return (
+      <div
+        className={`${styles.meter} ${styles.ring} ${className}`}
+        role="meter"
+        aria-valuenow={value}
+        aria-valuemin={0}
+        aria-valuemax={max}
+        style={{ '--meter-size': `${size}px`, color } as CSSProperties}
+      >
+        <div className={styles.dial}>
+          <RingBars fraction={fraction} size={size} />
+          <div className={styles.centre} aria-hidden="true">
+            <span className={styles.value}>{show(value)}</span>
+            {size >= RING_CEILING_FROM && <span className={styles.max}>{ceiling}</span>}
+          </div>
+        </div>
+        {label != null && <span className={styles.label}>{label}</span>}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`${styles.meter} ${className}`}
@@ -31,7 +82,7 @@ export function BarMeter({ label, value, max, format, maxLabel, color, className
       aria-valuemin={0}
       aria-valuemax={max}
     >
-      <span className={styles.label}>{label}</span>
+      {label != null && <span className={styles.label}>{label}</span>}
       <div className={styles.bars} aria-hidden="true">
         <div
           className={styles.fill}
@@ -40,8 +91,40 @@ export function BarMeter({ label, value, max, format, maxLabel, color, className
       </div>
       <div className={styles.foot} aria-hidden="true">
         <span className={styles.value}>{show(value)}</span>
-        <span className={styles.max}>{maxLabel ?? <>of {show(max)}</>}</span>
+        <span className={styles.max}>{ceiling}</span>
       </div>
     </div>
+  );
+}
+
+// The ring's bars: 2px radial lines from the inner to the outer radius, as many as give a 4px
+// pitch along the middle of the band, the first at the top and the rest clockwise. The filled
+// ones are the first round(fraction * count), in currentColor; the rest dim.
+function RingBars({ fraction, size }: { fraction: number; size: number }) {
+  const outer = size / 2;
+  const inner = Math.max(0, outer - ringBand(size));
+  const middle = (outer + inner) / 2;
+  const count = Math.max(4, Math.round((2 * Math.PI * middle) / RING_PITCH));
+  const filled = Math.round(fraction * count);
+  const lines = [];
+  for (let i = 0; i < count; i++) {
+    const angle = (-90 + (360 * i) / count) * (Math.PI / 180);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    lines.push(
+      <line
+        key={i}
+        className={i < filled ? styles.lit : styles.dim}
+        x1={outer + inner * cos}
+        y1={outer + inner * sin}
+        x2={outer + outer * cos}
+        y2={outer + outer * sin}
+      />,
+    );
+  }
+  return (
+    <svg className={styles.svg} viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden="true">
+      {lines}
+    </svg>
   );
 }
