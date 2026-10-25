@@ -9,9 +9,12 @@ import { Range } from 'react-range';
 // column (weight, slant, size…).
 
 const MAX_STEP_MARKS = 50;
-const HANDLE_WIDTH = 2;
-// How far the fill runs past the handle's centre, so the handle sits on the fill, not at its edge.
-const FILL_PAST_HANDLE = 6;
+// The handle's centre sits this far inside the fill's end, so the fill's edge marks the value and
+// the handle stands on the fill.
+const HANDLE_OFFSET = 6;
+// At the low end the handle stays this far from the row's left edge, inside the padding, where no
+// fill reaches it: a slider at its minimum still shows where its handle is.
+const HANDLE_INSET = 8;
 
 export type BarSliderSize = 'micro' | 'default';
 
@@ -89,6 +92,7 @@ export const BarSlider: React.FC<BarSliderProps> = ({
   // fine-grained slider draws none.
   const stepCount = step > 0 ? Math.round(span / step) : 0;
   const showStepMarks = stepMarks && stepCount > 0 && stepCount <= MAX_STEP_MARKS;
+  const lineLeft = `max(${HANDLE_INSET}px, calc(${fillPct}% - ${HANDLE_OFFSET}px))`;
 
   return (
     <Range
@@ -110,19 +114,14 @@ export const BarSlider: React.FC<BarSliderProps> = ({
             onMouseDown={(e: React.MouseEvent) => { setKeyboardFocus(false); restTrackProps.onMouseDown?.(e); }}
             onTouchStart={(e: React.TouchEvent) => { setKeyboardFocus(false); restTrackProps.onTouchStart?.(e); }}
           >
-            {/* The fill is a full-width overlay in the ink with the label and value in the inverted
-                ink, clipped at the value plus FILL_PAST_HANDLE, so the handle sits on it and the
-                text turns light as the fill reaches it. The handle's centre is at
-                fraction * (row - 2px) + 1px, because react-range keeps it inside the row. */}
-            <div
-              className={styles.fill}
-              style={{
-                clipPath: `inset(0 calc(${100 - fillPct}% - ${FILL_PAST_HANDLE + 1 - (fillPct / 100) * HANDLE_WIDTH}px) 0 0)`,
-              }}
-              aria-hidden="true"
-            >
+            {/* The fill is a full-width overlay in the ink, text and handle in the inverted ink,
+                clipped at the value, so the text and the handle turn light as the fill reaches
+                them. The row holds the same text and handle in the ink underneath. */}
+            <span className={styles.line} style={{ left: lineLeft }} aria-hidden="true" />
+            <div className={styles.fill} style={{ clipPath: `inset(0 ${100 - fillPct}% 0 0)` }} aria-hidden="true">
               {label && <span className={styles.label}>{label}</span>}
               {showValue && <span className={styles.value}>{format ? format(clamped) : clamped}</span>}
+              <span className={styles.line} style={{ left: lineLeft }} />
             </div>
             {showStepMarks && (
               <div className={styles.stepmarks} aria-hidden="true">

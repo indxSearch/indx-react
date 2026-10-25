@@ -100,18 +100,31 @@
   transform: translate(-50%, -50%);
 }
 
-/* The handle: a 2px line, 60% of the row's height, centred, in lv0. The fill runs a few pixels
-   past its centre, so it stands on the fill rather than at its edge. */
+/* The handle react-range moves is only the thing to grab and focus: 2px wide, no colour. The
+   line the eye sees is .line, placed from the value by the component, drawn twice: in the ink on
+   the row, and in the inverted ink inside the clipped fill, so it inverts with the fill. */
 .handle {
-  /* react-range centres the handle by translating it down from the top. The row is a flex row
-     with align-items: center, so without top: 0 the static position is already centred and the
-     translate would push the handle below the middle. */
   top: 0;
   width: 2px;
   height: 60%;
-  background-color: var(--lv0);
-  border-radius: var(--radius);
   outline: none;
+}
+
+.line {
+  position: absolute;
+  top: 20%;
+  width: 2px;
+  height: 60%;
+  background-color: var(--lv6);
+  border-radius: var(--radius);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fill .line {
+  background-color: var(--lv0);
+  z-index: auto;
 }
 
 /* A wider invisible hit area, so a 2px line is easy to grab. */
