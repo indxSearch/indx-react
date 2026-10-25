@@ -125,9 +125,10 @@ export const BarSlider: React.FC<BarSliderProps> = ({
             </div>
             {showStepMarks && (
               <div className={styles.stepmarks} aria-hidden="true">
-                {/* Only the steps beyond the value: the fill covers the rest, and the dot at the
-                    value itself would be cut in half by the fill's edge. */}
-                {Array.from({ length: stepCount + 1 }, (_, i) => Math.min(i * step, span))
+                {/* Only the steps beyond the value and before the end: the fill covers the rest,
+                    the dot at the value itself would be cut in half by the fill's edge, and the
+                    one at the end would sit on the row's edge. */}
+                {Array.from({ length: stepCount }, (_, i) => i * step)
                   .filter((offset) => offset > clamped - min)
                   .map((offset) => (
                     <span key={offset} className={styles.stepmark} style={{ left: `${(offset / span) * 100}%` }} />
