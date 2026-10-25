@@ -19,8 +19,8 @@ export default function SegmentedControlPage() {
       <div className={styles.section}>
         <h1 className={styles.title}>SegmentedControl</h1>
         <p className={styles.desc}>
-          One choice from a few, side by side: a row of cells on one hairline rule, the chosen one underlined, the
-          Tabs look without the navigation. For the period of a
+          One choice from a few, side by side: the chosen cell filled like a primary Button, the rest ghost, the
+          button Tabs look without the navigation. For the period of a
           chart, the interval of a graph, the type of a view: a compact control for a panel's header, where Tabs
           would be too tall and a Select hides the options. Arrow keys move between cells.
         </p>

@@ -1,8 +1,8 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import styles from './SegmentedControl.module.css';
 
-// One choice from a few, side by side: a row of cells on one hairline rule, the chosen one
-// underlined, the Tabs look without the navigation.
+// One choice from a few, side by side: the chosen cell filled like a primary Button, the rest
+// ghost, the button Tabs look without the navigation.
 // For the period of a chart, the interval of a graph, the type of a view: a compact control for
 // a panel's header, where Tabs would be too tall and a Select hides the options. A cell is a
 // word or an icon; the icon-only cell takes an aria-label. Arrow keys move between cells.
