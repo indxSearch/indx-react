@@ -19,7 +19,8 @@ export default function SegmentedControlPage() {
       <div className={styles.section}>
         <h1 className={styles.title}>SegmentedControl</h1>
         <p className={styles.desc}>
-          One choice from a few, side by side: a row of cells in a hairline frame, one active. For the period of a
+          One choice from a few, side by side: a row of cells on one hairline rule, the chosen one underlined, the
+          Tabs look without the navigation. For the period of a
           chart, the interval of a graph, the type of a view: a compact control for a panel's header, where Tabs
           would be too tall and a Select hides the options. Arrow keys move between cells.
         </p>
@@ -66,7 +67,7 @@ export default function SegmentedControlPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>Sizes</h2>
-        <p className={styles.desc}>micro is 22px tall, for a panel header; default 28px, next to a micro Button.</p>
+        <p className={styles.desc}>micro is 24px tall, for a panel header; default 30px, the height of a micro Tab.</p>
         <div className={styles.row}>
           <SegmentedControl aria-label="Size" size="micro" value={size} onChange={setSize} items={[{ value: 'micro', label: 'Micro' }, { value: 'default', label: 'Default' }]} />
           <SegmentedControl aria-label="Size" size="default" value={size} onChange={setSize} items={[{ value: 'micro', label: 'Micro' }, { value: 'default', label: 'Default' }]} />
@@ -95,7 +96,7 @@ export default function SegmentedControlPage() {
           { name: 'items', type: '{ value, label?, icon?, aria-label?, disabled? }[]', description: 'The cells, in order.' },
           { name: 'value', type: 'string', description: 'The chosen cell.' },
           { name: 'onChange', type: '(value) => void', description: 'Called with the cell chosen by click or arrow key.' },
-          { name: 'size', type: "'micro' | 'default'", default: "'micro'", description: '22px or 28px tall.' },
+          { name: 'size', type: "'micro' | 'default'", default: "'micro'", description: '24px or 30px tall.' },
           { name: 'stretch', type: 'boolean', default: 'false', description: 'Cells share the width equally.' },
           { name: 'disabled', type: 'boolean', default: 'false', description: 'The whole control.' },
           { name: 'aria-label', type: 'string', description: 'What the choice is.' },

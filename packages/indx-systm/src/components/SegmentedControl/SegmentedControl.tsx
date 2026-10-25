@@ -1,7 +1,8 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import styles from './SegmentedControl.module.css';
 
-// One choice from a few, side by side: a row of equal cells in a hairline frame, one active.
+// One choice from a few, side by side: a row of cells on one hairline rule, the chosen one
+// underlined, the Tabs look without the navigation.
 // For the period of a chart, the interval of a graph, the type of a view: a compact control for
 // a panel's header, where Tabs would be too tall and a Select hides the options. A cell is a
 // word or an icon; the icon-only cell takes an aria-label. Arrow keys move between cells.
@@ -21,7 +22,7 @@ export interface SegmentedControlProps<T extends string = string> {
   items: SegmentedItem<T>[];
   value: T;
   onChange: (value: T) => void;
-  /** 'micro' is 24px tall, for a panel header; 'default' 30px, beside a micro Button. */
+  /** 'micro' is 24px tall, for a panel header; 'default' 30px, the height of a micro Tab. */
   size?: SegmentedSize;
   /** Cells share the width equally instead of taking their content's. */
   stretch?: boolean;
