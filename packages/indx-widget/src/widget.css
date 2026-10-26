@@ -1,0 +1,129 @@
+/* The element is a block in the page's flow; its surface and text come from systm's tokens, which
+   the shadow stylesheet sets on :host, and its typeface from the page (set on the element). */
+:host {
+  display: block;
+  color: var(--lv8);
+  font: var(--text-sm);
+}
+
+.indx-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--lv0);
+}
+
+.indx-widget-answer {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.indx-widget-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.indx-widget-body-filters {
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.indx-widget-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* A result: image, title and a line of text, the price at the end. */
+.indx-widget-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.indx-widget-card:hover {
+  background: var(--lv1);
+}
+
+.indx-widget-card:focus-visible {
+  outline: 2px solid var(--lv5);
+  outline-offset: 1px;
+}
+
+.indx-widget-card-image {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  flex: none;
+  background: var(--lv1);
+}
+
+.indx-widget-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.indx-widget-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indx-widget-card-line {
+  color: var(--lv5);
+  font: var(--text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indx-widget-card-price {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The overlay's field in the header, and the panel it opens: wide on a desk, the whole screen on a phone. */
+.indx-widget-trigger {
+  min-width: 220px;
+}
+
+.indx-widget-kbd {
+  margin-left: auto;
+  padding: 0 4px;
+  font: var(--text-2xs);
+  color: var(--lv5);
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+}
+
+.indx-widget-overlay {
+  max-width: 900px !important;
+  width: 92vw !important;
+  max-height: 85vh;
+  top: 8vh !important;
+  transform: translate(-50%, 0) !important;
+}
+
+@media (max-width: 640px) {
+  .indx-widget-body-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .indx-widget-overlay {
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100vh;
+    max-height: none;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border-radius: 0;
+  }
+}
