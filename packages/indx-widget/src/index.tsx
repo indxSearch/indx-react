@@ -27,17 +27,40 @@ const scriptOrigin = (() => {
 
 /**
  * The page decides light or dark, not the visitor's computer: a shop with a white page shows a
- * white search. systm's dark tokens come under `prefers-color-scheme: dark`; here they apply to
- * `theme="dark"` always and to `theme="auto"` with the system's dark mode. Rewritten from systm's
- * own rule, so the values never drift from it.
+ * white search. systm and intrface put their dark styles under `prefers-color-scheme: dark` (the
+ * tokens on :host, and some components' own rules); every such block is rewritten to apply to
+ * `theme="dark"` always and to `theme="auto"` with the system's dark mode. Rewritten from the
+ * libraries' own rules, so the values never drift from them.
  */
 export function themed(css: string): string {
-  return css.replace(/@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:host\s*\{([^}]*)\}\s*\}/g,
-    (_, tokens: string) => `:host([theme="dark"]){${tokens}}@media (prefers-color-scheme: dark){:host([theme="auto"]){${tokens}}}`);
+  const media = /@media\s*\(\s*prefers-color-scheme\s*:\s*dark\s*\)\s*\{/g;
+  let out = '';
+  let at = 0;
+  for (let m = media.exec(css); m; m = media.exec(css)) {
+    // The block's end: the brace that closes the one the @media opened.
+    let depth = 1, i = m.index + m[0].length;
+    for (; i < css.length && depth > 0; i++) depth += css[i] === '{' ? 1 : css[i] === '}' ? -1 : 0;
+    const inner = css.slice(m.index + m[0].length, i - 1);
+    out += css.slice(at, m.index) + scoped(inner, ':host([theme="dark"])')
+      + `@media (prefers-color-scheme: dark){${scoped(inner, ':host([theme="auto"])')}}`;
+    at = i;
+    media.lastIndex = i;
+  }
+  return out + css.slice(at);
+}
+
+/** Rules (`selectors{declarations}`, one level) with each selector under `host`: `:host` itself
+ *  becomes `host`, anything else is prefixed with it. */
+function scoped(rules: string, host: string): string {
+  return rules.replace(/([^{}]+)\{([^{}]*)\}/g, (_, selectors: string, body: string) =>
+    selectors.split(',').map(sel => {
+      const s = sel.trim();
+      return s.startsWith(':host') ? host + s.slice(':host'.length) : `${host} ${s}`;
+    }).join(',') + `{${body}}`);
 }
 
 const attributes = ['url', 'team', 'dataset', 'key', 'mode', 'source', 'placeholder', 'theme',
-  'title-field', 'image-field', 'price-field', 'text-field', 'link', 'filters'] as const;
+  'title-field', 'image-field', 'price-field', 'text-field', 'chip-fields', 'link', 'filters', 'examples'] as const;
 
 class IndxSearchElement extends HTMLElement {
   static observedAttributes = [...attributes];
@@ -48,7 +71,7 @@ class IndxSearchElement extends HTMLElement {
     const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
     if (!this.mount) {
       const style = document.createElement('style');
-      style.textContent = `${themed(systmCss)}\n${intrfaceCss}\n${widgetCss}`;
+      style.textContent = `${themed(systmCss)}\n${themed(intrfaceCss)}\n${widgetCss}`;
       this.mount = document.createElement('div');
       shadow.append(style, this.mount);
     }
@@ -96,9 +119,16 @@ class IndxSearchElement extends HTMLElement {
       priceField: a('price-field'),
       textField: a('text-field'),
       link: a('link'),
-      filters: (a('filters') ?? '').split(',').map(f => f.trim()).filter(Boolean),
+      chipFields: list(a('chip-fields'), ','),
+      filters: list(a('filters'), ','),
+      // Questions contain commas, so they are separated by |.
+      examples: list(a('examples'), '|'),
     };
   }
+}
+
+function list(value: string | undefined, separator: string): string[] {
+  return (value ?? '').split(separator).map(v => v.trim()).filter(Boolean);
 }
 
 if (!customElements.get('indx-search')) customElements.define('indx-search', IndxSearchElement);

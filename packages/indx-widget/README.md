@@ -1,7 +1,11 @@
 # @indxsearch/widget
 
-Indx search, filters and Search or ask as one HTML element, for any site: [intrface](../indx-intrface)
-packaged as a web component. For teams that are not on React, for trials, and for the plug-ins.
+Indx search, filters and the assistant (Search or ask) as one HTML element, for any site:
+[intrface](../indx-intrface) packaged as a web component, laid out as indx.co's own search
+(indx-web-v4, `SearchAskDemo`): the field and the results on a framed surface, and beside them a
+column that switches between Filters and the Assistant. The field judges what is typed, a question
+gets a prompt to ask, and the assistant answers from the dataset's records, puts its filters on the
+list and takes follow-ups. Under 800px the column becomes two buttons under the field. For teams that are not on React, for trials, and for the plug-ins.
 A team that wants its own look builds on intrface or the HTTP API instead.
 
 ```html
@@ -23,9 +27,11 @@ A team that wants its own look builds on intrface or the HTTP API instead.
 | `key` | A **Search** key, the only kind that belongs in a browser. |
 | `url` | The Indx server. Left out: the server the script came from. |
 | `mode` | `page` (default): a block with the field, filters and results. `overlay`: a field that opens the search over the page. |
-| `title-field`, `text-field`, `image-field`, `price-field` | What a result shows. |
+| `title-field`, `text-field`, `image-field`, `price-field` | What a result shows: a title (the link), a line of text, an image beside it, a price. |
+| `chip-fields` | Fields shown as chips under the title, comma separated (lists, and lists stored as text, are split). |
+| `examples` | Questions the assistant offers to start from, separated by `\|`. |
 | `link` | Where a result leads: a template with fields in braces (`/products/{id}`), or a field holding a URL. |
-| `filters` | Fields to filter on, comma separated; each must be Facetable. |
+| `filters` | Fields to filter on, comma separated; each must be Facetable. The Filters panel shows with them; the Assistant with Search or ask on for the dataset. |
 | `theme` | `light` (default), `dark`, or `auto` (follows the visitor's system). The page decides, not the visitor's computer. |
 | `placeholder`, `source` | The overlay field's text; the statistics source (default `widget`). |
 
