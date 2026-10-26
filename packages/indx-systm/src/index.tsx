@@ -14,7 +14,7 @@ export type { StepMarks } from './components/Slider/Slider';
 export { BarSlider, type BarSliderProps, type BarSliderSize } from './components/BarSlider/BarSlider';
 export { ScrubSlider, type ScrubSliderProps } from './components/ScrubSlider/ScrubSlider';
 export { Select, type SelectOption, type SelectProps } from './components/Select/Select';
-export { Popover, type PopoverProps } from './components/Popover';
+export { Popover, PopoverDivider, type PopoverProps } from './components/Popover';
 export { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon } from './components/Table';
 export { Tabs, type TabItem, type TabsProps } from './components/Tabs/Tabs';
 export { SegmentedControl, type SegmentedControlProps, type SegmentedItem, type SegmentedSize } from './components/SegmentedControl/SegmentedControl';
