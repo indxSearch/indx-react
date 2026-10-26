@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Plus, Minus } from '@indxsearch/pixl';
+import { Plus, Minus, Marquee } from '@indxsearch/pixl';
 import { Button } from '../Button/Button';
-import { pan } from './pan';
+import { createViewport, type Viewport } from './viewport';
 import styles from './TreeCanvas.module.css';
 
 // A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out
@@ -11,6 +11,10 @@ import styles from './TreeCanvas.module.css';
 // placed over the connectors, with a ghost Button to open and close each, so the step has a
 // hover of its own; arrows move between them, right opens, left closes, Enter chooses. A node with many children shows the first so many by count and a step to the rest.
 // The list view is the same tree as nested rows, for a phone and for a screen reader.
+// The tree lies on a board that pans and zooms as a design canvas does (viewport.ts): drag it,
+// scroll it with two fingers, pinch or Ctrl/Cmd and the wheel to zoom at the pointer, the controls
+// in its corner to zoom or fit; it opens fitted to the tree. A systm pattern behind it follows the
+// view. Handles mark where the edges leave and arrive.
 
 export interface TreeNode {
   id: string;
@@ -40,13 +44,15 @@ export interface TreeCanvasProps {
   /** A filter: only nodes it accepts stay, with the path down to each; an ancestor kept only as
    *  the way down is drawn muted, and a branch holding a match is opened. "Only boosted." */
   visible?: (node: TreeNode) => boolean;
-  /** The canvas drawn at this scale, 1 by default: 0.5 shows twice the tree in the same room. */
+  /** The zoom the tree opens at, from the left; left out, it opens fitted in view when that leaves
+   *  it readable, and at 100% from the left when not. */
   zoom?: number;
   /** When set or changed, the tree is opened to this many levels and closed below: 1 shows the
    *  roots, 2 their children. Left out, the opening is the component's own. */
   openDepth?: number;
-  /** Drag with a mouse or pen to move the tree, as on a design canvas; on by default. The wheel
-   *  and touch scroll as before, and a press that does not move is a click. */
+  /** The board: drag to pan, two-finger scroll to pan, pinch or Ctrl/Cmd and the wheel to zoom, the
+   *  arrows, + - and 0 on it, and the zoom controls in its corner; on by default. Off, the tree is a
+   *  still picture at `zoom` or fitted, for an example inside a page that scrolls. */
   pan?: boolean;
   /** A systm pattern behind the tree, faint, moving with it. None by default. */
   pattern?: TreeCanvasPattern;
@@ -61,6 +67,7 @@ export type TreeCanvasPattern =
   | 'checkerboard-spaced-4' | 'checkerboard-spaced-6' | 'checkerboard-spaced-8' | 'checkerboard-spaced-10';
 
 const ROW = 44;
+const HANDLE = 5;
 const COLUMN_GAP = 56;
 const PILL_PAD = 24;
 const CHAR = 7;
@@ -95,7 +102,7 @@ export function TreeCanvas({
   maxChildren = 50,
   format,
   visible,
-  zoom = 1,
+  zoom,
   openDepth,
   pan: pannable = true,
   pattern,
@@ -119,22 +126,40 @@ export function TreeCanvas({
   const [measured, setMeasured] = useState<Map<string, number>>(() => new Map());
   const sheetRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!pannable || !canvas) return;
-    return pan(canvas);
-  }, [pannable, view]);
+  const viewRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const viewport = useRef<Viewport | null>(null);
+  // The board is wired once per drawing of the canvas (it is drawn anew after the list view),
+  // before the measuring below, so the first view can be set as soon as the layout is final.
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current, viewEl = viewRef.current;
+    if (!canvas || !viewEl) return;
+    const vp = createViewport(canvas, viewEl, gridRef.current, pannable);
+    viewport.current = vp;
+    return () => { vp.destroy(); viewport.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, pattern]);
+  useEffect(() => { viewport.current?.setPan(pannable); }, [pannable]);
+  // A new tree, or the board drawn again, opens at its first view; opening and closing nodes, a
+  // new selection or a filter keep the view where the reader left it.
+  const viewPending = useRef(true);
+  useLayoutEffect(() => { viewPending.current = true; }, [roots, view]);
   useLayoutEffect(() => {
     const sheet = sheetRef.current;
     if (!sheet) return;
     let changed = false;
     const next = new Map(measured);
     sheet.querySelectorAll<HTMLElement>('[data-node]').forEach((el) => {
-      const w = Math.ceil(el.getBoundingClientRect().width / zoom);
+      const w = el.offsetWidth;
       const id = el.dataset.node!;
       if (w > 0 && next.get(id) !== w) { next.set(id, w); changed = true; }
     });
     if (changed) setMeasured(next);
+    else if (viewPending.current && viewport.current) {
+      // The pills are measured and the layout is final: now the first view can be fitted.
+      viewPending.current = false;
+      viewport.current.initial(zoom);
+    }
   });
   const toggle = (id: string) =>
     setExpanded((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
@@ -218,7 +243,11 @@ export function TreeCanvas({
     else if (e.key === 'End') to = order[order.length - 1];
     if (!to) return;
     e.preventDefault();
-    (e.currentTarget.parentElement?.querySelector(`[data-node="${CSS.escape(to)}"]`) as HTMLElement | null)?.focus();
+    // Focus without the browser's own scroll, and pan just enough to bring the node into view.
+    const el = sheetRef.current?.querySelector<HTMLElement>(`[data-node="${CSS.escape(to)}"]`);
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    viewport.current?.bringIntoView(el);
   };
 
   if (view === 'list') {
@@ -249,22 +278,34 @@ export function TreeCanvas({
   }
 
   return (
+    // The board: the grid layer behind, the view (moved and scaled by viewport.ts, never by React,
+    // so a render keeps the pan and zoom) holding the sheet, and the controls over it.
     <div
       ref={canvasRef}
-      className={`${styles.canvas} ${pannable ? styles.pannable : ''} ${pattern ? styles.patterned : ''} ${className}`}
-      style={pattern ? ({ '--tree-pattern': `var(--pattern-${pattern}-light)`, '--tree-pattern-dark': `var(--pattern-${pattern}-dark)` } as CSSProperties) : undefined}
+      className={`${styles.canvas} ${pannable ? styles.pannable : ''} ${className}`}
       role="tree"
       aria-label={ariaLabel}
+      tabIndex={pannable ? 0 : undefined}
     >
+      {pattern && (
+        <div
+          ref={gridRef}
+          className={styles.grid}
+          aria-hidden="true"
+          style={{ '--tree-pattern': `var(--pattern-${pattern}-light)`, '--tree-pattern-dark': `var(--pattern-${pattern}-dark)`, '--tree-tile': `${tileOf(pattern)}px` } as CSSProperties}
+        />
+      )}
       {placed.length === 0 && <div className={styles.empty}>Nothing matches</div>}
-      <div ref={sheetRef} className={styles.sheet} style={{ width, height, transform: zoom === 1 ? undefined : `scale(${zoom})`, marginRight: zoom === 1 ? undefined : -(width + 32) * (1 - zoom), marginBottom: zoom === 1 ? undefined : -(height + 32) * (1 - zoom) } as CSSProperties}>
+      <div ref={viewRef} className={styles.view}>
+      <div ref={sheetRef} className={styles.sheet} style={{ width, height }}>
         <svg className={styles.edges} width={width} height={height} aria-hidden="true">
           {placed.filter((p) => p.parent).map((p) => {
             const a = p.parent!;
             const x1 = a.x + a.width, y1 = a.y, x2 = p.x, y2 = p.y;
             const c = (x2 - x1) / 2;
             const lit = pathIds.has(p.node.id) && pathIds.has(a.node.id);
-            return <path key={p.node.id} className={lit ? styles.edgeLit : styles.edge} d={`M ${x1} ${y1} C ${x1 + c} ${y1}, ${x2 - c} ${y2}, ${x2} ${y2}`} />;
+            // A dashed line to a node kept only as the way down to a match.
+            return <path key={p.node.id} className={`${styles.edge} ${lit ? styles.edgeLit : ''} ${p.node.muted ? styles.edgeMuted : ''}`} d={`M ${x1} ${y1} C ${x1 + c} ${y1}, ${x2 - c} ${y2}, ${x2} ${y2}`} />;
           })}
         </svg>
         {placed.map((p) => {
@@ -306,9 +347,39 @@ export function TreeCanvas({
             </div>
           );
         })}
+        {/* The handles: a square where an edge leaves a node and where it arrives, over the
+            pills' borders, lit along the path. */}
+        <svg className={styles.handles} width={width} height={height} aria-hidden="true">
+          {placed.map((p) => {
+            const lit = pathIds.has(p.node.id);
+            return (
+              <g key={p.node.id}>
+                {p.parent && <rect className={`${styles.handle} ${lit ? styles.handleLit : ''}`} x={p.x - HANDLE / 2} y={p.y - HANDLE / 2} width={HANDLE} height={HANDLE} />}
+                {p.open && <rect className={`${styles.handle} ${lit && p.node.id !== selected ? styles.handleLit : ''}`} x={p.x + p.width - HANDLE / 2} y={p.y - HANDLE / 2} width={HANDLE} height={HANDLE} />}
+              </g>
+            );
+          })}
+        </svg>
       </div>
+      </div>
+      {pannable && (
+        <div className={styles.controls} role="toolbar" aria-label="Zoom" data-tree-controls="">
+          <Button variant="ghost" size="micro" iconLeft={<Plus />} aria-label="Zoom in" title="Zoom in (+)" data-tree-action="in" />
+          <Button variant="ghost" size="micro" iconLeft={<Minus />} aria-label="Zoom out" title="Zoom out (-)" data-tree-action="out" />
+          <Button variant="ghost" size="micro" iconLeft={<Marquee />} aria-label="Fit the tree in view" title="Fit in view (0)" data-tree-action="fit" />
+          <Button variant="ghost" size="micro" aria-label="Zoom to 100%" title="Zoom to 100%" data-tree-action="reset">
+            <span className={styles.zoomLabel} data-tree-zoom-label="" />
+          </Button>
+        </div>
+      )}
     </div>
   );
+}
+
+// A pattern's tile, which the grid scales with the zoom: the number in its name, 2 for the checkerboard.
+function tileOf(pattern: TreeCanvasPattern): number {
+  const n = Number(pattern.slice(pattern.lastIndexOf('-') + 1));
+  return Number.isFinite(n) ? n : 2;
 }
 
 // The row the last shown child of a node sits on, for the "and N more" step under it.
