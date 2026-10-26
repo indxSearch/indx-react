@@ -1,4 +1,5 @@
 import { Waffle } from '@indxsearch/systm';
+import { Api, Laptop, Webhooks } from '@indxsearch/pixl';
 import { PropsTable } from '../PropsTable';
 import styles from './page.module.css';
 
@@ -68,9 +69,21 @@ export default function WafflePage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>With icons</h2>
+        <p className={styles.desc}>A segment can carry a small graphic before its label in the legend, about the text's height: a pixl icon at 14, or a flag.</p>
+        <div className={styles.stack}>
+          <Waffle segments={[
+            { label: 'Website', value: 8_120, icon: <Laptop size={14} /> },
+            { label: 'API', value: 3_400, icon: <Api size={14} /> },
+            { label: 'Webhooks', value: 1_050, icon: <Webhooks size={14} /> },
+          ]} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Props</h2>
         <PropsTable rows={[
-          { name: 'segments', type: '{ label, value, color? }[]', description: 'The shares, in order from the left. The tone ladder has four steps; a fifth segment, or one that means something, takes a colour.' },
+          { name: 'segments', type: '{ label, value, color?, icon? }[]', description: 'The shares, in order from the left. The tone ladder has four steps; a fifth segment, or one that means something, takes a colour. An icon goes before the label in the legend.' },
           { name: 'columns', type: 'number', default: '20', description: 'Cells across.' },
           { name: 'rows', type: 'number', default: '5', description: 'Cells down.' },
           { name: 'cell', type: 'number', default: '4', description: 'A cell\'s side in pixels, with a 2px gap.' },

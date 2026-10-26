@@ -1,16 +1,20 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import styles from './Waffle.module.css';
 
 // Shares of a whole as a grid of pixel squares: each segment gets its share of the cells, filled
 // column by column from the left, the first segment in the ink and the rest down the tone
 // ladder, with a legend beneath. A portfolio by holding, a dataset by field type, searches by
-// source. Where a pie would be, this is the pixel version.
+// source. Where a pie would be, this is the pixel version. Hovering a cell names its segment in a
+// tooltip beside it, and a cell or a legend entry under the pointer dims the other segments, so
+// which is which can be browsed from either side.
 
 export interface WaffleSegment {
   label: ReactNode;
   value: number;
   /** The segment's colour; without it, the tone ladder from the ink down, four steps, so a fifth segment needs one. */
   color?: string;
+  /** A small graphic before the label in the legend, about the text's height: a pixl icon, a flag. */
+  icon?: ReactNode;
 }
 
 export interface WaffleProps {
@@ -73,6 +77,8 @@ export function Waffle({
   className = '',
 }: WaffleProps) {
   const total = columns * rows;
+  // The segment under the pointer, from a cell or a legend entry, and the cell when it is one.
+  const [hover, setHover] = useState<{ segment: number; cell: number | null } | null>(null);
   const sum = segments.reduce((a, s) => a + Math.max(0, s.value), 0);
   const counts = allocateCells(segments.map((s) => s.value), total);
   const colorOf = (i: number) => segments[i].color ?? TONES[Math.min(i, TONES.length - 1)];
@@ -91,24 +97,55 @@ export function Waffle({
     }
     const color = seg < counts.length ? colorOf(seg) : undefined;
     used += 1;
-    cells.push(<span key={i} className={styles.cell} style={color ? { background: color } : undefined} />);
+    const of = seg < counts.length ? seg : -1;
+    cells.push(
+      <span
+        key={i}
+        className={`${styles.cell} ${hover && hover.segment !== of ? styles.dim : ''}`}
+        style={color ? { background: color } : undefined}
+        onMouseEnter={() => setHover(of >= 0 ? { segment: of, cell: i } : null)}
+      />,
+    );
   }
+
+  // The hovered cell's segment, beside it: at the right, or at the left past the middle.
+  const pitch = cell + 2;
+  const tip = hover && hover.cell != null && hover.segment < segments.length ? (() => {
+    const col = Math.floor(hover.cell / rows);
+    const row = hover.cell % rows;
+    const rightHalf = col > columns / 2;
+    const s = segments[hover.segment];
+    return (
+      <div
+        className={`${styles.tooltip} ${rightHalf ? styles.tooltipLeft : ''}`}
+        style={{ top: row * pitch + cell / 2, left: rightHalf ? col * pitch - 6 : col * pitch + cell + 6 }}
+      >
+        {s.icon != null && <span className={styles.icon}>{s.icon}</span>}
+        <span className={styles.name}>{s.label}</span>
+        <span className={styles.share}>{show(s)}</span>
+      </div>
+    );
+  })() : null;
 
   return (
     <div className={`${styles.waffle} ${className}`}>
-      <div
-        className={styles.grid}
-        role="img"
-        aria-label={ariaLabel}
-        style={{ '--waffle-rows': rows, '--waffle-cell': `${cell}px` } as CSSProperties}
-      >
-        {cells}
+      <div className={styles.gridWrap} onMouseLeave={() => setHover(null)}>
+        <div
+          className={styles.grid}
+          role="img"
+          aria-label={ariaLabel}
+          style={{ '--waffle-rows': rows, '--waffle-cell': `${cell}px` } as CSSProperties}
+        >
+          {cells}
+        </div>
+        {tip}
       </div>
       {legend && (
         <ul className={styles.legend} aria-hidden={ariaLabel ? undefined : true}>
           {segments.map((s, i) => (
-            <li key={i} className={styles.item}>
+            <li key={i} className={styles.item} onMouseEnter={() => setHover({ segment: i, cell: null })} onMouseLeave={() => setHover(null)}>
               <span className={styles.swatch} style={{ background: colorOf(i) }} />
+              {s.icon != null && <span className={styles.icon}>{s.icon}</span>}
               <span className={styles.name}>{s.label}</span>
               <span className={styles.share}>{show(s)}</span>
             </li>
