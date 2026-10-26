@@ -35,6 +35,7 @@ export const navGroups: NavGroup[] = [
       { label: 'DatePicker', path: '/date-picker' },
       { label: 'Popover', path: '/popover' },
       { label: 'Modal', path: '/modal' },
+      { label: 'Portal container', path: '/portal-container' },
       { label: 'Table', path: '/table' },
       { label: 'Base', path: '/base' },
       { label: 'Tabs', path: '/tabs' },

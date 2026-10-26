@@ -70,7 +70,8 @@
     },
     "./styles.css": "./dist/systm.css",
     "./cursors.css": "./dist/cursors.css",
-    "./patterns.css": "./dist/patterns.css"
+    "./patterns.css": "./dist/patterns.css",
+    "./styles.shadow.css": "./dist/systm.shadow.css"
   },
   "dependencies": {
     "@indxsearch/pixl": "^1.5.0",

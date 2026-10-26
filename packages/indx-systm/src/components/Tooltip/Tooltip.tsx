@@ -1,5 +1,6 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import styles from './Tooltip.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -11,13 +12,14 @@ export type TooltipProps = {
 };
 
 export function Tooltip({ content, position = 'top', children, className }: TooltipProps) {
+  const portalContainer = usePortalContainer();
   return (
     <TooltipPrimitive.Provider delayDuration={80}>
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>
           {children}
         </TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Portal container={portalContainer}>
           <TooltipPrimitive.Content
             side={position}
             sideOffset={7}

@@ -1,6 +1,7 @@
 import './globals/globals.css';
 import './globals/patterns.css';
 export { Button } from './components/Button/Button';
+export { PortalContainerProvider, usePortalContainer, type PortalContainerProviderProps } from './components/PortalContainer/PortalContainer';
 export { Checkbox } from './components/Checkbox/Checkbox';
 export { Base, type BaseProps } from './components/Base/Base';
 export { FilterPanelBase } from './components/FilterPanelBase/FilterPanelBase';

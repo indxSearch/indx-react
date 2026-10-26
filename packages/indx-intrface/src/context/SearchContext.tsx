@@ -96,6 +96,7 @@ export interface SearchContextType {
   // Optional in the type so a context built by hand (a test, a mock provider) stays valid; the
   // SearchProvider always supplies both.
   selectResult?: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
+  convertResult?: (documentKey: number, type: string, options?: { queryId?: string; quantity?: number }) => Promise<void>; // Reports a conversion on a document (events/convert): an order, an add to cart; the type is yours. Tied to the search the document was chosen from. Never throws
   sessionId?: string; // This page load's session id, sent with every search
   source?: string; // The provider's source, sent with every search and with what belongs to it
   count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
@@ -262,8 +263,12 @@ export const SearchProvider: React.FC<{
   // a search page - so a failure (statistics switched off, a network error) is only logged.
   const queryIdRef = useRef<string | undefined>(undefined);
   queryIdRef.current = state.queryId;
+  // The search each document was last chosen from, so a conversion later in the visit (an add to
+  // cart, an order) is credited to that search rather than to whatever was searched since.
+  const chosenFromRef = useRef(new Map<number, string | undefined>());
   const selectResult = useCallback(async (result: SearchResult) => {
     if (!auth.token) return;
+    chosenFromRef.current.set(result.documentKey, queryIdRef.current);
     try {
       const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/select`, {
         method: 'POST',
@@ -283,6 +288,33 @@ export const SearchProvider: React.FC<{
       }
     } catch (error) {
       if (enableDebugLogs) console.warn('[select] failed:', error);
+    }
+  }, [auth.token, authenticatedFetch, url, team, dataset, enableDebugLogs, count]);
+
+  // Reports a conversion to the dataset's statistics: the document, the customer's own name for
+  // what happened, and the search it was chosen from (or the queryId given). A count, never a value:
+  // statistics hold no order values. Fire-and-forget, as selectResult.
+  const convertResult = useCallback(async (documentKey: number, type: string, options?: { queryId?: string; quantity?: number }) => {
+    if (!auth.token || !type.trim()) return;
+    const queryId = options?.queryId ?? chosenFromRef.current.get(documentKey) ?? queryIdRef.current;
+    try {
+      const response = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/convert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          queryId,
+          documentKey,
+          type: type.trim(),
+          ...(options?.quantity != null ? { quantity: options.quantity } : {}),
+          ...(count ? {} : { count: false }),
+        }),
+      });
+      if (enableDebugLogs) {
+        if (response.ok) console.log(`[convert] ${type} on document ${documentKey}`);
+        else console.warn(`[convert] not recorded: ${response.status}`);
+      }
+    } catch (error) {
+      if (enableDebugLogs) console.warn('[convert] failed:', error);
     }
   }, [auth.token, authenticatedFetch, url, team, dataset, enableDebugLogs, count]);
 
@@ -493,6 +525,7 @@ export const SearchProvider: React.FC<{
         setSearchSettings,
         fetchMoreResults,
         selectResult,
+        convertResult,
         sessionId,
         source,
         count,

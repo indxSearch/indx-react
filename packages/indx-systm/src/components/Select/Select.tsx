@@ -2,6 +2,7 @@ import React from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
 import { Chevron_down, Check } from '@indxsearch/pixl';
 import styles from './Select.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 export interface SelectOption {
   label: string;
@@ -39,6 +40,7 @@ export const Select: React.FC<SelectProps> = ({
   'aria-label': ariaLabel,
   id,
 }) => {
+  const portalContainer = usePortalContainer();
   const generatedId = React.useId();
   const selectId = id || generatedId;
   const labelId = `${selectId}-label`;
@@ -72,7 +74,7 @@ export const Select: React.FC<SelectProps> = ({
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
 
-      <RadixSelect.Portal>
+      <RadixSelect.Portal container={portalContainer}>
         <RadixSelect.Content
           className={styles.content}
           position="popper"

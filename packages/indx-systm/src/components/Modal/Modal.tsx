@@ -2,6 +2,7 @@ import React from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { X_or_error } from '@indxsearch/pixl';
 import styles from './Modal.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 export interface ModalProps {
   /** Optional element that opens the modal. Omit when controlling via `open`. */
@@ -26,10 +27,11 @@ export const Modal: React.FC<ModalProps> = ({
   className = '',
   showClose = true,
 }) => {
+  const portalContainer = usePortalContainer();
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>}
-      <RadixDialog.Portal>
+      <RadixDialog.Portal container={portalContainer}>
         <RadixDialog.Overlay className={styles.overlay} />
         <RadixDialog.Content className={`${styles.content} ${className}`}>
           {/* Title is required for accessibility; render visually-hidden when none is given. */}

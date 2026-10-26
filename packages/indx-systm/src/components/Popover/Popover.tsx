@@ -1,6 +1,7 @@
 import React from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
 import styles from './Popover.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 // A panel that opens from a trigger and floats by it, without blocking the page: a menu of actions,
 // a few settings, a short list. Radix places it (flipping when the side has no room), closes it on
@@ -48,13 +49,14 @@ export const Popover: React.FC<PopoverProps> = ({
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
 }) => {
+  const portalContainer = usePortalContainer();
   const contentRef = React.useRef<HTMLDivElement>(null);
   return (
     <RadixPopover.Root open={open} onOpenChange={onOpenChange}>
       <RadixPopover.Trigger asChild aria-haspopup={role}>
         {trigger}
       </RadixPopover.Trigger>
-      <RadixPopover.Portal>
+      <RadixPopover.Portal container={portalContainer}>
         <RadixPopover.Content
           ref={contentRef}
           className={`${styles.content} ${role === 'menu' ? styles.menu : ''} ${className}`}

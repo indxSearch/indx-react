@@ -55,6 +55,7 @@ import DatasetCardPage from './dataset-card/page';
 import QuestionSuggestionsPage from './question-suggestions/page';
 import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
+import PortalContainerPage from './portal-container/page';
 import DatePickerPage from './date-picker/page';
 import ChatPage from './chat/page';
 import SearchResultsMessagePage from './search-results-message/page';
@@ -126,6 +127,7 @@ export default function App() {
         <Route path="/question-suggestions" element={<QuestionSuggestionsPage />} />
         <Route path="/textarea" element={<TextareaPage />} />
         <Route path="/modal" element={<ModalPage />} />
+        <Route path="/portal-container" element={<PortalContainerPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/search-results-message" element={<SearchResultsMessagePage />} />
