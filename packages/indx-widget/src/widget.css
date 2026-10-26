@@ -28,6 +28,10 @@
   grid-template-columns: 220px minmax(0, 1fr);
 }
 
+.indx-widget-results {
+  min-width: 0;
+}
+
 .indx-widget-filters {
   display: flex;
   flex-direction: column;

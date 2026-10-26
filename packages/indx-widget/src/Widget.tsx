@@ -93,9 +93,12 @@ function SearchView({ config, inOverlay }: { config: WidgetConfig; inOverlay?: b
             {config.filters.map(f => <ValueFilterPanel key={f} field={f} label={labelOf(f)} limit={12} />)}
           </div>
         )}
-        <SearchResults fields={fields.length > 0 ? fields : undefined} resultsPerPage={10} searchOrAsk={sor} showScore={false}>
-          {(item, meta) => <ResultCard item={item} meta={meta} config={config} />}
-        </SearchResults>
+        {/* One cell: SearchResults renders its message, list and "load more" side by side. */}
+        <div className="indx-widget-results">
+          <SearchResults fields={fields.length > 0 ? fields : undefined} resultsPerPage={10} searchOrAsk={sor} showScore={false}>
+            {(item, meta) => <ResultCard item={item} meta={meta} config={config} />}
+          </SearchResults>
+        </div>
       </div>
       )}
     </div>
