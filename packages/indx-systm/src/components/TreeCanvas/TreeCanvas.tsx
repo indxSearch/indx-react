@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { Plus, Minus } from '@indxsearch/pixl';
 import { Button } from '../Button/Button';
+import { pan } from './pan';
 import styles from './TreeCanvas.module.css';
 
 // A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out
@@ -44,10 +45,20 @@ export interface TreeCanvasProps {
   /** When set or changed, the tree is opened to this many levels and closed below: 1 shows the
    *  roots, 2 their children. Left out, the opening is the component's own. */
   openDepth?: number;
+  /** Drag with a mouse or pen to move the tree, as on a design canvas; on by default. The wheel
+   *  and touch scroll as before, and a press that does not move is a click. */
+  pan?: boolean;
+  /** A systm pattern behind the tree, faint, moving with it. None by default. */
+  pattern?: TreeCanvasPattern;
   /** A name for assistive technology: "Categories of shop". */
   'aria-label'?: string;
   className?: string;
 }
+
+/** The patterns `pattern` takes: the systm set in globals/patterns.css. */
+export type TreeCanvasPattern =
+  | 'grid-12' | 'grid-24' | 'grid-6' | 'checkerboard'
+  | 'checkerboard-spaced-4' | 'checkerboard-spaced-6' | 'checkerboard-spaced-8' | 'checkerboard-spaced-10';
 
 const ROW = 44;
 const COLUMN_GAP = 56;
@@ -86,6 +97,8 @@ export function TreeCanvas({
   visible,
   zoom = 1,
   openDepth,
+  pan: pannable = true,
+  pattern,
   'aria-label': ariaLabel,
   className = '',
 }: TreeCanvasProps) {
@@ -105,6 +118,12 @@ export function TreeCanvas({
   // The pills' real widths, read off the DOM after a render; the layout uses these over the guess.
   const [measured, setMeasured] = useState<Map<string, number>>(() => new Map());
   const sheetRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!pannable || !canvas) return;
+    return pan(canvas);
+  }, [pannable, view]);
   useLayoutEffect(() => {
     const sheet = sheetRef.current;
     if (!sheet) return;
@@ -230,7 +249,13 @@ export function TreeCanvas({
   }
 
   return (
-    <div className={`${styles.canvas} ${className}`} role="tree" aria-label={ariaLabel}>
+    <div
+      ref={canvasRef}
+      className={`${styles.canvas} ${pannable ? styles.pannable : ''} ${pattern ? styles.patterned : ''} ${className}`}
+      style={pattern ? ({ '--tree-pattern': `var(--pattern-${pattern}-light)`, '--tree-pattern-dark': `var(--pattern-${pattern}-dark)` } as CSSProperties) : undefined}
+      role="tree"
+      aria-label={ariaLabel}
+    >
       {placed.length === 0 && <div className={styles.empty}>Nothing matches</div>}
       <div ref={sheetRef} className={styles.sheet} style={{ width, height, transform: zoom === 1 ? undefined : `scale(${zoom})`, marginRight: zoom === 1 ? undefined : -(width + 32) * (1 - zoom), marginBottom: zoom === 1 ? undefined : -(height + 32) * (1 - zoom) } as CSSProperties}>
         <svg className={styles.edges} width={width} height={height} aria-hidden="true">

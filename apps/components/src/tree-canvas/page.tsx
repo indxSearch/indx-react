@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SegmentedControl, TreeCanvas, type TreeNode } from '@indxsearch/systm';
+import { SegmentedControl, TreeCanvas, type TreeCanvasPattern, type TreeNode } from '@indxsearch/systm';
 import { Boost } from '@indxsearch/pixl';
 import { PropsTable } from '../PropsTable';
 import styles from './page.module.css';
@@ -56,6 +56,7 @@ export default function TreeCanvasPage() {
   const [only, setOnly] = useState<'all' | 'boosted'>('all');
   const [zoom, setZoom] = useState<'50' | '75' | '100'>('100');
   const [depth, setDepth] = useState<'1' | '2' | '3' | '4'>('3');
+  const [pattern, setPattern] = useState<'none' | TreeCanvasPattern>('grid-12');
 
   return (
     <main className={styles.main}>
@@ -64,7 +65,7 @@ export default function TreeCanvasPage() {
         <p className={styles.desc}>
           A hierarchy as a horizontal tree: a pill a node with its name and a count, children fanned out to the right
           on soft connectors, the chosen node and the path to it lit, the rest collapsed until opened. For a
-          catalogue's categories. Choosing a node opens it; the step closes it. Arrows move between nodes, right opens, left closes. The list view is the same tree
+          catalogue's categories. Drag the canvas to move the tree, as on a design canvas; the wheel scrolls it. Choosing a node opens it; the step closes it. Arrows move between nodes, right opens, left closes. The list view is the same tree
           as nested rows, for a phone.
         </p>
       </div>
@@ -75,13 +76,14 @@ export default function TreeCanvasPage() {
           <div style={{ display: 'flex', gap: 8 }}>
             <SegmentedControl aria-label="Show" value={only} onChange={setOnly} items={[{ value: 'all', label: 'All' }, { value: 'boosted', label: 'Boosted', icon: <Boost size={14} color="currentColor" /> }]} />
             <SegmentedControl aria-label="Open to level" value={depth} onChange={setDepth} items={[{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }, { value: '4', label: '4' }]} />
+            <SegmentedControl aria-label="Pattern" value={pattern} onChange={setPattern} items={[{ value: 'none', label: 'Plain' }, { value: 'grid-12', label: 'Grid 12' }, { value: 'grid-24', label: 'Grid 24' }, { value: 'checkerboard-spaced-6', label: 'Checker 6' }]} />
             <SegmentedControl aria-label="Zoom" value={zoom} onChange={setZoom} items={[{ value: '50', label: '50%' }, { value: '75', label: '75%' }, { value: '100', label: '100%' }]} />
             <SegmentedControl aria-label="View" value={view} onChange={setView} items={[{ value: 'tree', label: 'Tree' }, { value: 'list', label: 'List' }]} />
           </div>
         </div>
         <p className={styles.desc}>
           Run and Cycling open at first; Types is muted, a level that is hidden from search; Trail shoes and the women's
-          tights carry a boost mark, and Boosted prunes the tree to those two with the way down to each. Cycling has 70 children, so it shows 50 and a step to the rest. The levels control opens the tree to a depth; the zoom draws it smaller. Chosen: <span className={styles.chosen}>{selected ?? 'none'}</span>
+          tights carry a boost mark, and Boosted prunes the tree to those two with the way down to each. Cycling has 70 children, so it shows 50 and a step to the rest. The levels control opens the tree to a depth; the zoom draws it smaller; the pattern lies behind the tree and moves with it. The canvas here is a fixed height, so there is tree to drag in both directions. Chosen: <span className={styles.chosen}>{selected ?? 'none'}</span>
         </p>
         <TreeCanvas
           roots={SHOP}
@@ -92,6 +94,8 @@ export default function TreeCanvasPage() {
           visible={only === 'boosted' ? isBoosted : undefined}
           zoom={Number(zoom) / 100}
           openDepth={Number(depth)}
+          pattern={pattern === 'none' ? undefined : pattern}
+          className={styles.canvas}
           aria-label="Categories of the shop"
         />
       </div>
@@ -109,6 +113,8 @@ export default function TreeCanvasPage() {
           { name: 'visible', type: '(node) => boolean', description: 'A filter: only nodes it accepts stay, with the path down to each; the way down is muted and opened.' },
           { name: 'zoom', type: 'number', default: '1', description: 'The canvas drawn at this scale: 0.5 shows twice the tree in the same room.' },
           { name: 'openDepth', type: 'number', description: 'When set or changed, opens the tree to this many levels and closes below.' },
+          { name: 'pan', type: 'boolean', default: 'true', description: 'Drag with a mouse or pen to move the tree; the wheel and touch scroll as before, and a press that does not move is a click.' },
+          { name: 'pattern', type: 'TreeCanvasPattern', description: "A systm pattern behind the tree, faint, moving with it: 'grid-12', 'grid-24', 'grid-6', 'checkerboard', 'checkerboard-spaced-4' (6, 8, 10)." },
           { name: 'aria-label', type: 'string', description: 'A name for assistive technology.' },
         ]} />
       </div>

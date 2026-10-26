@@ -94,3 +94,6 @@
   font: var(--text-xs);
   color: var(--lv5);
 }
+
+/* A fixed height, smaller than the open tree, so it can be dragged both ways. */
+.canvas { height: 420px; }
