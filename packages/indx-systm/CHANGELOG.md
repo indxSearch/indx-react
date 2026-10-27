@@ -4,6 +4,7 @@
 
 ### Minor Changes
 
+- ShimmerText: text a highlight sweeps across, for a line that says something is about to happen, such as "Thinking" or "For a quick answer, type a bit more". `active={false}` holds it still, and it is still for anyone who has asked for reduced motion.
 - Chart: the hover box sits beside the hovered bar or point, to its right where it fits and else to its left, at the pointer's height, rather than above or below it over what it describes.
 - RadarChart: its box is only a line's height taller than the shape above and below, where it kept the side labels' room on every side.
 - Sidebar items take `badgeTitle` and a `trailing` icon with its `trailingTitle` (the lab mark of an experimental section), and the viewer's rail is kept in a cookie of the storage key's name too, so a server-rendered page can draw it from the first frame.

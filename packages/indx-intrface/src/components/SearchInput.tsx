@@ -1,9 +1,10 @@
 import React from 'react';
 import { useSearchContext, DEFAULT_PLACEHOLDER } from '../context/SearchContext';
-import { SearchField, Button, Chip, Tooltip, Kbd } from '@indxsearch/systm';
+import { SearchField, Button, Chip, Tooltip, Kbd, ShimmerText } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
 import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
 import { useSearchOrAsk, type SearchOrAskState } from '../hooks/useSearchOrAsk';
+import { QuickAnswer } from './QuickAnswer';
 import styles from './SearchInput.module.css';
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -16,16 +17,19 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   showStatus?: boolean;
   /** Search or ask: when given, and the dataset has it switched on, an offer to ask appears in
    *  the chip row while the visitor types something an answer would serve. A strong offer also
-   *  makes Enter ask. Called with the text to ask; show the answer with `AskPanel`. */
-  onAsk?: (text: string) => void;
+   *  makes Enter ask. Called with the text to ask; show the answer with `AskPanel`. The dataset's
+   *  mode decides how forward the offer is: in `open` and `proactive` an Ask button is there
+   *  whenever something is typed and Enter asks; in `proactive` the field also asks on its own
+   *  once the judge is sure, with `{ proactive: true }`, which the page passes to `AskPanel`. */
+  onAsk?: (text: string, how?: { proactive: boolean }) => void;
   /** The offer, when the page runs `useSearchOrAsk` itself (to show it elsewhere too, or to use
    *  `describes`): the field then shows this one and does not judge again. */
   searchOrAsk?: SearchOrAskState;
   /** Where the offer to ask shows. `chip` (default): a button in the field's chip row. `below`: a
-   *  row of its own under the field, as on the Indx docs: a full-size button and an Enter hint.
-   *  The row keeps its height while Search or ask is on, so an offer appearing moves nothing under it.
-   *  `none`: the field shows no offer; the page shows it itself from `searchOrAsk` (as the indx.co
-   *  demo does, above the results). Enter still asks on a strong offer. */
+   *  QuickAnswer under the field, as on the Indx docs. The row keeps its height while Search or ask
+   *  is on, so an offer appearing moves nothing under it. `none`: the field shows no offer; the page
+   *  shows it itself, with `QuickAnswer` above the results or from `searchOrAsk`. Enter still asks
+   *  on a strong offer, and proactive still answers on its own. */
   askOffer?: 'chip' | 'below' | 'none';
 }
 
@@ -64,7 +68,25 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const sor = searchOrAsk ?? own;
   // Only while the offer is for what is in the field (it extends the judged text): typing on keeps
   // it, a backspace takes it away until the judge has read the new text.
-  const offerAsk = !!onAsk && hasQuery && sor.offer !== 'none' && sor.stands;
+  const strongOffer = sor.quick === 'ready';
+  const enterAsks = strongOffer || sor.askAnytime;
+
+  // Proactive: the answer starts on the pause where the judge is sure, once per text, and only
+  // while the field still holds that text.
+  const answered = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    const t = sor.answerNow;
+    if (!onAsk || !t || t !== query.trim() || answered.current === t) return;
+    answered.current = t;
+    onAsk(t, { proactive: true });
+  }, [sor.answerNow, query, onAsk]);
+  // Once proactive has started the answer for what is in the field, the chip has nothing more to say.
+  const started = answered.current !== null && answered.current === query.trim();
+  // What the chip shows: the hook's quick state (QuickAnswer draws the same), or open's plain Ask.
+  const chip = !onAsk || !hasQuery || started ? 'none'
+    : sor.quick !== 'none' ? sor.quick
+    : sor.askAnytime ? 'ask'
+    : 'none';
 
   // While asking is on the field invites both, unless the page chose its own words (a placeholder
   // prop, or placeholderText in the search settings).
@@ -74,9 +96,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   const keyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     onKeyDown?.(e);
-    if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || sor.offer !== 'strong' || !sor.stands || !query.trim()) return;
+    if (e.defaultPrevented || e.key !== 'Enter' || !onAsk || !enterAsks || !query.trim()) return;
     e.preventDefault();
-    onAsk(query.trim());
+    ask();
   };
 
   const clear = () => {
@@ -84,7 +106,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     if (filterCount > 0) resetFilters();
   };
 
-  const ask = () => onAsk!(query.trim());
+  // Asked by hand counts as started, so proactive does not ask the same text again on its own.
+  const ask = () => { answered.current = query.trim(); onAsk!(query.trim()); };
   const field = (
     <SearchField
       type="text"
@@ -100,18 +123,25 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       onKeyDown={keyDown}
       {...rest}
     >
-      {offerAsk && askOffer === 'chip' && (
+      {askOffer === 'chip' && chip === 'thinking' && (
+        // Proactive, about to answer on its own: no button to press, only the sweep.
+        <span className={styles.thinking} aria-live="polite"><Ai_agent /><ShimmerText>Thinking</ShimmerText></span>
+      )}
+      {askOffer === 'chip' && (chip === 'ready' || chip === 'invite' || chip === 'hint' || chip === 'ask') && (
         <Button
-          variant={sor.offer === 'strong' ? 'primary' : 'ghost'}
-          className={sor.offer === 'strong' ? styles.askStrong : undefined}
+          variant={chip === 'ready' ? 'primary' : 'ghost'}
+          className={chip === 'ready' ? styles.askStrong : undefined}
           size="micro"
           iconLeft={<Ai_agent />}
           // A strong offer is what Enter asks, so the button says so with the key.
-          iconRight={sor.offer === 'strong' ? <Kbd>Enter ↵</Kbd> : undefined}
+          iconRight={chip === 'ready' ? <Kbd>Enter ↵</Kbd> : undefined}
           onClick={ask}
-          title={sor.offer === 'strong' ? 'Enter asks' : undefined}
+          title={enterAsks ? 'Enter asks' : undefined}
         >
-          {sor.offer === 'strong' ? 'Ask' : 'Ask about this'}
+          {chip === 'ready' ? 'Ask'
+            : chip === 'hint' ? <ShimmerText>For a quick answer, type a bit more</ShimmerText>
+            : chip === 'invite' ? 'Ask about this'
+            : 'Ask'}
         </Button>
       )}
       {showStatus && noResults && <Chip>No results</Chip>}
@@ -145,19 +175,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   );
 
   if (askOffer !== 'below' || !onAsk || !sor.available) return field;
-  const strong = sor.offer === 'strong';
   return (
     <div className={styles.withOffer}>
       {field}
-      <div className={styles.offerRow} aria-live="polite">
-        {offerAsk && (
-          <>
-            <Button variant={strong ? 'primary' : 'ghost'} className={strong ? styles.askStrong : undefined} iconLeft={<Ai_agent />} onClick={ask}>
-              {strong ? 'Ask the assistant' : 'Ask about this'}
-            </Button>
-            {strong && <span className={styles.offerHint}><kbd className={styles.kbd}>↵</kbd> to ask</span>}
-          </>
-        )}
+      <div className={styles.offerRow}>
+        {!started && <QuickAnswer searchOrAsk={sor} onAsk={ask} className={styles.offerQuick} />}
       </div>
     </div>
   );

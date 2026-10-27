@@ -41,15 +41,20 @@ const json = (body: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(body), { ...init, headers: { 'Content-Type': 'application/json', ...init.headers } });
 
 /** A server that answers Search or ask's three requests, the answer streamed word by word. */
-export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: boolean } = {}) {
-  const { enabled = true, slow = false } = opts;
+/** `mode` is the dataset's Search or ask mode. In proactive a question is only sure from four
+ *  words, so the answer does not start on "how d". */
+export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: boolean; mode?: 'strict' | 'soft' | 'open' | 'inviting' | 'proactive' } = {}) {
+  const { enabled = true, slow = false, mode = 'soft' } = opts;
   return async (url: string, init: RequestInit = {}) => {
     if (url.endsWith('/search-or-ask') && (init.method ?? 'GET') === 'GET')
-      return json({ settings: { enabled, thresholds: THRESHOLDS }, effective: {}, available: true });
+      return json({ settings: { enabled, mode, thresholds: THRESHOLDS }, effective: {}, available: true });
     if (url.endsWith('/intent')) {
       const { text } = JSON.parse(String(init.body)) as { text: string };
       await new Promise(r => setTimeout(r, 120));
-      return json({ p: mockScore(text), answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120 });
+      const words = text.trim().split(/\s+/).length;
+      const p = (mode === 'proactive' || mode === 'inviting') && words < 4 ? Math.min(mockScore(text), 0.5) : mockScore(text);
+      // The mock reads a request as finished from four words, as the mock is sure of a question.
+      return json({ p, answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120, mode, finished: words >= 4 ? 0.9 : 0.2 });
     }
     if (url.endsWith('/ask')) {
       const followUp = (JSON.parse(String(init.body ?? '{}')).history ?? []).length > 0;

@@ -57,6 +57,7 @@ export const navGroups: NavGroup[] = [
       { label: 'SegmentedControl', path: '/segmented-control' },
       { label: 'Select', path: '/select' },
       { label: 'Sheet', path: '/sheet' },
+      { label: 'ShimmerText', path: '/shimmer-text' },
       { label: 'Sidebar', path: '/sidebar' },
       { label: 'Skeleton', path: '/skeleton' },
       { label: 'Slider', path: '/slider' },

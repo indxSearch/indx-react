@@ -13,6 +13,10 @@ export interface AskPanelProps {
   /** The question to answer. A new value asks it and starts a new conversation; null or empty
    *  shows nothing. To ask the same text again, give the panel a new `key`. */
   question: string | null;
+  /** The page started this question on its own, in the proactive mode (`useSearchOrAsk`'s
+   *  `answerNow`), rather than the visitor asking it: the statistics count it apart. Pass the
+   *  `proactive` that `SearchInput`'s `onAsk` hands over. */
+  proactive?: boolean;
   /** Lets the visitor ask follow-up questions under the answer. Each is answered with the
    *  conversation so far (the server uses the last three turns), and the earlier turns stay on
    *  screen above it. */
@@ -71,7 +75,7 @@ function defaultFilterLabel(f: AskFilters['filters'][number]): string {
  * ones as context. Pair it with `SearchInput`'s `onAsk`, or `useSearchOrAsk` (when to offer).
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
-  question, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
+  question, proactive = false, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
   onFilters, filterLabel = defaultFilterLabel, fill = false, className = '',
 }) => {
   const asked = useAsk();
@@ -89,8 +93,9 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   useEffect(() => {
     setPast([]);
     history.current = [];
-    if (question?.trim()) void ask(question);
+    if (question?.trim()) void ask(question, [], { proactive });
     else reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- a question is asked once, as whoever started it
   }, [question, ask, reset]);
 
   useEffect(() => { onStatusChange?.(status); }, [status, onStatusChange]);

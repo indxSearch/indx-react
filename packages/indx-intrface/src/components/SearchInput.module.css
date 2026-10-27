@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 36px;
+  min-height: 44px;
   min-width: 0;
 }
 
@@ -40,3 +40,17 @@
 /* The strong offer's Enter key-cap, inside the primary button: a faint rectangle in the button's own
    text colour, so the button pops and the key does not. */
 .askStrong kbd { background: var(--lv3); color: var(--lv7); }
+
+/* Proactive's chip while it is about to answer: the sweep, no button. */
+.thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+.thinking svg { width: 14px; height: 14px; }
+
+/* The below row's QuickAnswer takes the row's width and height. */
+.offerQuick { flex: 1; }

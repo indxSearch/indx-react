@@ -49,6 +49,7 @@ export { DatePicker, type DatePickerProps } from './components/DatePicker/DatePi
 export { Skeleton, type SkeletonProps } from './components/Skeleton/Skeleton';
 export { Stat, StatGroup, STAT_ICON_SIZE, type StatProps, type StatGroupProps } from './components/Stat/Stat';
 export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
+export { ShimmerText, type ShimmerTextProps } from './components/ShimmerText';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
 
 export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink, type NavigationMenuProps, type NavigationMenuTriggerProps, type NavigationMenuLinkProps } from './components/NavigationMenu/NavigationMenu';
