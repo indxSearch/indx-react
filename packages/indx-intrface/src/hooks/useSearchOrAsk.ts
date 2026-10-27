@@ -11,8 +11,12 @@ export interface UseSearchOrAskOptions {
   enabled?: boolean;
   /** The text to judge. Defaults to the search query of the surrounding SearchProvider. */
   text?: string;
-  /** How long the visitor must pause before the server is asked. Default 300 ms. */
+  /** How long the visitor must pause before the offer is shown. Default 300 ms. */
   pauseMs?: number;
+  /** Ask the judge while the visitor still types, one call in flight at a time, so its answer is
+   *  ready when the pause comes; the pause then shows it. Default true. Off, the judge is asked
+   *  only once the pause has passed, and the offer follows a judge's round trip later. */
+  prefetch?: boolean;
 }
 
 export interface SearchOrAskState {
@@ -59,9 +63,16 @@ const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answe
  * dataset's thresholds with hysteresis. It never asks again while the text only grows and the
  * offer is already strong. A failure of any kind leaves the offer at 'none': the search itself is
  * never affected.
+ *
+ * While the visitor types, the judge is asked ahead (`prefetch`): one call in flight, and when it
+ * returns, the next for whatever the field holds by then, so the calls keep pace with the judge
+ * rather than the keyboard. Those fill the server's cache and show nothing. The pause's own call
+ * is the judgement, as before, and answers from that cache at once; while a call for the same text
+ * is still out, the pause waits for it instead of asking the judge twice. A judgement is shown only
+ * for the text it was made on (27 Oct 2026).
  */
 export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAskState {
-  const { enabled = true, pauseMs = 300 } = options;
+  const { enabled = true, pauseMs = 300, prefetch = true } = options;
   const ctx = useSearchContext();
   const { url, team, dataset, authenticatedFetch, isFetchingInitial, authError, state: search } = ctx;
   // Read when the pause ends, so the judgement names the search the visitor is looking at.
@@ -89,6 +100,15 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const seq = useRef(0);
   const quietUntil = useRef(0);
   offerRef.current = state.offer;
+  // Ahead of the pause: the call out now, the texts the judge has already read (its cache holds
+  // them), and a quiet of its own after a 429, so a refused prefetch never silences the pauses.
+  const flight = useRef<{ text: string; done: Promise<void> } | null>(null);
+  const readAhead = useRef(new Set<string>());
+  const aheadQuietUntil = useRef(0);
+  const latest = useRef(text);
+  latest.current = text;
+  const availableRef = useRef(false);
+  availableRef.current = available;
 
   const base = `${url}/api/teams/${team}/datasets/${dataset}/search-or-ask`;
   const ready = enabled && !isFetchingInitial && !authError;
@@ -120,6 +140,39 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     return () => { cancelled = true; };
   }, [ready, base, authenticatedFetch]);
 
+  // One judgement ahead of the pause, then the next for what the field holds when it returns.
+  const ahead = useRef<(t: string) => void>(() => {});
+  ahead.current = (t: string) => {
+    if (!prefetch || !availableRef.current || flight.current || !t || !triggers(t) || readAhead.current.has(t)) return;
+    if (offerRef.current === 'strong' && lastAsked.current && t.startsWith(lastAsked.current)) return;
+    if (Date.now() < quietUntil.current || Date.now() < aheadQuietUntil.current) return;
+    const done = (async () => {
+      try {
+        const res = await authenticatedFetch(`${base}/intent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: t, prefetch: true }),
+        });
+        if (res.status === 429) {
+          const after = Number(res.headers.get('Retry-After'));
+          aheadQuietUntil.current = Date.now() + (Number.isFinite(after) && after > 0 ? after : 60) * 1000;
+          return;
+        }
+        if (res.ok) {
+          if (readAhead.current.size > 200) readAhead.current.clear();
+          readAhead.current.add(t);
+        }
+      } catch {
+        // The pause asks for itself.
+      }
+    })();
+    flight.current = { text: t, done };
+    void done.then(() => {
+      if (flight.current?.done === done) flight.current = null;
+      if (latest.current !== t) ahead.current(latest.current);
+    });
+  };
+
   // The Ask phrases on the search context while Search or ask is on here, off with it.
   useEffect(() => {
     const { setSearchRewrite } = ctxRef.current;
@@ -144,12 +197,17 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     // the pause. It never forces the strong offer, and a judgement that says otherwise takes it back.
     if (inviteOnPhrase.current && phrases.current && stripAskPhrases(text, phrases.current).taken.length > 0)
       setState(s => (s.offer === 'none' ? { ...s, available, offer: 'invite', text } : s));
+    ahead.current(text);
+    let gone = false;
     const timer = setTimeout(async () => {
       if (offerRef.current === 'strong' && lastAsked.current && text.startsWith(lastAsked.current)) {
         setState(s => ({ ...s, text }));
         return;
       }
       if (Date.now() < quietUntil.current) return;
+      // The judge is reading this very text ahead: its answer, not a second call to the judge.
+      if (flight.current?.text === text) await flight.current.done;
+      if (gone) return;
       const mine = ++seq.current;
       lastAsked.current = text;
       try {
@@ -192,7 +250,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         // No offer is the safe outcome.
       }
     }, pauseMs);
-    return () => clearTimeout(timer);
+    return () => { gone = true; clearTimeout(timer); };
   }, [text, available, base, authenticatedFetch, pauseMs]);
 
   // The strict coverage goes on the page's own searches while the offer is strong, and comes off

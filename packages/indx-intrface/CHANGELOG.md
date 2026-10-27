@@ -4,6 +4,7 @@
 
 ### Minor Changes
 
+- `useSearchOrAsk` asks the judge while the visitor types too, so the offer to answer can appear as soon as they stop instead of a moment after. Pass `prefetch: false` to ask only on the pause.
 - 4aa88f7: `convertResult(documentKey, type, { quantity?, queryId? })` on the search context reports a conversion, such as an order or an add to cart, to the dataset's statistics. It is credited to the search the document was chosen from, even after the visitor has searched again. It never throws.
 
 ### Patch Changes

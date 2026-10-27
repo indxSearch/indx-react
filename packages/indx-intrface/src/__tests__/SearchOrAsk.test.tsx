@@ -31,11 +31,13 @@ function settings(enabled: boolean, available = true) {
   })));
 }
 
-/** The judge answers from a table of text → p, and records what it was asked. */
-function judge(scores: Record<string, number>, asked: string[] = []) {
+/** The judge answers from a table of text → p, and records what it was asked: the pauses' calls in
+ *  `asked`, the calls made ahead of a pause (prefetch) in `ahead`. */
+function judge(scores: Record<string, number>, asked: string[] = [], ahead: string[] = [], delayMs = 0) {
   server.use(http.post(`${SOA}/intent`, async ({ request }) => {
-    const { text } = await request.json() as { text: string };
-    asked.push(text);
+    const { text, prefetch } = await request.json() as { text: string; prefetch?: boolean };
+    (prefetch ? ahead : asked).push(text);
+    if (delayMs) await new Promise(r => setTimeout(r, delayMs));
     const p = scores[text] ?? 0;
     return HttpResponse.json({ p, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
   }));
@@ -183,8 +185,8 @@ describe('useSearchOrAsk', () => {
   it('goes quiet after a 429 rather than retrying every pause', async () => {
     settings(true);
     let calls = 0;
-    server.use(http.post(`${SOA}/intent`, () => {
-      calls++;
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      if (!(await request.json() as { prefetch?: boolean }).prefetch) calls++;
       return HttpResponse.json({ code: 'searchOrAskBudgetSpent' }, { status: 429, headers: { 'Retry-After': '600' } });
     }));
     const { result } = renderHook(() => useBoth(), { wrapper });
@@ -198,6 +200,64 @@ describe('useSearchOrAsk', () => {
   });
 });
 
+describe('judging ahead of the pause', () => {
+  it('asks while the visitor types, one call at a time, and the pause for what they stopped at', async () => {
+    settings(true);
+    const asked: string[] = [], ahead: string[] = [];
+    judge({ 'how do I sort': 0.8 }, asked, ahead, 30);
+    const { result } = renderHook(() => useBoth(150), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do'));
+    act(() => result.current.ctx.setQuery('how do I'));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    // The first keystroke's call is out; the two after it wait for it, and only the newest follows.
+    await waitFor(() => expect(ahead).toEqual(['how do', 'how do I sort']));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(asked).toEqual(['how do I sort']);
+  });
+
+  it('waits at the pause for the call already reading the same text', async () => {
+    settings(true);
+    const order: string[] = [];
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      const { prefetch } = await request.json() as { prefetch?: boolean };
+      order.push(prefetch ? 'ahead' : 'pause');
+      if (prefetch) await new Promise(r => setTimeout(r, 80));
+      if (prefetch) order.push('ahead done');
+      return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: !prefetch, ms: 1 });
+    }));
+    const { result } = renderHook(() => useBoth(10), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(order).toEqual(['ahead', 'ahead done', 'pause']);
+  });
+
+  it('keeps the pauses when a call ahead is refused', async () => {
+    settings(true);
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      const { prefetch } = await request.json() as { prefetch?: boolean };
+      if (prefetch) return HttpResponse.json({ code: 'searchOrAskRateLimited' }, { status: 429, headers: { 'Retry-After': '60' } });
+      return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
+    }));
+    const { result } = renderHook(() => useBoth(20), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+  });
+
+  it('asks nothing ahead with prefetch off', async () => {
+    settings(true);
+    const asked: string[] = [], ahead: string[] = [];
+    judge({}, asked, ahead);
+    const { result } = renderHook(() => ({ ctx: useSearchContext(), sor: useSearchOrAsk({ pauseMs: 10, prefetch: false }) }), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(asked).toEqual(['how do I sort']));
+    expect(ahead).toEqual([]);
+  });
+});
+
 describe('statistics', () => {
   it('names the search and the session with each judgement', async () => {
     settings(true);
@@ -205,8 +265,8 @@ describe('statistics', () => {
     server.use(
       http.post('http://localhost/api/teams/team/datasets/test/search', () =>
         HttpResponse.json({ records: [], facets: {}, truncationIndex: -1 }, { headers: { 'Indx-Query-Id': 'q-42' } })),
-      http.post(`${SOA}/intent`, ({ request }) => {
-        urls.push(new URL(request.url));
+      http.post(`${SOA}/intent`, async ({ request }) => {
+        if (!(await request.clone().json() as { prefetch?: boolean }).prefetch) urls.push(new URL(request.url));
         return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
       }));
     const { result } = renderHook(() => useBoth(), { wrapper });
