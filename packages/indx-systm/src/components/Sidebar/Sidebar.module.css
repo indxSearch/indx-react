@@ -34,13 +34,16 @@
 .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .badge { margin-left: auto; padding: 0 5px; font: var(--text-2xs); font-weight: var(--med); border-radius: 3px; background: var(--lv3); color: var(--lv7); }
 .badgeSignal { background: var(--CSignal); color: var(--lv0); }
+/* An icon at the item's end (the lab mark), after the badge when it has one. */
+.trailing { display: inline-flex; margin-left: auto; color: var(--lv5); }
+.badge + .trailing { margin-left: 6px; }
 .footer { display: flex; flex-direction: column; gap: 8px; }
 .footerContent { min-width: 0; }
 
 /* The rail: icons only, 30px buttons in a 50px column, a line between groups, a badge as a dot,
    and the body lets the tooltips out. */
 .rail { width: 50px; }
-.rail .header, .rail .footerContent, .rail .title, .rail .label { display: none; }
+.rail .header, .rail .footerContent, .rail .title, .rail .label, .rail .trailing { display: none; }
 .rail .body { gap: 8px; overflow: visible; }
 .rail .group + .group { padding-top: 8px; border-top: 1px solid var(--lv2); }
 .rail .item > button, .rail .item > a, .rail .item > span { position: relative; width: 30px; padding: 0 7px; justify-content: center; }

@@ -10,7 +10,10 @@
   box-sizing: border-box;
 }
 
-.button:disabled {
+/* aria-disabled too, as the Blazor Button: an item that is there but not yet usable stays
+   focusable, its title saying why, and reads as off. */
+.button:disabled,
+.button[aria-disabled="true"] {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -59,7 +62,7 @@
   color: var(--lv1);
 }
 
-.primary:hover:not(:disabled) {
+.primary:hover:not(:disabled):not([aria-disabled="true"]) {
   opacity: 0.8;
 }
 
@@ -69,7 +72,7 @@
   background: transparent;
 }
 
-.secondary:hover:not(:disabled) {
+.secondary:hover:not(:disabled):not([aria-disabled="true"]) {
   border-color: var(--lv4);
 }
 
@@ -78,6 +81,6 @@
   background: transparent;
 }
 
-.ghost:hover:not(:disabled) {
+.ghost:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--lv2);
 }

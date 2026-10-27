@@ -21,6 +21,11 @@ export interface SidebarItem {
   badge?: string;
   /** The badge wants attention: the signal colour, a plain count otherwise. */
   signal?: boolean;
+  /** The badge's own hover text. */
+  badgeTitle?: string;
+  /** An icon at the item's end, such as the lab mark of an experimental section. */
+  trailing?: React.ReactElement<IconProps>;
+  trailingTitle?: string;
   title?: string;
   /** There but not yet usable; its `title` says why. */
   disabled?: boolean;
@@ -109,7 +114,12 @@ export function Sidebar({
     const next = !rail;
     if (collapsed === undefined) {
       setOwn(next);
-      if (storageKey) { try { localStorage.setItem(storageKey, next ? 'rail' : 'full'); } catch { /* refused */ } }
+      // Kept in localStorage and in a cookie of the same name, which a server-rendered page can
+      // read to pass defaultCollapsed before the browser has answered.
+      if (storageKey) {
+        try { localStorage.setItem(storageKey, next ? 'rail' : 'full'); } catch { /* refused */ }
+        try { document.cookie = `${encodeURIComponent(storageKey)}=${next ? 'rail' : 'full'}; path=/; max-age=31536000; samesite=lax`; } catch { /* refused */ }
+      }
     }
     onCollapsedChange?.(next);
   }, [collapsible, rail, collapsed, storageKey, onCollapsedChange]);
@@ -149,7 +159,8 @@ export function Sidebar({
   const label = (item: SidebarItem) => (
     <>
       <span className={styles.label}>{item.label}</span>
-      {item.badge && <span className={`${styles.badge} ${item.signal ? styles.badgeSignal : ''}`}>{item.badge}</span>}
+      {item.badge && <span className={`${styles.badge} ${item.signal ? styles.badgeSignal : ''}`} title={item.badgeTitle}>{item.badge}</span>}
+      {item.trailing && <span className={styles.trailing} title={item.trailingTitle}>{React.cloneElement(item.trailing, { size: 14, color: 'currentColor' })}</span>}
     </>
   );
 

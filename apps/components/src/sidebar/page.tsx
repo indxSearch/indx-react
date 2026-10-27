@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Sidebar, type SidebarGroup } from '@indxsearch/systm';
-import { Boost, Database, Fields, Menu, Pulse, Search, Sliders_horizontal, Status, Synonym, Trending_up, Webhooks } from '@indxsearch/pixl';
+import { Boost, Database, Fields, Lab_experiment, Menu, Pulse, Search, Search_or_ask, Sliders_horizontal, Status, Synonym, Trending_up, Webhooks } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 /**
@@ -17,7 +17,7 @@ const groups: SidebarGroup[] = [
   { title: 'Data', items: [
     { key: 'fields', label: 'Field configuration', icon: <Fields /> },
     { key: 'categories', label: 'Categories', icon: <Database /> },
-    { key: 'webhooks', label: 'Webhooks', icon: <Webhooks />, badge: '2', signal: true, title: 'Two deliveries failed' },
+    { key: 'webhooks', label: 'Webhooks', icon: <Webhooks />, badge: '2', signal: true, badgeTitle: 'Two deliveries failed' },
   ] },
   { title: 'Relevance', collapsible: true, items: [
     { key: 'query', label: 'Query parameters', icon: <Sliders_horizontal /> },
@@ -26,6 +26,7 @@ const groups: SidebarGroup[] = [
   ] },
   { title: 'Try it', collapsible: true, items: [
     { key: 'search', label: 'Search preview', icon: <Search /> },
+    { key: 'soa', label: 'Search or ask', icon: <Search_or_ask />, trailing: <Lab_experiment />, trailingTitle: 'Experimental' },
     { key: 'observr', label: 'Observr', icon: <Pulse />, disabled: true, title: 'Not on this plan' },
   ] },
 ];
@@ -71,7 +72,7 @@ export default function SidebarPage() {
         <p className={styles.desc}>
           The side column of an app: groups of Buttons, the open one primary. Cmd or Ctrl and B, or the button at its
           foot, folds it to a rail of icons, where each item names itself in a Tooltip and a badge is a dot; with a
-          storageKey the viewer's choice is kept. A group with collapsible opens and closes under its title. At 768px
+          storageKey the viewer's choice is kept. A group with collapsible opens and closes under its title; an item can carry a badge with its own badgeTitle and a trailing icon, such as the lab mark of an experimental section. At 768px
           and narrower it is a drawer over the page that the host's own trigger opens, closed by Escape, a press beside
           it or a choice. No motion: it is simply there, and then not.
         </p>

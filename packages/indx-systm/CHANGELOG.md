@@ -4,6 +4,8 @@
 
 ### Minor Changes
 
+- Sidebar items take `badgeTitle` and a `trailing` icon with its `trailingTitle` (the lab mark of an experimental section), and the viewer's rail is kept in a cookie of the storage key's name too, so a server-rendered page can draw it from the first frame.
+- Button: `aria-disabled="true"` reads as off, as `disabled` does, so an item that is there but not yet usable looks it.
 - ab22891: Sheet, a panel the height of the window over the page from its right or left edge, with a header, a body that scrolls and an optional footer; the focus stays inside and goes back to what opened it. Resizable, two panes with a handle the reader drags or moves with the arrow keys, its size kept with `storageKey`. Reasoning, the chat's "Thinking…" row that folds to "Thought for 4s" once the answer begins.
 - ee2c6be: Chat: `ToolStep` and `ToolSteps` show what an assistant did on its way to an answer, one line per step with what came of it (`meta`). A running step has the same spinner as `StreamStatus`, a finished one the tool's icon, a failed one the error mark. With `detail` the row opens to show what went in and what came back. `ChatPanel` now shows a Latest button over the thread while it is scrolled up from the newest turn; `jumpToLatest={false}` leaves it out.
 - 975a6fc: Combobox: a Select you can type into, for a list too long to scroll. Closed it is a Select; open, a search box sits over the options. Typing narrows them, labels that start with what was typed first; the arrows move the highlight, Enter chooses and Escape closes, and the field gets its focus back. Pass `search` for a search of your own.

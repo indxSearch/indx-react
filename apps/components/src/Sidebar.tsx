@@ -112,6 +112,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Dataset page', path: '/dataset-page' },
       { label: 'Console shell', path: '/console-shell' },
+      { label: 'Console with Sidebar', path: '/console-sidebar' },
       { label: 'Analytics dashboard', path: '/analytics-dashboard' },
       { label: 'Dataset card', path: '/dataset-card' },
       { label: 'Question suggestions', path: '/question-suggestions' },
