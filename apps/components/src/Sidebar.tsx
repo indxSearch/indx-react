@@ -41,6 +41,7 @@ export const navGroups: NavGroup[] = [
       { label: 'GroupedBars', path: '/grouped-bars' },
       { label: 'Heatmap', path: '/heatmap' },
       { label: 'InputField', path: '/input-field' },
+      { label: 'Kbd', path: '/kbd' },
       { label: 'Modal', path: '/modal' },
       { label: 'NavigationMenu', path: '/navigation-menu' },
       { label: 'Popover', path: '/popover' },

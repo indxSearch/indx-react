@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowDown } from '@indxsearch/pixl';
 import { Button } from '../Button/Button';
+import { Kbd } from '../Kbd/Kbd';
 import styles from './Chat.module.css';
 
 export interface ChatPanelProps {
@@ -24,10 +25,8 @@ export interface ChatPanelProps {
 /** px from the end before the thread counts as scrolled up. */
 const AWAY = 80;
 
-/** Keyboard hint pill for the hints row. */
-export function Kbd({ children }: { children: React.ReactNode }) {
-  return <kbd className={styles.kbd}>{children}</kbd>;
-}
+/** The key cap, now systm Kbd of its own; still exported from here as before. */
+export { Kbd };
 
 /** Default hints: Enter sends, Shift+Enter breaks a line, Escape closes. */
 export const defaultChatHints = (

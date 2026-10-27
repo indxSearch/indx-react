@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Search } from '@indxsearch/pixl';
+import { Kbd } from '../Kbd/Kbd';
 import styles from './CommandPalette.module.css';
 
 // A jump menu over the page: Cmd or Ctrl and K opens it anywhere, typing narrows it, the arrows
@@ -114,7 +115,7 @@ export function CommandPalette({
             onChange={(e) => onQueryChange(e.target.value)}
             onKeyDown={onKeyDown}
           />
-          <kbd className={styles.kbd}>esc</kbd>
+          <Kbd>esc</Kbd>
         </div>
         <div ref={list} className={styles.list} id={listId} role="listbox" aria-label={ariaLabel}>
           {rows.length === 0 && <p className={styles.empty}>{query.trim() ? noMatchText : emptyText}</p>}

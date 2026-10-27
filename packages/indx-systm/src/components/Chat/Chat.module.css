@@ -33,18 +33,6 @@
   color: var(--lv4);
 }
 .hints span { display: inline-flex; align-items: center; gap: 4px; }
-.kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  font: var(--text-2xs);
-  color: var(--lv5);
-  background: var(--lv2);
-  border-radius: 3px;
-}
 
 /* ── Message ───────────────────────────────────────────────────────────── */
 .userRow { display: flex; justify-content: flex-end; }
