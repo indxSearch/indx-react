@@ -62,7 +62,8 @@ export default function SearchInputPage() {
         <h1 className={styles.title}>SearchInput</h1>
         <p className={styles.desc}>
           The search field in intrface, in each state a search can be in. Chips say what the search is doing:
-          active filters, Nearest when no result reached the coverage bar, and No results. One Clear resets the
+          active filters (click the count to see them and remove them one by one), Nearest when no result reached
+          the coverage bar, and No results. One Clear resets the
           query and the filters together. Each row has its own mock search state; type or clear to move it.
         </p>
       </div>

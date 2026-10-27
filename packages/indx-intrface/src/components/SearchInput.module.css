@@ -54,3 +54,10 @@
 
 /* The below row's QuickAnswer takes the row's width and height. */
 .offerQuick { flex: 1; }
+
+/* The filter count opens the active filters: the chip is the button, with no frame of its own. */
+.filterChip { padding: 0; height: auto; min-width: 0; background: transparent; }
+.filterChip:hover { background: transparent; }
+
+/* The popover holds the active filters panel at a filter column's width. */
+.filtersPopover { width: 320px; max-width: calc(100vw - 32px); padding: 0; }

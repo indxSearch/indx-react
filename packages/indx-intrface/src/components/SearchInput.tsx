@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSearchContext, DEFAULT_PLACEHOLDER } from '../context/SearchContext';
-import { SearchField, Button, Chip, Tooltip, Kbd, ShimmerText } from '@indxsearch/systm';
+import { SearchField, Button, Chip, Tooltip, Kbd, ShimmerText, Popover } from '@indxsearch/systm';
 import type { InputSize } from '@indxsearch/systm';
 import { Ai_agent, Filter, Fuzzy_search } from '@indxsearch/pixl';
 import { useSearchOrAsk, type SearchOrAskState } from '../hooks/useSearchOrAsk';
 import { QuickAnswer } from './QuickAnswer';
+import { ActiveFiltersPanel } from './ActiveFiltersPanel';
 import styles from './SearchInput.module.css';
 
 export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -12,8 +13,9 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   /** One Clear button that resets the query and the filters, shown whenever there is either. */
   showClear?: boolean;
   showFocus?: boolean;
-  /** Chips that say what the search is doing: the number of active filters, "Nearest" when no
-   *  result reached the coverage bar, and "No results". */
+  /** Chips that say what the search is doing: the number of active filters, which opens them in a
+   *  popover to see and remove one by one, "Nearest" when no result reached the coverage bar, and
+   *  "No results". */
   showStatus?: boolean;
   /** Search or ask: when given, and the dataset has it switched on, an offer to ask appears in
    *  the chip row while the visitor types something an answer would serve. A strong offer also
@@ -101,6 +103,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     ask();
   };
 
+  // The filters' popover, closed once the last one is removed: an empty panel has nothing to say.
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  React.useEffect(() => { if (filterCount === 0) setFiltersOpen(false); }, [filterCount]);
+
   const clear = () => {
     setQuery('');
     if (filterCount > 0) resetFilters();
@@ -153,13 +159,25 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         </Tooltip>
       )}
       {showStatus && filterCount > 0 && (
-        <Tooltip content={`${filterCount} filter${filterCount === 1 ? '' : 's'} active`}>
-          <span>
-            <Chip icon={<Filter />} color="var(--CLightBlue)" textColor="#080809">
-              {filterCount}
-            </Chip>
-          </span>
-        </Tooltip>
+        <Popover
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          align="end"
+          sideOffset={6}
+          className={styles.filtersPopover}
+          aria-label="Active filters"
+          trigger={
+            <Button variant="ghost" size="micro" className={styles.filterChip}
+                    aria-label={`${filterCount} filter${filterCount === 1 ? '' : 's'} active: show them`}
+                    title={`${filterCount} filter${filterCount === 1 ? '' : 's'} active`}>
+              <Chip icon={<Filter />} color="var(--CLightBlue)" textColor="#080809">
+                {filterCount}
+              </Chip>
+            </Button>
+          }
+        >
+          <ActiveFiltersPanel />
+        </Popover>
       )}
       {showClear && (hasQuery || filterCount > 0) && (
         <Button
