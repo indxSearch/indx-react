@@ -52,6 +52,7 @@ const AREA_OPACITY = 0.14;
 // A pattern is drawn a little translucent, so a shape under it still shows through.
 const PATTERN_OPACITY = 0.7;
 // Room outside the rim for the names: at least this, more for a long one (6.5px a character).
+const LABEL_LINE = 28;
 const MIN_LABEL_ROOM = 36;
 const PATTERN_CELLS: Record<Exclude<RadarFill, 'none' | 'solid'>, [number, number, number, number][]> = {
   hatch: [[0, 3, 1, 1], [1, 2, 1, 1], [2, 1, 1, 1], [3, 0, 1, 1]],
@@ -75,12 +76,16 @@ export function RadarChart({
   const n = axes.length;
   const radius = size / 2;
   const labelRoom = Math.max(MIN_LABEL_ROOM, Math.max(0, ...axes.map((a) => a.label.length)) * 6.5 + 14);
-  const box = size + labelRoom * 2;
-  const centre = box / 2;
+  // Wide enough for a name at either side, but only a line's height above and below: the names at
+  // the top and bottom are centred on their axis, so side room there was empty.
+  const boxW = size + labelRoom * 2;
+  const boxH = size + LABEL_LINE * 2;
+  const cx = boxW / 2;
+  const cy = boxH / 2;
   const top = max ?? series.reduce((a, s) => s.values.reduce((b, v) => (Number.isFinite(v) && v > b ? v : b), a), 0);
   const ceilingOf = (i: number) => axes[i].max ?? top;
   const angleOf = (i: number) => -Math.PI / 2 + (2 * Math.PI * i) / Math.max(1, n);
-  const point = (i: number, r: number) => [centre + r * Math.cos(angleOf(i)), centre + r * Math.sin(angleOf(i))] as const;
+  const point = (i: number, r: number) => [cx + r * Math.cos(angleOf(i)), cy + r * Math.sin(angleOf(i))] as const;
   const radiusOf = (i: number, v: number) => {
     const c = ceilingOf(i);
     return c > 0 && Number.isFinite(v) ? Math.min(1, Math.max(0, v / c)) * radius : 0;
@@ -91,8 +96,8 @@ export function RadarChart({
   const onPointerMove = (e: PointerEvent<SVGSVGElement>) => {
     if (n === 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * box - centre;
-    const y = ((e.clientY - rect.top) / rect.height) * box - centre;
+    const x = ((e.clientX - rect.left) / rect.width) * boxW - cx;
+    const y = ((e.clientY - rect.top) / rect.height) * boxH - cy;
     if (Math.hypot(x, y) > radius + labelRoom) { setHover(null); return; }
     const turn = ((Math.atan2(y, x) + Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI)) / (2 * Math.PI);
     setHover(Math.round(turn * n) % n);
@@ -107,12 +112,12 @@ export function RadarChart({
 
   return (
     <div className={`${styles.wrapper} ${className}`}>
-      <div className={styles.radar} style={{ '--radar-box': `${box}px` } as CSSProperties} onPointerLeave={() => setHover(null)}>
+      <div className={styles.radar} style={{ '--radar-width': `${boxW}px`, '--radar-height': `${boxH}px` } as CSSProperties} onPointerLeave={() => setHover(null)}>
         <svg
           className={styles.svg}
-          viewBox={`0 0 ${box} ${box}`}
-          width={box}
-          height={box}
+          viewBox={`0 0 ${boxW} ${boxH}`}
+          width={boxW}
+          height={boxH}
           role="img"
           aria-label={ariaLabel}
           onPointerMove={onPointerMove}
@@ -134,7 +139,7 @@ export function RadarChart({
           ))}
           {axes.map((_, i) => {
             const [x, y] = point(i, radius);
-            return <line key={`a${i}`} className={`${styles.axis} ${hover === i ? styles.axisHovered : ''}`} x1={centre} y1={centre} x2={x} y2={y} />;
+            return <line key={`a${i}`} className={`${styles.axis} ${hover === i ? styles.axisHovered : ''}`} x1={cx} y1={cy} x2={x} y2={y} />;
           })}
           {series.map((s, si) => {
             const pts = axes.map((_, i) => point(i, radiusOf(i, s.values[i])));
@@ -179,7 +184,7 @@ export function RadarChart({
         </svg>
         {hover != null && (() => {
           const [x, y] = point(hover, radius + 10);
-          const left = x > centre;
+          const left = x > cx;
           return (
             <div className={`${styles.tooltip} ${left ? styles.tooltipLeft : ''}`} style={{ left: x, top: y }}>
               <span className={styles.tooltipLabel}>{axes[hover].label}</span>

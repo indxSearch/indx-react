@@ -4,6 +4,8 @@
 
 ### Minor Changes
 
+- Chart: the hover box sits beside the hovered bar or point, to its right where it fits and else to its left, at the pointer's height, rather than above or below it over what it describes.
+- RadarChart: its box is only a line's height taller than the shape above and below, where it kept the side labels' room on every side.
 - Sidebar items take `badgeTitle` and a `trailing` icon with its `trailingTitle` (the lab mark of an experimental section), and the viewer's rail is kept in a cookie of the storage key's name too, so a server-rendered page can draw it from the first frame.
 - Button: `aria-disabled="true"` reads as off, as `disabled` does, so an item that is there but not yet usable looks it.
 - ab22891: Sheet, a panel the height of the window over the page from its right or left edge, with a header, a body that scrolls and an optional footer; the focus stays inside and goes back to what opened it. Resizable, two panes with a handle the reader drags or moves with the arrow keys, its size kept with `storageKey`. Reasoning, the chat's "Thinking…" row that folds to "Thought for 4s" once the answer begins.

@@ -500,7 +500,8 @@ export function Chart({
     const label = labels?.[tooltip.index] ?? String(tooltip.index + 1);
     // Kept inside the frame, which clips. The box's size is estimated from its rows and its
     // longest name (a row is 20px, a character about 6.5px), since it is not measured before it
-    // is drawn: below the pointer when that fits, else above, else pinned to the top.
+    // is drawn. Beside the pointed column, never on it: to its right when it fits there, else to
+    // its left, at the pointer's height. Above or below the pointer it covered what it describes.
     const rowCount = series.length
       + series.filter(s => s.low && s.high && s.low[tooltip.index] != null && s.high[tooltip.index] != null).length
       + (isStacked && series.length > 1 ? 1 : 0)
@@ -508,14 +509,13 @@ export function Chart({
     const longest = Math.max(label.length, ...series.map(s => s.label.length + 8), ...(markers?.map(m => m.label.length) ?? [0]));
     const tipW = Math.min(Math.max(90, longest * 6.5 + 36), Math.max(120, containerWidth - 16));
     const tipH = 30 + rowCount * 20;
-    const tipX = Math.min(Math.max(tooltip.x, tipW / 2 + 4), containerWidth - tipW / 2 - 4);
-    const below = tooltip.y + 12 + tipH <= height;
-    const above = tooltip.y - 8 - tipH >= 0;
-    const style = below
-      ? { left: tipX, top: tooltip.y + 12, transform: 'translate(-50%, 0)' }
-      : above
-        ? { left: tipX, top: tooltip.y - 8, transform: 'translate(-50%, -100%)' }
-        : { left: tipX, top: 4, transform: 'translate(-50%, 0)' };
+    // From the hovered bar's edge, or from the point on a line, rather than from the pointer.
+    const gap = 12;
+    const half = type === 'bar' && dataLen > 0 ? cw / dataLen / 2 : 0;
+    const cx = type === 'bar' && dataLen > 0 ? padLeft + (tooltip.index + 0.5) * (cw / dataLen) : toX(tooltip.index);
+    const left = cx + half + gap + tipW <= containerWidth - 4 ? cx + half + gap : Math.max(4, cx - half - gap - tipW);
+    const top = Math.max(4, Math.min(tooltip.y - tipH / 2, height - tipH - 4));
+    const style = { left, top };
     return (
       <div className={styles.tooltip} style={style}>
         <div className={styles.tooltipLabel}>{label}</div>
