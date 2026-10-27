@@ -1,0 +1,9 @@
+.main { padding: 40px; max-width: var(--maxWidth); margin: 0 auto; }
+.section { margin-bottom: 40px; }
+.title { font: var(--text-2xl); color: var(--lv8); margin-bottom: 10px; }
+.desc { font: var(--text-md); color: var(--lv5); margin: 0; }
+.heading { font: var(--text-lg); color: var(--lv7); margin-bottom: 16px; }
+.field { max-width: 320px; }
+.fieldNarrow { max-width: 200px; }
+.note { margin: 10px 0 0; font: var(--text-sm); color: var(--lv5); }
+.note code { font-family: var(--font-mono); color: var(--lv7); }

@@ -32,6 +32,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Checkbox', path: '/checkbox' },
       { label: 'Chip', path: '/chip' },
       { label: 'CodeCopy', path: '/code-copy' },
+      { label: 'Combobox', path: '/combobox' },
       { label: 'CommandPalette', path: '/command-palette' },
       { label: 'DatePicker', path: '/date-picker' },
       { label: 'Disclosure', path: '/disclosure' },
