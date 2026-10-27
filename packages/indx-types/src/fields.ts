@@ -8,7 +8,12 @@ export interface FieldProxy {
   filterable?: boolean | null;
   facetable?: boolean | null;
   sortable?: boolean | null;
-  wordIndexing?: boolean | null;
+  /** Matched inside its words (true) or by whole words only (false, the default). */
+  patternMatching?: boolean | null;
+  /** With pattern matching on: the index sizes, e.g. [3] or [2, 3]. */
+  indexSizes?: number[] | null;
+  numberOfStartCharacters?: number | null;
+  numberOfStopCharacters?: number | null;
   embeddable?: boolean | null;
   preloadFilters?: boolean | null;
   /** Score weight multiplier (typical 1.0–3.0). Only meaningful when searchable. */
