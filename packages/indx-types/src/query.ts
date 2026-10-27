@@ -19,6 +19,8 @@ export interface QueryProxy {
   text?: string | null;
   maxNumberOfRecordsToReturn?: number;
   enableCoverage?: boolean;
+  /** With enableCoverage, return `coverageReport`: how each query word was met in each record. */
+  enableCoverageReport?: boolean;
   coverageDepth?: number;
   coverageSetup?: CoverageSetup | null;
   enableFacets?: boolean;
