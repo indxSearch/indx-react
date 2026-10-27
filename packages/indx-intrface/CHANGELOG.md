@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.14.0
+
+### Minor Changes
+
+- 4aa88f7: `convertResult(documentKey, type, { quantity?, queryId? })` on the search context reports a conversion, such as an order or an add to cart, to the dataset's statistics. It is credited to the search the document was chosen from, even after the visitor has searched again. It never throws.
+
+### Patch Changes
+
+- Updated dependencies [ee2c6be]
+- Updated dependencies [975a6fc]
+- Updated dependencies [3aef120]
+- Updated dependencies [42a4481]
+- Updated dependencies [0aa041a]
+- Updated dependencies [0245481]
+- Updated dependencies [4aa88f7]
+- Updated dependencies [b2a34bd]
+- Updated dependencies [08dcd53]
+- Updated dependencies [8aab4c1]
+- Updated dependencies [3635b41]
+- Updated dependencies [9b63f48]
+  - @indxsearch/systm@2.23.0
+
 ## 3.13.2
 
 ### Patch Changes

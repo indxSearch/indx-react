@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.23.0
+
+### Minor Changes
+
+- ee2c6be: Chat: `ToolStep` and `ToolSteps` show what an assistant did on its way to an answer, one line per step with what came of it (`meta`). A running step has the same spinner as `StreamStatus`, a finished one the tool's icon, a failed one the error mark. With `detail` the row opens to show what went in and what came back. `ChatPanel` now shows a Latest button over the thread while it is scrolled up from the newest turn; `jumpToLatest={false}` leaves it out.
+- 975a6fc: Combobox: a Select you can type into, for a list too long to scroll. Closed it is a Select; open, a search box sits over the options. Typing narrows them, labels that start with what was typed first; the arrows move the highlight, Enter chooses and Escape closes, and the field gets its focus back. Pass `search` for a search of your own.
+- 3aef120: CommandPalette: a jump menu over the page, opened with Cmd or Ctrl and K (`shortcut`). Typing narrows it, the arrows move the highlight, Enter chooses and Escape closes. It shows the `items` it is given for the `query`, listed under their `group`; the host does the searching.
+- 42a4481: EmptyState: what a list or a page shows while it has nothing yet. A large icon in a quiet tone, a title, a line saying what would be here and how it gets here, and optional `actions`. `size="compact"` sits inside a tab or a section.
+- 0aa041a: Kbd is a component of its own: a filled key cap with no outline, the page's font small and medium, after shadcn's. CommandPalette and the chat hints draw their keys with it; it is still exported where it was.
+- 0245481: Popover: `role="menu"` makes it a menu, its ghost Buttons full width with the arrows moving between them, and `PopoverDivider` separates groups. The panel takes the raised surface tone (`--lv2`, `--lv1` in dark mode) instead of `--lv3`, keeps 8px from the window's edge, and sets `aria-haspopup` on the trigger.
+- 4aa88f7: systm can render inside a shadow root. `PortalContainerProvider` names where the floating parts (Modal, Select, Tooltip, Popover, DatePicker, the Breadcrumbs' switchers) render, so they stay inside the root instead of going to `document.body`; without it nothing changes. `@indxsearch/systm/styles.shadow.css` is the stylesheet for a shadow root, its tokens and page rules on `:host`.
+- b2a34bd: Sidebar: the side column of an app, groups of Buttons with the open one primary. Cmd or Ctrl and B, or the button at its foot, folds it to a rail of icons, where each item names itself in a Tooltip and a badge is a dot; `storageKey` keeps the viewer's choice. A group with `collapsible` opens and closes under its title. At 768px and narrower it is a drawer over the page, opened by the host (`open`, `onOpenChange`) and closed by Escape, a press beside it or a choice.
+- 08dcd53: TagsInput: a list of short values edited as chips in one field. A separator (`;` and `,` by default, set with `separators`) or Enter makes a chip, a paste makes one per part, Backspace takes the last chip back to be mended, and a value already there is not added twice.
+- 8aab4c1: Toast: `toast()` and `toast.error()` show a brief notice at the window's lower right, and `<Toaster />` shows them. A notice stays four seconds and a failure eight, the pointer on one holds it, and it may carry one action ("Undo"). No motion: it is simply there, and then not.
+- 3635b41: TreeCanvas is a board: drag it or scroll with two fingers to pan, pinch or Ctrl/Cmd and the wheel to zoom at the pointer, with zoom in, zoom out, fit and the zoom shown in its corner, and the arrows, + - and 0 from the keyboard. It opens fitted to the tree. Handles mark where the edges leave and arrive, and a dashed edge leads to a node kept only as the way down to a match. `pattern` lays a systm pattern behind it, such as `'grid-12'`, which follows the pan and the zoom. `pan={false}` makes it a still picture. `zoom` is now the zoom it opens at; left out, it fits.
+- 9b63f48: `Waffle`: hovering a cell names its segment in a tooltip beside it, with its share, and a cell or a legend entry under the pointer dims the other segments, so which is which can be browsed from either side. A segment also takes an `icon`, a small graphic before its label in the legend and the tooltip, about the text's height: a pixl icon at 14, or a flag.
+
 ## 2.22.0
 
 ### Minor Changes
