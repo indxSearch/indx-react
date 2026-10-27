@@ -1,0 +1,10 @@
+.empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+.default { padding: 56px 24px 64px; }
+.compact { padding: 32px 16px 40px; }
+.icon { display: flex; margin-bottom: 10px; color: var(--lv4); }
+.compact .icon { margin-bottom: 6px; }
+.title { font: var(--text-lg); color: var(--lv7); }
+.compact .title { font: var(--text-base); }
+.detail { font: var(--text-sm); color: var(--lv5); max-width: 60ch; }
+.detail code { font-family: var(--font-mono); font-size: 0.92em; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }

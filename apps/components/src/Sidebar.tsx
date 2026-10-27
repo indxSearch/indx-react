@@ -36,6 +36,7 @@ export const navGroups: NavGroup[] = [
       { label: 'CommandPalette', path: '/command-palette' },
       { label: 'DatePicker', path: '/date-picker' },
       { label: 'Disclosure', path: '/disclosure' },
+      { label: 'EmptyState', path: '/empty-state' },
       { label: 'FilterPanelBase', path: '/filter-panel-base' },
       { label: 'GroupedBars', path: '/grouped-bars' },
       { label: 'Heatmap', path: '/heatmap' },
