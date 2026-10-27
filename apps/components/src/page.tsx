@@ -19,6 +19,7 @@ export default function Home() {
     { name: 'DatePicker', path: '/date-picker', desc: 'Single-date calendar picker' },
     { name: 'Popover', path: '/popover', desc: 'A panel or menu that floats by its trigger' },
     { name: 'TagsInput', path: '/tags-input', desc: 'A list of short values edited as chips' },
+    { name: 'CommandPalette', path: '/command-palette', desc: 'A jump menu opened with Cmd or Ctrl and K' },
     { name: 'Modal', path: '/modal', desc: 'Accessible dialog with overlay' },
     { name: 'Table', path: '/table', desc: 'Composable table component system' },
     { name: 'Base', path: '/base', desc: 'Base container component' },
