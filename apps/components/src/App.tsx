@@ -23,6 +23,7 @@ import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
 import TagsInputPage from './tags-input/page';
 import CommandPalettePage from './command-palette/page';
+import ToastPage from './toast/page';
 import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
 import ChipPage from './chip/page';
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="/popover" element={<PopoverPage />} />
         <Route path="/tags-input" element={<TagsInputPage />} />
         <Route path="/command-palette" element={<CommandPalettePage />} />
+        <Route path="/toast" element={<ToastPage />} />
         <Route path="/base" element={<BasePage />} />
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
         <Route path="/chip" element={<ChipPage />} />

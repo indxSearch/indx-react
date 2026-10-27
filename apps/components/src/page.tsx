@@ -20,6 +20,7 @@ export default function Home() {
     { name: 'Popover', path: '/popover', desc: 'A panel or menu that floats by its trigger' },
     { name: 'TagsInput', path: '/tags-input', desc: 'A list of short values edited as chips' },
     { name: 'CommandPalette', path: '/command-palette', desc: 'A jump menu opened with Cmd or Ctrl and K' },
+    { name: 'Toast', path: '/toast', desc: 'Brief notices for a thing done or failed' },
     { name: 'Modal', path: '/modal', desc: 'Accessible dialog with overlay' },
     { name: 'Table', path: '/table', desc: 'Composable table component system' },
     { name: 'Base', path: '/base', desc: 'Base container component' },

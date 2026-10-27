@@ -29,6 +29,7 @@ export { RadarChart, type RadarChartProps, type RadarAxis, type RadarSeries, typ
 export { GroupedBars, type GroupedBarsProps, type BarGroup } from './components/GroupedBars/GroupedBars';
 export { CommandPalette, type CommandPaletteProps, type CommandPaletteItem } from './components/CommandPalette';
 export { TagsInput, type TagsInputProps } from './components/TagsInput';
+export { toast, Toaster, type ToastOptions } from './components/Toast';
 export { TreeCanvas, type TreeCanvasProps, type TreeCanvasPattern, type TreeNode } from './components/TreeCanvas/TreeCanvas';
 export { Chip, type ChipProps } from './components/Chip/Chip';
 export { Alert, AlertTitle, AlertDescription, type AlertProps, type AlertVariant } from './components/Alert/Alert';

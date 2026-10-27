@@ -36,6 +36,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Popover', path: '/popover' },
       { label: 'TagsInput', path: '/tags-input' },
       { label: 'CommandPalette', path: '/command-palette' },
+      { label: 'Toast', path: '/toast' },
       { label: 'Modal', path: '/modal' },
       { label: 'Portal container', path: '/portal-container' },
       { label: 'Table', path: '/table' },
