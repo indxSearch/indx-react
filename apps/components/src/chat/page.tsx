@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button, Tabs, Alert, AlertTitle, AlertDescription, Modal,
-  ChatPanel, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions,
+  ChatPanel, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions, ToolStep, ToolSteps,
 } from '@indxsearch/systm';
-import { Api, Book, Code, Refresh, Search, Search_query } from '@indxsearch/pixl';
+import { Api, Book, Code, Database, Refresh, Search, Search_query } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 /**
  * The Chat family: ChatPanel, UserMessage / AssistantMessage, Composer, CitationRef /
- * CitationList, StreamStatus, Suggestions, AnswerActions. Shown part by part, then assembled
+ * CitationList, StreamStatus, Suggestions, AnswerActions, ToolStep / ToolSteps. Shown part by part, then assembled
  * as the docs assistant's Ask tab, one conversation state by state. Nothing here is wired to
  * a model; the live one is the Ask tab on docs.indx.co.
  */
@@ -170,6 +170,29 @@ function ActionsDemo() {
   );
 }
 
+const longThread = [
+  ['Which searches found nothing this week?', 'Seven searches came back empty. The most frequent were "oak sideboard" (14 times), "bar stool" (9) and "outdoor rug" (6).'],
+  ['Is there a synonym that would help with bar stool?', 'Yes. The records call them "counter chairs", so a synonym between "bar stool" and "counter chair" would let those searches find 23 records.'],
+  ['And the rug?', 'There are no outdoor rugs in the catalog at all, so no setting will help. It may be worth telling the buyers.'],
+  ['What about the sideboard?', 'The records say "buffet" and "credenza". A synonym group of the three would cover it.'],
+];
+
+function LatestDemo() {
+  // Starts at the newest turn, as a conversation does.
+  const thread = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (thread.current) thread.current.scrollTop = thread.current.scrollHeight; }, []);
+  return (
+    <ChatPanel className={styles.panelShort} hints={false} threadRef={thread}>
+      {longThread.map(([q, a]) => (
+        <div key={q} className={styles.stackTight}>
+          <UserMessage>{q}</UserMessage>
+          <Assistant><p>{a}</p></Assistant>
+        </div>
+      ))}
+    </ChatPanel>
+  );
+}
+
 export default function ChatPage() {
   const [stage, setStage] = useState<Stage>('answered');
   const [frame, setFrame] = useState('desktop');
@@ -184,7 +207,8 @@ export default function ChatPage() {
         <p className={styles.desc}>
           A conversation with an assistant, as parts that compose: <code>ChatPanel</code> frames it,
           <code>UserMessage</code> and <code>AssistantMessage</code> are the turns, <code>Composer</code> takes the
-          next one, <code>CitationRef</code> and <code>CitationList</code> point answers at their sources, and
+          next one, <code>CitationRef</code> and <code>CitationList</code> point answers at their sources,
+          <code>ToolStep</code> shows what the assistant did on the way, and
           <code>StreamStatus</code>, <code>Suggestions</code> and <code>AnswerActions</code> fill the moments around
           an answer. The rendering of the answer itself is the host's — markdown, code, tables — so the parts
           carry no text styling beyond the message frame.
@@ -242,6 +266,50 @@ export default function ChatPage() {
           </Demo>
           <Demo label="AnswerActions — Copy acknowledges, the follow-up focuses the composer">
             <ActionsDemo />
+          </Demo>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Tool steps</h2>
+        <div className={styles.stack}>
+          <Demo label="ToolStep — running has the StreamStatus spinner, done the tool's icon, failed the signal colour">
+            <ToolSteps>
+              <ToolStep icon={<Database />} meta="3 fields">Read the field configuration</ToolStep>
+              <ToolStep icon={<Search />} meta="12 records" detail={'search("oak table", fields: ["name", "description"])\n\n12 records, best first:\n  4021  Oak dining table, 180 cm\n  4022  Oak dining table, 220 cm\n  …'}>
+                Searched furniture for "oak table"
+              </ToolStep>
+              <ToolStep state="error" meta="timed out">Read the statistics</ToolStep>
+              <ToolStep state="running">Looking at the boost rules</ToolStep>
+            </ToolSteps>
+          </Demo>
+          <Demo label="In a message — the steps, then the answer">
+            <Assistant>
+              <ToolSteps>
+                <ToolStep icon={<Search />} meta="0 records">Searched furniture for "bar stool"</ToolStep>
+                <ToolStep icon={<Search />} meta="23 records">Searched furniture for "counter chair"</ToolStep>
+              </ToolSteps>
+              <p>The records call them counter chairs. A synonym between the two would let those searches find 23 records.</p>
+            </Assistant>
+          </Demo>
+          <Demo label="Folded — a finished answer keeps its steps behind a summary">
+            <Assistant>
+              <ToolSteps summary="3 steps">
+                <ToolStep icon={<Database />}>Read the fields and a sample of the records</ToolStep>
+                <ToolStep icon={<Search />}>Searched for "bar stool"</ToolStep>
+                <ToolStep>Read the synonyms</ToolStep>
+              </ToolSteps>
+              <p>The records call them counter chairs, and there is no synonym for it yet.</p>
+            </Assistant>
+          </Demo>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Latest</h2>
+        <div className={styles.stack}>
+          <Demo label="Scrolled up from the newest turn, Latest takes the reader back. Scroll this thread up.">
+            <LatestDemo />
           </Demo>
         </div>
       </div>

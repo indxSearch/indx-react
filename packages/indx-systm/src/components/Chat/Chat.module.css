@@ -174,3 +174,78 @@
 .suggestions { display: flex; flex-direction: column; gap: 8px; }
 .actions { display: flex; align-items: center; gap: 2px; }
 .actionsSpacer { flex: 1; }
+
+/* ── ToolStep ──────────────────────────────────────────────────────────── */
+.toolSteps { display: flex; flex-direction: column; min-width: 0; }
+/* The folded row: as quiet as a step, its hover a tone behind it. */
+.toolStepsSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  margin: 0 -4px;
+  padding: 3px 6px 3px 4px;
+  font: var(--text-xs);
+  line-height: 18px;
+  color: var(--lv5);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toolStepsSummary:hover { background: var(--lv2); color: var(--lv6); }
+.toolStepsChevron { display: inline-flex; flex-shrink: 0; }
+.toolStepsList { display: flex; flex-direction: column; min-width: 0; }
+.tool { display: flex; flex-direction: column; min-width: 0; }
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 3px 0;
+  font: var(--text-xs);
+  line-height: 18px;
+  color: var(--lv6);
+  text-align: left;
+}
+/* A row that opens is a button the width of the message, its hover a tone behind it. */
+.toolRowOpen {
+  width: calc(100% + 8px);
+  margin: 0 -4px;
+  padding: 3px 4px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.toolRowOpen:hover { background: var(--lv2); }
+.toolIcon { display: inline-flex; flex-shrink: 0; color: var(--lv5); }
+.tool[data-state="running"] .toolIcon { color: var(--CTeal); }
+.tool[data-state="error"] .toolIcon,
+.tool[data-state="error"] .toolMeta { color: var(--CSignal); }
+.toolLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolMeta { flex-shrink: 0; color: var(--lv4); }
+.toolChevron { display: inline-flex; flex-shrink: 0; margin-left: auto; color: var(--lv4); }
+/* Under the line, in from the icon: what went in and what came back. */
+.toolDetail {
+  margin: 4px 0 6px 21px;
+  padding: 8px 10px;
+  max-height: 240px;
+  overflow: auto;
+  font: var(--text-2xs);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+  color: var(--lv6);
+  background: var(--lv2);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ── Latest ────────────────────────────────────────────────────────────── */
+/* The thread and, over its bottom edge, the Latest button, shown only while scrolled up. */
+.body { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.jump { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); display: inline-flex; }
+/* Secondary has no fill; over the thread it needs the panel's own, or the text shows through. */
+.jump > button { background: var(--lv1); }
+.jump > button:hover { background: var(--lv2); }

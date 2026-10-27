@@ -15,6 +15,8 @@
 /* The two frames the panel is shown in. */
 .panelDesktop { width: 640px; min-height: 520px; }
 .panelPhone { width: 390px; height: 720px; }
+/* Short enough that the thread scrolls, for the Latest button. */
+.panelShort { width: 520px; max-width: 100%; height: 320px; }
 
 /* Answer content that the docs render with their own markdown renderer. */
 .code { margin: 0; padding: 14px 16px; background: var(--lv0); border-radius: var(--radius); font: 12px/1.6 var(--font-mono); color: var(--lv6); white-space: pre-wrap; overflow-wrap: anywhere; }
