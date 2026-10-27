@@ -28,6 +28,8 @@ import SidebarPage from './sidebar/page';
 import ComboboxPage from './combobox/page';
 import EmptyStatePage from './empty-state/page';
 import KbdPage from './kbd/page';
+import SheetPage from './sheet/page';
+import ResizablePage from './resizable/page';
 import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
 import ChipPage from './chip/page';
@@ -107,6 +109,8 @@ export default function App() {
         <Route path="/combobox" element={<ComboboxPage />} />
         <Route path="/empty-state" element={<EmptyStatePage />} />
         <Route path="/kbd" element={<KbdPage />} />
+        <Route path="/sheet" element={<SheetPage />} />
+        <Route path="/resizable" element={<ResizablePage />} />
         <Route path="/base" element={<BasePage />} />
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
         <Route path="/chip" element={<ChipPage />} />

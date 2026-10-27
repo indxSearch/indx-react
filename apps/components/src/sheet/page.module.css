@@ -1,0 +1,8 @@
+.main { padding: 40px; max-width: var(--maxWidth); margin: 0 auto; }
+.section { margin-bottom: 40px; }
+.title { font: var(--text-2xl); color: var(--lv8); margin-bottom: 10px; }
+.desc { font: var(--text-md); color: var(--lv5); margin: 0; }
+.heading { font: var(--text-lg); color: var(--lv7); margin-bottom: 16px; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; max-width: 320px; }
+.fields { display: flex; flex-direction: column; gap: 16px; }
+.muted { font: var(--text-sm); color: var(--lv5); }

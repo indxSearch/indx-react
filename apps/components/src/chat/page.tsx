@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Button, Tabs, Alert, AlertTitle, AlertDescription, Modal,
-  ChatPanel, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions, ToolStep, ToolSteps,
+  ChatPanel, UserMessage, AssistantMessage, Composer, CitationRef, CitationList, StreamStatus, Suggestions, AnswerActions, ToolStep, ToolSteps, Reasoning,
 } from '@indxsearch/systm';
 import { Api, Book, Code, Database, Refresh, Search, Search_query } from '@indxsearch/pixl';
 import styles from './page.module.css';
@@ -208,7 +208,7 @@ export default function ChatPage() {
           A conversation with an assistant, as parts that compose: <code>ChatPanel</code> frames it,
           <code>UserMessage</code> and <code>AssistantMessage</code> are the turns, <code>Composer</code> takes the
           next one, <code>CitationRef</code> and <code>CitationList</code> point answers at their sources,
-          <code>ToolStep</code> shows what the assistant did on the way, and
+          <code>ToolStep</code> and <code>Reasoning</code> show what the assistant did and thought on the way, and
           <code>StreamStatus</code>, <code>Suggestions</code> and <code>AnswerActions</code> fill the moments around
           an answer. The rendering of the answer itself is the host's — markdown, code, tables — so the parts
           carry no text styling beyond the message frame.
@@ -266,6 +266,21 @@ export default function ChatPage() {
           </Demo>
           <Demo label="AnswerActions — Copy acknowledges, the follow-up focuses the composer">
             <ActionsDemo />
+          </Demo>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Reasoning</h2>
+        <div className={styles.stack}>
+          <Demo label="Thinking — open while it comes, with the StreamStatus spinner">
+            <Assistant><Reasoning streaming>{'The visitor searched "bar stool" nine times and found nothing.\nThe records may call them something else; search for counter chair.'}</Reasoning></Assistant>
+          </Demo>
+          <Demo label="Done — folded to how long it took, open on a press">
+            <Assistant>
+              <Reasoning seconds={4}>{'The visitor searched "bar stool" nine times and found nothing.\nThe records call them counter chairs: 23 of them.'}</Reasoning>
+              <p>The records call them counter chairs. A synonym between the two would let those searches find 23 records.</p>
+            </Assistant>
           </Demo>
         </div>
       </div>

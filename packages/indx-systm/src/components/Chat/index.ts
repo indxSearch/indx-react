@@ -6,3 +6,4 @@ export { StreamStatus, type StreamStatusProps } from './StreamStatus';
 export { Suggestions, type SuggestionsProps } from './Suggestions';
 export { AnswerActions, type AnswerActionsProps } from './AnswerActions';
 export { ToolStep, ToolSteps, type ToolStepProps, type ToolStepsProps } from './ToolStep';
+export { Reasoning, type ReasoningProps } from './Reasoning';
