@@ -75,6 +75,7 @@ import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
 import SkeletonPage from './skeleton/page';
 import ShimmerTextPage from './shimmer-text/page';
+import ScoreMeterPage from './score-meter/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
 import ConsoleShellMockup from './console-shell/page';
@@ -158,6 +159,7 @@ export default function App() {
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
         <Route path="/skeleton" element={<SkeletonPage />} />
         <Route path="/shimmer-text" element={<ShimmerTextPage />} />
+        <Route path="/score-meter" element={<ScoreMeterPage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
         <Route path="/console-shell" element={<ConsoleShellMockup />} />
