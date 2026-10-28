@@ -126,6 +126,8 @@ export function useAsk() {
             setState(s => ({ ...s, status: 'writing', sources: data as AskSource[] }));
             break;
           case 'text':
+            // A catalogue's agent writes its answer beside its list, so text can come before the sources.
+            if (!answer) setState(s => (s.status === 'searching' ? { ...s, status: 'writing' } : s));
             answer += (data as { delta: string }).delta;
             frame ??= requestAnimationFrame(flush);
             break;
