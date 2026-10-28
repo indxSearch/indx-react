@@ -40,6 +40,7 @@ export const navGroups: NavGroup[] = [
       { label: 'FilterPanelBase', path: '/filter-panel-base' },
       { label: 'GroupedBars', path: '/grouped-bars' },
       { label: 'Heatmap', path: '/heatmap' },
+      { label: 'Icicle', path: '/icicle' },
       { label: 'InputField', path: '/input-field' },
       { label: 'Kbd', path: '/kbd' },
       { label: 'Modal', path: '/modal' },

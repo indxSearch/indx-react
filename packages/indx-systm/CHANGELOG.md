@@ -4,6 +4,8 @@
 
 ### Minor Changes
 
+- TreeCanvas: a full-screen control beside zoom and fit. It fills the screen with the nearest element marked `data-tree-fullscreen`, so a panel beside the board goes along, or with the board; Esc leaves, and the view is fitted again. `fullscreen={false}` leaves it out.
+- Icicle: a tree as nested blocks read top to bottom, each as wide as its share of the root and toned by how much of it goes on to its children; the space under a block is what stopped there. For browsing paths, and any tree whose values add up.
 - ScoreMeter: a score from 0 to 1 as a row of small cells lit up to it, with a thin tick at each threshold and its name on hover; the cells strengthen as the score passes the ticks, the full ink past every one. Compact, for a line of text.
 - ShimmerText: text a highlight sweeps across, for a line that says something is about to happen, such as "Thinking" or "For a quick answer, type a bit more". `active={false}` holds it still, and it is still for anyone who has asked for reduced motion.
 - Chart: the hover box sits beside the hovered bar or point, to its right where it fits and else to its left, at the pointer's height, rather than above or below it over what it describes.

@@ -316,3 +316,6 @@
   cursor: grabbing;
   user-select: none;
 }
+
+/* Full screen: the board, or the page's element round it, fills the screen. */
+.canvas:fullscreen { width: 100vw; height: 100vh; }

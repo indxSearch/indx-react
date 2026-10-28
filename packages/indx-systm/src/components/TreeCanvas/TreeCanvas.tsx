@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Plus, Minus, Marquee } from '@indxsearch/pixl';
+import { Plus, Minus, Marquee, Maximize } from '@indxsearch/pixl';
 import { Button } from '../Button/Button';
+import { Tooltip } from '../Tooltip/Tooltip';
 import { createViewport, type Viewport } from './viewport';
 import styles from './TreeCanvas.module.css';
 
@@ -54,6 +55,10 @@ export interface TreeCanvasProps {
    *  arrows, + - and 0 on it, and the zoom controls in its corner; on by default. Off, the tree is a
    *  still picture at `zoom` or fitted, for an example inside a page that scrolls. */
   pan?: boolean;
+  /** A control to fill the screen with the board: the nearest element the page marks
+   *  `data-tree-fullscreen` (so a panel beside the board goes along), else the board; Esc leaves.
+   *  On by default where the board pans. */
+  fullscreen?: boolean;
   /** A systm pattern behind the tree, faint, moving with it. None by default. */
   pattern?: TreeCanvasPattern;
   /** A name for assistive technology: "Categories of shop". */
@@ -105,6 +110,7 @@ export function TreeCanvas({
   zoom,
   openDepth,
   pan: pannable = true,
+  fullscreen = true,
   pattern,
   'aria-label': ariaLabel,
   className = '',
@@ -364,12 +370,16 @@ export function TreeCanvas({
       </div>
       {pannable && (
         <div className={styles.controls} role="toolbar" aria-label="Zoom" data-tree-controls="">
-          <Button variant="ghost" size="micro" iconLeft={<Plus />} aria-label="Zoom in" title="Zoom in (+)" data-tree-action="in" />
-          <Button variant="ghost" size="micro" iconLeft={<Minus />} aria-label="Zoom out" title="Zoom out (-)" data-tree-action="out" />
-          <Button variant="ghost" size="micro" iconLeft={<Marquee />} aria-label="Fit the tree in view" title="Fit in view (0)" data-tree-action="fit" />
-          <Button variant="ghost" size="micro" aria-label="Zoom to 100%" title="Zoom to 100%" data-tree-action="reset">
-            <span className={styles.zoomLabel} data-tree-zoom-label="" />
-          </Button>
+          {/* Each named in a systm Tooltip to its right, the board being to the right of them. */}
+          <Tooltip content="Zoom in (+)" position="right"><Button variant="ghost" size="micro" iconLeft={<Plus />} aria-label="Zoom in" data-tree-action="in" /></Tooltip>
+          <Tooltip content="Zoom out (-)" position="right"><Button variant="ghost" size="micro" iconLeft={<Minus />} aria-label="Zoom out" data-tree-action="out" /></Tooltip>
+          <Tooltip content="Fit in view (0)" position="right"><Button variant="ghost" size="micro" iconLeft={<Marquee />} aria-label="Fit the tree in view" data-tree-action="fit" /></Tooltip>
+          {fullscreen && <Tooltip content="Full screen (Esc to leave)" position="right"><Button variant="ghost" size="micro" iconLeft={<Maximize />} aria-label="Full screen" data-tree-action="fullscreen" /></Tooltip>}
+          <Tooltip content="Zoom to 100%" position="right">
+            <Button variant="ghost" size="micro" aria-label="Zoom to 100%" data-tree-action="reset">
+              <span className={styles.zoomLabel} data-tree-zoom-label="" />
+            </Button>
+          </Tooltip>
         </div>
       )}
     </div>

@@ -16,7 +16,7 @@ const STEP = 1.2;       // one press of zoom in or out
 const KEY_PAN = 48;     // one arrow press, in screen pixels
 const GRID_MIN = 8;     // the grid's tile on screen is kept at least this: zoomed out, its spacing doubles
 
-export type ViewportAction = 'in' | 'out' | 'fit' | 'reset';
+export type ViewportAction = 'in' | 'out' | 'fit' | 'reset' | 'fullscreen';
 
 export interface Viewport {
   setPan(pan: boolean): void;
@@ -48,19 +48,23 @@ export function createViewport(canvas: HTMLElement, view: HTMLElement, grid: HTM
     const label = canvas.querySelector<HTMLElement>('[data-tree-zoom-label]');
     if (label) label.textContent = `${Math.round(s.z * 100)}%`;
   };
+  // The controls sit on the board's left edge; a fitted tree keeps clear of them (on a phone the
+  // tree came under them).
   const sizes = () => {
     const sheet = view.firstElementChild as HTMLElement | null;
-    return { cw: canvas.clientWidth, ch: canvas.clientHeight, sw: sheet?.offsetWidth ?? 0, sh: sheet?.offsetHeight ?? 0 };
+    const controls = canvas.querySelector<HTMLElement>('[data-tree-controls]');
+    const cl = controls ? controls.offsetLeft + controls.offsetWidth : 0;
+    return { cw: canvas.clientWidth, ch: canvas.clientHeight, sw: sheet?.offsetWidth ?? 0, sh: sheet?.offsetHeight ?? 0, cl };
   };
   const fitZoom = () => {
-    const { cw, ch, sw, sh } = sizes();
+    const { cw, ch, sw, sh, cl } = sizes();
     if (!sw || !sh) return 1;
-    return clamp(Math.min((cw - FIT_PAD * 2) / sw, (ch - FIT_PAD * 2) / sh, 1));
+    return clamp(Math.min((cw - cl - FIT_PAD * 2) / sw, (ch - FIT_PAD * 2) / sh, 1));
   };
   const fitInto = (z: number) => {
-    const { cw, ch, sw, sh } = sizes();
+    const { cw, ch, sw, sh, cl } = sizes();
     s.z = z;
-    s.x = (cw - sw * z) / 2;
+    s.x = cl + (cw - cl - sw * z) / 2;
     s.y = (ch - sh * z) / 2;
     apply();
   };
@@ -77,7 +81,21 @@ export function createViewport(canvas: HTMLElement, view: HTMLElement, grid: HTM
     if (action === 'in') zoomAt(s.z * STEP, cx, cy);
     else if (action === 'out') zoomAt(s.z / STEP, cx, cy);
     else if (action === 'reset') zoomAt(1, cx, cy);
+    else if (action === 'fullscreen') toggleFullscreen();
     else fitInto(fitZoom());
+  };
+  // The board fills the screen: the element the page marks data-tree-fullscreen (its panel goes
+  // along), else the board. The view is fitted again once the size has changed, in and out.
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) { void document.exitFullscreen?.(); return; }
+    const target = canvas.closest<HTMLElement>('[data-tree-fullscreen]') ?? canvas;
+    const refit = () => {
+      document.removeEventListener('fullscreenchange', refit);
+      requestAnimationFrame(() => fitInto(fitZoom()));
+      if (document.fullscreenElement) document.addEventListener('fullscreenchange', refit);
+    };
+    document.addEventListener('fullscreenchange', refit);
+    target.requestFullscreen?.().catch(() => document.removeEventListener('fullscreenchange', refit));
   };
 
   let start: { px: number; py: number; x: number; y: number; id: number } | null = null;
@@ -170,13 +188,13 @@ export function createViewport(canvas: HTMLElement, view: HTMLElement, grid: HTM
   return {
     setPan(pan) { s.pan = pan; },
     initial(zoom) {
-      const { ch, sh } = sizes();
+      const { ch, sh, cl } = sizes();
       if (zoom == null) {
         const fit = fitZoom();
         if (fit >= 0.6) { fitInto(fit); return; }
       }
       s.z = clamp(zoom ?? 1);
-      s.x = 0;
+      s.x = cl;
       const root = view.querySelector<HTMLElement>('[aria-level="1"]');
       const rootY = root ? ((root.parentElement?.offsetTop ?? 0) + root.offsetHeight / 2) * s.z : 0;
       s.y = Math.min(0, Math.max(ch - sh * s.z, ch / 3 - rootY));
