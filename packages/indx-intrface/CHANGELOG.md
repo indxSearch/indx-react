@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.14.0
+## 3.15.0
 
 ### Minor Changes
 
@@ -8,6 +8,16 @@
 - `SearchInput`'s filter count opens the active filters in a popover, to see them and remove them one by one; it closes once the last is gone.
 - `QuickAnswer`, Search or ask's offer as a row of its own for above the results, as Notion's quick answer: "For a quick answer, type a bit more" sweeping while a question is typed, the full offer once it is sure, or in proactive "Thinking" until the answer starts on its own, never a button to press. `useSearchOrAsk` gives the one `quick` state it draws, which `SearchInput`'s chip and `askOffer="below"` draw too.
 - `useSearchOrAsk` asks the judge while the visitor types too, so the offer to answer can appear as soon as they stop instead of a moment after. Pass `prefetch: false` to ask only on the pause.
+
+### Patch Changes
+
+- Updated dependencies
+  - @indxsearch/systm@2.24.0
+
+## 3.14.0
+
+### Minor Changes
+
 - 4aa88f7: `convertResult(documentKey, type, { quantity?, queryId? })` on the search context reports a conversion, such as an order or an add to cart, to the dataset's statistics. It is credited to the search the document was chosen from, even after the visitor has searched again. It never throws.
 
 ### Patch Changes
