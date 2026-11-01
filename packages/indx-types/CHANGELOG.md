@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.0
+
+### Minor Changes
+
+- `SystemStatus` describes a rebuild's outcome: `shadowBuildFinishedUtc` says when the last rebuild ended, and `shadowBuildError` why it failed, if it did. A failed rebuild changes nothing: the dataset keeps serving what it had.
+
 All notable changes to this project will be documented in this file.
 
 ## 3.0.0

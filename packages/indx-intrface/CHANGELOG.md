@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.15.1
+
+### Patch Changes
+
+- `SearchResults` offers Load more whenever the server may hold more results, so the first page no longer ends without it when the provider fetches fewer results than the page shows.
+- Clearing the search field with `allowEmptySearch` off keeps it clear: a search still on its way no longer brings the previous results back.
+- Text typed before the provider has finished starting up is searched as soon as it is ready.
+- `useVectorSearch` and `useHybridSearch` show the results of the latest search when several overlap, and their loading state follows that search.
+- Search or ask shows an answer as it is being written even when a catalogue's answer starts before its sources arrive.
+- Updated dependencies
+  - @indxsearch/indx-types@3.1.0
+
 ## 3.15.0
 
 ### Minor Changes
