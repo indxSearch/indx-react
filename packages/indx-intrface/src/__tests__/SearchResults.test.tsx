@@ -153,3 +153,40 @@ describe('no results', () => {
     expect(container.textContent).toBe('');
   });
 });
+
+// Review of 1 Nov 2026: with the provider fetching 10 and the page showing 30, the first batch
+// never offered Load more, though the server held more.
+describe('load more', () => {
+  function renderWithMax(maxResults?: number) {
+    return render(
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token" enableFacets={false} maxResults={maxResults}>
+        <QueryTap />
+        <SearchResults>{item => <span data-testid="title">{String(item.title)}</span>}</SearchResults>
+      </SearchProvider>
+    );
+  }
+
+  it('asks the server for more when the batch came back full', async () => {
+    const asked: number[] = [];
+    server.use(http.post(`${DS}/search`, async ({ request }) => {
+      asked.push((await request.json() as { maxNumberOfRecordsToReturn: number }).maxNumberOfRecordsToReturn);
+      return HttpResponse.json(SEARCH_RESPONSE);
+    }));
+    renderWithMax(2);
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('shoes'));
+    await waitFor(() => expect(screen.getAllByTestId('title')).toHaveLength(2));
+
+    const button = await screen.findByRole('button', { name: 'Load more' });
+    act(() => button.click());
+    await waitFor(() => expect(asked).toContain(32));
+  });
+
+  it('offers nothing more when the batch was not full', async () => {
+    renderWithMax(); // asks for 10, gets 2
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('shoes'));
+    await waitFor(() => expect(screen.getAllByTestId('title')).toHaveLength(2));
+    expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
+  });
+});

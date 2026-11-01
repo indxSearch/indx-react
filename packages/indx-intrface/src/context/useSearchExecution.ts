@@ -113,15 +113,15 @@ export function useSearchExecution({
   const performSearch = useCallback(
     async ({ enableFacets }: { enableFacets: boolean }) => {
       if (!auth.token) return;
+      // Before the request id and the loading flag: a search that is not sent must not leave
+      // isLoading on, nor make the search in flight look superseded.
+      const isEmptyQuery = query.trim() === '';
+      if (isEmptyQuery && !allowEmptySearch) return;
       const currentRequestId = ++latestRequestId.current;
       setState(prev => ({ ...prev, isLoading: true }));
 
       // Backend rejects empty text + enableFacets=false
-      const isEmptyQuery = query.trim() === '';
-      if (isEmptyQuery) {
-        if (!allowEmptySearch) return; // should not reach here, but guard defensively
-        enableFacets = true;           // backend requires facets=true for empty searches
-      }
+      if (isEmptyQuery) enableFacets = true;
 
       try {
         // 1) Build the combined filter proxy, plus one per OR field with a selection.
@@ -409,10 +409,12 @@ export function useSearchExecution({
     return () => { searchWithFacetsDebounced.current?.cancel(); };
   }, [state.facetDebounceDelayMillis]); // enableDebugLogs intentionally omitted
 
-  // Trigger: initial search after auth completes
+  // Trigger: initial search after auth completes. The query trigger waits for this, so text
+  // typed while the page was starting is searched here too; until Nov 2026 it was searched only
+  // when empty searches were allowed, and a visitor quick off the mark had to type again.
   useEffect(() => {
     if (!auth.isFetchingInitial && auth.token && !hasInitialized.current) {
-      if (allowEmptySearch) {
+      if (allowEmptySearch || query.trim() !== '') {
         performSearchRef.current?.({ enableFacets: facetsEnabled });
       }
       hasInitialized.current = true;
@@ -429,9 +431,12 @@ export function useSearchExecution({
     const shouldSkipEmptySearch = trimmedQuery === '' && !allowEmptySearch;
 
     if (shouldSkipEmptySearch) {
-      if (!state.resultsSuppressed) {
-        setState(prev => ({ ...prev, resultsSuppressed: true }));
-      }
+      // Cleared: what is still on its way was for text that is gone. A new request id makes a
+      // pending search drop its answer, success or failure, which otherwise brought the old
+      // results back under an empty field; the debounced facet search goes with it.
+      latestRequestId.current++;
+      searchWithFacetsDebounced.current?.cancel();
+      setState(prev => (prev.resultsSuppressed && !prev.isLoading ? prev : { ...prev, resultsSuppressed: true, isLoading: false }));
       return;
     }
 
