@@ -54,6 +54,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Resizable', path: '/resizable' },
       { label: 'SaveBar', path: '/save-bar' },
       { label: 'ScoreMeter', path: '/score-meter' },
+      { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },

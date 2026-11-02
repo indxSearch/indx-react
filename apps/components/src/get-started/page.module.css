@@ -39,7 +39,7 @@
 .panelTitle { font: var(--text-base); font-weight: var(--med); color: var(--lv8); }
 .panelLine { margin: -8px 0 0; font: var(--text-sm); color: var(--lv5); }
 .group { display: flex; flex-direction: column; gap: 2px; }
-.groupHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 6px; font: var(--text-xs); color: var(--lv5); }
+.groupHead { padding: 4px 0 6px; font: var(--text-xs); color: var(--lv5); }
 .optional { color: var(--lv4); }
 .step { all: unset; box-sizing: border-box; display: flex; align-items: flex-start; gap: 12px; padding: 8px; margin: 0 -8px; border-radius: var(--radius); cursor: pointer; }
 .step:hover { background: var(--lv2); }
@@ -76,3 +76,4 @@
 .teaserIcon { flex: none; padding-top: 1px; }
 .teaserText { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .teaserTitle { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
+.railSteps { display: block; width: 20px; }

@@ -51,6 +51,7 @@ export { Stat, StatGroup, STAT_ICON_SIZE, type StatProps, type StatGroupProps } 
 export { Spinner, type SpinnerProps } from './components/Spinner/Spinner';
 export { ShimmerText, type ShimmerTextProps } from './components/ShimmerText';
 export { ScoreMeter, type ScoreMeterProps, type ScoreMark } from './components/ScoreMeter';
+export { StepProgress, type StepProgressProps, type StepProgressPart } from './components/StepProgress';
 export { Icicle, type IcicleProps, type IcicleNode } from './components/Icicle';
 export { spinnerNames, type SpinnerName } from './components/Spinner/spinners.generated';
 

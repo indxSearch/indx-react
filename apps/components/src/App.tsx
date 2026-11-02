@@ -76,6 +76,7 @@ import SearchOrAskPage from './search-or-ask/page';
 import SkeletonPage from './skeleton/page';
 import ShimmerTextPage from './shimmer-text/page';
 import ScoreMeterPage from './score-meter/page';
+import StepProgressPage from './step-progress/page';
 import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
@@ -165,6 +166,7 @@ export default function App() {
         <Route path="/skeleton" element={<SkeletonPage />} />
         <Route path="/shimmer-text" element={<ShimmerTextPage />} />
         <Route path="/score-meter" element={<ScoreMeterPage />} />
+        <Route path="/step-progress" element={<StepProgressPage />} />
         <Route path="/icicle" element={<IciclePage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />

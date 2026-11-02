@@ -1,7 +1,7 @@
 import { useState, type ReactElement } from 'react';
 import {
-  Alert, AlertDescription, AlertTitle, BarMeter, Breadcrumbs, Button, Chip, EmptyState, Kbd, Popover, ScoreMeter,
-  SegmentedControl, Sidebar, type BreadcrumbItem, type SidebarGroup,
+  Alert, AlertDescription, AlertTitle, Breadcrumbs, Button, Chip, EmptyState, Kbd, Popover,
+  SegmentedControl, Sidebar, StepProgress, type BreadcrumbItem, type SidebarGroup,
 } from '@indxsearch/systm';
 import {
   Bell, Check, Chevron_right, Circle, Database, Document_or_file, Field, Finish_flag, Graph, Indx, Key, Observr,
@@ -81,16 +81,9 @@ function groupsFor(who: Who, plan: Plan): Group[] {
 
 const allSteps = (groups: Group[]) => groups.flatMap(g => g.steps);
 
-function Progress({ groups, done }: { groups: Group[]; done: Set<string> }) {
-  const steps = allSteps(groups);
-  const n = steps.filter(s => done.has(s.key)).length;
-  // A zone in the ink at the start of each group after the first: its bar is a tick, so the bar
-  // shows where one part ends and the next begins before either is reached.
-  let at = 0;
-  const zones = [{ from: 0, color: 'var(--lv8)' }];
-  for (const g of groups.slice(0, -1)) { at += g.steps.length; zones.push({ from: at / steps.length, color: 'var(--lv8)' }); }
-  return <BarMeter value={n} max={steps.length} zones={zones} format={v => `${v} done`} maxLabel={`of ${steps.length}`} />;
-}
+/** The groups as parts: a bar per group, as wide as its steps and filled by its own done. */
+const partsOf = (groups: Group[], done: Set<string>) =>
+  groups.map(g => ({ label: g.title, value: g.steps.filter(s => done.has(s.key)).length, max: g.steps.length }));
 
 /** The teaser at the end of a first user's list without Pro: one card, not a step. */
 function ProTeaser({ plan }: { plan: Plan }) {
@@ -126,7 +119,7 @@ function Panel({ who, plan, done, toggle, onHide }: {
       <p className={styles.panelLine}>
         {who === 'first' ? 'From your data to search on your site.' : 'Your way around Indx intern.'}
       </p>
-      <Progress groups={groups} done={done} />
+      <StepProgress parts={partsOf(groups, done)} labels />
       {n === steps.length && (
         <EmptyState size="compact" icon={<Finish_flag />} title="You are set up"
                     actions={onHide && <Button variant="secondary" size="micro" onClick={onHide}>Hide Get started</Button>}>
@@ -134,14 +127,9 @@ function Panel({ who, plan, done, toggle, onHide }: {
         </EmptyState>
       )}
       {groups.map(g => {
-        const gn = g.steps.filter(s => done.has(s.key)).length;
         return (
           <div key={g.title} className={styles.group}>
-            <div className={styles.groupHead}>
-              <span>{g.title}</span>
-              {/* The group's own steps as cells, lit up to how many are done. */}
-              <ScoreMeter value={gn / g.steps.length} cells={g.steps.length * 3} cell={5} aria-label={`${gn} of ${g.steps.length}`} />
-            </div>
+            <div className={styles.groupHead}>{g.title}</div>
             {g.steps.map(s => {
               const isDone = done.has(s.key), isNext = s.key === next;
               return (
@@ -177,14 +165,15 @@ function Panel({ who, plan, done, toggle, onHide }: {
 
 /** The card at the foot of the column: the panel's trigger. Folded to a rail, a ring. */
 function Card({ who, plan, done, collapsed }: { who: Who; plan: Plan; done: Set<string>; collapsed: boolean }) {
-  const steps = allSteps(groupsFor(who, plan));
+  const groups = groupsFor(who, plan);
+  const steps = allSteps(groups);
   const n = steps.filter(s => done.has(s.key)).length;
   // Folded: a 30px button like the rail's others, the progress as a short row of cells under the icon.
   if (collapsed)
     return (
       <span className={styles.railButton} title={`Get started: ${n} of ${steps.length} done`}>
         <Rocket size={16} color="var(--lv8)" />
-        <ScoreMeter value={n / steps.length} cells={steps.length} cell={3} aria-label={`${n} of ${steps.length} done`} />
+        <span className={styles.railSteps}><StepProgress parts={partsOf(groups, done)} weighted={false} height={2} /></span>
       </span>
     );
   return (
@@ -194,7 +183,7 @@ function Card({ who, plan, done, collapsed }: { who: Who; plan: Plan; done: Set<
         <span className={styles.cardTitle}>Get started</span>
         <span className={styles.count}>{n} of {steps.length}</span>
       </span>
-      <ScoreMeter value={n / steps.length} cells={steps.length * 4} cell={4} aria-label={`${n} of ${steps.length} done`} />
+      <StepProgress parts={partsOf(groups, done)} />
     </span>
   );
 }
@@ -328,7 +317,7 @@ export default function GetStartedMockup() {
           <li><strong>Which list:</strong> someone invited to a team that has datasets gets the invited list for their role; everyone else, the first. Accounts made before it ships see nothing.</li>
           <li><strong>The plan:</strong> Self-host and Managed Free have every core step; Managed Free has one user, so no Invite. Pro adds Answer and observe for the first user, and Ask a question for an editor. Without Pro the first user's list ends in one card: Add Pro to get Observr. Viewers and editors see no teaser, since they cannot buy it.</li>
           <li><strong>Connect your site</strong> is done by the first real search from outside the console, not by a key: a key can be made and never used.</li>
-          <li><strong>The progress:</strong> the card's row of cells is ScoreMeter; the panel's BarMeter has a tick where each group starts (a zone in the ink); each group has its own cells; folded, the card is a 30px button with the icon over a short row of cells (a 48px ring looked odd in the 50px rail).</li>
+          <li><strong>The progress:</strong> StepProgress, nested: a bar per group, as wide as its steps and filled by its own done, labelled in the panel. Folded, the card is a 30px button with the icon over a small one (a 48px ring looked odd in the 50px rail). A BarMeter with a tick at each group's start was tried and read as a threshold.</li>
           <li><strong>Folded:</strong> the Sidebar's rail hides its footer and shows its railFooter instead (React and Blazor alike). A tour of the console, Show me around, was built and dropped: not worth the time it takes.</li>
           <li><strong>No green:</strong> done is the check in the ink on an ink disc; Next is an ink chip; Pro is a plain chip.</li>
         </ul>
