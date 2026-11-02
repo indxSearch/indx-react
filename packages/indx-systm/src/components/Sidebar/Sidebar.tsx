@@ -47,6 +47,9 @@ export interface SidebarProps {
   header?: React.ReactNode;
   /** Under the groups, above the fold button; hidden in the rail. */
   footer?: React.ReactNode;
+  /** What the foot shows folded to a rail, in place of the footer, which the rail hides:
+   *  something narrow, 50px at most (a progress ring). Not shown unfolded. */
+  railFooter?: React.ReactNode;
   /** The rail of icons, controlled with `onCollapsedChange`; leave both out and it keeps its own. */
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -96,7 +99,7 @@ function useNarrow() {
  *  each item names itself in a Tooltip and a badge is a dot. At 768px and narrower it is a drawer
  *  over the page, opened by the host and closed by Escape, a press beside it or a choice. No motion. */
 export function Sidebar({
-  groups, active, onSelect, header, footer,
+  groups, active, onSelect, header, footer, railFooter,
   collapsed, onCollapsedChange, defaultCollapsed = false, collapsible = true, shortcut = 'b', storageKey,
   open = false, onOpenChange, 'aria-label': ariaLabel = 'Sections', className = '',
 }: SidebarProps) {
@@ -213,9 +216,10 @@ export function Sidebar({
             );
           })}
         </div>
-        {(footer || (collapsible && !narrow)) && (
+        {(footer || (railFooter && showRail) || (collapsible && !narrow)) && (
           <div className={styles.footer}>
             {footer && <div className={styles.footerContent}>{footer}</div>}
+            {railFooter && showRail && <div className={styles.railFooter}>{railFooter}</div>}
             {collapsible && !narrow && (
               <span className={styles.item}>
                 {showRail ? (

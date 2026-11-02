@@ -1,0 +1,87 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.subTitle { font: var(--text-lg); margin: 0.5rem 0 0; color: var(--lv7); }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font: var(--text-sm); color: var(--lv6); max-width: 90ch; }
+.list strong { color: var(--lv8); font-weight: var(--med); }
+
+.frames { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.desktop { flex: 1 1 640px; min-width: 0; height: 600px; border: 1px solid var(--lv2); border-radius: var(--radius); overflow: hidden; }
+.open { flex: 0 1 400px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.openLabel { font: var(--text-2xs); color: var(--lv4); text-transform: uppercase; letter-spacing: 0.06em; }
+.open .panel { border: 1px solid var(--lv2); border-radius: var(--radius); background: var(--lv1); }
+
+/* The console: the team page with its column, as the console-sidebar mockup lays it out. */
+.console { display: flex; height: 100%; background: var(--lv0); }
+.column { position: relative; flex: none; height: 100%; border-right: 1px solid var(--lv2); }
+.railFoot { position: absolute; left: 0; right: 0; bottom: 48px; display: flex; justify-content: center; }
+.content { flex: 1; min-width: 0; padding: 20px 32px 28px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+.title { font: var(--text-lg); margin: 0; color: var(--lv8); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.datasetCard { display: flex; align-items: center; gap: 8px; padding: 14px; background: var(--lv1); border: 1px solid var(--lv2); border-radius: var(--radius); font: var(--text-sm); color: var(--lv7); }
+
+/* The card at the foot of the column: a surface a shade up, the trigger of the panel. */
+.trigger { all: unset; display: block; width: 100%; cursor: pointer; }
+.trigger:focus-visible .card, .trigger:focus-visible .ringCard { outline: 1px solid var(--lv6); outline-offset: 1px; }
+.card { display: flex; flex-direction: column; gap: 10px; margin: 0 8px 8px; padding: 10px 12px 12px; background: var(--lv1); border: 1px solid var(--lv2); border-radius: var(--radius); }
+.trigger:hover .card { border-color: var(--lv3); }
+.cardHead { display: flex; align-items: center; gap: 8px; }
+.cardTitle { font: var(--text-sm); color: var(--lv8); flex: 1; }
+.count { font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ringCard { display: flex; justify-content: center; }
+
+/* The panel. */
+.panel { width: 380px; max-width: 100%; display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+.panelHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.panelTitle { font: var(--text-base); font-weight: var(--med); color: var(--lv8); }
+.panelLine { margin: -8px 0 0; font: var(--text-sm); color: var(--lv5); }
+.group { display: flex; flex-direction: column; gap: 2px; }
+.groupHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 6px; font: var(--text-xs); color: var(--lv5); }
+.optional { color: var(--lv4); }
+.step { all: unset; box-sizing: border-box; display: flex; align-items: flex-start; gap: 12px; padding: 8px; margin: 0 -8px; border-radius: var(--radius); cursor: pointer; }
+.step:hover { background: var(--lv2); }
+.step:focus-visible { outline: 1px solid var(--lv6); }
+.step > :last-child { margin-top: 4px; flex: none; }
+.mark { flex: none; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; }
+.markDone { background: var(--lv8); }
+.markNext { box-shadow: none; }
+.stepText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.stepTitle { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
+.stepLine { font: var(--text-xs); color: var(--lv5); }
+.stepDone .stepTitle { color: var(--lv5); }
+.panelFoot { display: flex; justify-content: flex-end; }
+
+@media (max-width: 768px) {
+  .main { padding: 1rem; }
+  .content { padding: 16px; }
+}
+
+/* The console's header, as the console-sidebar mockup has it. */
+.console { flex-direction: column; position: relative; }
+.header { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 12px 0 10px; border-bottom: 1px solid var(--lv2); flex: none; }
+.brand.brand { color: var(--lv8); }
+.trail { flex: 1; min-width: 0; display: flex; }
+.headerRight { display: flex; align-items: center; gap: 2px; }
+.body { display: flex; flex: 1; min-height: 0; }
+.datasetCard { position: relative; }
+.cardState { margin-left: auto; }
+.link { all: unset; cursor: pointer; color: var(--lv8); text-decoration: underline; text-underline-offset: 2px; }
+.link:focus-visible { outline: 1px solid var(--lv6); }
+
+/* The Pro teaser: a surface a step down, the last thing in the first user's list. */
+.teaser { display: flex; gap: 12px; padding: 12px; border: 1px solid var(--lv3); border-radius: var(--radius); background: var(--lv0); }
+.teaserIcon { flex: none; padding-top: 1px; }
+.teaserText { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.teaserTitle { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
+
+/* The tour: dimmed around the part, the part outlined, the callout beside it. */
+.tour { position: absolute; inset: 0; z-index: 20; }
+.dim { position: absolute; background: rgba(8, 8, 9, 0.72); }
+.outline { position: absolute; border: 1px solid var(--lv8); border-radius: var(--radius); pointer-events: none; }
+.callout { position: absolute; display: flex; flex-direction: column; gap: 10px; padding: 14px; background: var(--lv1); border: 1px solid var(--lv3); border-radius: var(--radius); }
+.calloutHead { display: flex; align-items: center; gap: 8px; }
+.calloutText { margin: 0; font: var(--text-sm); color: var(--lv6); }
+.calloutActions { display: flex; align-items: center; gap: 6px; }
+.spacer { flex: 1; }

@@ -85,6 +85,7 @@ import FieldProfilesMockup from './field-profiles/page';
 import ConsoleShellMockup from './console-shell/page';
 import AskPanelPage from './ask-panel/page';
 import AnalyticsDashboardPage from './analytics-dashboard/page';
+import GetStartedMockup from './get-started/page';
 
 export default function App() {
   return (
@@ -173,6 +174,7 @@ export default function App() {
         <Route path="/console-shell" element={<ConsoleShellMockup />} />
         <Route path="/ask-panel" element={<AskPanelPage />} />
         <Route path="/analytics-dashboard" element={<AnalyticsDashboardPage />} />
+        <Route path="/get-started" element={<GetStartedMockup />} />
       </Routes>
     </Layout>
   );
