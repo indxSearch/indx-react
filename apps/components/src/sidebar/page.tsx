@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { BarMeter, Button, Sidebar, type SidebarGroup } from '@indxsearch/systm';
-import { Boost, Database, Fields, Lab_experiment, Menu, Pulse, Search, Search_or_ask, Sliders_horizontal, Status, Synonym, Trending_up, Webhooks } from '@indxsearch/pixl';
+import { Button, ScoreMeter, Sidebar, type SidebarGroup } from '@indxsearch/systm';
+import { Boost, Database, Fields, Lab_experiment, Menu, Pulse, Rocket, Search, Search_or_ask, Sliders_horizontal, Status, Synonym, Trending_up, Webhooks } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 /**
@@ -45,7 +45,7 @@ function Frame({ storageKey, collapsed, onCollapsedChange, shortcut }: { storage
         header={<div className={styles.brand}>pokedex</div>}
         footer={<div className={styles.note}>Indx 5.0.5</div>}
         // Folded, the rail hides the footer; railFooter is what its foot shows instead.
-        railFooter={<span title="Get started: 2 of 5 done"><BarMeter shape="ring" size={48} value={2} max={5} format={v => `${v}/5`} /></span>}
+        railFooter={<span className={styles.railFoot} title="Get started: 2 of 5 done"><Rocket size={16} color="var(--lv8)" /><ScoreMeter value={0.4} cells={5} cell={3} aria-label="2 of 5 done" /></span>}
         storageKey={storageKey}
         collapsed={collapsed}
         onCollapsedChange={onCollapsedChange}

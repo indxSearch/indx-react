@@ -24,13 +24,14 @@
 
 /* The card at the foot of the column: a surface a shade up, the trigger of the panel. */
 .trigger { all: unset; display: block; width: 100%; cursor: pointer; }
-.trigger:focus-visible .card, .trigger:focus-visible .ringCard { outline: 1px solid var(--lv6); outline-offset: 1px; }
+.trigger:focus-visible .card, .trigger:focus-visible .railButton { outline: 1px solid var(--lv6); outline-offset: 1px; }
 .card { display: flex; flex-direction: column; gap: 10px; margin: 0 8px 8px; padding: 10px 12px 12px; background: var(--lv1); border: 1px solid var(--lv2); border-radius: var(--radius); }
 .trigger:hover .card { border-color: var(--lv3); }
 .cardHead { display: flex; align-items: center; gap: 8px; }
 .cardTitle { font: var(--text-sm); color: var(--lv8); flex: 1; }
 .count { font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ringCard { display: flex; justify-content: center; }
+.railButton { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 30px; padding: 6px 0; border-radius: var(--radius); }
+.trigger:hover .railButton { background: var(--lv2); }
 
 /* The panel. */
 .panel { width: 380px; max-width: 100%; display: flex; flex-direction: column; gap: 14px; padding: 16px; }
@@ -75,13 +76,3 @@
 .teaserIcon { flex: none; padding-top: 1px; }
 .teaserText { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .teaserTitle { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
-
-/* The tour: dimmed around the part, the part outlined, the callout beside it. */
-.tour { position: absolute; inset: 0; z-index: 20; }
-.dim { position: absolute; background: rgba(8, 8, 9, 0.72); }
-.outline { position: absolute; border: 1px solid var(--lv8); border-radius: var(--radius); pointer-events: none; }
-.callout { position: absolute; display: flex; flex-direction: column; gap: 10px; padding: 14px; background: var(--lv1); border: 1px solid var(--lv3); border-radius: var(--radius); }
-.calloutHead { display: flex; align-items: center; gap: 8px; }
-.calloutText { margin: 0; font: var(--text-sm); color: var(--lv6); }
-.calloutActions { display: flex; align-items: center; gap: 6px; }
-.spacer { flex: 1; }
