@@ -66,11 +66,3 @@ export enum IndexTerms {
   Words = 'Words',
   Patterns = 'Patterns'
 }
-
-/** What a field may confirm in Coverage (FieldProxy.coverageStrictness). */
-export enum CoverageStrictness {
-  None = 'None',
-  Ldd0 = 'Ldd0',
-  Ldd1 = 'Ldd1',
-  Ldd2 = 'Ldd2'
-}

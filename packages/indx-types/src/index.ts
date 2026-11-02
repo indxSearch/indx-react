@@ -1,7 +1,7 @@
 // Enums
 export {
   SystemState, BoostStrength, BuryStrength, SynonymDirection,
-  SearchMode, Tolerance, Rungs, IndexTerms, CoverageStrictness
+  SearchMode, Tolerance, Rungs, IndexTerms
 } from './enums';
 export { JsonErrorType } from './errors';
 

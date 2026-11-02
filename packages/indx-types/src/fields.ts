@@ -1,4 +1,4 @@
-import { CoverageStrictness } from './enums';
+import { Tolerance } from './enums';
 
 export interface FieldProxy {
   fieldName: string;
@@ -29,9 +29,9 @@ export interface FieldProxy {
   bM25b?: number | null;
   /** Per-field term-frequency saturation parameter k1. Typical 1.0–2.0. */
   bM25k1?: number | null;
-  /** What the field may confirm in Coverage: None, Ldd0 (exact), Ldd1 (one edit), Ldd2. */
-  coverageStrictness?: CoverageStrictness | null;
-  /** The field's weight in Coverage against the heaviest field. */
+  /** The most a word may differ by in the field: Exact, OneEdit (the default), TwoEdits; a search's match.tolerance caps it. Until 6.0 coverageStrictness. */
+  tolerance?: Tolerance | null;
+  /** The field's weight in Coverage against the heaviest field; 0 leaves it out of Coverage (until 6.0 coverageStrictness None). */
   coverageWeight?: number | null;
   caseSensitive?: boolean | null;
 }

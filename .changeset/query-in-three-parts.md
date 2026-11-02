@@ -11,7 +11,9 @@ typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fa
 gone. Enums are strings, by name, as the server now sends and reads them (`BoostStrength.Med`, was
 `Medium`). `Result` loses `truncationIndex` and `truncationScore` and has `toleranceCounts`,
 `countedTolerance`, `overflow`, `isFallback`, `reason` and `systemState`. `FieldProxy` follows the
-server's: `wordMatching` in place of `searchable`.
+server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
+`TwoEdits`) in place of `coverageStrictness`, whose `None` is a `coverageWeight` of 0; the
+`CoverageStrictness` enum is gone.
 
 The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
 `enableCoverage`, `coverageDepth` (now `candidates.maxCandidates`) and `initialCoverageSetup`;

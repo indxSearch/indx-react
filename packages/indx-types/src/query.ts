@@ -4,7 +4,7 @@ import { IndexTerms, Rungs, SearchMode, Tolerance } from './enums';
 
 /** What counts as a hit. Every member optional: a member left out is the server's default. */
 export interface MatchSetup {
-  /** The most a word may differ by; caps each field's own strictness. Default TwoEdits. */
+  /** The most a word may differ by; caps each field's own (FieldProxy.tolerance). Default TwoEdits. */
   tolerance?: Tolerance;
   /** Fewest (the default): the first rung with hits. All: every rung up to the tolerance. */
   rungs?: Rungs;
