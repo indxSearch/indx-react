@@ -218,8 +218,10 @@ export function Sidebar({
         </div>
         {(footer || (railFooter && showRail) || (collapsible && !narrow)) && (
           <div className={styles.footer}>
-            {footer && <div className={styles.footerContent}>{footer}</div>}
+            {/* The rail's footer first: where it stands for something in the footer, it keeps that
+                thing's place at the top of the foot, folded or not. */}
             {railFooter && showRail && <div className={styles.railFooter}>{railFooter}</div>}
+            {footer && <div className={styles.footerContent}>{footer}</div>}
             {collapsible && !narrow && (
               <span className={styles.item}>
                 {showRail ? (
