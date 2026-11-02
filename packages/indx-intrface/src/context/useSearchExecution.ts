@@ -84,11 +84,12 @@ export function useSearchExecution({
 
   // Extract primitives from state to keep the dep arrays stable
   const settingsMaxResults = state.searchSettings.maxNumberOfRecordsToReturn;
-  const settingsEnableCoverage = state.searchSettings.enableCoverage;
+  const settingsMode = state.searchSettings.mode;
   const settingsRemoveDuplicates = state.searchSettings.removeDuplicates;
-  const settingsCoverageDepth = state.searchSettings.coverageDepth;
+  const settingsMatch = state.searchSettings.match;
+  const settingsCandidates = state.searchSettings.candidates;
+  const settingsRanking = state.searchSettings.ranking;
   const settingsMinimumScore = state.searchSettings.minimumScore;
-  const settingsCoverageSetup = state.searchSettings.coverageSetup;
   const sortBy = state.sortBy;
   const sortAscending = state.sortAscending;
 
@@ -138,10 +139,11 @@ export function useSearchExecution({
         const shouldFetchResults = allowEmptySearch || state.query.trim() !== '';
         const commonBody = {
           text: state.query,
-          enableCoverage: settingsEnableCoverage,
+          mode: settingsMode,
           removeDuplicates: settingsRemoveDuplicates,
-          coverageDepth: settingsCoverageDepth,
-          coverageSetup: settingsCoverageSetup,
+          match: settingsMatch,
+          candidates: settingsCandidates,
+          ranking: settingsRanking,
         };
         const searchBody = {
           ...commonBody,
@@ -186,7 +188,10 @@ export function useSearchExecution({
         const searchData = await searchResponse.json();
         // The id the server minted for this search; a click on one of its results sends it back.
         const queryId = searchResponse.headers.get('Indx-Query-Id') ?? undefined;
-        const truncationIndex = searchData.truncationIndex ?? -1;
+        // The records the search counted: the count of the rung it took them from (6.0; until
+        // then the truncation index). Undefined in a fallback and in Bm25f mode.
+        const countedTotal = countedOf(searchData);
+        const isFallback = searchData.isFallback === true;
 
         // The OR fields' own panels read their counts from the excluded-field
         // responses; everything else, including facetStats and so the range
@@ -301,7 +306,8 @@ export function useSearchExecution({
           resultsSuppressed: !shouldFetchResults,
           ...(enableFacets ? { facets: displayFacets, facetStats: mergedFacetStats } : {}),
           isLoading: false,
-          truncationIndex,
+          countedTotal,
+          isFallback,
           queryId,
         }));
       } catch (error) {
@@ -342,10 +348,11 @@ export function useSearchExecution({
       sortBy,
       sortAscending,
       settingsMaxResults,
-      settingsEnableCoverage,
+      settingsMode,
       settingsRemoveDuplicates,
-      settingsCoverageDepth,
-      settingsCoverageSetup,
+      settingsMatch,
+      settingsCandidates,
+      settingsRanking,
       settingsMinimumScore,
       authenticatedFetch,
       auth.initialFacetStats,
@@ -477,10 +484,11 @@ export function useSearchExecution({
     }
   }, [
     settingsMaxResults,
-    settingsEnableCoverage,
+    settingsMode,
     settingsRemoveDuplicates,
-    settingsCoverageDepth,
-    settingsCoverageSetup,
+    settingsMatch,
+    settingsCandidates,
+    settingsRanking,
     settingsMinimumScore,
   ]);
   // Declared after the settings trigger so that, within one commit, the trigger
@@ -491,3 +499,13 @@ export function useSearchExecution({
 
 }
 
+/** The records a search counted: its `toleranceCounts` on the rung it took them from. */
+function countedOf(result: { toleranceCounts?: { exact: number; oneEdit?: number | null; twoEdits?: number | null } | null; countedTolerance?: string | null }): number | undefined {
+  const counts = result.toleranceCounts;
+  switch (result.countedTolerance) {
+    case 'Exact': return counts?.exact;
+    case 'OneEdit': return counts?.oneEdit ?? undefined;
+    case 'TwoEdits': return counts?.twoEdits ?? undefined;
+    default: return undefined;
+  }
+}

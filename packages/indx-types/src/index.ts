@@ -1,12 +1,15 @@
 // Enums
-export { SystemState, BoostStrength, SynonymDirection } from './enums';
+export {
+  SystemState, BoostStrength, BuryStrength, SynonymDirection,
+  SearchMode, Tolerance, Rungs, IndexTerms, CoverageStrictness
+} from './enums';
 export { JsonErrorType } from './errors';
 
 // Auth
 export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth';
 
 // Query
-export { QueryProxy, CloudQuery, CoverageSetup } from './query';
+export { QueryProxy, MatchSetup, CandidateSetup, RankingProxy } from './query';
 
 // Filters
 export {
@@ -19,7 +22,7 @@ export {
 } from './filters';
 
 // Boost
-export { BoostProxy } from './boost';
+export { BoostProxy, BuryProxy } from './boost';
 
 // Synonyms
 export { SynonymList, SynonymEntry } from './synonyms';
@@ -28,7 +31,7 @@ export { SynonymList, SynonymEntry } from './synonyms';
 export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
 
 // Result
-export { Result, QueryFitResult, ScoreEntry } from './result';
+export { Result, QueryFitResult, ScoreEntry, ToleranceCounts } from './result';
 
 // Status
 export { SystemStatus, LicenseInfo } from './status';

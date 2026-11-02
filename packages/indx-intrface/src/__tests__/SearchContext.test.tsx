@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { http, HttpResponse, delay } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
+import { SearchMode } from '@indxsearch/indx-types';
 import { server } from './mocks/server';
 import { DOCUMENTS, SEARCH_RESPONSE } from './mocks/fixtures';
 
@@ -283,7 +284,7 @@ describe('race condition protection', () => {
           return HttpResponse.json({
             records: [{ documentKey: 99, score: 100 }],
             facets: { price: [{ key: '500', value: 1 }, { key: '600', value: 1 }] },
-            truncationIndex: -1,
+            isFallback: false,
           });
         }
         return HttpResponse.json(SEARCH_RESPONSE); // price 10–200
@@ -411,9 +412,9 @@ describe('search settings', () => {
     await waitFor(() => expect(result.current.state.results).not.toBeNull());
 
     const before = searchBodies.length;
-    act(() => result.current.setSearchSettings({ enableCoverage: false }));
+    act(() => result.current.setSearchSettings({ mode: SearchMode.Bm25f }));
     await waitFor(() => expect(searchBodies.length).toBe(before + 1));
-    expect(searchBodies.at(-1).enableCoverage).toBe(false);
+    expect(searchBodies.at(-1).mode).toBe('Bm25f');
   });
 
   it('does not fire on display-only settings', async () => {

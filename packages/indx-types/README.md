@@ -79,29 +79,22 @@ const boost: BoostProxy = {
 
 const query: QueryProxy = {
   text: 'search term',
-  enableBoost: true,
-  boosts: [boost]
+  ranking: { boosts: [boost] }
 };
 ```
 
-### Coverage Setup
+### Match, Candidates and Ranking
 
 ```typescript
-import type { CoverageSetup, QueryProxy } from '@indxsearch/indx-types';
-
-const coverageSetup: CoverageSetup = {
-  coverWholeQuery: true,
-  coverWholeWords: true,
-  coverFuzzyWords: true,
-  minWordSize: 2,
-  truncate: true,
-  truncationScore: 255
-};
+import { SearchMode, Tolerance } from '@indxsearch/indx-types';
+import type { QueryProxy } from '@indxsearch/indx-types';
 
 const query: QueryProxy = {
   text: 'search term',
-  enableCoverage: true,
-  coverageSetup
+  mode: SearchMode.Coverage,
+  match: { tolerance: Tolerance.OneEdit },  // what counts as a hit
+  candidates: { maxCandidates: 200 },       // who comes in
+  ranking: { share: 0.2 }                   // the order
 };
 ```
 
@@ -123,8 +116,10 @@ if (status.systemState === SystemState.Ready) {
 ### Types
 
 #### Query Types
-- `QueryProxy` - Main search query interface
-- `CoverageSetup` - Coverage configuration options
+- `QueryProxy` - Main search query interface: `mode` and the parts below
+- `MatchSetup` - What counts as a hit: tolerance, rungs, the word being typed
+- `CandidateSetup` - Who comes in: candidates per row, the bound, the fallback
+- `RankingProxy` - The order: the blend, field weights and boosts, boosts and buries
 
 #### Filter Types
 - `FilterProxy` - Base filter interface

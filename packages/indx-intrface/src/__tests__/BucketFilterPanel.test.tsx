@@ -71,7 +71,7 @@ function serveSpeedDataset() {
       return HttpResponse.json({
         records: admitted.map(d => ({ documentKey: d.key, score: 100 })),
         facets: { speed: facetsFor(body.filter?.hashString) },
-        truncationIndex: -1,
+        isFallback: false,
       });
     }),
     http.post(`${DS}/documents/lookup`, async ({ request }) => {

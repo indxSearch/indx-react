@@ -2,6 +2,7 @@
 import React, { useState, ReactNode } from 'react';
 import { SearchContext } from '@indxsearch/intrface';
 import type { SearchContextType, NumericRange } from '@indxsearch/intrface';
+import { SearchMode } from '@indxsearch/indx-types';
 
 // Numeric facets for range filter / histogram demos
 const numericFacets = {
@@ -126,15 +127,11 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
       sortAscending,
       searchSettings: {
         maxNumberOfRecordsToReturn: 30,
-        coverageDepth: 0,
-        enableCoverage: false,
+        mode: SearchMode.Bm25f,
+        match: {},
+        candidates: {},
+        ranking: {},
         removeDuplicates: false,
-        coverageSetup: {
-          coverWholeQuery: false, coverWholeWords: false, coverFuzzyWords: false,
-          coverJoinedWords: false, coverPrefixSuffix: false, truncate: false,
-          includePatternMatches: false, minWordSize: 0,
-          truncateWordHitLimit: 0, truncateWordHitTolerance: 0, truncationScore: 0,
-        },
         minimumScore: 0,
         showScore: false,
         placeholderText: 'Search…',

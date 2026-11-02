@@ -32,5 +32,5 @@ export const DOCUMENTS = [
 export const SEARCH_RESPONSE = {
   records: RECORDS,
   facets: FACETS,
-  truncationIndex: -1,
+  isFallback: false,
 };

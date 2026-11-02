@@ -14,7 +14,7 @@ export const handlers = [
     HttpResponse.json({}, { status: 201 })),
 
   http.get(`${DS_BASE}/status`, () =>
-    HttpResponse.json({ systemState: 4 /* Ready */, documentCount: 100 })),
+    HttpResponse.json({ systemState: 'Ready', documentCount: 100 })),
 
   // Field metadata
   http.get(`${DS_BASE}/fields/filterable`, () =>

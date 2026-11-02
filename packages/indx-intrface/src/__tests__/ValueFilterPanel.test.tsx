@@ -32,7 +32,7 @@ function serveFacets(field: string, initial: { key: string; value: number }[], n
     http.post(SEARCH, async ({ request }) => {
       const body = await request.json() as { filter?: unknown };
       const facets = body.filter && narrowed ? narrowed : initial;
-      return HttpResponse.json({ records: RECORDS, facets: { [field]: facets }, truncationIndex: -1 });
+      return HttpResponse.json({ records: RECORDS, facets: { [field]: facets }, isFallback: false });
     }),
   );
 }
@@ -104,7 +104,7 @@ describe('match prop', () => {
       http.post(SEARCH, () => HttpResponse.json({
         records: RECORDS,
         facets: { color: [{ key: 'red', value: 5 }, { key: 'blue', value: 4 }], category: [{ key: 'a', value: 2 }, { key: 'b', value: 3 }] },
-        truncationIndex: -1,
+        isFallback: false,
       })),
       http.post('http://localhost/api/teams/team/datasets/test/filters/combine', async ({ request }) => {
         const { useAndOperation } = await request.json() as { useAndOperation: boolean };
@@ -144,7 +144,7 @@ describe('control prop', () => {
         // A filter on color narrows the color facet to that value only, like the engine.
         const m = /^color=(\w+)$/.exec(body.filter?.hashString ?? '');
         const facets = m ? COLORS.filter(c => c.key === m[1]) : COLORS;
-        return HttpResponse.json({ records: RECORDS, facets: { color: facets }, truncationIndex: -1 });
+        return HttpResponse.json({ records: RECORDS, facets: { color: facets }, isFallback: false });
       }),
     );
   };

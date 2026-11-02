@@ -179,14 +179,14 @@ We chose Option 1 because **perceived performance is more important than raw API
 For datasets with expensive facet computation:
 
 1. Increase `facetDebounceDelayMillis` to reduce facet update frequency
-2. Limit `coverageDepth` to reduce search depth
+2. Limit `candidates.maxCandidates` to bound the candidates ranked
 3. Use `maxResults` to limit result set size
 
 ```typescript
 <SearchProvider
   dataset="large-dataset"
   facetDebounceDelayMillis={1000}  // Wait 1s before updating facets
-  coverageDepth={100}              // Search top 100 matches only
+  candidates={{ maxCandidates: 100 }} // Rank at most 100 candidates
   maxResults={10}                   // Return 10 results max
 >
 ```

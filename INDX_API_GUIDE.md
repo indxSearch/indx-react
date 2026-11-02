@@ -180,10 +180,11 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
   filter?: FilterProxy;
   sortBy?: string;
   sortAscending?: boolean;
-  enableCoverage?: boolean;
   removeDuplicates?: boolean;
-  coverageDepth?: number;
-  coverageSetup?: CoverageSetup;
+  mode?: 'Coverage' | 'EditDistance' | 'Bm25f';   // default Coverage
+  match?: MatchSetup;          // what counts as a hit: tolerance, rungs, the word being typed
+  candidates?: CandidateSetup; // who comes in: candidatesPerRow, maxCandidates, fallback
+  ranking?: RankingProxy;      // the order: the blend, field weights and boosts, boosts, buries
 }
 ```
 - **Returns:**
@@ -191,7 +192,10 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
 {
   records: Array<{documentKey: number, score: number}>;
   facets?: Record<string, Array<{key: string, value: number}>>;
-  truncationIndex?: number;
+  toleranceCounts?: {exact: number, oneEdit?: number, twoEdits?: number}; // records holding every word, per rung
+  countedTolerance?: 'Exact' | 'OneEdit' | 'TwoEdits'; // the rung the list was taken from
+  overflow?: boolean;   // the counted rung held more than the search takes
+  isFallback?: boolean; // nothing held every word: the most words, then pattern matches
 }
 ```
 

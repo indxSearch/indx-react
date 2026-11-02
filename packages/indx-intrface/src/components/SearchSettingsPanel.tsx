@@ -2,8 +2,23 @@ import React, { useState } from "react";
 import styles from './SearchSettingsPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import { FilterPanelBase } from '@indxsearch/systm';
-import { InputField, ToggleSwitch, Button, Slider } from '@indxsearch/systm';
+import { InputField, ToggleSwitch, Button, Slider, Select } from '@indxsearch/systm';
 import { ArrowRight, ArrowDown } from "@indxsearch/pixl";
+import { SearchMode, Tolerance, Rungs } from '@indxsearch/indx-types';
+import type { MatchSetup, CandidateSetup, RankingProxy } from '@indxsearch/indx-types';
+
+/** The server's defaults, shown where a part leaves a member out (6.0). */
+const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
+  tolerance: Tolerance.TwoEdits,
+  rungs: Rungs.Fewest,
+  oneEditFrom: 3,
+  twoEditsFrom: 6,
+  typingPrefixFrom: 3,
+  typingPrefixOneEditFrom: 6,
+  joinedWords: true,
+};
+const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true };
+const RANKING_DEFAULTS = { share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
 
 export function SearchSettingsPanel() {
   const {
@@ -11,7 +26,10 @@ export function SearchSettingsPanel() {
     setSearchSettings
   } = useSearchContext();
 
-  const [showCoverageSetup, setShowCoverageSetup] = useState(false);
+  const [showParts, setShowParts] = useState(false);
+  const { match, candidates, ranking } = searchSettings;
+  const isBm25f = searchSettings.mode === SearchMode.Bm25f;
+  const isCoverage = searchSettings.mode === SearchMode.Coverage;
 
   // Number field handler for top-level searchSettings fields
   const handleNumberChange = (field: keyof typeof searchSettings, value: string) => {
@@ -30,46 +48,41 @@ export function SearchSettingsPanel() {
     });
   };
 
-  // Number field handler for coverageSetup fields
-  const handleCoverageSetupNumberChange = (field: keyof typeof searchSettings.coverageSetup, value: string) => {
+  // A member of one of the three parts: merged into the part by setSearchSettings.
+  const setMatch = (change: Partial<MatchSetup>) => setSearchSettings({ match: change });
+  const setCandidates = (change: Partial<CandidateSetup>) => setSearchSettings({ candidates: change });
+  const setRanking = (change: Partial<RankingProxy>) => setSearchSettings({ ranking: change });
+  const parseIntOr = (value: string, apply: (n: number) => void) => {
     const parsed = parseInt(value, 10);
-    if (!isNaN(parsed)) {
-      setSearchSettings({
-        coverageSetup: {
-          ...searchSettings.coverageSetup,
-          [field]: parsed
-        }
-      });
-    }
+    if (!isNaN(parsed)) apply(parsed);
   };
-
-  // Toggle handler for coverageSetup boolean fields
-  const handleCoverageSetupToggle = (field: keyof typeof searchSettings.coverageSetup, value: boolean) => {
-    setSearchSettings({
-      coverageSetup: {
-        ...searchSettings.coverageSetup,
-        [field]: value
-      }
-    });
+  const parsePercent = (value: string, apply: (n: number) => void) => {
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed)) apply(Math.max(0, Math.min(100, parsed)) / 100);
   };
 
   return (
     <FilterPanelBase collapsed={true} title="Settings">
       <ul className={styles.list}>
         <li>
+          <Select
+            label="Mode"
+            size="micro"
+            value={searchSettings.mode}
+            onValueChange={(value: string) => setSearchSettings({ mode: value as SearchMode })}
+            options={[
+              { label: 'Coverage', value: SearchMode.Coverage },
+              { label: 'Edit distance', value: SearchMode.EditDistance },
+              { label: 'BM25F', value: SearchMode.Bm25f },
+            ]}
+          />
+        </li>
+        <li>
           <InputField
             label="Max Results"
             type="number"
             value={searchSettings.maxNumberOfRecordsToReturn.toString()}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberChange('maxNumberOfRecordsToReturn', e.target.value)}
-          />
-        </li>
-        <li>
-          <InputField
-            label="Coverage Depth"
-            type="number"
-            value={searchSettings.coverageDepth.toString()}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberChange('coverageDepth', e.target.value)}
           />
         </li>
         <li>
@@ -118,13 +131,6 @@ export function SearchSettingsPanel() {
         </li>
         <li>
           <ToggleSwitch
-            label="Enable Coverage"
-            checked={searchSettings.enableCoverage}
-            onChange={(value: boolean) => handleToggle('enableCoverage', value)}
-          />
-        </li>
-        <li>
-          <ToggleSwitch
             label="Remove Duplicates"
             checked={searchSettings.removeDuplicates}
             onChange={(value: boolean) => handleToggle('removeDuplicates', value)}
@@ -132,84 +138,126 @@ export function SearchSettingsPanel() {
         </li>
 
         <li>
-          <Button variant="ghost" size="micro" iconRight={ showCoverageSetup ? <ArrowDown/> : <ArrowRight/>} onClick={() => setShowCoverageSetup(prev => !prev)}>
-            {showCoverageSetup ? 'Hide Coverage Setup' : 'Show Coverage Setup'}
+          <Button variant="ghost" size="micro" iconRight={ showParts ? <ArrowDown/> : <ArrowRight/>} onClick={() => setShowParts(prev => !prev)}>
+            {showParts ? 'Hide Match, Candidates and Ranking' : 'Show Match, Candidates and Ranking'}
           </Button>
         </li>
 
-        {showCoverageSetup && (
+        {showParts && (
           <>
+            {/* Match: what counts as a hit. Read by every mode but Bm25f. */}
             <li>
-              <ToggleSwitch
-                label="Cover Whole Query"
-                checked={searchSettings.coverageSetup.coverWholeQuery}
-                onChange={(value: boolean) => handleCoverageSetupToggle('coverWholeQuery', value)}
+              <Select
+                label="Tolerance"
+                size="micro"
+                disabled={isBm25f}
+                value={match.tolerance ?? MATCH_DEFAULTS.tolerance}
+                onValueChange={(value: string) => setMatch({ tolerance: value as Tolerance })}
+                options={[
+                  { label: 'Exact', value: Tolerance.Exact },
+                  { label: 'One edit', value: Tolerance.OneEdit },
+                  { label: 'Two edits', value: Tolerance.TwoEdits },
+                ]}
               />
             </li>
             <li>
               <ToggleSwitch
-                label="Cover Whole Words"
-                checked={searchSettings.coverageSetup.coverWholeWords}
-                onChange={(value: boolean) => handleCoverageSetupToggle('coverWholeWords', value)}
-              />
-            </li>
-            <li>
-              <ToggleSwitch
-                label="Cover Fuzzy Words"
-                checked={searchSettings.coverageSetup.coverFuzzyWords}
-                onChange={(value: boolean) => handleCoverageSetupToggle('coverFuzzyWords', value)}
-              />
-            </li>
-            <li>
-              <ToggleSwitch
-                label="Cover Joined Words"
-                checked={searchSettings.coverageSetup.coverJoinedWords}
-                onChange={(value: boolean) => handleCoverageSetupToggle('coverJoinedWords', value)}
-              />
-            </li>
-            <li>
-              <ToggleSwitch
-                label="Cover Prefix Suffix"
-                checked={searchSettings.coverageSetup.coverPrefixSuffix}
-                onChange={(value: boolean) => handleCoverageSetupToggle('coverPrefixSuffix', value)}
-              />
-            </li>
-            <li>
-              <ToggleSwitch
-                label="Truncate"
-                checked={searchSettings.coverageSetup.truncate}
-                onChange={(value: boolean) => handleCoverageSetupToggle('truncate', value)}
-              />
-            </li>
-            <li>
-              <ToggleSwitch
-                label="Include Pattern Matches"
-                checked={searchSettings.coverageSetup.includePatternMatches}
-                onChange={(value: boolean) => handleCoverageSetupToggle('includePatternMatches', value)}
+                label="Every rung"
+                disabled={isBm25f}
+                checked={(match.rungs ?? MATCH_DEFAULTS.rungs) === Rungs.All}
+                onChange={(value: boolean) => setMatch({ rungs: value ? Rungs.All : Rungs.Fewest })}
               />
             </li>
             <li>
               <InputField
-                label="Min Word Size"
+                label="One edit from"
                 type="number"
-                value={searchSettings.coverageSetup.minWordSize.toString()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoverageSetupNumberChange('minWordSize', e.target.value)}
+                disabled={isBm25f}
+                value={(match.oneEditFrom ?? MATCH_DEFAULTS.oneEditFrom).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ oneEditFrom: n }))}
               />
             </li>
             <li>
               <InputField
-                label="Truncate Word Hit Limit"
+                label="Two edits from"
                 type="number"
-                value={searchSettings.coverageSetup.truncateWordHitLimit.toString()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoverageSetupNumberChange('truncateWordHitLimit', e.target.value)}
+                disabled={isBm25f}
+                value={(match.twoEditsFrom ?? MATCH_DEFAULTS.twoEditsFrom).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ twoEditsFrom: n }))}
               />
             </li>
             <li>
               <InputField
-                label="Truncate Word Hit Tolerance"
+                label="Typing prefix from"
                 type="number"
-                value={searchSettings.coverageSetup.truncateWordHitTolerance.toString()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoverageSetupNumberChange('truncateWordHitTolerance', e.target.value)}
+                disabled={isBm25f}
+                value={(match.typingPrefixFrom ?? MATCH_DEFAULTS.typingPrefixFrom).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ typingPrefixFrom: n }))}
+              />
+            </li>
+            <li>
+              <ToggleSwitch
+                label="Joined words"
+                disabled={isBm25f}
+                checked={match.joinedWords ?? MATCH_DEFAULTS.joinedWords}
+                onChange={(value: boolean) => setMatch({ joinedWords: value })}
+              />
+            </li>
+
+            {/* Candidates: who comes in. */}
+            <li>
+              <InputField
+                label="Candidates per row"
+                type="number"
+                disabled={isBm25f}
+                value={(candidates.candidatesPerRow ?? CANDIDATE_DEFAULTS.candidatesPerRow).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setCandidates({ candidatesPerRow: n }))}
+              />
+            </li>
+            <li>
+              <InputField
+                label="Max candidates (0: per row)"
+                type="number"
+                disabled={isBm25f}
+                value={(candidates.maxCandidates ?? 0).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  parseIntOr(e.target.value, n => setCandidates({ maxCandidates: n > 0 ? n : null }))}
+              />
+            </li>
+            <li>
+              <ToggleSwitch
+                label="Fallback (most words when none holds every word)"
+                disabled={isBm25f}
+                checked={candidates.fallback ?? CANDIDATE_DEFAULTS.fallback}
+                onChange={(value: boolean) => setCandidates({ fallback: value })}
+              />
+            </li>
+
+            {/* Ranking: the blend is Coverage's. */}
+            <li>
+              <InputField
+                label="Coverage share %"
+                type="number"
+                disabled={!isCoverage}
+                value={Math.round((ranking.share ?? RANKING_DEFAULTS.share) * 100).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ share: n }))}
+              />
+            </li>
+            <li>
+              <InputField
+                label="Typing shift %"
+                type="number"
+                disabled={!isCoverage}
+                value={Math.round((ranking.typingShift ?? RANKING_DEFAULTS.typingShift) * 100).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ typingShift: n }))}
+              />
+            </li>
+            <li>
+              <ToggleSwitch
+                label="Whole query floor"
+                disabled={!isCoverage}
+                checked={ranking.wholeQueryFloor ?? RANKING_DEFAULTS.wholeQueryFloor}
+                onChange={(value: boolean) => setRanking({ wholeQueryFloor: value })}
               />
             </li>
           </>

@@ -61,7 +61,7 @@ function serveScalarDataset() {
       return HttpResponse.json({
         records: admitted.map(d => ({ documentKey: d.key, score: 100 })),
         facets: { color: facetsFor(body.filter?.hashString) },
-        truncationIndex: -1,
+        isFallback: false,
       });
     }),
     http.post(`${DS}/documents/lookup`, async ({ request }) => {

@@ -1,20 +1,27 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import type { CoverageSetup } from '@indxsearch/indx-types';
+import { SearchMode } from '@indxsearch/indx-types';
+import type { MatchSetup, CandidateSetup, RankingProxy } from '@indxsearch/indx-types';
 import { useIndxAuth } from './useIndxAuth';
 import { useSearchExecution } from './useSearchExecution';
 import type { ValueMatch, NumericRange } from './buildFilterProxy';
 
 export type { ValueMatch, NumericRange };
 
-// Internal type with all CoverageSetup properties required (SearchContext always provides defaults)
-export type RequiredCoverageSetup = Required<CoverageSetup>;
-
+/**
+ * What every search from this provider is asked with: the query's mode and its three parts, as
+ * the server takes them (6.0). A member left out of a part is the server's default, so a page
+ * sets only what it means to change.
+ */
 export interface SearchSettings {
   maxNumberOfRecordsToReturn: number;
-  coverageDepth: number;
-  enableCoverage: boolean;
+  mode: SearchMode;
+  /** What counts as a hit: tolerance, rungs, the word being typed. */
+  match: MatchSetup;
+  /** Who comes in: the bound on the candidates, the fallback. */
+  candidates: CandidateSetup;
+  /** The order: the blend, field weights and boosts, boosts and buries. */
+  ranking: RankingProxy;
   removeDuplicates: boolean;
-  coverageSetup: RequiredCoverageSetup;
   minimumScore: number;
   showScore: boolean;
   placeholderText: string;
@@ -61,7 +68,8 @@ export interface SearchState {
   sortBy?: string; // The field currently being used to sort results
   sortAscending?: boolean; // Whether the current sort is ascending (true) or descending (false)
   searchSettings: SearchSettings;
-  truncationIndex?: number;
+  countedTotal?: number; // The records the search counted, all of them, beyond the rows returned too; undefined when it counted nothing (the fallback) or in Bm25f mode. Until 6.0 truncationIndex
+  isFallback?: boolean; // Nothing held every query word: the results are the most words, then pattern matches
   totalDocumentCount?: number; // Total number of documents in the dataset
   queryId?: string; // The Indx-Query-Id of the search behind `results`; selectResult sends it back
 }
@@ -107,10 +115,11 @@ export const SearchProvider: React.FC<{
   maxResults?: number;
   facetDebounceDelayMillis?: number;
   enableFacets?: boolean;
-  coverageDepth?: number;
   removeDuplicates?: boolean;
-  enableCoverage?: boolean;
-  initialCoverageSetup?: Partial<CoverageSetup>;
+  mode?: SearchMode; // Default Coverage. Until 6.0 enableCoverage (false was Bm25f)
+  match?: MatchSetup; // Until 6.0 parts of initialCoverageSetup
+  candidates?: CandidateSetup; // Until 6.0 coverageDepth (now maxCandidates) and includePatternMatches (now fallback)
+  ranking?: RankingProxy;
   enableDebugLogs?: boolean;
   preAuthenticatedToken?: string; // Bearer token used for all requests
   source?: string; // Names this search surface in the statistics: a search box, an app ("header", "app")
@@ -124,10 +133,11 @@ export const SearchProvider: React.FC<{
   maxResults = 10,
   facetDebounceDelayMillis = 500, // debounce faceted searches only
   enableFacets = true,
-  coverageDepth = 500,
   removeDuplicates = true,
-  enableCoverage = true,
-  initialCoverageSetup = {},
+  mode = SearchMode.Coverage,
+  match = {},
+  candidates = {},
+  ranking = {},
   enableDebugLogs = false,
   preAuthenticatedToken,
   source,
@@ -160,27 +170,14 @@ export const SearchProvider: React.FC<{
     rangeBounds: {},
     searchSettings: {
       maxNumberOfRecordsToReturn: maxResults,
-      coverageDepth,
-      enableCoverage,
+      mode,
+      match,
+      candidates,
+      ranking,
       removeDuplicates,
       minimumScore: 0,
       showScore: true,
       placeholderText: 'Type to search',
-      coverageSetup: {
-        // Default values matching Swagger specification
-        coverWholeQuery: true,
-        coverWholeWords: true,
-        coverFuzzyWords: true,
-        coverJoinedWords: true,
-        coverPrefixSuffix: true,
-        truncate: true,
-        includePatternMatches: true,
-        minWordSize: 2,
-        truncateWordHitLimit: 1,
-        truncateWordHitTolerance: 0,
-        truncationScore: 65024,
-        ...initialCoverageSetup, // Allow prop-based override
-      },
     },
   });
 
@@ -298,16 +295,11 @@ export const SearchProvider: React.FC<{
     setState(prev => {
       const newSettings = { ...prev.searchSettings, ...settings };
 
-      // Preserve coverageSetup reference if not explicitly provided
-      if (!settings.coverageSetup) {
-        newSettings.coverageSetup = prev.searchSettings.coverageSetup;
-      } else {
-        // Merge with existing when provided
-        newSettings.coverageSetup = {
-          ...prev.searchSettings.coverageSetup,
-          ...settings.coverageSetup,
-        };
-      }
+      // A part given is merged into the one there, member by member; one not given keeps its
+      // reference, so the search effect does not run for nothing.
+      newSettings.match = settings.match ? { ...prev.searchSettings.match, ...settings.match } : prev.searchSettings.match;
+      newSettings.candidates = settings.candidates ? { ...prev.searchSettings.candidates, ...settings.candidates } : prev.searchSettings.candidates;
+      newSettings.ranking = settings.ranking ? { ...prev.searchSettings.ranking, ...settings.ranking } : prev.searchSettings.ranking;
 
       return {
         ...prev,

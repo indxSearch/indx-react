@@ -113,7 +113,7 @@ export function useIndxAuth({
         if (enableDebugLogs) console.log('[Auth] ✅ Dataset session established');
 
         if (statusData.systemState !== undefined && statusData.systemState !== SystemState.Ready) {
-          console.warn('[Auth] ⚠️ Dataset is not ready yet. Current state:', SystemState[statusData.systemState]);
+          console.warn('[Auth] ⚠️ Dataset is not ready yet. Current state:', statusData.systemState);
           console.warn('[Auth] 💡 Wait for indexing to complete before searching');
         }
 

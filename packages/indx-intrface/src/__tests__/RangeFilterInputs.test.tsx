@@ -68,7 +68,7 @@ describe('slider step', () => {
   it('derives a fractional step from fractional bounds so values sit on the grid', async () => {
     server.use(
       http.post('http://localhost/api/teams/team/datasets/test/search', () => HttpResponse.json({
-        records: [], truncationIndex: -1,
+        records: [], isFallback: false,
         facets: { price: [{ key: '6.5', value: 3 }, { key: '7.3', value: 4 }, { key: '9.25', value: 1 }] },
       })),
     );
@@ -91,7 +91,7 @@ describe('input bounds on a decimal field', () => {
     // sliderValue[1] - 1 = 7.712999999999999, which Chrome sized the input for.
     server.use(
       http.post("http://localhost/api/teams/team/datasets/test/search", () => HttpResponse.json({
-        records: [], truncationIndex: -1,
+        records: [], isFallback: false,
         facets: { price: [{ key: '5.3', value: 1 }, { key: '6.25', value: 1 }, { key: '8.713', value: 1 }] },
       })),
     );

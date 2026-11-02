@@ -166,7 +166,7 @@ describe('histogram snapshot', () => {
       http.post('http://localhost/api/teams/team/datasets/test/search', () => {
         callCount++;
         const facets = callCount <= 1 ? FACETS : narrowFacets;
-        return HttpResponse.json({ records: [], facets, truncationIndex: -1 });
+        return HttpResponse.json({ records: [], facets, isFallback: false });
       })
     );
 
@@ -431,7 +431,7 @@ const RATINGS = {
 function serveRatings() {
   server.use(
     http.post('http://localhost/api/teams/team/datasets/test/search', () =>
-      HttpResponse.json({ records: [], facets: RATINGS, truncationIndex: -1 }))
+      HttpResponse.json({ records: [], facets: RATINGS, isFallback: false }))
   );
 }
 

@@ -1,4 +1,6 @@
 import { StringInt32KeyValuePair } from './common';
+import { SystemState, Tolerance } from './enums';
+import { ProcessError } from './errors';
 
 export interface ScoreEntry {
   documentKey: number;
@@ -30,13 +32,30 @@ export interface CoverageReport {
   matchesByField?: { [field: string]: { [how: string]: number } } | null;
 }
 
+/** How many records hold every query word on each rung, each with those before it; a rung not
+ * worked out is null. */
+export interface ToleranceCounts {
+  exact: number;
+  oneEdit?: number | null;
+  twoEdits?: number | null;
+}
+
 export interface Result {
   records?: ScoreEntry[] | null;
   facets?: { [key: string]: StringInt32KeyValuePair[] } | null;
   didTimeOut: boolean;
-  truncationIndex: number;
-  truncationScore: number;
-  /** Null unless the query asked for it with Coverage on. */
+  /** Set when the search was refused rather than finding nothing. */
+  reason?: ProcessError | null;
+  systemState?: SystemState;
+  /** The count; null in Bm25f mode. Until 6.0 the result carried truncationIndex and truncationScore. */
+  toleranceCounts?: ToleranceCounts | null;
+  /** The rung the list was taken from; null when nothing was counted. */
+  countedTolerance?: Tolerance | null;
+  /** The counted rung held more records than the search takes: its best by BM25F were ranked. */
+  overflow?: boolean;
+  /** Nothing was counted: the records holding the most of the words, then pattern matches. */
+  isFallback?: boolean;
+  /** Null unless the query asked for it in Coverage mode. */
   coverageReport?: CoverageReport | null;
 }
 

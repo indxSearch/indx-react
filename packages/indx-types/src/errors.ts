@@ -1,11 +1,12 @@
+/** By name on the wire since 6.0. */
 export enum JsonErrorType {
-  None = 0,
-  ControlCharacters = 1,
-  TrailingComma = 2,
-  UnescapedQuotes = 3,
-  UnescapedBackslash = 4,
-  StructuralError = 5,
-  UnknownError = 6
+  None = 'None',
+  ControlCharacters = 'ControlCharacters',
+  TrailingComma = 'TrailingComma',
+  UnescapedQuotes = 'UnescapedQuotes',
+  UnescapedBackslash = 'UnescapedBackslash',
+  StructuralError = 'StructuralError',
+  UnknownError = 'UnknownError'
 }
 
 export interface ParseResult {

@@ -1,41 +1,78 @@
 import { FilterProxy } from './filters';
-import { BoostProxy } from './boost';
+import { BoostProxy, BuryProxy } from './boost';
+import { IndexTerms, Rungs, SearchMode, Tolerance } from './enums';
 
-export interface CoverageSetup {
-  coverWholeQuery?: boolean;
-  coverWholeWords?: boolean;
-  coverFuzzyWords?: boolean;
-  coverJoinedWords?: boolean;
-  coverPrefixSuffix?: boolean;
-  truncate?: boolean;
-  includePatternMatches?: boolean;
-  minWordSize?: number;
-  truncateWordHitLimit?: number;
-  truncateWordHitTolerance?: number;
-  truncationScore?: number;
+/** What counts as a hit. Every member optional: a member left out is the server's default. */
+export interface MatchSetup {
+  /** The most a word may differ by; caps each field's own strictness. Default TwoEdits. */
+  tolerance?: Tolerance;
+  /** Fewest (the default): the first rung with hits. All: every rung up to the tolerance. */
+  rungs?: Rungs;
+  /** The shortest word given one edit (3) and two (6); 0 is never. */
+  oneEditFrom?: number;
+  twoEditsFrom?: number;
+  /** Where the cursor is in the text: the word it is in is the one being typed. Null: the last word. */
+  cursorAt?: number | null;
+  /** The word being typed also as the start of a longer word from this many letters (3), and within one edit from (6). */
+  typingPrefixFrom?: number;
+  typingPrefixOneEditFrom?: number;
+  /** Words written together or apart count as the word. Default true. */
+  joinedWords?: boolean;
 }
 
+/** Who comes in. */
+export interface CandidateSetup {
+  /** The candidates per row asked for (4): the bound is the rows times this, at most 5 000. */
+  candidatesPerRow?: number;
+  /** The bound itself, when set. */
+  maxCandidates?: number | null;
+  /** Which terms BM25F scores with. Default Both. */
+  indexTerms?: IndexTerms;
+  /** When no record holds every word: the most words, then pattern matches (isFallback). Default true. */
+  fallback?: boolean;
+}
+
+/** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
+export interface RankingProxy {
+  /** Coverage's share of the score, 0 to 1. Default 0.2. */
+  share?: number;
+  /** How far the share moves towards Coverage while the last word is typed. Default 0.5. */
+  typingShift?: number;
+  longFieldFrom?: number;
+  longFieldWeightFloor?: number;
+  /** The whole query in a field floors the score. Default true. */
+  wholeQueryFloor?: boolean;
+  /** Per field, its Coverage weight in this search. */
+  fieldWeights?: Record<string, number> | null;
+  /** Per field, a boost inside BM25F's saturation. */
+  fieldBoosts?: Record<string, number> | null;
+  /** A list that is not empty is on; the dataset's boost rules apply to every search beside them. */
+  boosts?: BoostProxy[] | null;
+  buries?: BuryProxy[] | null;
+}
+
+/** A search, as `POST .../search` takes it (6.0). */
 export interface QueryProxy {
   text?: string | null;
   maxNumberOfRecordsToReturn?: number;
-  enableCoverage?: boolean;
-  /** With enableCoverage, return `coverageReport`: how each query word was met in each record. */
+  /** Default Coverage. */
+  mode?: SearchMode;
+  /** Null or left out: the defaults. */
+  match?: MatchSetup | null;
+  candidates?: CandidateSetup | null;
+  ranking?: RankingProxy | null;
+  /** In Coverage mode, return `coverageReport`: how each query word was met in each record. */
   enableCoverageReport?: boolean;
-  coverageDepth?: number;
-  coverageSetup?: CoverageSetup | null;
   enableFacets?: boolean;
-  enableBoost?: boolean;
   removeDuplicates?: boolean;
   sortAscending?: boolean;
   sortBy?: string | null;
   timeOutLimitMilliseconds?: number;
   filter?: FilterProxy | null;
-  boosts?: BoostProxy[] | null;
-  fieldBoosts?: Record<string, number> | null;
+  /** A filter expression, ANDed with `filter` when both are given. */
+  filterExpression?: string | null;
+  filterParameters?: Record<string, FilterProxy> | null;
   logPrefix?: string | null;
   /** The result then also says how well it explains the text: a {@link QueryFitResult}. */
   measureFit?: boolean;
 }
-
-/** @deprecated Renamed to {@link QueryProxy} in 2.3.0 (the server dropped its "cloud" vocabulary); removed in 3.0. */
-export type CloudQuery = QueryProxy;

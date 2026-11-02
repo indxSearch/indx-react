@@ -54,7 +54,7 @@ export function parseArrayString(value: string): string[] | undefined {
 
 export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, truncationIndex, query, error },
+    state: { results, resultsSuppressed, searchSettings, countedTotal, query, error },
     isFetchingInitial,
     authError,
     allowEmptySearch,
@@ -82,7 +82,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     const newVisibleCount = visibleCount + pageSize;
     setVisibleCount(newVisibleCount);
     if (results && newVisibleCount >= results.length) {
-      const mightHaveMore = !truncationIndex || truncationIndex === -1 || truncationIndex > results.length;
+      const mightHaveMore = countedTotal === undefined || countedTotal > results.length;
       if (mightHaveMore) {
         fetchMoreResults(results.length + pageSize);
       }
@@ -170,8 +170,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
           <Button variant="secondary" size="micro" onClick={handleLoadMore}>
             {(() => {
               if (query.trim() === '') return 'Load more';
-              if (truncationIndex !== -1 && truncationIndex !== undefined && truncationIndex > 0) {
-                return `Load results ${visibleCount + 1}-${Math.min(visibleCount + pageSize, results.length, truncationIndex)} of ${truncationIndex}`;
+              if (countedTotal !== undefined && countedTotal > 0) {
+                return `Load results ${visibleCount + 1}-${Math.min(visibleCount + pageSize, results.length, countedTotal)} of ${countedTotal}`;
               }
               return 'Load more';
             })()}

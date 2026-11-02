@@ -370,12 +370,13 @@ Two optional `SearchProvider` props shape what the statistics see:
 | `dataset` | `string` | ✅ | - | Dataset name |
 | `allowEmptySearch` | `boolean` | ❌ | `false` | Show results without query |
 | `enableFacets` | `boolean` | ❌ | `true` | Enable faceted search |
-| `enableCoverage` | `boolean` | ❌ | `true` | Enable coverage-based fuzzy matching |
 | `maxResults` | `number` | ❌ | `10` | Max results per search |
 | `facetDebounceDelayMillis` | `number` | ❌ | `500` | Debounce delay for facet updates (ms) |
-| `coverageDepth` | `number` | ❌ | `500` | Search depth for fuzzy matching |
 | `removeDuplicates` | `boolean` | ❌ | `true` | Remove duplicate results |
-| `initialCoverageSetup` | `Partial<CoverageSetup>` | ❌ | `{}` | Override default coverage settings |
+| `mode` | `SearchMode` | ❌ | `Coverage` | `Coverage`, `EditDistance` or `Bm25f` (ranking alone, no word lookup) |
+| `match` | `MatchSetup` | ❌ | `{}` | What counts as a hit: `tolerance`, `rungs`, the word being typed. A member left out is the server's default |
+| `candidates` | `CandidateSetup` | ❌ | `{}` | Who comes in: `candidatesPerRow`, `maxCandidates`, `fallback` |
+| `ranking` | `RankingProxy` | ❌ | `{}` | The order: the blend, field weights and boosts, `boosts`, `buries` |
 | `enableDebugLogs` | `boolean` | ❌ | `false` | Enable detailed console logging |
 | `source` | `string` | ❌ | - | Names this search surface in the statistics (`"header"`, `"app"`); counted as usual. See [Search statistics](#search-statistics) |
 | `count` | `boolean` | ❌ | `true` | `false` keeps this page's searches and clicks out of the statistics (stored, not counted) |
