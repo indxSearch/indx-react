@@ -1,0 +1,40 @@
+/* The Observr Agent mockup: the panel at the right of the console frame (../console-sidebar). */
+.tall { height: 720px; }
+.agent { flex: none; width: 380px; height: 100%; border-left: 1px solid var(--lv2); display: flex; flex-direction: column; min-height: 0; background: var(--lv0); }
+.agent > * { flex: 1; min-height: 0; }
+
+.panel { display: flex; flex-direction: column; gap: 10px; padding: 0 0 12px; overflow: auto; }
+.head { display: flex; align-items: center; gap: 4px; padding: 8px 8px 8px 12px; border-bottom: 1px solid var(--lv2); }
+.mark { display: inline-flex; color: var(--lv6); margin-right: 4px; }
+.title { flex: 1; min-width: 0; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.composer { display: flex; flex-direction: column; gap: 6px; }
+.context { display: flex; align-items: center; gap: 6px; }
+.memoryLink { margin-left: auto; color: var(--lv5); }
+
+.summary { margin: 4px 0 8px; padding: 10px 12px; border: 1px dashed var(--lv3); border-radius: var(--radius); font: var(--text-xs); color: var(--lv6); display: flex; flex-direction: column; gap: 4px; }
+.summaryHead { color: var(--lv5); font-weight: var(--med); }
+.summary code { font-family: var(--font-mono); }
+
+.card { margin-top: 10px; padding: 12px; border: 1px solid var(--lv2); border-radius: var(--radius); background: var(--lv1); display: flex; flex-direction: column; gap: 8px; }
+.cardHead { display: flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv5); font-weight: var(--med); }
+.terms { display: flex; align-items: center; gap: 6px; }
+.why { margin: 0; font: var(--text-xs); color: var(--lv6); }
+.cardActions { display: flex; align-items: center; gap: 8px; }
+.done { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv8); }
+.quiet { color: var(--lv5); font: var(--text-xs); }
+.footnote { font: var(--text-2xs); color: var(--lv4); }
+
+.list { display: flex; flex-direction: column; padding: 0 8px; }
+.row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px; border: 0; border-radius: var(--radius); background: transparent; text-align: left; cursor: pointer; color: inherit; font: inherit; }
+.row:hover { background: var(--lv1); }
+.rowCurrent { background: var(--lv1); }
+.rowTitle { font: var(--text-sm); color: var(--lv8); }
+.rowMeta { display: block; font: var(--text-2xs); color: var(--lv5); }
+.note { margin: 0; padding: 0 16px; font: var(--text-xs); color: var(--lv5); display: flex; align-items: center; gap: 6px; }
+.noteRow { display: flex; align-items: flex-start; gap: 8px; padding: 10px; border-bottom: 1px solid var(--lv2); }
+.noteText { flex: 1; font: var(--text-sm); color: var(--lv7); display: flex; flex-direction: column; gap: 4px; }
+
+.empty { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 24px 4px; }
+.emptyMark { color: var(--lv5); }
+.emptyText { margin: 0; font: var(--text-sm); color: var(--lv6); }

@@ -121,6 +121,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Dataset card', path: '/dataset-card' },
       { label: 'Question suggestions', path: '/question-suggestions' },
       { label: 'Support', path: '/support' },
+      { label: 'Observr Agent', path: '/observr-agent' },
     ],
   },
 ];
