@@ -79,6 +79,7 @@ import ScoreMeterPage from './score-meter/page';
 import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
+import SupportMockup from './support/page';
 import FieldProfilesMockup from './field-profiles/page';
 import ConsoleShellMockup from './console-shell/page';
 import AskPanelPage from './ask-panel/page';
@@ -165,6 +166,7 @@ export default function App() {
         <Route path="/icicle" element={<IciclePage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
+        <Route path="/support" element={<SupportMockup />} />
         <Route path="/field-profiles" element={<FieldProfilesMockup />} />
         <Route path="/console-shell" element={<ConsoleShellMockup />} />
         <Route path="/ask-panel" element={<AskPanelPage />} />

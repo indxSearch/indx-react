@@ -120,6 +120,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Analytics dashboard', path: '/analytics-dashboard' },
       { label: 'Dataset card', path: '/dataset-card' },
       { label: 'Question suggestions', path: '/question-suggestions' },
+      { label: 'Support', path: '/support' },
     ],
   },
 ];
