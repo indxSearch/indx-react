@@ -57,10 +57,11 @@ function groupsFor(who: Who, plan: Plan): Group[] {
       { key: 'connect', title: 'Connect your site', line: 'Make an API key and put the search box on your page.', icon: <Key />, doneWhen: 'The first search from outside the console: one made with an API key, not from the preview. A key made and never used does not count.' },
       ...(plan !== 'free' ? [{ key: 'invite', title: 'Invite your team', line: 'Bring in the people who tune the search with you.', icon: <User_plus />, doneWhen: 'Another member, or an invite waiting. Not on Managed Free, which has one user.' }] : []),
     ] },
-    ...(pro ? [{ title: 'Answer and observe', steps: [
-      { key: 'soa', title: 'Answer questions', line: 'Search or ask writes answers from your records when a visitor asks.', icon: <Search_or_ask />, pro: true, doneWhen: 'Search or ask switched on for a dataset.' },
-      { key: 'observr', title: 'Let Observr watch', line: 'A weekly look at what visitors could not find, and what to change.', icon: <Observr />, pro: true, doneWhen: 'Observr switched on for a dataset.' },
-    ] }] : []),
+    // Search or ask on every plan (the customer's own AI keys); Observr with Pro.
+    { title: 'Answer and observe', steps: [
+      { key: 'soa', title: 'Answer questions', line: 'Search or ask writes answers from your records when a visitor asks.', icon: <Search_or_ask />, doneWhen: 'Search or ask switched on for a dataset.' },
+      ...(pro ? [{ key: 'observr', title: 'Let Observr watch', line: 'A weekly look at what visitors could not find, and what to change.', icon: <Observr />, pro: true, doneWhen: 'Observr switched on for a dataset.' }] : []),
+    ] },
   ];
   const editor = who === 'editor';
   return [
@@ -71,7 +72,7 @@ function groupsFor(who: Who, plan: Plan): Group[] {
     editor
       ? { title: 'Make it better', steps: [
           { key: 'tune', title: 'Add a synonym or a boost rule', line: 'Teach search the words your visitors use, or lift what should come first.', icon: <Synonym />, doneWhen: 'The user saved a synonym, a boost rule or a field change.' },
-          ...(pro ? [{ key: 'soa-try', title: 'Ask a question', line: 'Try Search or ask on a dataset, as a visitor would.', icon: <Search_or_ask />, pro: true, doneWhen: 'A question asked in the Search or ask tester.' }] : []),
+          { key: 'soa-try', title: 'Ask a question', line: 'Try Search or ask on a dataset, as a visitor would.', icon: <Search_or_ask />, doneWhen: 'A question asked in the Search or ask tester, where a dataset has it.' },
         ] }
       : { title: 'Follow along', steps: [
           { key: 'stats', title: 'See what people search for', line: 'The searches, what they found and what was chosen.', icon: <Graph />, doneWhen: 'Statistics opened.' },
@@ -93,10 +94,10 @@ function ProTeaser({ plan }: { plan: Plan }) {
       <span className={styles.teaserText}>
         <span className={styles.teaserTitle}>Add Pro to get Observr <Chip size="default">Pro</Chip></span>
         <span className={styles.stepLine}>
-          Observr looks at your search every week and tells you what visitors could not find, and what to change. Pro also
-          brings Search or ask{plan === 'free' ? ', your whole team, and no cap on documents' : ''}.
+          Observr looks at your search every week and tells you what visitors could not find, and what to change.
+          {plan === 'free' ? ' Pro also brings your whole team, and no cap on documents.' : ''}
         </span>
-        <span><Button variant="secondary" size="micro">See Pro</Button></span>
+        <span><Button variant="secondary" size="micro">Get Pro</Button></span>
       </span>
     </div>
   );
@@ -120,12 +121,6 @@ function Panel({ who, plan, done, toggle, onHide }: {
         {who === 'first' ? 'From your data to search on your site.' : 'Your way around Indx intern.'}
       </p>
       <StepProgress parts={partsOf(groups, done)} labels />
-      {n === steps.length && (
-        <EmptyState size="compact" icon={<Finish_flag />} title="You are set up"
-                    actions={onHide && <Button variant="secondary" size="micro" onClick={onHide}>Hide Get started</Button>}>
-          Everything here is done. Get started stays a click away under your account.
-        </EmptyState>
-      )}
       {groups.map(g => {
         return (
           <div key={g.title} className={styles.group}>
@@ -210,6 +205,8 @@ function Console({ who, plan, done, toggle, hidden, setHidden }: {
     </Popover>
   );
   const empty = who === 'first' && !done.has('data');
+  // Every step done: the card is gone, as when hidden.
+  const finished = allSteps(groupsFor(who, plan)).every(s => done.has(s.key));
   return (
     <div className={styles.console}>
       <header className={styles.header}>
@@ -227,7 +224,7 @@ function Console({ who, plan, done, toggle, hidden, setHidden }: {
       <div className={styles.body}>
         <div className={styles.column}>
           {/* Folded, the rail hides the footer: the ring is the Sidebar's railFooter. */}
-          <Sidebar groups={TEAM} active="datasets" footer={hidden ? undefined : getStarted} railFooter={hidden ? undefined : getStarted}
+          <Sidebar groups={TEAM} active="datasets" footer={hidden || finished ? undefined : getStarted} railFooter={hidden || finished ? undefined : getStarted}
                    collapsed={collapsed} onCollapsedChange={setCollapsed} aria-label="Sections" />
         </div>
         <main className={styles.content}>
@@ -319,6 +316,8 @@ export default function GetStartedMockup() {
           <li><strong>Connect your site</strong> is done by the first real search from outside the console, not by a key: a key can be made and never used.</li>
           <li><strong>The progress:</strong> StepProgress, nested: a bar per group, as wide as its steps and filled by its own done, labelled in the panel. Folded, the card is a 30px button with the icon over a small one (a 48px ring looked odd in the 50px rail). A BarMeter with a tick at each group's start was tried and read as a threshold.</li>
           <li><strong>Folded:</strong> the Sidebar's rail hides its footer and shows its railFooter instead (React and Blazor alike). A tour of the console, Show me around, was built and dropped: not worth the time it takes.</li>
+          <li><strong>Done:</strong> once every step is, the card leaves the column; Hide for now does the same before.</li>
+          <li><strong>Search or ask</strong> is on every plan, run on the customer's own AI keys: a step where the instance shows it, never marked Pro. Gating it would mean including AI usage in the plan.</li>
           <li><strong>No green:</strong> done is the check in the ink on an ink disc; Next is an ink chip; Pro is a plain chip.</li>
         </ul>
       </div>
