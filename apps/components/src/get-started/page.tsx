@@ -130,8 +130,9 @@ function Panel({ who, plan, done, toggle, onHide }: {
               return (
                 <button key={s.key} type="button" className={`${styles.step} ${isDone ? styles.stepDone : ''}`}
                         onClick={() => toggle(s.key)}>
-                  <span className={`${styles.mark} ${isDone ? styles.markDone : ''}`}>
-                    {isDone ? <Check size={14} color="var(--lv0)" /> : <Circle size={14} color={isNext ? 'var(--lv8)' : 'var(--lv4)'} />}
+                  {/* The pixl check, quiet, for done; the circle for open, in the ink for the next. */}
+                  <span className={styles.mark}>
+                    {isDone ? <Check size={14} color="var(--lv5)" /> : <Circle size={14} color={isNext ? 'var(--lv8)' : 'var(--lv4)'} />}
                   </span>
                   <span className={styles.stepText}>
                     <span className={styles.stepTitle}>
