@@ -34,6 +34,8 @@ export interface CandidateSetup {
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
 export interface RankingProxy {
+  /** Whether Coverage reranks the candidates, in either mode. Default true. */
+  rerank?: boolean;
   /** Coverage's share of the score, 0 to 1. Default 0.2. */
   share?: number;
   /** How far the share moves towards Coverage while the last word is typed. Default 0.5. */
@@ -61,7 +63,7 @@ export interface QueryProxy {
   match?: MatchSetup | null;
   candidates?: CandidateSetup | null;
   ranking?: RankingProxy | null;
-  /** In Coverage mode, return `coverageReport`: how each query word was met in each record. */
+  /** Reranked, return `coverageReport`: how each query word was met in each record. */
   enableCoverageReport?: boolean;
   enableFacets?: boolean;
   removeDuplicates?: boolean;

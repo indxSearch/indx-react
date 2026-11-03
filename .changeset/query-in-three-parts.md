@@ -3,8 +3,9 @@
 "@indxsearch/intrface": major
 ---
 
-The 6.0 wire: a query in three parts. `QueryProxy` takes `mode` (`SearchMode`: `Coverage`,
-`EditDistance`, `Bm25f`) and three parts, `match` (`MatchSetup`: tolerance, rungs, the word being
+The 6.0 wire: a query in three parts. `QueryProxy` takes `mode` (`SearchMode`: `EditDistance`,
+the default, or `Bm25f`; whether the records are reranked by Coverage is `ranking.rerank`, on by
+default) and three parts, `match` (`MatchSetup`: tolerance, rungs, the word being
 typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fallback`) and
 `ranking` (`RankingProxy`: the blend, field weights and boosts, `boosts` and `buries`).
 `enableCoverage`, `coverageDepth`, `coverageSetup` and the `CoverageSetup` and `CloudQuery` types are
@@ -15,7 +16,7 @@ server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `On
 `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `coverageWeight` of 0; the
 `CoverageStrictness` enum is gone.
 
-The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
+The settings panel shows the mode and a rerank switch. The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
 `enableCoverage`, `coverageDepth` (now `candidates.maxCandidates`) and `initialCoverageSetup`;
 `SearchSettings` holds the same, and `setSearchSettings` merges a part member by member. The state's
 `truncationIndex` is `countedTotal`, the records the search counted, with `isFallback` beside it.

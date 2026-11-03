@@ -18,7 +18,7 @@ const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
   joinedWords: true,
 };
 const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true };
-const RANKING_DEFAULTS = { share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
+const RANKING_DEFAULTS = { rerank: true, share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
 
 export function SearchSettingsPanel() {
   const {
@@ -29,7 +29,9 @@ export function SearchSettingsPanel() {
   const [showParts, setShowParts] = useState(false);
   const { match, candidates, ranking } = searchSettings;
   const isBm25f = searchSettings.mode === SearchMode.Bm25f;
-  const isCoverage = searchSettings.mode === SearchMode.Coverage;
+  // The reranker (ranking.rerank) in either mode; the bound wherever there are candidates to rank.
+  const reranked = ranking.rerank ?? RANKING_DEFAULTS.rerank;
+  const unbounded = isBm25f && !reranked;
 
   // Number field handler for top-level searchSettings fields
   const handleNumberChange = (field: keyof typeof searchSettings, value: string) => {
@@ -71,10 +73,16 @@ export function SearchSettingsPanel() {
             value={searchSettings.mode}
             onValueChange={(value: string) => setSearchSettings({ mode: value as SearchMode })}
             options={[
-              { label: 'Coverage', value: SearchMode.Coverage },
               { label: 'Edit distance', value: SearchMode.EditDistance },
               { label: 'BM25F', value: SearchMode.Bm25f },
             ]}
+          />
+        </li>
+        <li>
+          <ToggleSwitch
+            label="Rerank (Coverage)"
+            checked={reranked}
+            onChange={(value: boolean) => setRanking({ rerank: value })}
           />
         </li>
         <li>
@@ -209,7 +217,7 @@ export function SearchSettingsPanel() {
               <InputField
                 label="Candidates per row"
                 type="number"
-                disabled={isBm25f}
+                disabled={unbounded}
                 value={(candidates.candidatesPerRow ?? CANDIDATE_DEFAULTS.candidatesPerRow).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setCandidates({ candidatesPerRow: n }))}
               />
@@ -218,7 +226,7 @@ export function SearchSettingsPanel() {
               <InputField
                 label="Max candidates (0: per row)"
                 type="number"
-                disabled={isBm25f}
+                disabled={unbounded}
                 value={(candidates.maxCandidates ?? 0).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   parseIntOr(e.target.value, n => setCandidates({ maxCandidates: n > 0 ? n : null }))}
@@ -238,7 +246,7 @@ export function SearchSettingsPanel() {
               <InputField
                 label="Coverage share %"
                 type="number"
-                disabled={!isCoverage}
+                disabled={!reranked}
                 value={Math.round((ranking.share ?? RANKING_DEFAULTS.share) * 100).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ share: n }))}
               />
@@ -247,7 +255,7 @@ export function SearchSettingsPanel() {
               <InputField
                 label="Typing shift %"
                 type="number"
-                disabled={!isCoverage}
+                disabled={!reranked}
                 value={Math.round((ranking.typingShift ?? RANKING_DEFAULTS.typingShift) * 100).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ typingShift: n }))}
               />
@@ -255,7 +263,7 @@ export function SearchSettingsPanel() {
             <li>
               <ToggleSwitch
                 label="Whole query floor"
-                disabled={!isCoverage}
+                disabled={!reranked}
                 checked={ranking.wholeQueryFloor ?? RANKING_DEFAULTS.wholeQueryFloor}
                 onChange={(value: boolean) => setRanking({ wholeQueryFloor: value })}
               />

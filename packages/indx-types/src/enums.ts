@@ -36,13 +36,13 @@ export enum SynonymDirection {
 }
 
 /** How a search finds and orders its documents (QueryProxy.mode). */
+/** How a search fetches its records (QueryProxy.mode); whether they are reranked is
+ * `ranking.rerank`. Until 2 Nov 2026 a third value, Coverage, was EditDistance reranked. */
 export enum SearchMode {
-  /** Pattern recognition (BM25F) alone: no word lookup, no count. */
+  /** BM25F: no word lookup, no count. Reranked, its best up to the bound are reranked. */
   Bm25f = 'Bm25f',
-  /** The records holding every query word, within the tolerance, ordered by rung and BM25F. */
-  EditDistance = 'EditDistance',
-  /** The same records, ordered by rung and the blend of Coverage and BM25F. The default. */
-  Coverage = 'Coverage'
+  /** The records holding every query word within the tolerance, ordered by rung. The default. */
+  EditDistance = 'EditDistance'
 }
 
 /** The rungs a query word is met on: as typed, within one edit, within two. */

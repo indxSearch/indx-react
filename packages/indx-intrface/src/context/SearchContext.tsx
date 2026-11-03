@@ -134,7 +134,7 @@ export const SearchProvider: React.FC<{
   facetDebounceDelayMillis = 500, // debounce faceted searches only
   enableFacets = true,
   removeDuplicates = true,
-  mode = SearchMode.Coverage,
+  mode = SearchMode.EditDistance,
   match = {},
   candidates = {},
   ranking = {},
