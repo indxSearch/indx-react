@@ -8,8 +8,10 @@ type ToggleSwitchProps = {
   disabled?: boolean;
   label?: string;
   'aria-label'?: string;
-  /** `positive` turns the track green (teal in dark mode) when on, for settings where on versus off must be seen at a glance. */
+  /** `positive` turns the track blue (teal in dark mode) when on, for settings where on versus off must be seen at a glance. */
   variant?: 'default' | 'positive';
+  /** Draws a 0 on the track when off and a | when on, the marks of a power switch, in whole pixels. */
+  marks?: boolean;
 };
 
 export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
@@ -20,6 +22,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   label,
   'aria-label': ariaLabel,
   variant = 'default',
+  marks = false,
 }) => {
   const generatedId = React.useId();
   const switchId = id || generatedId;
@@ -27,7 +30,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   return (
     <label
       htmlFor={switchId}
-      className={`${styles.switch} ${variant === 'positive' ? styles.positive : ''} ${disabled ? styles.disabled : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      className={`${styles.switch} ${variant === 'positive' ? styles.positive : ''} ${marks ? styles.marks : ''} ${disabled ? styles.disabled : ''} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <input
         id={switchId}

@@ -1,0 +1,321 @@
+/* The board: a frame that clips; the view inside is moved and scaled by viewport.ts, the sheet in it
+   as large as the open tree. Without a height of its own the board is as tall as the tree at 100%. */
+.canvas {
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+  background-color: var(--lv0);
+  border: 1px solid var(--lv2);
+  touch-action: pan-x pan-y;
+  /* Its layers (grid, view, handles, controls) stack inside it, never over what a page lays on top. */
+  isolation: isolate;
+}
+
+.canvas:focus-visible {
+  outline: 2px solid var(--lv5);
+  outline-offset: -2px;
+}
+
+.view {
+  position: relative;
+  z-index: 1;
+  width: max-content;
+  transform-origin: 0 0;
+}
+
+.sheet {
+  position: relative;
+  padding: 16px;
+  box-sizing: content-box;
+}
+
+.edges,
+.handles {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Over the pills, so a handle sits on the border it marks. */
+.handles {
+  z-index: 1;
+}
+
+/* The connectors: hairlines, the path to the chosen node in the positive colour. */
+.edge {
+  fill: none;
+  stroke: var(--lv3);
+  stroke-width: 1px;
+}
+
+.edgeLit {
+  stroke: var(--CPositive);
+  stroke-width: 1.5px;
+}
+
+/* To a node kept only as the way down to a match: dashed, as the node is dim. */
+.edgeMuted {
+  stroke-dasharray: 3 3;
+}
+
+/* A handle: a small square on the canvas tone, ringed in the edge's grey; lit along the path. */
+.handle {
+  fill: var(--lv0);
+  stroke: var(--lv4);
+  stroke-width: 1px;
+}
+
+.handleLit {
+  fill: var(--CPositive);
+  stroke: var(--CPositive);
+}
+
+.slot {
+  position: absolute;
+  margin: 16px;
+}
+
+/* A node: a pill on the surface tone, the name in the ink, the count in a chip; on the path a
+   positive border, chosen the positive fill with the handle tone's text. */
+.pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--lv3);
+  border-radius: var(--radius);
+  background: var(--lv1);
+  color: var(--lv8);
+  font: var(--text-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+}
+
+.pill:hover {
+  border-color: var(--lv4);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--lv5);
+  outline-offset: 1px;
+}
+
+.pillPath {
+  border-color: var(--CPositive);
+}
+
+.pillSelected,
+.pillSelected:hover {
+  border-color: var(--CPositive);
+  background: var(--CPositive);
+  color: var(--CPositiveHandle);
+}
+
+.muted {
+  opacity: 0.5;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+}
+
+/* The count: a chip in the surface tone, tabular; on the chosen node the fill shows through. */
+.chip {
+  display: inline-block;
+  padding: 0 5px;
+  font: var(--text-2xs);
+  font-weight: var(--med);
+  line-height: 16px;
+  color: var(--lv6);
+  background: var(--lv2);
+  border-radius: var(--radius);
+  font-variant-numeric: tabular-nums;
+}
+
+.pillSelected .chip {
+  color: var(--CPositiveHandle);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+/* A mark: a 14px pixl icon in the dim tone, the ink on the chosen node. */
+.mark {
+  display: inline-flex;
+  color: var(--lv5);
+}
+
+.pillSelected .mark {
+  color: var(--CPositiveHandle);
+}
+
+/* The open or close step at the pill's end: a ghost micro Button with the plus or minus pixl,
+   squared to fit the pill, so the step has a hover of its own. */
+.toggle {
+  display: inline-flex;
+  margin-right: -6px;
+}
+
+.toggle > button,
+.disclosure > button {
+  justify-content: center; /* a Button lays its content from the left; squared, it must centre */
+  width: 22px;
+  height: 22px;
+  min-width: 0;
+  padding: 0;
+}
+
+.pillSelected .toggle > button {
+  color: var(--CPositiveHandle);
+}
+
+/* On the chosen node's fill the ghost's grey hover would sit on the green as a patch: the step
+   darkens the fill instead, as the count chip does. */
+.pillSelected .toggle > button:hover:not(:disabled),
+.pillSelected .toggle > button:active:not(:disabled) {
+  color: var(--CPositiveHandle);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+/* The step to the rest of a node's children, under the ones shown. */
+.more {
+  position: absolute;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px dashed var(--lv3);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--lv5);
+  font: var(--text-xs);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--lv7);
+  border-color: var(--lv4);
+}
+
+/* The list view: the same tree as nested rows. */
+.listWrap {
+  border: 1px solid var(--lv2);
+  background: var(--lv0);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding-right: 8px;
+  border-bottom: 1px solid var(--lv2);
+}
+
+.rowSelected {
+  background: var(--lv2);
+}
+
+.rowName {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--lv8);
+  font: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disclosure {
+  display: inline-flex;
+  flex: none;
+}
+
+.disclosureSpace {
+  width: 22px;
+  flex: none;
+}
+
+/* When the filter leaves nothing. */
+.empty {
+  padding: 24px 16px;
+  font: var(--text-sm);
+  color: var(--lv5);
+}
+
+/* A systm pattern behind the tree (pattern), on a layer of its own under the view: washed to a
+   fifth of its ink by the canvas tone over it, the dark-ink variant and the white-ink one in dark
+   mode. It follows the view: offset by the pan, its tile scaled by the zoom (--tree-x, --tree-y,
+   --tree-zoom, set by viewport.ts). */
+.grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  --tree-wash: linear-gradient(color-mix(in srgb, var(--lv0) 80%, transparent), color-mix(in srgb, var(--lv0) 80%, transparent));
+  background-image: var(--tree-wash), var(--tree-pattern);
+  background-size: auto, calc(var(--tree-tile) * var(--tree-zoom, 1)) calc(var(--tree-tile) * var(--tree-zoom, 1));
+  background-position: 0 0, var(--tree-x, 0) var(--tree-y, 0);
+}
+@media (prefers-color-scheme: dark) {
+  .grid {
+    background-image: var(--tree-wash), var(--tree-pattern-dark);
+  }
+}
+
+/* The zoom controls: a column in the board's lower left corner, on the canvas tone with a hairline,
+   over the view and never moved by it. The last shows the zoom; it returns to 100%. */
+.controls {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  background: var(--lv0);
+  border: 1px solid var(--lv2);
+  cursor: default;
+}
+
+.controls button {
+  justify-content: center;
+  width: 30px;
+  min-width: 0;
+  padding: 0;
+}
+
+.zoomLabel {
+  font: var(--text-2xs);
+  color: var(--lv5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Drag to pan: the hand over the board, the closed hand while dragging, over the pills too. */
+.pannable { cursor: grab; }
+.pannable[data-panning],
+.pannable[data-panning] * {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Full screen: the board, or the page's element round it, fills the screen. */
+.canvas:fullscreen { width: 100vw; height: 100vh; }

@@ -11,7 +11,7 @@ import { SEARCH_RESPONSE } from './mocks/fixtures';
 
 const DS_BASE = 'http://localhost/api/teams/team/datasets/test';
 
-function setup(options: { source?: string; count?: boolean } = {}) {
+function setup(options: { source?: string; count?: boolean; locale?: string } = {}) {
   return renderHook(() => useSearchContext(), {
     wrapper: ({ children }) => (
       <SearchProvider url="http://localhost" team="team" dataset="test"
@@ -52,6 +52,30 @@ describe('session', () => {
     expect(sessions[0]).toBeTruthy();
     expect(new Set(sessions).size).toBe(1);
     expect(sessions[0]).toBe(result.current.sessionId);
+  });
+});
+
+describe('locale', () => {
+  it('sends the browser language when the page names none', async () => {
+    const sent: URLSearchParams[] = [];
+    captureSearchParams(sent);
+    const { result } = setup();
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    act(() => result.current.setQuery('shoe'));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0));
+
+    expect(sent[0].get('locale')).toBe(navigator.language);
+  });
+
+  it('sends the page language when the page names one', async () => {
+    const sent: URLSearchParams[] = [];
+    captureSearchParams(sent);
+    const { result } = setup({ locale: 'nb-NO' });
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    act(() => result.current.setQuery('shoe'));
+    await waitFor(() => expect(sent.length).toBeGreaterThan(0));
+
+    expect(sent[0].get('locale')).toBe('nb-NO');
   });
 });
 
@@ -145,5 +169,45 @@ describe('selectResult', () => {
     await waitFor(() => expect(result.current.state.results?.length).toBeGreaterThan(0));
 
     await expect(result.current.selectResult!(result.current.state.results![0])).resolves.toBeUndefined();
+  });
+});
+
+describe('convertResult', () => {
+  it('credits a conversion to the search the document was chosen from, not the latest one', async () => {
+    let n = 0;
+    let sent: unknown = null;
+    server.use(
+      http.post(`${DS_BASE}/search`, async ({ request }) => {
+        const body = await request.clone().json() as { text?: string };
+        return HttpResponse.json(SEARCH_RESPONSE, { headers: { 'Indx-Query-Id': body.text ? `q-${++n}` : 'q-blank' } });
+      }),
+      http.post(`${DS_BASE}/events/select`, () => new HttpResponse(null, { status: 202 })),
+      http.post(`${DS_BASE}/events/convert`, async ({ request }) => {
+        sent = await request.json();
+        return new HttpResponse(null, { status: 202 });
+      }),
+    );
+
+    const { result } = setup();
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    act(() => result.current.setQuery('shoe'));
+    await waitFor(() => expect(result.current.state.queryId).toBe('q-1'));
+    const chosen = result.current.state.results![0];
+    await act(() => result.current.selectResult!(chosen));
+
+    act(() => result.current.setQuery('boot'));
+    await waitFor(() => expect(result.current.state.queryId).toBe('q-2'));
+    await act(() => result.current.convertResult!(chosen.documentKey, 'order', { quantity: 2 }));
+
+    expect(sent).toEqual({ queryId: 'q-1', documentKey: chosen.documentKey, type: 'order', quantity: 2 });
+  });
+
+  it('never throws when the event cannot be recorded', async () => {
+    server.use(http.post(`${DS_BASE}/events/convert`, () =>
+      HttpResponse.json({ code: 'statisticsDisabled' }, { status: 404 })));
+
+    const { result } = setup();
+    await waitFor(() => expect(result.current.isFetchingInitial).toBe(false));
+    await expect(result.current.convertResult!(1, 'order')).resolves.toBeUndefined();
   });
 });

@@ -1,0 +1,152 @@
+/* The row is the track: full height, our radius, the pixel pattern as its texture. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background-color: var(--lv1);
+  overflow: hidden;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--pattern-checkerboard-light);
+  background-repeat: repeat;
+  background-size: 2px 2px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .row::before {
+    background-image: var(--pattern-checkerboard-dark);
+  }
+}
+
+/* Sizes match Button: the same heights, paddings and type. */
+.default {
+  height: 40px;
+  padding: 0 15px;
+  font: var(--text-sm);
+}
+
+.micro {
+  height: 30px;
+  padding: 0 10px;
+  font: var(--text-xs);
+}
+
+/* The fill is a full-width copy of the row in the ink, text in the inverted ink, clipped from the
+   right at the value (plus a few pixels past the handle). Being full width, its text lines up
+   with the row's own, so the letters invert at the exact pixel the fill reaches them. */
+.fill {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: var(--lv6);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.default .fill { padding: 0 15px; }
+.micro .fill { padding: 0 10px; }
+
+.fill .label,
+.fill .value {
+  color: var(--lv1);
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  color: var(--lv6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.value {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  color: var(--lv7);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Dots: one per step, 2x2 in the row's centre line, on the track only (the fill covers them). */
+.stepmarks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stepmark {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  background-color: var(--lv5);
+  transform: translate(-50%, -50%);
+}
+
+/* The handle react-range moves is only the thing to grab and focus: 2px wide, no colour. The
+   line the eye sees is .line, placed from the value by the component, drawn twice: in the ink on
+   the row, and in the inverted ink inside the clipped fill, so it inverts with the fill. */
+.handle {
+  top: 0;
+  width: 2px;
+  height: 60%;
+  outline: none;
+}
+
+.line {
+  position: absolute;
+  top: 20%;
+  width: 2px;
+  height: 60%;
+  background-color: var(--lv6);
+  border-radius: var(--radius);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fill .line {
+  background-color: var(--lv0);
+  z-index: auto;
+}
+
+/* A wider invisible hit area, so a 2px line is easy to grab. */
+.handle::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: 50%;
+  width: 20px;
+  transform: translateX(-50%);
+}
+
+/* The focus ring is on the row, and only once the keyboard has reached the handle (the
+   component tracks that itself; see BarSlider.tsx). A ring around a 2px line would read as a
+   stray mark, and a ring after every drag was noise. */
+.keyboardFocus {
+  outline: 2px solid var(--lv5);
+  outline-offset: 2px;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

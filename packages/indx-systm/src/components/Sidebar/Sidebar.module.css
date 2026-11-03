@@ -1,0 +1,69 @@
+/* Sidebar: the side column, the rail, and the drawer on a narrow screen. Items are systm Buttons,
+   styled from their wrapper. No shadows: the drawer is told from the page by tone and a line. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: var(--sidebar-width, 220px);
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 16px 10px;
+}
+.header { padding: 0 10px; min-width: 0; }
+.body { display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; overflow-y: auto; }
+.group { display: flex; flex-direction: column; gap: 2px; }
+.title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 4px;
+  font: var(--text-2xs);
+  font-weight: var(--med);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--lv4);
+}
+.titleText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.titleToggle { width: 100%; margin: 0; background: none; border: none; text-align: left; cursor: pointer; }
+.titleToggle:hover { color: var(--lv6); }
+.titleChevron { display: inline-flex; margin-left: auto; }
+.items { display: flex; flex-direction: column; gap: 2px; }
+.item { display: flex; }
+.item > button, .item > a, .item > span { width: 100%; justify-content: flex-start; }
+.label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badge { margin-left: auto; padding: 0 5px; font: var(--text-2xs); font-weight: var(--med); border-radius: 3px; background: var(--lv3); color: var(--lv7); }
+.badgeSignal { background: var(--CSignal); color: var(--lv0); }
+/* An icon at the item's end (the lab mark), after the badge when it has one. */
+.trailing { display: inline-flex; margin-left: auto; color: var(--lv5); }
+.badge + .trailing { margin-left: 6px; }
+.footer { display: flex; flex-direction: column; gap: 8px; }
+.footerContent { min-width: 0; }
+
+/* The rail: icons only, 30px buttons in a 50px column, a line between groups, a badge as a dot,
+   and the body lets the tooltips out. */
+.rail { width: 50px; }
+.rail .header, .rail .footerContent, .rail .title, .rail .label, .rail .trailing { display: none; }
+.rail .body { gap: 8px; overflow: visible; }
+.rail .group + .group { padding-top: 8px; border-top: 1px solid var(--lv2); }
+.rail .item > button, .rail .item > a, .rail .item > span { position: relative; width: 30px; padding: 0 7px; justify-content: center; }
+.rail .badge { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; padding: 0; font-size: 0; border-radius: 50%; background: var(--lv6); }
+.rail .badgeSignal { background: var(--CSignal); }
+
+/* Narrow: a drawer over the page at the left edge, with a scrim beside it. */
+.overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.5); }
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: min(280px, 85vw);
+    height: auto;
+    background: var(--lv1);
+    border-right: 1px solid var(--lv2);
+  }
+  .open { display: flex; }
+}

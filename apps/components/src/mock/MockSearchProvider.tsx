@@ -220,6 +220,9 @@ export function MockSearchProvider({
       candidates: 'candidates' in next ? (next.candidates ? { ...(prev.candidates ?? {}), ...next.candidates } : {}) : prev.candidates,
       ranking: 'ranking' in next ? (next.ranking ? { ...(prev.ranking ?? {}), ...next.ranking } : {}) : prev.ranking,
     })),
+    // No facet search and no dataset bounds in a mock; intrface asks for both since its Search or ask filters (8fc98e04).
+    facetsEnabled: false,
+    datasetBounds: {},
     fetchMoreResults: noop,
   };
 

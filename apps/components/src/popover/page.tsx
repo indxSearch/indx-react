@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { Popover, Button } from '@indxsearch/systm';
+import { Popover, PopoverDivider, Button } from '@indxsearch/systm';
+import { User, Key, Book, Logout, Chevron_down } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
 export default function PopoverPage() {
@@ -11,7 +12,12 @@ export default function PopoverPage() {
     <main className={styles.main}>
       <div className={styles.section}>
         <h1 className={styles.title}>Popover</h1>
-        <p className={styles.desc}>Radix UI Popover component with custom styling</p>
+        <p className={styles.desc}>
+          A panel that opens from a trigger and floats by it, without blocking the page: a menu of actions, a few
+          settings, a short list. It takes the side asked and flips when that has no room. A press outside or Escape
+          closes it and returns focus to the trigger. role="menu" makes it a menu of ghost Buttons, with the arrows
+          moving between them and PopoverDivider between groups. Radix places it; the Blazor Popover is its port.
+        </p>
       </div>
 
       <div className={styles.section}>
@@ -27,6 +33,25 @@ export default function PopoverPage() {
               <p>This is some content inside the popover.</p>
               <Button size="micro" onClick={() => setOpen1(false)}>Close</Button>
             </div>
+          </Popover>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Menu</h2>
+        <p className={styles.desc}>The console's account menu: ghost Buttons in groups, the arrows moving between them.</p>
+        <div className={styles.demo}>
+          <Popover
+            role="menu"
+            aria-label="Account"
+            trigger={<Button variant="ghost" size="micro" iconLeft={<User />} iconRight={<Chevron_down />}>anders</Button>}
+          >
+            <Button variant="ghost" size="micro" iconLeft={<User />}>Account</Button>
+            <Button variant="ghost" size="micro" iconLeft={<Key />}>API keys</Button>
+            <PopoverDivider />
+            <Button variant="ghost" size="micro" iconLeft={<Book />}>Docs ↗</Button>
+            <PopoverDivider />
+            <Button variant="ghost" size="micro" iconLeft={<Logout />}>Log out</Button>
           </Popover>
         </div>
       </div>

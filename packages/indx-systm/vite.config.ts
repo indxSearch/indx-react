@@ -1,8 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
-import { copyFileSync, mkdirSync } from 'fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
+
+/** A page stylesheet as a shadow root's: `:root` and a bare `body` selector become `:host`. */
+export function toShadow(css: string): string {
+  return css
+    .replace(/:root\b/g, ':host')
+    .replace(/(^|[\s,}])body(?=\s*[{,])/g, '$1:host');
+}
 
 export default defineConfig({
   plugins: [
@@ -19,15 +26,21 @@ export default defineConfig({
       name: 'copy-global-css',
       closeBundle() {
         // Copy cursors.css to dist after build
-        const cursorsSource = resolve(__dirname, 'src/globals/cursors.css');
-        const cursorsDest = resolve(__dirname, 'dist/cursors.css');
+        const cursorsSource = resolve(import.meta.dirname, 'src/globals/cursors.css');
+        const cursorsDest = resolve(import.meta.dirname, 'dist/cursors.css');
         mkdirSync(dirname(cursorsDest), { recursive: true });
         copyFileSync(cursorsSource, cursorsDest);
 
         // Copy patterns.css to dist after build
-        const patternsSource = resolve(__dirname, 'src/globals/patterns.css');
-        const patternsDest = resolve(__dirname, 'dist/patterns.css');
+        const patternsSource = resolve(import.meta.dirname, 'src/globals/patterns.css');
+        const patternsDest = resolve(import.meta.dirname, 'dist/patterns.css');
         copyFileSync(patternsSource, patternsDest);
+
+        // The same styles for a shadow root (the Indx widget, systm embedded in another site):
+        // the tokens and the page rules sit on :root and body, which match nothing inside one, so
+        // they move to :host. Everything else is the same stylesheet.
+        const systm = readFileSync(resolve(import.meta.dirname, 'dist/systm.css'), 'utf8');
+        writeFileSync(resolve(import.meta.dirname, 'dist/systm.shadow.css'), toShadow(systm));
       }
     }
   ],

@@ -10,8 +10,27 @@ import RadioButtonPage from './radio-button/page';
 import SearchFieldPage from './search-field/page';
 import SelectPage from './select/page';
 import SliderPage from './slider/page';
+import BarSliderPage from './bar-slider/page';
+import ScrubSliderPage from './scrub-slider/page';
+import BarMeterPage from './bar-meter/page';
+import WafflePage from './waffle/page';
+import HeatmapPage from './heatmap/page';
+import RadialChartPage from './radial-chart/page';
+import RadarChartPage from './radar-chart/page';
+import GroupedBarsPage from './grouped-bars/page';
+import TreeCanvasPage from './tree-canvas/page';
 import ToggleSwitchPage from './toggle-switch/page';
 import PopoverPage from './popover/page';
+import TagsInputPage from './tags-input/page';
+import CommandPalettePage from './command-palette/page';
+import ToastPage from './toast/page';
+import SidebarPage from './sidebar/page';
+import ComboboxPage from './combobox/page';
+import EmptyStatePage from './empty-state/page';
+import KbdPage from './kbd/page';
+import SheetPage from './sheet/page';
+import ResizablePage from './resizable/page';
+import ConsoleSidebarPage from './console-sidebar/page';
 import BasePage from './base/page';
 import FilterPanelBasePage from './filter-panel-base/page';
 import ChipPage from './chip/page';
@@ -32,6 +51,7 @@ import FilterPanelSkeletonPage from './filter-panel-skeleton/page';
 import SearchResultPage from './search-result/page';
 import TablePage from './table/page';
 import TabsPage from './tabs/page';
+import SegmentedControlPage from './segmented-control/page';
 import DisclosurePage from './disclosure/page';
 import BreadcrumbsPage from './breadcrumbs/page';
 import NavigationMenuPage from './navigation-menu/page';
@@ -45,6 +65,7 @@ import DatasetCardPage from './dataset-card/page';
 import QuestionSuggestionsPage from './question-suggestions/page';
 import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
+import PortalContainerPage from './portal-container/page';
 import DatePickerPage from './date-picker/page';
 import ChatPage from './chat/page';
 import SearchResultsMessagePage from './search-results-message/page';
@@ -53,6 +74,9 @@ import SearchErrorBoundaryPage from './search-error-boundary/page';
 import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
 import SkeletonPage from './skeleton/page';
+import ShimmerTextPage from './shimmer-text/page';
+import ScoreMeterPage from './score-meter/page';
+import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
 import ConsoleShellMockup from './console-shell/page';
@@ -71,8 +95,27 @@ export default function App() {
         <Route path="/search-field" element={<SearchFieldPage />} />
         <Route path="/select" element={<SelectPage />} />
         <Route path="/slider" element={<SliderPage />} />
+        <Route path="/bar-slider" element={<BarSliderPage />} />
+        <Route path="/scrub-slider" element={<ScrubSliderPage />} />
+        <Route path="/bar-meter" element={<BarMeterPage />} />
+        <Route path="/waffle" element={<WafflePage />} />
+        <Route path="/heatmap" element={<HeatmapPage />} />
+        <Route path="/radial-chart" element={<RadialChartPage />} />
+        <Route path="/radar-chart" element={<RadarChartPage />} />
+        <Route path="/grouped-bars" element={<GroupedBarsPage />} />
+        <Route path="/tree-canvas" element={<TreeCanvasPage />} />
         <Route path="/toggle-switch" element={<ToggleSwitchPage />} />
         <Route path="/popover" element={<PopoverPage />} />
+        <Route path="/tags-input" element={<TagsInputPage />} />
+        <Route path="/command-palette" element={<CommandPalettePage />} />
+        <Route path="/toast" element={<ToastPage />} />
+        <Route path="/sidebar" element={<SidebarPage />} />
+        <Route path="/combobox" element={<ComboboxPage />} />
+        <Route path="/empty-state" element={<EmptyStatePage />} />
+        <Route path="/kbd" element={<KbdPage />} />
+        <Route path="/sheet" element={<SheetPage />} />
+        <Route path="/resizable" element={<ResizablePage />} />
+        <Route path="/console-sidebar" element={<ConsoleSidebarPage />} />
         <Route path="/base" element={<BasePage />} />
         <Route path="/filter-panel-base" element={<FilterPanelBasePage />} />
         <Route path="/chip" element={<ChipPage />} />
@@ -82,6 +125,7 @@ export default function App() {
         <Route path="/tooltip" element={<TooltipPage />} />
         <Route path="/table" element={<TablePage />} />
         <Route path="/tabs" element={<TabsPage />} />
+        <Route path="/segmented-control" element={<SegmentedControlPage />} />
         <Route path="/disclosure" element={<DisclosurePage />} />
         <Route path="/breadcrumbs" element={<BreadcrumbsPage />} />
         <Route path="/navigation-menu" element={<NavigationMenuPage />} />
@@ -106,6 +150,7 @@ export default function App() {
         <Route path="/question-suggestions" element={<QuestionSuggestionsPage />} />
         <Route path="/textarea" element={<TextareaPage />} />
         <Route path="/modal" element={<ModalPage />} />
+        <Route path="/portal-container" element={<PortalContainerPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/search-results-message" element={<SearchResultsMessagePage />} />
@@ -114,6 +159,9 @@ export default function App() {
         <Route path="/code-copy" element={<CodeCopyPage />} />
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
         <Route path="/skeleton" element={<SkeletonPage />} />
+        <Route path="/shimmer-text" element={<ShimmerTextPage />} />
+        <Route path="/score-meter" element={<ScoreMeterPage />} />
+        <Route path="/icicle" element={<IciclePage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
         <Route path="/console-shell" element={<ConsoleShellMockup />} />

@@ -9,21 +9,36 @@ import { Tolerance } from '@indxsearch/indx-types';
 
 export type Offer = 'none' | 'invite' | 'strong';
 
-/** Entered at one probability, left only below a lower one. The dataset's settings carry them. */
+/** How forward the offer is, the dataset's `mode`: `strict`, only the full offer; `soft`, the quiet
+ *  one early and the full one when sure; `open`, asking always there (Enter asks whatever the
+ *  judge says); `inviting`, open with the invitation sweeping as soon as the judge reads a question
+ *  starting, but no answer until asked; `proactive`, inviting, and the answer written on its own
+ *  once the judge is sure, reads it as finished, and the visitor has stopped. */
+export type SearchOrAskMode = 'strict' | 'soft' | 'open' | 'inviting' | 'proactive';
+
+/** The mode that applies: the page's own where it chose one, else the dataset's. Strict, soft,
+ *  open and inviting only change what the page shows, so a page may choose any of them. Proactive
+ *  starts answers nobody asked for, which the server allows only for a dataset set to proactive
+ *  (and within its day's cap), so a page's proactive is inviting anywhere else. */
+export function pageMode(dataset: SearchOrAskMode, page?: SearchOrAskMode): SearchOrAskMode {
+  if (!page) return dataset;
+  return page === 'proactive' && dataset !== 'proactive' ? 'inviting' : page;
+}
+
+/** Entered at one probability, left only below a lower one. The dataset's settings carry them, and
+ *  each judgement its own resolved: `hint` the inviting and proactive modes' "type a bit more",
+ *  low (the dataset's kind decides it unless set), `finished` the score proactive needs to answer
+ *  on its own. */
 export interface OfferThresholds {
   strong: number;
   strongHide: number;
   invite: number;
   inviteHide: number;
+  hint?: number | null;
+  finished?: number;
 }
 
-export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3 };
-
-const QUESTION_WORDS = new Set([
-  'hvordan', 'hva', 'hvorfor', 'hvor', 'hvilken', 'hvilke', 'hvilket', 'hvem', 'når', 'kan', 'skal', 'må', 'bør',
-  'er', 'går', 'finnes', 'trenger',
-  'how', 'what', 'why', 'where', 'which', 'who', 'when', 'can', 'should', 'does', 'do', 'is', 'are', 'will', 'could', 'would',
-]);
+export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5 };
 
 // Digits and separators (ISBN, SKU), a dotted member, camel or Pascal case, a code with a digit.
 // The server applies the same rule and answers p 0 without a call; checking here saves the request.
@@ -34,15 +49,19 @@ export function isIdentifier(text: string): boolean {
   return t.length > 0 && !t.includes(' ') && IDENTIFIER.test(t);
 }
 
-/** Whether a pause on this text may ask the server at all. */
-export function triggers(text: string): boolean {
+/** A sentence, in any language: a question mark, or three words. No word list: the words of a
+ *  question are the judge's to read (27 Oct 2026), so nothing here knows "how" from "hvordan". */
+export function sentence(text: string): boolean {
+  const t = text.trim();
+  return !!t && !isIdentifier(t) && (t.endsWith('?') || t.split(/\s+/).length >= 3);
+}
+
+/** Whether a pause on this text may ask the server at all: a sentence, or `minChars` (4; the
+ *  inviting and proactive modes ask from 3, so "How" gets its hint). */
+export function triggers(text: string, minChars = 4): boolean {
   const t = text.trim();
   if (!t || isIdentifier(t)) return false;
-  const words = t.split(/\s+/);
-  if (t.endsWith('?')) return true;
-  if (words.length > 1 && QUESTION_WORDS.has(words[0]!.toLowerCase())) return true;
-  if (words.length >= 3) return true;
-  return t.length >= 4;
+  return sentence(t) || t.length >= minChars;
 }
 
 /** The next offer from the current one and a new probability, with hysteresis. */

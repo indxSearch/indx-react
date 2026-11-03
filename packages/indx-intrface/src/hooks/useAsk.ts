@@ -67,7 +67,8 @@ export function useAsk() {
   stateRef.current = state;
   const abortRef = useRef<AbortController | null>(null);
 
-  const ask = useCallback(async (question: string, history: AskTurn[] = []) => {
+  // `proactive`: the page started this answer on its own (the proactive mode), not the visitor.
+  const ask = useCallback(async (question: string, history: AskTurn[] = [], options: { proactive?: boolean } = {}) => {
     const q = question.trim();
     if (!q) return;
     abortRef.current?.abort();
@@ -94,7 +95,7 @@ export function useAsk() {
       const res = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search-or-ask/ask${statisticsParams(ctxRef.current)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-        body: JSON.stringify(history.length ? { question: q, history } : { question: q }),
+        body: JSON.stringify({ question: q, ...(history.length ? { history } : {}), ...(options.proactive ? { proactive: true } : {}) }),
         signal: controller.signal,
       });
       if (res.status === 429) {
@@ -125,6 +126,8 @@ export function useAsk() {
             setState(s => ({ ...s, status: 'writing', sources: data as AskSource[] }));
             break;
           case 'text':
+            // A catalogue's agent writes its answer beside its list, so text can come before the sources.
+            if (!answer) setState(s => (s.status === 'searching' ? { ...s, status: 'writing' } : s));
             answer += (data as { delta: string }).delta;
             frame ??= requestAnimationFrame(flush);
             break;

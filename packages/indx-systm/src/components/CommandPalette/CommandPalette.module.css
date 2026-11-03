@@ -1,0 +1,117 @@
+/* Over the page, a fifth of the way down, as a search sheet: the overlay dims, the panel on the
+   raised tone with a hairline. No shadow and no motion: it is simply there. */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 18vh 16px 16px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 560px;
+    max-height: 60vh;
+    border: 1px solid var(--lv3);
+    border-radius: var(--radius);
+    background: var(--lv1);
+    overflow: hidden;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 44px;
+    border-bottom: 1px solid var(--lv2);
+    flex: none;
+}
+
+.icon {
+    display: inline-flex;
+    color: var(--lv5);
+}
+
+.input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--lv8);
+    font: var(--text-sm);
+    outline: none;
+}
+
+.input::placeholder {
+    color: var(--lv5);
+}
+
+
+.list {
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.group {
+    padding: 8px 8px 4px;
+    color: var(--lv5);
+    font: var(--text-2xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 32px;
+    padding: 0 8px;
+    border: none;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--lv7);
+    font: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+}
+
+/* The highlight, moved by the keys and the pointer alike. */
+.active {
+    background: var(--lv2);
+    color: var(--lv8);
+}
+
+.itemIcon {
+    display: inline-flex;
+    color: var(--lv5);
+    flex: none;
+}
+
+.label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hint {
+    flex: none;
+    color: var(--lv5);
+    font: var(--text-xs);
+}
+
+.empty {
+    margin: 0;
+    padding: 16px 8px;
+    color: var(--lv5);
+    font: var(--text-sm);
+}

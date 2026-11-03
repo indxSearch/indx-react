@@ -1,0 +1,16 @@
+.main { padding: 40px; max-width: var(--maxWidth); margin: 0 auto; }
+.section { margin-bottom: 40px; }
+.title { font: var(--text-2xl); color: var(--lv8); margin-bottom: 10px; }
+.desc { font: var(--text-md); color: var(--lv5); margin: 0 0 16px; }
+.heading { font: var(--text-lg); color: var(--lv7); margin-bottom: 12px; }
+/* A page in miniature: the column and its content, the height of a short window. */
+.frame { display: flex; height: 620px; max-width: 900px; background: var(--lv0); border: 1px solid var(--lv2); border-radius: var(--radius); overflow: hidden; }
+.brand { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.note { padding: 0 10px; font: var(--text-2xs); color: var(--lv4); }
+.content { flex: 1; min-width: 0; padding: 24px; border-left: 1px solid var(--lv2); }
+.contentTitle { font: var(--text-lg); color: var(--lv8); margin: 0 0 8px; }
+.trigger { display: none; margin-bottom: 12px; }
+@media (max-width: 768px) {
+  .content { border-left: none; }
+  .trigger { display: block; }
+}

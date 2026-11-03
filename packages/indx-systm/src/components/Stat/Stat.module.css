@@ -15,9 +15,38 @@
 }
 
 .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font: var(--text-xs);
   color: var(--lv5);
 }
+
+/* The icon before the label, in its tone. */
+.labelIcon {
+  display: inline-flex;
+  line-height: 0;
+}
+
+/* The middle row: the height the label and the foot leave, its content centred in it. Tiles in a
+   StatGroup are as tall as the tallest, so their middles line up and their feet sit at the bottom. */
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  align-self: stretch;
+  min-width: 0;
+}
+
+/* The foot of a tile without a figure: the full width (a sparkline, a strip of cells fills it). */
+.footRow {
+  display: flex;
+  align-self: stretch;
+}
+
+.footRow > .foot { flex: 1 1 auto; }
 
 /* A label with a hint says so: a dotted underline and the help cursor. */
 .hinted {
@@ -28,12 +57,23 @@
 /* Light (300) rather than the token's Book (350): in FunktionalGrotesk, Book reads heavy at 24px,
    and the number is the one large thing on the stat. Same as the Blazor Stat. */
 .value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   max-width: 100%;
   font: var(--text-2xl);
   font-weight: 300;
   color: var(--lv8);
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
+}
+
+/* The icon before a state's word, in the value's colour; it sits on the cap height, so a touch
+   down from the line box's centre. */
+.icon {
+  display: inline-flex;
+  flex: none;
+  margin-top: 2px;
 }
 
 .foot {
@@ -43,6 +83,31 @@
   gap: 6px;
   font: var(--text-xs);
   color: var(--lv5);
+}
+
+/* With a figure: under the label, the graphic at the left and the value and foot stacked
+   beside it, centred on it. */
+/* Under the label with air above, so the ring does not press on it. */
+.figured {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  margin-top: 6px;
+}
+
+.figure {
+  display: inline-flex;
+  flex: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
 }
 
 /* The group: as many as fit, or a set number that steps down on narrower screens. */

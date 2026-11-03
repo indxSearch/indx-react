@@ -6,6 +6,7 @@ import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
 import { useFilterSuggestion, localFilters } from '../hooks/useFilterSuggestion';
 import { AskPanel } from '../components/AskPanel';
+import { QuickAnswer } from '../components/QuickAnswer';
 import { SearchInput } from '../components/SearchInput';
 import { nextOffer, triggers, visibleResults, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
 import { server } from './mocks/server';
@@ -23,21 +24,25 @@ function wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-function settings(enabled: boolean, available = true) {
+function settings(enabled: boolean, available = true, mode?: string) {
   server.use(http.get(SOA, () => HttpResponse.json({
-    settings: { enabled, thresholds: DEFAULT_THRESHOLDS },
+    settings: { enabled, mode, thresholds: DEFAULT_THRESHOLDS },
     effective: {},
     available,
   })));
 }
 
-/** The judge answers from a table of text → p, and records what it was asked. */
-function judge(scores: Record<string, number>, asked: string[] = []) {
+/** The judge answers from a table of text → p, and records what it was asked: the pauses' calls in
+ *  `asked`, the calls made ahead of a pause (prefetch) in `ahead`. `unfinished` are texts it reads
+ *  as still being typed; everything else is finished. */
+function judge(scores: Record<string, number>, asked: string[] = [], ahead: string[] = [], delayMs = 0, unfinished: string[] = []) {
   server.use(http.post(`${SOA}/intent`, async ({ request }) => {
-    const { text } = await request.json() as { text: string };
-    asked.push(text);
+    const { text, prefetch } = await request.json() as { text: string; prefetch?: boolean };
+    (prefetch ? ahead : asked).push(text);
+    if (delayMs) await new Promise(r => setTimeout(r, delayMs));
     const p = scores[text] ?? 0;
-    return HttpResponse.json({ p, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
+    return HttpResponse.json({ p, answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1,
+      finished: unfinished.includes(text) ? 0.1 : 0.9 });
   }));
   return asked;
 }
@@ -123,6 +128,27 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.p).toBe(0.8);
   });
 
+  it('stands while the visitor types on from the judged text, and not after a backspace into it', async () => {
+    settings(true);
+    judge({ 'which film has tom hanks': 0.9 });
+    const { result } = renderHook(() => useBoth(500), { wrapper });
+    await waitFor(() => expect(result.current.ctx.isFetchingInitial).toBe(false));
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+
+    act(() => result.current.ctx.setQuery('which film has tom hanks'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(result.current.sor.stands).toBe(true);
+
+    // Typing on, before the next pause: the offer still stands for what is in the field.
+    act(() => result.current.ctx.setQuery('which film has tom hanks stranded'));
+    expect(result.current.sor.offer).toBe('strong');
+    expect(result.current.sor.stands).toBe(true);
+
+    // A backspace into the judged text: the offer was for a text the field no longer holds.
+    act(() => result.current.ctx.setQuery('which film has tom han'));
+    expect(result.current.sor.stands).toBe(false);
+  });
+
   it('puts strict matching on the search while the offer is strong, and takes it off after', async () => {
     settings(true);
     judge({ 'how do I add synonyms': 0.8, 'synonyms': 0.1 });
@@ -164,8 +190,8 @@ describe('useSearchOrAsk', () => {
   it('goes quiet after a 429 rather than retrying every pause', async () => {
     settings(true);
     let calls = 0;
-    server.use(http.post(`${SOA}/intent`, () => {
-      calls++;
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      if (!(await request.json() as { prefetch?: boolean }).prefetch) calls++;
       return HttpResponse.json({ code: 'searchOrAskBudgetSpent' }, { status: 429, headers: { 'Retry-After': '600' } });
     }));
     const { result } = renderHook(() => useBoth(), { wrapper });
@@ -179,6 +205,64 @@ describe('useSearchOrAsk', () => {
   });
 });
 
+describe('judging ahead of the pause', () => {
+  it('asks while the visitor types, one call at a time, and the pause for what they stopped at', async () => {
+    settings(true);
+    const asked: string[] = [], ahead: string[] = [];
+    judge({ 'how do I sort': 0.8 }, asked, ahead, 30);
+    const { result } = renderHook(() => useBoth(150), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do'));
+    act(() => result.current.ctx.setQuery('how do I'));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    // The first keystroke's call is out; the two after it wait for it, and only the newest follows.
+    await waitFor(() => expect(ahead).toEqual(['how do', 'how do I sort']));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(asked).toEqual(['how do I sort']);
+  });
+
+  it('waits at the pause for the call already reading the same text', async () => {
+    settings(true);
+    const order: string[] = [];
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      const { prefetch } = await request.json() as { prefetch?: boolean };
+      order.push(prefetch ? 'ahead' : 'pause');
+      if (prefetch) await new Promise(r => setTimeout(r, 80));
+      if (prefetch) order.push('ahead done');
+      return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: !prefetch, ms: 1 });
+    }));
+    const { result } = renderHook(() => useBoth(10), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(order).toEqual(['ahead', 'ahead done', 'pause']);
+  });
+
+  it('keeps the pauses when a call ahead is refused', async () => {
+    settings(true);
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      const { prefetch } = await request.json() as { prefetch?: boolean };
+      if (prefetch) return HttpResponse.json({ code: 'searchOrAskRateLimited' }, { status: 429, headers: { 'Retry-After': '60' } });
+      return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
+    }));
+    const { result } = renderHook(() => useBoth(20), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+  });
+
+  it('asks nothing ahead with prefetch off', async () => {
+    settings(true);
+    const asked: string[] = [], ahead: string[] = [];
+    judge({}, asked, ahead);
+    const { result } = renderHook(() => ({ ctx: useSearchContext(), sor: useSearchOrAsk({ pauseMs: 10, prefetch: false }) }), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(asked).toEqual(['how do I sort']));
+    expect(ahead).toEqual([]);
+  });
+});
+
 describe('statistics', () => {
   it('names the search and the session with each judgement', async () => {
     settings(true);
@@ -186,8 +270,8 @@ describe('statistics', () => {
     server.use(
       http.post('http://localhost/api/teams/team/datasets/test/search', () =>
         HttpResponse.json({ records: [], facets: {}, truncationIndex: -1 }, { headers: { 'Indx-Query-Id': 'q-42' } })),
-      http.post(`${SOA}/intent`, ({ request }) => {
-        urls.push(new URL(request.url));
+      http.post(`${SOA}/intent`, async ({ request }) => {
+        if (!(await request.clone().json() as { prefetch?: boolean }).prefetch) urls.push(new URL(request.url));
         return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });
       }));
     const { result } = renderHook(() => useBoth(), { wrapper });
@@ -420,6 +504,176 @@ describe('AskPanel', () => {
     render(<AskPanel question="how do I add synonyms" />, { wrapper });
     await screen.findByText('Too many questions for now');
     expect(screen.getByText(/5 minutes/)).toBeTruthy();
+  });
+});
+
+describe('modes', () => {
+  globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+
+  function Page() {
+    const [asked, setAsked] = useState<string[]>([]);
+    return (
+      <>
+        <SearchInput onAsk={(t, how) => setAsked(a => [...a, `${how?.proactive ? 'proactive:' : ''}${t}`])} />
+        <div data-testid="asked">{asked.join('|')}</div>
+      </>
+    );
+  }
+
+  it('strict shows no quiet offer: only the full one', async () => {
+    settings(true, true, 'strict');
+    judge({ 'how do I add synonyms': 0.5, 'how do I add synonyms now': 0.8 });
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I add synonyms'));
+    await waitFor(() => expect(result.current.sor.p).toBe(0.5));
+    expect(result.current.sor.offer).toBe('none');
+    act(() => result.current.ctx.setQuery('how do I add synonyms now'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+  });
+
+  it('a page chooses its own mode, and proactive only where the dataset is proactive', async () => {
+    settings(true, true, 'open');
+    judge({ 'how do I add synonyms': 0.5 });
+    const { result } = renderHook(() => ({ ctx: useSearchContext(), sor: useSearchOrAsk({ pauseMs: 10, mode: 'strict' }) }), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I add synonyms'));
+    await waitFor(() => expect(result.current.sor.p).toBe(0.5));
+    expect(result.current.sor).toMatchObject({ mode: 'strict', offer: 'none', askAnytime: false });
+
+    settings(true, true, 'soft');
+    const open = renderHook(() => useSearchOrAsk({ pauseMs: 10, mode: 'open' }), { wrapper });
+    await waitFor(() => expect(open.result.current.available).toBe(true));
+    expect(open.result.current).toMatchObject({ mode: 'open', askAnytime: true });
+    const forward = renderHook(() => useSearchOrAsk({ pauseMs: 10, mode: 'proactive' }), { wrapper });
+    await waitFor(() => expect(forward.result.current.available).toBe(true));
+    expect(forward.result.current.mode).toBe('inviting');
+  });
+
+  it('open lets Enter ask whatever the judge says, with an Ask button there', async () => {
+    settings(true, true, 'open');
+    judge({ synonyms: 0.05 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    fireEvent.change(input, { target: { value: 'synonyms' } });
+    await screen.findByText('Ask');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(screen.getByTestId('asked').textContent).toBe('synonyms');
+  });
+
+  it('proactive invites as soon as the judge reads a question starting, and answers on its own once sure', async () => {
+    settings(true, true, 'proactive');
+    // "How" at the hint score: a question starting, as Jev reads it (0.39 on the pokédex).
+    judge({ How: 0.39, 'how do I add synonyms': 0.8 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    // Wait for the settings, then the first word alone: the hint, from the judge's low score.
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'How' } });
+    await screen.findByText('For a quick answer, type a bit more');
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    // After a second of stillness, not on the pause.
+    await waitFor(() => expect(screen.getByTestId('asked').textContent).toBe('proactive:how do I add synonyms'), { timeout: 3000 });
+    // Once per text: the next pause on the same text asks nothing more.
+    await new Promise(r => setTimeout(r, 400));
+    expect(screen.getByTestId('asked').textContent).toBe('proactive:how do I add synonyms');
+  });
+
+  it('proactive answers no question the judge reads as unfinished', async () => {
+    settings(true, true, 'proactive');
+    judge({ 'what type is': 0.9 }, [], [], 0, ['what type is']);
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'what type is' } });
+    // Sure, but still being typed: the hint to type on, not an answer.
+    await new Promise(r => setTimeout(r, 1500));
+    expect(screen.getByText('For a quick answer, type a bit more')).toBeTruthy();
+    expect(screen.getByTestId('asked').textContent).toBe('');
+  });
+
+  it('a lookup gets no hint in inviting: the judge scores it below the hint', async () => {
+    settings(true, true, 'inviting');
+    judge({ pikachu: 0.13 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'pikachu' } });
+    await screen.findByText('Ask');
+    await new Promise(r => setTimeout(r, 400));
+    expect(screen.queryByText('For a quick answer, type a bit more')).toBeNull();
+  });
+
+  it('proactive never offers the full Ask button: it thinks, then answers', async () => {
+    settings(true, true, 'proactive');
+    judge({ 'how do I add synonyms': 0.9 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Thinking');
+    expect(screen.queryByText('Enter ↵')).toBeNull();
+    await waitFor(() => expect(screen.getByTestId('asked').textContent).toBe('proactive:how do I add synonyms'), { timeout: 3000 });
+    // Started: the chip has nothing more to say.
+    await waitFor(() => expect(screen.queryByText('Thinking')).toBeNull());
+  });
+
+  it('QuickAnswer draws each state, and asks on a click', () => {
+    const asked: string[] = [];
+    const base = { available: true, text: 'how do I add synonyms', stands: true } as const;
+    const draw = (quick: 'hint' | 'ready' | 'thinking' | 'invite' | 'none') =>
+      render(<QuickAnswer searchOrAsk={{ ...base, quick } as never} onAsk={t => asked.push(t)} />);
+    const hint = draw('hint');
+    fireEvent.click(screen.getByText('For a quick answer, type a bit more'));
+    hint.unmount();
+    const ready = draw('ready');
+    expect(screen.getByText('how do I add synonyms')).toBeTruthy();
+    fireEvent.click(screen.getByText('Ask the assistant'));
+    ready.unmount();
+    const thinking = draw('thinking');
+    expect(screen.getByText('Thinking')).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    thinking.unmount();
+    expect(draw('none').container.textContent).toBe('');
+    expect(asked).toEqual(['how do I add synonyms', 'how do I add synonyms']);
+  });
+
+  it('inviting sweeps from the hint score, and answers only when asked', async () => {
+    settings(true, true, 'inviting');
+    judge({ How: 0.39, 'how do I add synonyms': 0.9 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'How' } });
+    await screen.findByText('For a quick answer, type a bit more');
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Ask');
+    await new Promise(r => setTimeout(r, 1500));
+    expect(screen.getByTestId('asked').textContent).toBe('');
+  });
+
+  it('proactive past its day answers nothing on its own: the judgement says inviting', async () => {
+    settings(true, true, 'proactive');
+    server.use(http.post(`${SOA}/intent`, () =>
+      HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, mode: 'inviting', finished: 0.9 })));
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Ask');
+    await new Promise(r => setTimeout(r, 400));
+    expect(screen.getByTestId('asked').textContent).toBe('');
+  });
+
+  it('AskPanel says when the page started the answer on its own', async () => {
+    const bodies: { proactive?: boolean }[] = [];
+    server.use(http.post(`${SOA}/ask`, async ({ request }) => {
+      bodies.push(await request.json() as { proactive?: boolean });
+      return sse([['text', { delta: 'Yes.' }], ['done', { model: 'm', latencyMs: 1 }]]);
+    }));
+    render(<AskPanel question="how do I add synonyms" proactive />, { wrapper });
+    await screen.findByText(/Yes\./);
+    expect(bodies[0]).toEqual({ question: 'how do I add synonyms', proactive: true });
   });
 });
 

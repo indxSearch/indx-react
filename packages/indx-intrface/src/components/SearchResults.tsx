@@ -34,6 +34,11 @@ export interface SearchResultsProps {
    * nothing is confirmed, so the offer stands alone. Without it the list is never cut.
    */
   searchOrAsk?: SearchOrAskState;
+  /**
+   * Shows each result's score beside it. Given, it wins over the `showScore` search setting (the
+   * toggle in SearchSettingsPanel); left out, that setting decides, and it is on by default.
+   */
+  showScore?: boolean;
 }
 
 export interface SearchResultMeta {
@@ -62,7 +67,7 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, children }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, showScore, children }) => {
   const {
     state: { results, resultsSuppressed, searchSettings, countedTotal, isFallback, query, error, errorInfo },
     isFetchingInitial,
@@ -72,6 +77,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     allowEmptySearch,
     fetchMoreResults,
     selectResult,
+    searchText,
+    searchAsTyped,
   } = useSearchContext();
 
   const pageSize = resultsPerPage ?? 30;
@@ -90,6 +97,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
   const shown = results ? visibleResults(results, isFallback ? 0 : countedTotal, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
+  // The list searched something other than what was typed (Ask phrases): say so, with the way back.
+  const rewritten = searchText != null && searchText.trim() !== query.trim() ? searchText : null;
   const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {
@@ -130,6 +139,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   return (
     <>
+      {rewritten && (
+        <div className={styles.searchedFor} aria-live="polite">
+          <span>Searching for <strong>{rewritten}</strong></span>
+          {searchAsTyped && <Button variant="ghost" size="micro" onClick={searchAsTyped}>Search for your exact words</Button>}
+        </div>
+      )}
       <div>
         {shown.slice(0, visibleCount).map((result, idx) => {
           const rawItem = result.document;
@@ -172,7 +187,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
               key={idx}
               index={idx}
               score={score}
-              showScore={searchSettings.showScore}
+              showScore={showScore ?? searchSettings.showScore}
             >
               {children(displayData, { result, select: () => selectResult?.(result) ?? Promise.resolve() })}
             </SearchResult>

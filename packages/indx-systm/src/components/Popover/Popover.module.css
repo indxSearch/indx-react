@@ -1,10 +1,61 @@
+/* The panel: the raised surface tone, placed by Radix. No shadow and no motion: it is simply there. */
 .content {
-  background: var(--lv3);
-  border-radius: var(--radius);
-  padding: var(--spacing);
-  z-index: 1000;
-  /* No animation - instant appearance */
-  animation-duration: 0s !important;
-  /* Ensure content respects sizing */
   box-sizing: border-box;
+  min-width: 180px;
+  max-width: calc(100vw - 16px);
+  padding: var(--spacing);
+  border-radius: var(--radius);
+  background: var(--lv2);
+  color: var(--lv8);
+  z-index: 1000;
+  outline: none;
+  animation-duration: 0s !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .content {
+    background: var(--lv1);
+  }
+}
+
+/* A menu: a column of ghost Buttons, full width, labels from the left, the hover a step up from
+   the panel's tone. */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.menu > button,
+.menu > a,
+.menu > form > button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.menu > button:hover:not(:disabled),
+.menu > a:hover,
+.menu > button:focus-visible,
+.menu > a:focus-visible {
+  background: var(--lv3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu > button:hover:not(:disabled),
+  .menu > a:hover,
+  .menu > button:focus-visible,
+  .menu > a:focus-visible {
+    background: var(--lv2);
+  }
+}
+
+.menu > form {
+  display: contents;
+}
+
+.divider {
+  height: 1px;
+  background: var(--lv3);
+  margin: 4px 0;
 }

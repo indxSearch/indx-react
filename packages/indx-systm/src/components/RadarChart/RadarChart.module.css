@@ -1,0 +1,127 @@
+.wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.radar {
+  position: relative;
+  width: var(--radar-width, 312px);
+  height: var(--radar-height, 312px);
+}
+
+.svg {
+  display: block;
+  touch-action: pan-y;
+}
+
+/* The scale: faint rings, the rim a step stronger, as the Chart's midline and baseline. */
+.ring {
+  fill: none;
+  stroke: var(--lv2);
+  stroke-width: 0.5px;
+}
+
+.rim {
+  fill: none;
+  stroke: var(--lv3);
+  stroke-width: 1px;
+}
+
+/* An axis a dimension; the one under the pointer in the crosshair tone. */
+.axis {
+  stroke: var(--lv2);
+  stroke-width: 0.5px;
+}
+
+.axisHovered {
+  stroke: var(--lv4);
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+}
+
+/* The names at the axes' ends, outside the rim. */
+.label {
+  font: var(--text-2xs);
+  fill: var(--lv4);
+  pointer-events: none;
+}
+
+.labelHovered {
+  fill: var(--lv7);
+}
+
+/* The tooltip, the Chart's, beside the hovered axis's end. */
+.tooltip {
+  position: absolute;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--lv0);
+  border: 1px solid var(--lv2);
+  padding: 4px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tooltipLeft {
+  transform: translate(-100%, -50%);
+}
+
+.tooltipLabel {
+  font: var(--text-2xs);
+  color: var(--lv4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tooltipRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tooltipDot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+}
+
+.tooltipName {
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+.tooltipValue {
+  font: var(--text-xs);
+  font-weight: var(--med);
+  color: var(--lv7);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The legend, the Chart's. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-left: 8px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendMark {
+  width: 12px;
+  height: 2px;
+  flex: none;
+}
+
+.legendLabel {
+  font: var(--text-xs);
+  color: var(--lv5);
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
 import { Chevron_left, Chevron_right, Chevron_down } from '@indxsearch/pixl';
 import styles from './DatePicker.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 export interface DatePickerProps {
   value?: Date | null;
@@ -57,6 +58,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   className = '',
   formatDate = isoFormat,
 }) => {
+  const portalContainer = usePortalContainer();
   const generatedId = React.useId();
   const errorId = `${generatedId}-error`;
   const hasError = !!error || !isValid;
@@ -148,7 +150,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             <Chevron_down size={14} color="currentColor" />
           </button>
         </RadixPopover.Trigger>
-        <RadixPopover.Portal>
+        <RadixPopover.Portal container={portalContainer}>
           <RadixPopover.Content className={styles.calendar} align="start" sideOffset={5}
             aria-label={label ? `${label} calendar` : 'Choose a date'}
             onOpenAutoFocus={(event) => {

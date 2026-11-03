@@ -1,6 +1,6 @@
 {
   "name": "@indxsearch/systm",
-  "version": "2.20.0",
+  "version": "2.24.0",
   "description": "Minimal design system and UI component library for React. Includes buttons, inputs, sliders, checkboxes, tables, and more. Built with CSS modules and customizable via CSS variables.",
   "keywords": [
     "indx",
@@ -70,7 +70,8 @@
     },
     "./styles.css": "./dist/systm.css",
     "./cursors.css": "./dist/cursors.css",
-    "./patterns.css": "./dist/patterns.css"
+    "./patterns.css": "./dist/patterns.css",
+    "./styles.shadow.css": "./dist/systm.shadow.css"
   },
   "dependencies": {
     "@indxsearch/pixl": "^1.5.0",

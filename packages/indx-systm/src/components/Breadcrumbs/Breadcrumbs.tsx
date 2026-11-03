@@ -4,6 +4,7 @@ import { Check, Chevron_right, Dropdown, Plus } from '@indxsearch/pixl';
 import type { SelectOption } from '../Select/Select';
 import selectStyles from '../Select/Select.module.css';
 import styles from './Breadcrumbs.module.css';
+import { usePortalContainer } from '../PortalContainer/PortalContainer';
 
 export interface BreadcrumbItem {
   id: string;
@@ -57,7 +58,9 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   separator = <Chevron_right size={14} color="currentColor" />,
   renderLink,
   'aria-label': ariaLabel = 'Breadcrumb',
-}) => (
+}) => {
+  const portalContainer = usePortalContainer();
+  return (
   <nav aria-label={ariaLabel} className={`${styles.root} ${styles[size]} ${overflow === 'truncate' ? styles.truncate : ''} ${className}`}>
     <ol className={styles.list}>
       {items.map((item, index) => (
@@ -95,7 +98,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                     <Dropdown size={14} color="currentColor" />
                   </RadixSelect.Icon>
                 </RadixSelect.Trigger>
-                <RadixSelect.Portal>
+                <RadixSelect.Portal container={portalContainer}>
                   <RadixSelect.Content className={`${selectStyles.content} ${styles.menu}`}
                     position="popper" align="end" sideOffset={4} collisionPadding={8}>
                     <RadixSelect.Viewport className={selectStyles.viewport}>
@@ -107,7 +110,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                             <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
                           </span>
                           <RadixSelect.ItemIndicator className={selectStyles.itemIndicator}>
-                            <Check size={12} color="currentColor" />
+                            <Check size={14} color="currentColor" />
                           </RadixSelect.ItemIndicator>
                         </RadixSelect.Item>
                       ))}
@@ -132,4 +135,5 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       ))}
     </ol>
   </nav>
-);
+  );
+};

@@ -1,0 +1,89 @@
+.heatmap {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: auto;
+  gap: 4px;
+  font: var(--text-2xs);
+  color: var(--lv5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The grid and its tooltip share a box, so the tooltip is placed by the cell's grid position. */
+.gridWrap {
+  position: relative;
+  width: max-content;
+}
+
+.withRows {
+  grid-template-columns: auto auto;
+}
+
+/* Column by column: the grid flows down `rows` cells and then on to the next column. */
+.grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--heatmap-rows, 7), var(--heatmap-cell, 6px));
+  grid-auto-columns: var(--heatmap-cell, 6px);
+  gap: 2px;
+  width: max-content;
+}
+
+.cell {
+  background: var(--lv2);
+}
+
+/* The hovered cell, outlined a pixel out so the tone under it still reads. */
+.hovered {
+  outline: 1px solid var(--lv5);
+  outline-offset: 1px;
+}
+
+/* The tooltip: the Chart's, beside the cell, centred on it. */
+.tooltip {
+  position: absolute;
+  transform: translateY(-50%);
+  background: var(--lv0);
+  border: 1px solid var(--lv2);
+  padding: 4px 8px;
+  font: var(--text-xs);
+  color: var(--lv7);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tooltipLeft {
+  transform: translate(-100%, -50%);
+}
+
+.gap {
+  background: transparent;
+}
+
+/* The labels sit at the columns and rows they name, by pixel, so they stay with their cell at
+   any size. */
+.columnLabels {
+  position: relative;
+  height: calc(var(--heatmap-cell, 6px) * 2);
+  grid-column: -2;
+}
+
+.columnLabel {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.rowLabels {
+  position: relative;
+  width: 24px;
+  height: calc(var(--heatmap-rows, 7) * var(--heatmap-pitch, 8px) - 2px);
+}
+
+.rowLabel {
+  position: absolute;
+  right: 0;
+  height: var(--heatmap-cell, 6px);
+  line-height: var(--heatmap-cell, 6px);
+  white-space: nowrap;
+}

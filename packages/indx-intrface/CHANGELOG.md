@@ -1,5 +1,95 @@
 # Changelog
 
+## 3.15.0
+
+### Minor Changes
+
+- Search or ask follows the dataset's new mode, from the most careful to the most forward: `strict` shows only the full offer, `soft` (the default, as before) invites early, `open` keeps an Ask button in the field and lets Enter ask whatever the judge says, `inviting` adds an invitation that sweeps as soon as the judge reads a question starting, and `proactive` also starts the answer on its own once the judge is sure, reads the question as finished, and the visitor has stopped typing for a second (`answerAfterMs`). No word lists: the judge reads any language. `SearchInput` then calls `onAsk(text, { proactive: true })`; pass `proactive` on to `AskPanel` so the statistics count those answers apart. `useSearchOrAsk({ mode })` lets a page choose its own mode; `proactive` applies only where the dataset is set to proactive, and is `inviting` elsewhere.
+- `SearchInput`'s filter count opens the active filters in a popover, to see them and remove them one by one; it closes once the last is gone.
+- `QuickAnswer`, Search or ask's offer as a row of its own for above the results, as Notion's quick answer: "For a quick answer, type a bit more" sweeping while a question is typed, the full offer once it is sure, or in proactive "Thinking" until the answer starts on its own, never a button to press. `useSearchOrAsk` gives the one `quick` state it draws, which `SearchInput`'s chip and `askOffer="below"` draw too.
+- `useSearchOrAsk` asks the judge while the visitor types too, so the offer to answer can appear as soon as they stop instead of a moment after. Pass `prefetch: false` to ask only on the pause.
+
+### Patch Changes
+
+- Updated dependencies
+  - @indxsearch/systm@2.24.0
+
+## 3.14.0
+
+### Minor Changes
+
+- 4aa88f7: `convertResult(documentKey, type, { quantity?, queryId? })` on the search context reports a conversion, such as an order or an add to cart, to the dataset's statistics. It is credited to the search the document was chosen from, even after the visitor has searched again. It never throws.
+
+### Patch Changes
+
+- Updated dependencies [ee2c6be]
+- Updated dependencies [975a6fc]
+- Updated dependencies [3aef120]
+- Updated dependencies [42a4481]
+- Updated dependencies [0aa041a]
+- Updated dependencies [0245481]
+- Updated dependencies [4aa88f7]
+- Updated dependencies [b2a34bd]
+- Updated dependencies [08dcd53]
+- Updated dependencies [8aab4c1]
+- Updated dependencies [3635b41]
+- Updated dependencies [9b63f48]
+  - @indxsearch/systm@2.23.0
+
+## 3.13.2
+
+### Patch Changes
+
+- f7ff44a: `SearchInput` takes `askOffer="none"`: the field shows no offer to ask, for a page that shows the offer itself from `searchOrAsk`. Enter still asks on a strong offer. The Ask button's Enter hint is a key-cap reading Enter ↵.
+- 4ba7f51: Every search carries `locale`, the page's language for the statistics: `SearchProvider`'s `locale` prop, else the document's `lang`, else the browser's. The dataset's Statistics overview shows which languages people search in. Nothing about where they are is sent.
+- Updated dependencies [a848bf1]
+- Updated dependencies [1bcaa7f]
+- Updated dependencies [79f891e]
+- Updated dependencies [029a381]
+- Updated dependencies [a8c906a]
+- Updated dependencies [c946a3c]
+- Updated dependencies [1e09a2a]
+- Updated dependencies [f684405]
+- Updated dependencies [6e9b5f5]
+- Updated dependencies [7a0fa0c]
+- Updated dependencies [24d1515]
+- Updated dependencies [2eb549c]
+- Updated dependencies [9f9190f]
+- Updated dependencies [e542d87]
+- Updated dependencies [9e71991]
+- Updated dependencies [0e126c1]
+- Updated dependencies [3dcb304]
+- Updated dependencies [13eb480]
+- Updated dependencies [b6456d0]
+- Updated dependencies [ce4a08f]
+- Updated dependencies [373382a]
+- Updated dependencies [c659761]
+  - @indxsearch/systm@2.22.0
+
+## 3.13.1
+
+### Patch Changes
+
+- When the page searches something other than what the visitor typed, the search also carries the typed text. The statistics then count a visitor's typing as one search, instead of a search for every step along the way.
+- Updated dependencies
+  - @indxsearch/systm@2.21.1
+
+## 3.13.0
+
+### Minor Changes
+
+- SearchResults takes `showScore`, to show or hide each result's score from code. Given, it wins over the toggle in SearchSettingsPanel; left out, the toggle decides, as before.
+
+### Patch Changes
+
+- bac9b80: SearchField has a built-in Clear button. It shows while the field holds text and puts the focus back in the field. Turn it off with `clearable={false}`. SearchInput keeps its own Clear, which also resets the filters.
+- Updated dependencies [ffda712]
+- Updated dependencies
+- Updated dependencies [bac9b80]
+- Updated dependencies
+- Updated dependencies [f1bb38b]
+  - @indxsearch/systm@2.21.0
+
 ## 3.12.0
 
 ### Minor Changes

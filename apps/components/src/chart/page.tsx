@@ -25,6 +25,10 @@ const monthChanges: ChartMarker[] = [
   { index: 25, label: '1 240 documents updated by filter' },
   { index: 27, label: 'Reindexed' },
 ];
+// Latency over the month: a median with its p5 to p95 spread, the spread widest on the busy days.
+const p50 = DAYS_30.map((_, i) => Math.round(24 + 4 * Math.sin(i / 4) + ((i * 7) % 5)));
+const p5 = p50.map((v, i) => Math.round(v * 0.55 - ((i * 3) % 4)));
+const p95 = p50.map((v, i) => Math.round(v * (1.8 + (i % 7 >= 5 ? 0.9 : 0)) + ((i * 11) % 9)));
 const DAYS_90 = Array.from({ length: 90 }, (_, i) => dayLabel(new Date(Date.UTC(2026, 6, 4 + i))));
 const quarter = DAYS_90.map((_, i) => Math.round(80 + i * 1.2 + 25 * Math.sin(i / 3.5) + ((i * 29) % 13)));
 
@@ -89,6 +93,203 @@ export default function ChartPage() {
           labels={MONTHS}
           series={[{ label: 'Revenue', data: revenue }]}
           height={180}
+        />
+      </div>
+
+      {/* Fills and patterns */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Fills and patterns</h2>
+        <p className={styles.subdesc}>
+          <code>fill</code> per series: <code>solid</code> is the series colour, flat on a bar and faint under a
+          line; <code>hatch</code>, <code>dots</code> and <code>checker</code> are drawn in the colour on the 2px
+          pixel grid, so two series tell apart in one tone. A bar is solid unless told otherwise; a line stays a
+          wire unless given an area.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'Searches', data: monthSearches, fill: 'solid' }]}
+          height={160}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Searches', data: searches, fill: 'checker' },
+            { label: 'Conversions', data: conversions, color: 'var(--CTeal)', fill: 'solid' },
+          ]}
+          height={180}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={MONTHS.slice(0, 5)}
+          series={[
+            { label: 'Buys', data: [18, 12, 9, 15, 22], fill: 'hatch' },
+            { label: 'Sells', data: [14, 20, 11, 17, 24] },
+          ]}
+          height={180}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={QUARTERS}
+          series={[
+            { label: 'Website', data: [310, 420, 390, 480] },
+            { label: 'App', data: [160, 190, 250, 260], fill: 'hatch' },
+            { label: 'API', data: [90, 110, 105, 140], fill: 'dots' },
+          ]}
+          height={180}
+        />
+      </div>
+
+      {/* Value axis and references */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Value axis and references</h2>
+        <p className={styles.subdesc}>
+          <code>yAxis</code> puts round ticks at the left or right, each with a faint gridline, and widens the
+          range to them. <code>references</code> are levels to read the data against: a dashed line with its label
+          in a tag at the right, in the ink, or in the signal red for a limit. A reference outside the data pulls
+          the range out to include it.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'Searches', data: monthSearches, fill: 'solid' }]}
+          yAxis="right"
+          references={[{ value: Math.round(monthSearches.reduce((a, b) => a + b, 0) / monthSearches.length), label: 'avg' }]}
+          height={200}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          series={[{ label: 'p95 latency', data: [38, 41, 36, 52, 61, 29, 27] }]}
+          yAxis="left"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit 50 ms', color: 'var(--CSignal)' }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[{ label: 'Documents', data: [120_000, 128_000, 131_000, 150_000, 162_000, 171_000, 170_000, 188_000, 201_000, 199_000, 214_000, 236_000] }]}
+          yAxis="right"
+          references={[{ value: 250_000, label: 'quota 250k' }]}
+          height={180}
+          showLegend={false}
+        />
+      </div>
+
+      {/* Stacked bars */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Stacked bars</h2>
+        <p className={styles.subdesc}>
+          <code>stacked</code> puts the series on top of each other in one bar per label, in series order from the
+          baseline, so the bar's height is the total. The tooltip lists each part and the total. With patterns the
+          parts tell apart in one tone.
+        </p>
+        <Chart
+          type="bar"
+          labels={MONTHS}
+          stacked
+          yAxis="right"
+          series={[
+            { label: 'Website', data: [310, 420, 390, 480, 510, 470, 530, 560, 540, 610, 640, 690] },
+            { label: 'App', data: [160, 190, 250, 260, 240, 300, 310, 290, 330, 350, 360, 400], fill: 'hatch' },
+            { label: 'API', data: [90, 110, 105, 140, 150, 160, 170, 180, 200, 210, 230, 260], fill: 'dots' },
+          ]}
+          height={220}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          stacked
+          series={[
+            { label: 'Served', data: [1240, 1310, 1190, 1420, 1510, 820, 760] },
+            { label: 'Timed out', data: [12, 9, 31, 18, 44, 4, 3], color: 'var(--CSignal)' },
+          ]}
+          height={180}
+        />
+      </div>
+
+      {/* Range bands */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Range bands</h2>
+        <p className={styles.subdesc}>
+          <code>low</code> and <code>high</code> on a line series, one value per point, draw a band behind the line:
+          faint in the series colour, or in its pattern when <code>fill</code> is one. The tooltip adds the range
+          under the value, named by <code>rangeLabel</code>. Latency as the median with its p5 to p95 spread; a
+          forecast with its margin.
+        </p>
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'p50 latency', data: p50, low: p5, high: p95, rangeLabel: 'p5 to p95' }]}
+          yAxis="right"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit', color: 'var(--CSignal)' }]}
+          height={220}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Searches', data: searches },
+            { label: 'Forecast', data: searches.map((v) => Math.round(v * 1.08)), low: searches.map((v) => Math.round(v * 0.92)), high: searches.map((v) => Math.round(v * 1.25)), color: 'var(--CTeal)', fill: 'checker', rangeLabel: 'Margin' },
+          ]}
+          height={200}
+        />
+      </div>
+
+      {/* Step lines and a limit */}
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Step lines and a limit</h2>
+        <p className={styles.subdesc}>
+          <code>step</code> on a line series holds the value flat until the next point and then jumps, for what
+          does not move between samples: a record count, a quota that changes on a date. <code>signal</code> on a
+          reference makes it a limit: whatever lies above it is drawn in the signal red, bars and points alike.
+        </p>
+        <Chart
+          type="line"
+          labels={MONTHS}
+          series={[
+            { label: 'Documents', data: [120_000, 120_000, 131_000, 131_000, 131_000, 171_000, 171_000, 188_000, 188_000, 188_000, 214_000, 214_000], step: true, fill: 'solid' },
+          ]}
+          yAxis="right"
+          references={[{ value: 200_000, label: 'quota 200k', signal: true }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="bar"
+          labels={DAYS}
+          series={[{ label: 'p95 latency', data: [38, 41, 36, 52, 61, 29, 27] }]}
+          yAxis="left"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 50, label: 'limit 50 ms', color: 'var(--CSignal)', signal: true }]}
+          height={180}
+          showLegend={false}
+        />
+        <div style={{ height: 14 }} />
+        <Chart
+          type="line"
+          labels={DAYS_30}
+          series={[{ label: 'p50 latency', data: p50.map((v, i) => (i % 9 === 4 ? v + 32 : v)) }]}
+          yAxis="right"
+          yFormat={(v) => `${v} ms`}
+          references={[{ value: 40, label: 'limit', color: 'var(--CSignal)', signal: true }]}
+          height={180}
+          showLegend={false}
         />
       </div>
 

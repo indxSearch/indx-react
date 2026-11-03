@@ -38,6 +38,14 @@ export default function SearchFieldPage() {
           <SearchField id="search-disabled" name="search-disabled" disabled placeholder="Disabled..." />
         </div>
       </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Clear</h2>
+        <div className={styles.column}>
+          <SearchField id="search-clear" name="search-clear" defaultValue="velvet sofa" placeholder="Type, then clear" />
+          <SearchField id="search-no-clear" name="search-no-clear" defaultValue="clearable off" clearable={false} />
+        </div>
+      </div>
     </main>
   );
 }

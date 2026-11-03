@@ -1,5 +1,5 @@
-import { Chip, Stat, StatGroup } from '@indxsearch/systm';
-import { ArrowUp, Status } from '@indxsearch/pixl';
+import { BarMeter, Chip, Stat, StatGroup } from '@indxsearch/systm';
+import { ArrowUp, Status, Check, Key, Cloud, Search, Click_select, Shopping_cart, Cpu } from '@indxsearch/pixl';
 import { PropsTable } from '../PropsTable';
 import styles from './page.module.css';
 
@@ -40,6 +40,42 @@ export default function StatPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>With an icon on the label</h2>
+        <p className={styles.desc}>What the tile is about, before its label, in the label's tone: a row of tiles read at a glance.</p>
+        <StatGroup columns={4}>
+          <Stat label="Searches" labelIcon={<Search />} value="12 480" />
+          <Stat label="Click-through" labelIcon={<Click_select />} value="31 %" hint="Share of searches that ended in a chosen result." />
+          <Stat label="Conversions" labelIcon={<Shopping_cart />} value="214" />
+          <Stat label="CPU" labelIcon={<Cpu />} value="42 %" />
+        </StatGroup>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>A state with an icon</h2>
+        <p className={styles.desc}>
+          <code>icon</code> puts a pixl icon before the value, in the value's colour. A good state is the plain ink:
+          the icon says it. <code>color</code> is for the one that is wrong, in the signal red. The icon is drawn at
+          28, a multiple of the pixl grid's 7 cells, so its cells stay whole pixels; 14, 21, 28 and 35 are the sizes
+          that do.
+        </p>
+        <StatGroup columns={5}>
+          <Stat label="Service" value="Up" icon={<Check />}><span>4 min · build 0a23004e</span></Stat>
+          <Stat label="Model" value="Key set" icon={<Key />}><span>claude-opus-5-5</span></Stat>
+          <Stat label="Licence portal" value="Reachable" icon={<Cloud />}><span>license.indx.co</span></Stat>
+          <Stat label="Licence portal" value="Unreachable" icon={<Cloud />} color="var(--CSignal)"><span>last tried 2 min ago</span></Stat>
+          <Stat label="Database" value="92 kB"><span>26 asks kept</span></Stat>
+        </StatGroup>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24, marginTop: 16, color: 'var(--lv7)' }}>
+          {[14, 21, 28, 35].map((size) => (
+            <span key={size} style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 6, font: 'var(--text-xs)', color: 'var(--lv5)' }}>
+              <Check size={size} color="var(--lv7)" />
+              {size}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>With a foot line</h2>
         <StatGroup columns={3}>
           <Stat label="Searches" value="12,480" hint="Every search request in the period.">
@@ -52,10 +88,24 @@ export default function StatPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>With a figure</h2>
+        <p className={styles.desc}>A graphic under the label carries the number; the foot sits to its right.</p>
+        <StatGroup columns={3}>
+          <Stat label="CPU pressure" figure={<BarMeter shape="ring" size={48} value={64} max={100} format={(v) => `${v} %`} />}>of 100 %</Stat>
+          <Stat label="Memory" figure={<BarMeter shape="ring" size={48} value={39} max={100} format={(v) => `${v} %`} />}>6.2 of 16 GB</Stat>
+          <Stat label="Disk" figure={<BarMeter shape="ring" size={48} value={93} max={100} format={(v) => `${v} %`} color="var(--CSignal)" />}>186 of 200 GB</Stat>
+        </StatGroup>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Props</h2>
         <PropsTable rows={[
+          { name: 'labelIcon', type: 'ReactElement', description: "A pixl icon before the label, at 14, in the label's tone." },
           { name: 'label', type: 'ReactNode', description: 'What the number is.' },
-          { name: 'value', type: 'ReactNode', description: 'The number, formatted; or a chip, for a state.' },
+          { name: 'value', type: 'ReactNode', description: 'The number, formatted; or a chip, for a state. Left out when the figure carries it.' },
+          { name: 'figure', type: 'ReactNode', description: 'A graphic under the label, the value and foot beside it: a BarMeter ring.' },
+          { name: 'icon', type: 'ReactElement', description: 'A pixl icon before the value, drawn at 28 in the value\'s colour.' },
+          { name: 'color', type: 'string', description: 'The value\'s colour, and the icon\'s: the signal red for a state that is wrong. A good state stays in the ink.' },
           { name: 'hint', type: 'string', description: 'A tooltip on the label, which gets a dotted underline.' },
           { name: 'children', type: 'ReactNode', description: 'A line under the value: a change, a unit, a note.' },
         ]} />

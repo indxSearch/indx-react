@@ -1,0 +1,65 @@
+/* A row above the results, a step up from the page's surface: a tone, never a shadow. One height
+   in every state, so the row changing what it says moves nothing under it. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: var(--lv2);
+  border-radius: var(--radius);
+  color: var(--lv6);
+  font: var(--text-sm);
+  min-width: 0;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--lv5);
+}
+
+/* The hint and the invitation are the row's whole width to click. */
+.line {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.line:focus-visible { outline: 2px solid var(--lv5); outline-offset: -2px; border-radius: var(--radius); }
+
+.text { flex: 1; min-width: 0; }
+
+.question {
+  flex: 1;
+  min-width: 0;
+  color: var(--lv8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: var(--text-xs);
+  color: var(--lv4);
+}

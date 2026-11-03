@@ -1,0 +1,82 @@
+/* label | ruler | number field, on one 30px line, the height of an InputField. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.label {
+  font: var(--text-xs);
+  color: var(--lv6);
+  white-space: nowrap;
+  flex: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The ruler has no border: the ticks are its shape. Keyboard focus shows as a thin line. */
+.ruler {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background: transparent;
+  overflow: hidden;
+  outline: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.keyboardFocus {
+  outline: 1px solid var(--lv3);
+}
+
+/* Two repeating tiles: a minor tick every --scrub-tick, a major one every --scrub-period, each
+   tile a 1px line at its start. Both are phased by --scrub-shift from the middle so they scroll
+   with the value. The ends fade, so the ruler reads as a window onto something longer. */
+.ticks {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--lv5) 1px, transparent 1px),
+    linear-gradient(to right, var(--lv3) 1px, transparent 1px);
+  background-size: var(--scrub-period) 14px, var(--scrub-tick) 8px;
+  background-repeat: repeat-x;
+  background-position:
+    calc(50% + var(--scrub-shift)) center,
+    calc(50% + var(--scrub-shift)) center;
+  mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+  /* The bounds, when there are any: the component sets the insets. */
+  clip-path: var(--scrub-clip, none);
+  pointer-events: none;
+}
+
+/* The handle stays put in the middle: 2px, 60% of the height, in the ink. */
+.handle {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 2px;
+  height: 60%;
+  background-color: var(--lv7);
+  border-radius: var(--radius);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.field {
+  flex: none;
+}
+
+.field input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.disabled {
+  opacity: 0.5;
+}

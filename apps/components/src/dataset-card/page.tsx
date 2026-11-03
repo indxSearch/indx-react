@@ -14,6 +14,33 @@ const rising = [3, 5, 4, 8, 6, 11, 9, 14, 12, 17, 15, 21, 24, 29];
 // A dataset nobody has searched lately: the shape should say so at a glance.
 const quiet = [9, 7, 8, 4, 5, 2, 3, 1, 1, 0, 0, 1, 0, 0];
 const steady = [14, 12, 15, 13, 16, 14, 13, 15, 14, 16, 13, 15, 14, 15];
+// For D: nobody at all, and searches now and then with nothing between.
+const idle = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const bursty = [0, 0, 3, 0, 0, 0, 7, 2, 0, 0, 0, 0, 5, 0];
+
+// D's card: the product's as built (C's line form), with or without the idle fade.
+const IDLE_SERIES: { name: string; values: number[]; state: string; color: string; count: string }[] = [
+  { name: 'customer-records', values: rising, state: 'Ready', color: 'var(--CTeal)', count: '6 218 documents' },
+  { name: 'order-archive-2024', values: quiet, state: 'Ready', color: 'var(--CTeal)', count: '41 562 documents' },
+  { name: 'old-imports', values: idle, state: 'Hibernated', color: 'var(--CLightBlue)', count: '12 004 records on disk' },
+  { name: 'press-releases', values: bursty, state: 'Ready', color: 'var(--CTeal)', count: '318 documents' },
+];
+
+function ActivityCard({ name, values, state, color, count, fade }:
+  { name: string; values: number[]; state: string; color: string; count: string; fade: boolean }) {
+  const today = values[values.length - 1];
+  return (
+    <div className={styles.card}>
+      <Head name={name} />
+      <span className={styles.activity}>
+        <span className={styles.activityLabel}>Search activity <span style={{ color: 'var(--lv5)' }}>· {today} today</span></span>
+        <Sparkline values={values} height={22} color="var(--lv5)" fill baseline lastIsPartial
+                   idleColor={fade ? 'var(--lv3)' : undefined} ariaLabel={`Searches over the last fourteen days for ${name}`} />
+      </span>
+      <Foot state={state} color={color} count={count} />
+    </div>
+  );
+}
 
 function Head({ name }: { name: string }) {
   return (
@@ -172,6 +199,20 @@ export default function DatasetCardPage() {
           </span>
           <Foot state="Ready" color="var(--CTeal)" count="6 218 documents" />
         </div>
+      </div>
+
+      <h2 className={styles.heading}>D &mdash; idle stretches step back</h2>
+      <p className={styles.note}>
+        Most datasets are idle, and every one draws the same line. Here the line and its fill take a
+        weaker tone (<code>idleColor</code>, --lv3: toward the background in both themes) where the
+        series stays at zero, and switch back sharply where it rises. A busy dataset is untouched; an idle one all but
+        steps back. Top row as built, bottom row with the fade.
+      </p>
+      <div className={styles.grid}>
+        {IDLE_SERIES.map(c => <ActivityCard key={c.name} {...c} fade={false} />)}
+      </div>
+      <div className={styles.grid} style={{ marginTop: 12 }}>
+        {IDLE_SERIES.map(c => <ActivityCard key={c.name} {...c} fade />)}
       </div>
     </main>
   );
