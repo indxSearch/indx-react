@@ -11,8 +11,8 @@ typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fa
 `enableCoverage`, `coverageDepth`, `coverageSetup` and the `CoverageSetup` and `CloudQuery` types are
 gone. Enums are strings, by name, as the server now sends and reads them (`BoostStrength.Med`, was
 `Medium`). `Result` loses `truncationIndex` and `truncationScore` and has `toleranceCounts`,
-`countedTolerance`, `overflow`, `isFallback`, `reason` and `systemState` (`toleranceCounts.rest`
-with `candidates.rest`). `FieldProxy` follows the
+`countedTolerance`, `count`, `ranked`, `isFallback`, `reason` and `systemState` (`toleranceCounts.rest`
+with `candidates.rest`). The provider's `countedTotal` is the result's `count`. `FieldProxy` follows the
 server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
 `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `coverageWeight` of 0; the
 `CoverageStrictness` enum is gone.

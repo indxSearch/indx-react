@@ -194,7 +194,8 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
   facets?: Record<string, Array<{key: string, value: number}>>;
   toleranceCounts?: {exact: number, oneEdit?: number, twoEdits?: number}; // records holding every word, per rung
   countedTolerance?: 'Exact' | 'OneEdit' | 'TwoEdits'; // the rung the list was taken from
-  overflow?: boolean;   // the counted rung held more than the search takes
+  count?: number;       // how many records answer; count > ranked: the bound was too small
+  ranked?: number;      // how many were ranked; ranked > records.length: more than the rows asked
   isFallback?: boolean; // nothing held every word: the most words, then pattern matches
 }
 ```

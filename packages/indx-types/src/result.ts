@@ -53,11 +53,15 @@ export interface Result {
   toleranceCounts?: ToleranceCounts | null;
   /** The rung the list was taken from; null when nothing was counted. */
   countedTolerance?: Tolerance | null;
-  /** The counted rung held more records than the search takes: its best by BM25F were ranked. */
-  overflow?: boolean;
+  /** How many records answer, in every mode: the rung counted (with the rest), the fallback's most
+   * words, every record BM25F scored, or every record the filter lets through in an empty search.
+   * count > ranked: an overflow at the depth. Until 2 Nov 2026 `overflow`. */
+  count?: number;
+  /** How many were ranked, at most the candidate bound. ranked > records.length: an overflow at the rows. */
+  ranked?: number;
   /** Nothing was counted: the records holding the most of the words, then pattern matches. */
   isFallback?: boolean;
-  /** Null unless the query asked for it in Coverage mode. */
+  /** Null unless the query asked for it and the search was reranked. */
   coverageReport?: CoverageReport | null;
 }
 

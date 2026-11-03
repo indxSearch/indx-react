@@ -188,9 +188,9 @@ export function useSearchExecution({
         const searchData = await searchResponse.json();
         // The id the server minted for this search; a click on one of its results sends it back.
         const queryId = searchResponse.headers.get('Indx-Query-Id') ?? undefined;
-        // The records the search counted: the count of the rung it took them from (6.0; until
-        // then the truncation index). Undefined in a fallback and in Bm25f mode.
-        const countedTotal = countedOf(searchData);
+        // How many records answer the search (Result.count, 2 Nov 2026; until 6.0 the truncation
+        // index): the counted rung in EditDistance, every record scored in Bm25f. Undefined in a fallback.
+        const countedTotal: number | undefined = searchData.isFallback ? undefined : searchData.count;
         const isFallback = searchData.isFallback === true;
 
         // The OR fields' own panels read their counts from the excluded-field
@@ -497,15 +497,4 @@ export function useSearchExecution({
     settingsQueryRef.current = state.query;
   }, [state.query]);
 
-}
-
-/** The records a search counted: its `toleranceCounts` on the rung it took them from. */
-function countedOf(result: { toleranceCounts?: { exact: number; oneEdit?: number | null; twoEdits?: number | null } | null; countedTolerance?: string | null }): number | undefined {
-  const counts = result.toleranceCounts;
-  switch (result.countedTolerance) {
-    case 'Exact': return counts?.exact;
-    case 'OneEdit': return counts?.oneEdit ?? undefined;
-    case 'TwoEdits': return counts?.twoEdits ?? undefined;
-    default: return undefined;
-  }
 }
