@@ -14,3 +14,6 @@
   .content { border-left: none; }
   .trigger { display: block; }
 }
+
+/* The rail's foot: an icon over a short row of cells, 30px like the rail's items. */
+.railFoot { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 30px; padding: 6px 0; }

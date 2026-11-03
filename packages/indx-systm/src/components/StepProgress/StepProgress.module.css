@@ -1,0 +1,7 @@
+.steps { display: flex; gap: 4px; width: 100%; min-width: 0; }
+.part { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.track { height: var(--step-height, 3px); border-radius: 1px; background: var(--lv3); overflow: hidden; }
+.fill { height: 100%; background: var(--step-fill, var(--lv8)); }
+.label { display: flex; justify-content: space-between; gap: 6px; font: var(--text-2xs); color: var(--lv5); min-width: 0; }
+.name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.count { font-variant-numeric: tabular-nums; white-space: nowrap; }

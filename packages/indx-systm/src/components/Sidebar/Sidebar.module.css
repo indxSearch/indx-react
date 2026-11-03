@@ -39,6 +39,7 @@
 .badge + .trailing { margin-left: 6px; }
 .footer { display: flex; flex-direction: column; gap: 8px; }
 .footerContent { min-width: 0; }
+.railFooter { display: flex; justify-content: center; }
 
 /* The rail: icons only, 30px buttons in a 50px column, a line between groups, a badge as a dot,
    and the body lets the tooltips out. */

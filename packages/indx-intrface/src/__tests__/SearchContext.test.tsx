@@ -508,3 +508,56 @@ describe('initialisation', () => {
     expect(result.current.state.filterableFields.length).toBeGreaterThan(0);
   });
 });
+
+// ─── Review of 1 Nov 2026 ────────────────────────────────────────────────────
+
+const DS_URL = 'http://localhost/api/teams/team/datasets/test';
+
+describe('clearing the query', () => {
+  it('keeps a search still on its way from bringing the old results back', async () => {
+    let release!: () => void;
+    const held = new Promise<void>(r => { release = r; });
+    server.use(http.post(`${DS_URL}/search`, async ({ request }) => {
+      // Only the typed search is held; the provider's own blank search at start goes through.
+      if ((await request.json() as { text: string }).text === 'shoes') await held;
+      return HttpResponse.json(SEARCH_RESPONSE);
+    }));
+
+    const { result } = setup({ allowEmptySearch: false });
+    await waitForAuth(result);
+    act(() => result.current.setQuery('shoes'));
+    await waitFor(() => expect(result.current.state.isLoading).toBe(true));
+    act(() => result.current.setQuery(''));
+    await act(async () => {
+      release();
+      await new Promise(r => setTimeout(r, 50));
+    });
+
+    expect(result.current.state.resultsSuppressed).toBe(true);
+    expect(result.current.state.results).toBeNull();
+    expect(result.current.state.isLoading).toBe(false);
+  });
+});
+
+describe('typing before the page is ready', () => {
+  it('searches the text once initialisation completes', async () => {
+    let release!: () => void;
+    const held = new Promise<void>(r => { release = r; });
+    const searched: string[] = [];
+    server.use(
+      // Held, then falls through to the usual status handler.
+      http.get(`${DS_URL}/status`, async () => { await held; }),
+      http.post(`${DS_URL}/search`, async ({ request }) => {
+        searched.push((await request.json() as { text: string }).text);
+        return HttpResponse.json(SEARCH_RESPONSE);
+      }),
+    );
+
+    const { result } = setup({ allowEmptySearch: false });
+    act(() => result.current.setQuery('shoes'));
+    await act(async () => { release(); });
+
+    await waitFor(() => expect(result.current.state.results).toHaveLength(2));
+    expect(searched.filter(t => t === 'shoes')).toHaveLength(1);
+  });
+});

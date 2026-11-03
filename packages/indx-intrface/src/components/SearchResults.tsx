@@ -99,16 +99,20 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
   const shown = results ? visibleResults(results, isFallback ? 0 : countedTotal, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
   // The list searched something other than what was typed (Ask phrases): say so, with the way back.
   const rewritten = searchText != null && searchText.trim() !== query.trim() ? searchText : null;
-  const canLoadMore = results && shown.length > visibleCount;
+  // The server may hold more than came back when the batch filled what was asked for and nothing
+  // cut the list: not the counted set's end inside it, nor Search or ask's rule. Until Nov 2026
+  // Load more showed only for hits already fetched beyond the page, so with the provider's 10 and
+  // this page's 30 the first batch never offered it.
+  const serverMayHaveMore = !!results && !searchOrAsk?.cutResults
+    && results.length >= searchSettings.maxNumberOfRecordsToReturn
+    && (countedTotal === undefined || countedTotal > results.length);
+  const canLoadMore = !!results && (shown.length > visibleCount || serverMayHaveMore);
 
   const handleLoadMore = () => {
     const newVisibleCount = visibleCount + pageSize;
     setVisibleCount(newVisibleCount);
-    if (results && newVisibleCount >= results.length) {
-      const mightHaveMore = countedTotal === undefined || countedTotal > results.length;
-      if (mightHaveMore) {
-        fetchMoreResults(results.length + pageSize);
-      }
+    if (results && newVisibleCount >= results.length && serverMayHaveMore) {
+      fetchMoreResults(results.length + pageSize);
     }
   };
 

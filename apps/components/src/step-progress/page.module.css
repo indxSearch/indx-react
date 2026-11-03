@@ -1,0 +1,9 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.title { font: var(--text-2xl); margin: 0; }
+.heading { font: var(--text-lg); margin: 0; color: var(--lv7); }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
+.card { display: flex; flex-direction: column; gap: 14px; max-width: 420px; padding: 16px; background: var(--lv1); border: 1px solid var(--lv2); border-radius: var(--radius); }
+.row { display: flex; gap: 8px; align-items: center; }
+.note { font: var(--text-sm); color: var(--lv5); }
+.small { width: 22px; }

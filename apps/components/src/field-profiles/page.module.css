@@ -1,0 +1,45 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 2rem; max-width: 1100px; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.heading { font: var(--text-lg); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 72ch; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.check { width: 84px; text-align: center !important; }
+.num { width: 84px; text-align: right !important; }
+.profileCol { width: 190px; }
+.editCol { width: 80px; text-align: right !important; }
+.fieldName { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 200px; }
+.type { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv5); }
+.faint { font: var(--text-xs); color: var(--lv5); }
+.profileName { display: flex; align-items: center; gap: 8px; font-weight: var(--med); }
+
+/* Numbers in a row: the console's .indx-num-input. */
+.numInput {
+  width: 64px; height: 30px; padding: 0 8px; box-sizing: border-box; text-align: right;
+  font: var(--text-xs); color: var(--lv7); background: transparent;
+  border: 1px solid var(--lv3); border-radius: var(--radius);
+}
+.numInput:hover { border-color: var(--lv5); }
+.numInput:focus { outline: none; border-color: var(--lv5); }
+.numInput:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* The modal body: the console's .indx-modal-form and .indx-form-actions. */
+.form { display: flex; flex-direction: column; gap: 20px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
+.group { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.group:disabled { opacity: 0.5; }
+.legend { font: var(--text-sm); font-weight: var(--med); color: var(--lv7); padding: 0; margin-bottom: 10px; }
+.toggleRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.toggleLabel { font: var(--text-sm); color: var(--lv7); }
+.hint { font: var(--text-xs); color: var(--lv5); margin: 0; }
+.actions { display: flex; gap: 8px; justify-content: flex-end; }
+.actionsStart { margin-right: auto; }
+
+.visuallyHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .main { padding: 1rem; }
+  .row2 { grid-template-columns: 1fr; }
+}

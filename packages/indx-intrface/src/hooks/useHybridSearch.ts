@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import type { FilterProxy } from '@indxsearch/indx-types';
 import { IndxApiError } from '../context/IndxApiError';
@@ -20,8 +20,16 @@ export function useHybridSearch(
   const [results, setResults] = useState<EmbeddingResult[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  // Each search takes the next generation; only the latest writes results, errors or the loading
+  // flag. Without it an older search finishing last (a slow embedding) overwrote the newer
+  // results, an older failure cleared them, and the first to finish turned loading off.
+  const generation = useRef(0);
+  // Unmounted, or pointed at another dataset: what is in flight belongs to neither.
+  useEffect(() => () => { generation.current++; }, [url, team, dataset]);
 
   const search = useCallback(async (text: string) => {
+    const mine = ++generation.current;
+    const current = () => mine === generation.current;
     setIsLoading(true);
     setError(undefined);
     try {
@@ -46,6 +54,7 @@ export function useHybridSearch(
       if (!response.ok) throw await IndxApiError.fromResponse('HybridSearch', response);
 
       const entries: Array<{ documentKey: number; score: number }> = await response.json();
+      if (!current()) return;
       if (entries.length === 0) {
         setResults([]);
         return;
@@ -60,6 +69,7 @@ export function useHybridSearch(
 
       if (!jsonResponse.ok) throw await IndxApiError.fromResponse('GetJson', jsonResponse);
       const documents: any[] = await jsonResponse.json();
+      if (!current()) return;
 
       setResults(documents.map((doc, idx) => ({
         document: doc,
@@ -67,10 +77,11 @@ export function useHybridSearch(
         score: entries[idx].score,
       })));
     } catch (err) {
+      if (!current()) return;
       setError(err instanceof Error ? err.message : 'Hybrid search failed');
       setResults(null);
     } finally {
-      setIsLoading(false);
+      if (current()) setIsLoading(false);
     }
   }, [embeddingFn, options.fieldName, options.alpha, options.maxResults, options.filter, options.timeoutMs, url, team, dataset, authenticatedFetch]);
 

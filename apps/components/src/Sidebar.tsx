@@ -54,6 +54,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Resizable', path: '/resizable' },
       { label: 'SaveBar', path: '/save-bar' },
       { label: 'ScoreMeter', path: '/score-meter' },
+      { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },
@@ -114,11 +115,15 @@ export const navGroups: NavGroup[] = [
     title: 'Mockups',
     items: [
       { label: 'Dataset page', path: '/dataset-page' },
+      { label: 'Field profiles', path: '/field-profiles' },
       { label: 'Console shell', path: '/console-shell' },
       { label: 'Console with Sidebar', path: '/console-sidebar' },
+      { label: 'Get started', path: '/get-started' },
       { label: 'Analytics dashboard', path: '/analytics-dashboard' },
       { label: 'Dataset card', path: '/dataset-card' },
       { label: 'Question suggestions', path: '/question-suggestions' },
+      { label: 'Support', path: '/support' },
+      { label: 'Observr Agent', path: '/observr-agent' },
     ],
   },
 ];

@@ -1,0 +1,53 @@
+/* The support mockup: what is its own on top of the console frame (../console-sidebar). */
+.tall { height: 720px; }
+
+.jump { width: 100%; gap: 8px; color: var(--lv5); }
+.jumpLabel { flex: 1; text-align: left; }
+.supportLink { width: 100%; gap: 8px; }
+/* Support's marks are blue, a message for you, not the signal red of trouble. */
+.badge { padding: 0 5px; font: var(--text-2xs); font-weight: var(--med); border-radius: 3px; background: var(--CLightBlue); color: #080809; }
+
+.bell { position: relative; display: inline-flex; }
+.dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; background: var(--CSignal); pointer-events: none; }
+
+.promise { font: var(--text-sm); color: var(--lv7); margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.inline { margin-left: 2px; }
+.quiet { color: var(--lv5); font: var(--text-sm); }
+/* The console's .indx-modal-form and .indx-form-actions, which live in IndxServer's app.css. */
+.form { display: flex; flex-direction: column; gap: 14px; }
+.actions { display: flex; gap: 8px; }
+.warn { font: var(--text-xs); color: var(--lv5); margin: 0; }
+
+.toolbar { display: flex; align-items: center; gap: 8px; }
+.filter { width: 220px; }
+.count { margin-left: auto; font: var(--text-xs); color: var(--lv5); }
+
+.subject { max-width: 100%; justify-content: flex-start; color: var(--lv8); gap: 8px; }
+.unread { width: 6px; height: 6px; background: var(--CLightBlue); flex: none; }
+.over { color: var(--CSignal); font: var(--text-sm); }
+
+.back { margin-left: -10px; color: var(--lv6); }
+.meta { display: flex; align-items: center; gap: 10px; margin: 0; }
+
+.thread { display: flex; flex-direction: column; gap: 10px; }
+.message { border: 1px solid var(--lv2); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; max-width: 72ch; }
+.fromStaff { background: var(--lv1); border-color: var(--lv1); }
+.note { border-style: dashed; border-color: var(--lv3); }
+.messageHead { display: flex; align-items: center; gap: 10px; font: var(--text-xs); }
+.who { display: inline-flex; align-items: center; gap: 6px; color: var(--lv8); font-weight: var(--med); }
+.noteMark { display: inline-flex; align-items: center; gap: 4px; color: var(--lv5); }
+.messageHead .quiet { margin-left: auto; font: var(--text-xs); }
+.body { margin: 0; font: var(--text-sm); color: var(--lv7); white-space: pre-wrap; }
+
+.diagRow { display: flex; align-items: center; gap: 8px; }
+.diag { margin: 0; padding: 10px 12px; background: var(--lv1); border-radius: var(--radius); font-family: var(--font-mono); font-size: 11px; line-height: 1.5; color: var(--lv6); overflow: auto; max-height: 220px; }
+
+.portalNav { flex: 1; display: flex; gap: 2px; }
+
+.staffGrid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
+.staffMain { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.account { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--lv2); border-radius: var(--radius); }
+.asideTitle { font: var(--text-base); font-weight: var(--med); margin: 0; color: var(--lv8); }
+.facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font: var(--text-xs); }
+.facts dt { color: var(--lv5); }
+.facts dd { margin: 0; color: var(--lv7); }
