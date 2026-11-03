@@ -5,6 +5,8 @@
  * (JevProbe/Replay/Typing.cs and Panel.cs); keep them in step.
  */
 
+import { Tolerance } from '@indxsearch/indx-types';
+
 export type Offer = 'none' | 'invite' | 'strong';
 
 /** Entered at one probability, left only below a lower one. The dataset's settings carry them. */
@@ -71,7 +73,9 @@ export const DEFAULT_CUT: CutRule = { shareOfTop: 0.5, topFloor: 0.2 };
  * videregående" confirmed seven other schools by prefix and fuzzy matches of the second word.
  * The hook puts these on the page's searches while the offer is strong and takes them off after.
  */
-export const STRICT_COVERAGE = { coverFuzzyWords: false, coverPrefixSuffix: false, coverJoinedWords: false, minWordSize: 3 } as const;
+/** The strict matching a page's searches take while the offer to ask is strong: no typos, no starts
+ * of longer words, no joined words (6.0; until then STRICT_COVERAGE, which also asked words of 3). */
+export const STRICT_MATCH = { tolerance: Tolerance.Exact, typingPrefixFrom: 0, joinedWords: false } as const;
 
 /** The search score's scale: coverage scores run to 65535. */
 export const SCORE_SCALE = 65535;
@@ -84,13 +88,13 @@ export const SCORE_SCALE = 65535;
  * list as it came. The truncation index alone was too lenient: coverage confirms a record on a
  * two-letter word, so "is" and "or" confirmed forty-four Pokémon (14 Oct 2026).
  */
-export function visibleResults<T extends { score: number }>(results: T[], truncationIndex: number | undefined, cut: boolean, rule: CutRule = DEFAULT_CUT): T[] {
+export function visibleResults<T extends { score: number }>(results: T[], counted: number | undefined, cut: boolean, rule: CutRule = DEFAULT_CUT): T[] {
   if (!cut || results.length === 0) return results;
   const top = results[0].score;
   if (top < rule.topFloor * SCORE_SCALE) return [];
-  // The truncation index is the position of the last confirmed result (-1: none), so the
-  // confirmed list is one longer than the index.
-  const confirmed = truncationIndex == null ? results : truncationIndex < 0 ? [] : results.slice(0, truncationIndex + 1);
+  // The confirmed results are the counted ones, which come first: none for a fallback, all when
+  // the search counted nothing to tell apart (Bm25f). Until 6.0 read from the truncation index.
+  const confirmed = counted == null ? results : results.slice(0, counted);
   const line = rule.shareOfTop * top;
   const end = confirmed.findIndex(r => r.score < line);
   return end < 0 ? confirmed : confirmed.slice(0, end);

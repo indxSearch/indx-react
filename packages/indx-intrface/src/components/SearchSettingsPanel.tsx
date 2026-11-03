@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import type { CoverageSetup } from '@indxsearch/indx-types';
 import styles from './SearchSettingsPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import { FilterPanelBase } from '@indxsearch/systm';
@@ -21,27 +20,12 @@ const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
 const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true, rest: false };
 const RANKING_DEFAULTS = { rerank: true, share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
 
-// The engine's own coverage values: what a value shows when neither this page nor the dataset
-// sets it, and what the panel falls back to on a server without query parameters.
-const ENGINE_DEFAULTS: Required<CoverageSetup> & { coverageDepth: number } = {
-  coverageDepth: 500,
-  coverWholeQuery: true,
-  coverWholeWords: true,
-  coverFuzzyWords: true,
-  coverJoinedWords: true,
-  coverPrefixSuffix: true,
-  truncate: true,
-  includePatternMatches: true,
-  minWordSize: 2,
-  levenshteinMaxWordSize: 20,
-  truncateWordHitLimit: 1,
-  truncateWordHitTolerance: 0,
-  truncationScore: 65024,
-};
-
+// What a search that leaves a value out gets on this dataset: GET query-parameters' effective.
 interface QueryParameters {
-  coverageDepth?: number | null;
-  coverageSetup?: CoverageSetup | null;
+  mode?: SearchMode | null;
+  match?: MatchSetup | null;
+  candidates?: CandidateSetup | null;
+  ranking?: RankingProxy | null;
 }
 
 export function SearchSettingsPanel() {
@@ -56,12 +40,8 @@ export function SearchSettingsPanel() {
 
   const [showParts, setShowParts] = useState(false);
   const { match, candidates, ranking } = searchSettings;
-  const isBm25f = searchSettings.mode === SearchMode.Bm25f;
-  // The reranker (ranking.rerank) in either mode; the bound wherever there are candidates to rank.
-  const reranked = ranking.rerank ?? RANKING_DEFAULTS.rerank;
-  const unbounded = isBm25f && !reranked;
 
-  // What a search that leaves a coverage value out gets on this dataset. Shown for every value this
+  // What a search that leaves a value out gets on this dataset. Shown for every value this
   // page does not set itself. Best effort: an older server, or a key that may not read it, leaves
   // the engine defaults showing.
   const [datasetValues, setDatasetValues] = useState<QueryParameters | null>(null);
@@ -78,16 +58,19 @@ export function SearchSettingsPanel() {
     return () => { live = false; };
   }, [url, team, dataset, authenticatedFetch]);
 
-  type CoverageKey = keyof CoverageSetup;
-  const own = searchSettings.coverageSetup;
-  const isOwn = (field: CoverageKey) => own[field] !== undefined && own[field] !== null;
-  const shownValue = <K extends CoverageKey>(field: K) =>
-    (own[field] ?? datasetValues?.coverageSetup?.[field] ?? ENGINE_DEFAULTS[field]) as Required<CoverageSetup>[K];
-  const shownDepth = searchSettings.coverageDepth ?? datasetValues?.coverageDepth ?? ENGINE_DEFAULTS.coverageDepth;
-  const from = datasetValues ? 'dataset' : 'default';
-  // A value this page has not set says where it comes from.
-  const label = (text: string, set: boolean) => (set ? text : `${text} (${from})`);
-  const anyOwn = searchSettings.coverageDepth !== undefined || Object.keys(own).some(k => isOwn(k as CoverageKey));
+  // A member this page leaves out shows the dataset's value, else the server's default.
+  const defined = <T extends object>(o: T | null | undefined) =>
+    Object.fromEntries(Object.entries(o ?? {}).filter(([, v]) => v !== undefined && v !== null)) as Partial<T>;
+  const MATCH_SHOWN = { ...MATCH_DEFAULTS, ...defined(datasetValues?.match) };
+  const CANDIDATE_SHOWN = { ...CANDIDATE_DEFAULTS, ...defined(datasetValues?.candidates) };
+  const RANKING_SHOWN = { ...RANKING_DEFAULTS, ...defined(datasetValues?.ranking) };
+  const modeShown = searchSettings.mode ?? datasetValues?.mode ?? SearchMode.EditDistance;
+  const isBm25f = modeShown === SearchMode.Bm25f;
+  // The reranker (ranking.rerank) in either mode; the bound wherever there are candidates to rank.
+  const reranked = ranking.rerank ?? RANKING_SHOWN.rerank;
+  const unbounded = isBm25f && !reranked;
+  const anyOwn = searchSettings.mode !== undefined
+    || [match, candidates, ranking].some(part => Object.values(part ?? {}).some(v => v !== undefined && v !== null));
 
   // Number field handler for top-level searchSettings fields
   const handleNumberChange = (field: keyof typeof searchSettings, value: string) => {
@@ -126,7 +109,7 @@ export function SearchSettingsPanel() {
           <Select
             label="Mode"
             size="micro"
-            value={searchSettings.mode}
+            value={modeShown}
             onValueChange={(value: string) => setSearchSettings({ mode: value as SearchMode })}
             options={[
               { label: 'Edit distance', value: SearchMode.EditDistance },
@@ -215,7 +198,7 @@ export function SearchSettingsPanel() {
                 label="Tolerance"
                 size="micro"
                 disabled={isBm25f}
-                value={match.tolerance ?? MATCH_DEFAULTS.tolerance}
+                value={match.tolerance ?? MATCH_SHOWN.tolerance}
                 onValueChange={(value: string) => setMatch({ tolerance: value as Tolerance })}
                 options={[
                   { label: 'Exact', value: Tolerance.Exact },
@@ -228,7 +211,7 @@ export function SearchSettingsPanel() {
               <ToggleSwitch
                 label="Every rung"
                 disabled={isBm25f}
-                checked={(match.rungs ?? MATCH_DEFAULTS.rungs) === Rungs.All}
+                checked={(match.rungs ?? MATCH_SHOWN.rungs) === Rungs.All}
                 onChange={(value: boolean) => setMatch({ rungs: value ? Rungs.All : Rungs.Fewest })}
               />
             </li>
@@ -237,7 +220,7 @@ export function SearchSettingsPanel() {
                 label="One edit from"
                 type="number"
                 disabled={isBm25f}
-                value={(match.oneEditFrom ?? MATCH_DEFAULTS.oneEditFrom).toString()}
+                value={(match.oneEditFrom ?? MATCH_SHOWN.oneEditFrom).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ oneEditFrom: n }))}
               />
             </li>
@@ -246,7 +229,7 @@ export function SearchSettingsPanel() {
                 label="Two edits from"
                 type="number"
                 disabled={isBm25f}
-                value={(match.twoEditsFrom ?? MATCH_DEFAULTS.twoEditsFrom).toString()}
+                value={(match.twoEditsFrom ?? MATCH_SHOWN.twoEditsFrom).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ twoEditsFrom: n }))}
               />
             </li>
@@ -255,7 +238,7 @@ export function SearchSettingsPanel() {
                 label="Typing prefix from"
                 type="number"
                 disabled={isBm25f}
-                value={(match.typingPrefixFrom ?? MATCH_DEFAULTS.typingPrefixFrom).toString()}
+                value={(match.typingPrefixFrom ?? MATCH_SHOWN.typingPrefixFrom).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ typingPrefixFrom: n }))}
               />
             </li>
@@ -263,7 +246,7 @@ export function SearchSettingsPanel() {
               <ToggleSwitch
                 label="Joined words"
                 disabled={isBm25f}
-                checked={match.joinedWords ?? MATCH_DEFAULTS.joinedWords}
+                checked={match.joinedWords ?? MATCH_SHOWN.joinedWords}
                 onChange={(value: boolean) => setMatch({ joinedWords: value })}
               />
             </li>
@@ -274,7 +257,7 @@ export function SearchSettingsPanel() {
                 label="Candidates per row"
                 type="number"
                 disabled={unbounded}
-                value={(candidates.candidatesPerRow ?? CANDIDATE_DEFAULTS.candidatesPerRow).toString()}
+                value={(candidates.candidatesPerRow ?? CANDIDATE_SHOWN.candidatesPerRow).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setCandidates({ candidatesPerRow: n }))}
               />
             </li>
@@ -292,7 +275,7 @@ export function SearchSettingsPanel() {
               <ToggleSwitch
                 label="Fallback (most words when none holds every word)"
                 disabled={isBm25f}
-                checked={candidates.fallback ?? CANDIDATE_DEFAULTS.fallback}
+                checked={candidates.fallback ?? CANDIDATE_SHOWN.fallback}
                 onChange={(value: boolean) => setCandidates({ fallback: value })}
               />
             </li>
@@ -300,7 +283,7 @@ export function SearchSettingsPanel() {
               <ToggleSwitch
                 label="Rest (BM25F below the counted set)"
                 disabled={isBm25f}
-                checked={candidates.rest ?? CANDIDATE_DEFAULTS.rest}
+                checked={candidates.rest ?? CANDIDATE_SHOWN.rest}
                 onChange={(value: boolean) => setCandidates({ rest: value })}
               />
             </li>
@@ -311,7 +294,7 @@ export function SearchSettingsPanel() {
                 label="Coverage share %"
                 type="number"
                 disabled={!reranked}
-                value={Math.round((ranking.share ?? RANKING_DEFAULTS.share) * 100).toString()}
+                value={Math.round((ranking.share ?? RANKING_SHOWN.share) * 100).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ share: n }))}
               />
             </li>
@@ -320,7 +303,7 @@ export function SearchSettingsPanel() {
                 label="Typing shift %"
                 type="number"
                 disabled={!reranked}
-                value={Math.round((ranking.typingShift ?? RANKING_DEFAULTS.typingShift) * 100).toString()}
+                value={Math.round((ranking.typingShift ?? RANKING_SHOWN.typingShift) * 100).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parsePercent(e.target.value, n => setRanking({ typingShift: n }))}
               />
             </li>
@@ -328,13 +311,13 @@ export function SearchSettingsPanel() {
               <ToggleSwitch
                 label="Whole query floor"
                 disabled={!reranked}
-                checked={ranking.wholeQueryFloor ?? RANKING_DEFAULTS.wholeQueryFloor}
+                checked={ranking.wholeQueryFloor ?? RANKING_SHOWN.wholeQueryFloor}
                 onChange={(value: boolean) => setRanking({ wholeQueryFloor: value })}
               />
             </li>
             {anyOwn && (
               <li>
-                <Button variant="ghost" size="micro" onClick={() => setSearchSettings({ coverageSetup: undefined, coverageDepth: undefined })}>
+                <Button variant="ghost" size="micro" onClick={() => setSearchSettings({ mode: undefined, match: undefined, candidates: undefined, ranking: undefined })}>
                   Use the dataset's values
                 </Button>
               </li>

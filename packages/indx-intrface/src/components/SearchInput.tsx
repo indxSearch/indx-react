@@ -41,7 +41,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   ...rest
 }) => {
   const {
-    state: { query, filters, rangeFilters, bucketFilters, results, truncationIndex, searchSettings },
+    state: { query, filters, rangeFilters, bucketFilters, results, isFallback, searchSettings },
     setQuery,
     resetFilters,
   } = useSearchContext();
@@ -52,11 +52,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     Object.values(bucketFilters ?? {}).reduce((n, ranges) => n + ranges.length, 0);
   const hasQuery = query.length > 0;
   const noResults = hasQuery && results !== null && results.length === 0;
-  // With coverage on and a text query, truncationIndex is the place of the last result that reached
-  // the coverage bar, and -1 when none did: no word matched as typed, whole, joined, by prefix or
-  // suffix, or with a near spelling. What is listed is then the pattern-matching fallback.
+  // No record held every query word, exactly or within its edits: what is listed is the fallback,
+  // the most words and then pattern matches (6.0; until then a truncationIndex of -1).
   const nearest =
-    hasQuery && searchSettings.enableCoverage && results !== null && results.length > 0 && truncationIndex === -1;
+    hasQuery && results !== null && results.length > 0 && isFallback === true;
 
   const own = useSearchOrAsk({ enabled: !!onAsk && !searchOrAsk });
   const sor = searchOrAsk ?? own;

@@ -10,12 +10,14 @@ export type { ValueMatch, NumericRange };
 
 /**
  * What every search from this provider is asked with: the query's mode and its three parts, as
- * the server takes them (6.0). A member left out of a part is the server's default, so a page
- * sets only what it means to change.
+ * the server takes them (6.0). The mode, or a member of a part, left out is the dataset's on the
+ * server (its query parameters), else the engine default, so a page sets only what it means to
+ * decide itself: every value it sends wins over the dataset's.
  */
 export interface SearchSettings {
   maxNumberOfRecordsToReturn: number;
-  mode: SearchMode;
+  /** Left out: the dataset's mode, else EditDistance. */
+  mode?: SearchMode;
   /** What counts as a hit: tolerance, rungs, the word being typed. */
   match: MatchSetup;
   /** Who comes in: the bound on the candidates, the fallback. */
@@ -128,7 +130,7 @@ export const SearchProvider: React.FC<{
   facetDebounceDelayMillis?: number;
   enableFacets?: boolean;
   removeDuplicates?: boolean;
-  mode?: SearchMode; // Default Coverage. Until 6.0 enableCoverage (false was Bm25f)
+  mode?: SearchMode; // Left out: the dataset's, else EditDistance. Until 6.0 enableCoverage (false was Bm25f)
   match?: MatchSetup; // Until 6.0 parts of initialCoverageSetup
   candidates?: CandidateSetup; // Until 6.0 coverageDepth (now maxCandidates) and includePatternMatches (now fallback)
   ranking?: RankingProxy;
@@ -146,7 +148,7 @@ export const SearchProvider: React.FC<{
   facetDebounceDelayMillis = 500, // debounce faceted searches only
   enableFacets = true,
   removeDuplicates = true,
-  mode = SearchMode.EditDistance,
+  mode,
   match = {},
   candidates = {},
   ranking = {},
@@ -307,11 +309,16 @@ export const SearchProvider: React.FC<{
     setState(prev => {
       const newSettings = { ...prev.searchSettings, ...settings };
 
-      // A part given is merged into the one there, member by member; one not given keeps its
-      // reference, so the search effect does not run for nothing.
-      newSettings.match = settings.match ? { ...prev.searchSettings.match, ...settings.match } : prev.searchSettings.match;
-      newSettings.candidates = settings.candidates ? { ...prev.searchSettings.candidates, ...settings.candidates } : prev.searchSettings.candidates;
-      newSettings.ranking = settings.ranking ? { ...prev.searchSettings.ranking, ...settings.ranking } : prev.searchSettings.ranking;
+      // A part given is merged into the one there, member by member; one not mentioned keeps its
+      // reference, so the search effect does not run for nothing; one given as undefined is cleared,
+      // so the dataset decides every member of it again.
+      const part = <K extends 'match' | 'candidates' | 'ranking'>(key: K) =>
+        !(key in settings) ? prev.searchSettings[key]
+          : settings[key] === undefined ? {}
+          : { ...prev.searchSettings[key], ...settings[key] };
+      newSettings.match = part('match');
+      newSettings.candidates = part('candidates');
+      newSettings.ranking = part('ranking');
 
       return {
         ...prev,

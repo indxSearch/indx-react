@@ -61,9 +61,8 @@ export interface MockSearchProviderProps {
   initialRangeFilters?: Record<string, { min: number; max: number }>;
   /** Number of results the last search returned; null for no search yet. */
   resultCount?: number | null;
-  /** As the server reports it: with coverage on and a text query, -1 means no result reached the coverage bar. */
-  truncationIndex?: number;
-  enableCoverage?: boolean;
+  /** As the server reports it (6.0): no record held every query word, so the list is the fallback. */
+  isFallback?: boolean;
   /** A failed search, classified as intrface does it (describeSearchError). */
   errorInfo?: SearchErrorInfo;
   /** A failed initialisation (token, dataset, server), classified. */
@@ -77,7 +76,7 @@ export interface MockSearchProviderProps {
   /** The page's placeholder. intrface's own default is 'Type to search', which SearchInput turns
    *  into 'Search or ask' while asking is on. */
   placeholderText?: string;
-  /** The page sets no coverage values of its own, so each is the dataset's (SearchSettingsPanel). */
+  /** The page sets no search values of its own, so each is the dataset's (SearchSettingsPanel). */
   pageSetsNothing?: boolean;
   /** Answers the requests a component sends itself (Search or ask's settings, intent and ask). */
   authenticatedFetch?: SearchContextType['authenticatedFetch'];
@@ -91,8 +90,7 @@ export function MockSearchProvider({
   initialFilters = {},
   initialRangeFilters = {},
   resultCount = null,
-  truncationIndex,
-  enableCoverage = false,
+  isFallback,
   errorInfo,
   authErrorInfo,
   resultsSuppressed,
@@ -152,7 +150,7 @@ export function MockSearchProvider({
     state: {
       query,
       results: resultCount === null ? null : Array.from({ length: resultCount }, (_, i) => ({ documentKey: i, score: 100 - i, position: i + 1, document: {} })),
-      truncationIndex,
+      isFallback,
       error: errorInfo?.message,
       errorInfo,
       resultsSuppressed,
@@ -184,7 +182,6 @@ export function MockSearchProvider({
       sortAscending,
       searchSettings: {
         maxNumberOfRecordsToReturn: 30,
-        mode: SearchMode.Bm25f,
         match: {},
         candidates: {},
         ranking: {},
@@ -219,7 +216,9 @@ export function MockSearchProvider({
     setSort: (field, ascending) => { setSortBy(field); setSortAscending(ascending); },
     setSearchSettings: next => setSettings(prev => ({
       ...prev, ...next,
-      coverageSetup: { ...(prev.coverageSetup ?? {}), ...(next.coverageSetup ?? {}) } as never,
+      match: 'match' in next ? (next.match ? { ...(prev.match ?? {}), ...next.match } : {}) : prev.match,
+      candidates: 'candidates' in next ? (next.candidates ? { ...(prev.candidates ?? {}), ...next.candidates } : {}) : prev.candidates,
+      ranking: 'ranking' in next ? (next.ranking ? { ...(prev.ranking ?? {}), ...next.ranking } : {}) : prev.ranking,
     })),
     fetchMoreResults: noop,
   };

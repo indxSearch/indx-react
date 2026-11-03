@@ -64,7 +64,7 @@ export function parseArrayString(value: string): string[] | undefined {
 
 export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, countedTotal, query, error, errorInfo },
+    state: { results, resultsSuppressed, searchSettings, countedTotal, isFallback, query, error, errorInfo },
     isFetchingInitial,
     authError,
     authErrorInfo,
@@ -89,7 +89,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
   }, [results, pageSize, query]);
 
   // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
-  const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
+  const shown = results ? visibleResults(results, isFallback ? 0 : countedTotal, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
   const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import {
-  DEFAULT_CUT, DEFAULT_THRESHOLDS, STRICT_COVERAGE, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
+  DEFAULT_CUT, DEFAULT_THRESHOLDS, STRICT_MATCH, canAnswer, isIdentifier, nextOffer, statisticsParams, triggers,
   type CutRule, type Offer, type OfferThresholds,
 } from '../utils/searchOrAsk';
 
@@ -71,7 +71,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const strictWhileAsking = useRef(true);
   const filtersWhileTyping = useRef<'off' | 'facets' | 'model'>('off');
   // The coverage values the strict setup replaced, to put back when the offer drops.
-  const relaxed = useRef<Partial<typeof STRICT_COVERAGE> | null>(null);
+  const relaxed = useRef<Record<string, unknown> | null>(null);
   const offerRef = useRef<Offer>('none');
   const lastAsked = useRef('');
   const seq = useRef(0);
@@ -167,7 +167,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     return () => clearTimeout(timer);
   }, [text, available, base, authenticatedFetch, pauseMs]);
 
-  // The strict coverage goes on the page's own searches while the offer is strong, and comes off
+  // The strict matching goes on the page's own searches while the offer is strong, and comes off
   // after; each change is a search, so the list tightens as the offer appears and loosens as it
   // goes. Only the values the strict setup names are touched, and they are put back as they were.
   const strictOn = available && state.strictCoverage;
@@ -175,11 +175,11 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     const { setSearchSettings, state: search } = ctxRef.current;
     if (strictOn) {
       if (relaxed.current) return;
-      const before = search.searchSettings.coverageSetup ?? {};
-      relaxed.current = Object.fromEntries(Object.keys(STRICT_COVERAGE).map(k => [k, (before as Record<string, unknown>)[k]])) as Partial<typeof STRICT_COVERAGE>;
-      setSearchSettings({ coverageSetup: { ...STRICT_COVERAGE } });
+      const before = (search.searchSettings.match ?? {}) as Record<string, unknown>;
+      relaxed.current = Object.fromEntries(Object.keys(STRICT_MATCH).map(k => [k, before[k]]));
+      setSearchSettings({ match: { ...STRICT_MATCH } });
     } else if (relaxed.current) {
-      setSearchSettings({ coverageSetup: { ...relaxed.current } });
+      setSearchSettings({ match: { ...relaxed.current } });
       relaxed.current = null;
     }
   }, [strictOn]);

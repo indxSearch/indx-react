@@ -64,19 +64,21 @@ describe('the rules', () => {
   });
 
   it('keeps the strong matches only while the offer is strong and the rule is on', () => {
-    // The pokedex, 14 Oct 2026: coverage confirmed 44 records on "is" and "or", so the scores decide.
+    // The pokedex, 14 Oct 2026: 45 records counted on "is" and "or", so the scores decide.
     const pikachuOrBulbasaur = [{ score: 19843 }, { score: 15871 }, { score: 4527 }, { score: 4459 }, { score: 3744 }];
-    expect(visibleResults(pikachuOrBulbasaur, 44, true)).toEqual([{ score: 19843 }, { score: 15871 }]);
+    expect(visibleResults(pikachuOrBulbasaur, 45, true)).toEqual([{ score: 19843 }, { score: 15871 }]);
     const whichIsStrongest = [{ score: 7029 }, { score: 6767 }, { score: 6633 }];
-    expect(visibleResults(whichIsStrongest, 60, true)).toEqual([]);
+    expect(visibleResults(whichIsStrongest, 61, true)).toEqual([]);
     const whatTypeIsPikachu = [{ score: 22921 }, { score: 16367 }, { score: 9830 }];
-    expect(visibleResults(whatTypeIsPikachu, 2, true)).toEqual([{ score: 22921 }, { score: 16367 }]);
-    // The index is the last confirmed position: 0 means one confirmed, -1 none.
-    expect(visibleResults(whatTypeIsPikachu, 0, true, { shareOfTop: 0, topFloor: 0 })).toEqual([{ score: 22921 }]);
-    expect(visibleResults(whatTypeIsPikachu, -1, true, { shareOfTop: 0, topFloor: 0 })).toEqual([]);
-    expect(visibleResults(pikachuOrBulbasaur, 44, false)).toEqual(pikachuOrBulbasaur);
-    expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.9, topFloor: 0.2 })).toEqual([{ score: 19843 }]);
-    expect(visibleResults(pikachuOrBulbasaur, 44, true, { shareOfTop: 0.5, topFloor: 0.5 })).toEqual([]);
+    expect(visibleResults(whatTypeIsPikachu, 3, true)).toEqual([{ score: 22921 }, { score: 16367 }]);
+    // The count of records counted, which come first: 1 is one confirmed, 0 none (a fallback),
+    // undefined all (nothing counted to tell apart, Bm25f).
+    expect(visibleResults(whatTypeIsPikachu, 1, true, { shareOfTop: 0, topFloor: 0 })).toEqual([{ score: 22921 }]);
+    expect(visibleResults(whatTypeIsPikachu, 0, true, { shareOfTop: 0, topFloor: 0 })).toEqual([]);
+    expect(visibleResults(whatTypeIsPikachu, undefined, true, { shareOfTop: 0, topFloor: 0 })).toEqual(whatTypeIsPikachu);
+    expect(visibleResults(pikachuOrBulbasaur, 45, false)).toEqual(pikachuOrBulbasaur);
+    expect(visibleResults(pikachuOrBulbasaur, 45, true, { shareOfTop: 0.9, topFloor: 0.2 })).toEqual([{ score: 19843 }]);
+    expect(visibleResults(pikachuOrBulbasaur, 45, true, { shareOfTop: 0.5, topFloor: 0.5 })).toEqual([]);
     expect(visibleResults([], 0, true)).toEqual([]);
   });
 
@@ -121,19 +123,19 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.p).toBe(0.8);
   });
 
-  it('puts whole-word coverage on the search while the offer is strong, and takes it off after', async () => {
+  it('puts strict matching on the search while the offer is strong, and takes it off after', async () => {
     settings(true);
     judge({ 'how do I add synonyms': 0.8, 'synonyms': 0.1 });
     const { result } = renderHook(() => useBoth(), { wrapper });
     await waitFor(() => expect(result.current.ctx.isFetchingInitial).toBe(false));
-    expect(result.current.ctx.state.searchSettings.coverageSetup.coverFuzzyWords).toBeUndefined();
+    expect(result.current.ctx.state.searchSettings.match.tolerance).toBeUndefined();
     act(() => result.current.ctx.setQuery('how do I add synonyms'));
     await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
-    await waitFor(() => expect(result.current.ctx.state.searchSettings.coverageSetup).toMatchObject({ coverFuzzyWords: false, coverPrefixSuffix: false, coverJoinedWords: false, minWordSize: 3 }));
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.match).toMatchObject({ tolerance: 'Exact', typingPrefixFrom: 0, joinedWords: false }));
     expect(result.current.sor).toMatchObject({ cutResults: true, strictCoverage: true });
     act(() => result.current.ctx.setQuery('synonyms'));
     await waitFor(() => expect(result.current.sor.offer).toBe('none'));
-    await waitFor(() => expect(result.current.ctx.state.searchSettings.coverageSetup.coverFuzzyWords).toBeUndefined());
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.match.tolerance).toBeUndefined());
     expect(result.current.sor.strictCoverage).toBe(false);
   });
 

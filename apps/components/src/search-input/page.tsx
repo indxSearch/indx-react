@@ -19,7 +19,7 @@ const states: State[] = [
   {
     title: 'Not empty',
     when: <>A query, results above the coverage bar. <code>query.length &gt; 0</code></>,
-    mock: { initialQuery: 'pikachu', resultCount: 12, truncationIndex: 3, enableCoverage: true },
+    mock: { initialQuery: 'pikachu', resultCount: 12 },
   },
   {
     title: 'Filtered',
@@ -29,22 +29,22 @@ const states: State[] = [
   {
     title: 'Not empty and filtered',
     when: <>A query and filters.</>,
-    mock: { initialQuery: 'char', initialFilters: { type: ['fire'] }, resultCount: 5, truncationIndex: 2, enableCoverage: true },
+    mock: { initialQuery: 'char', initialFilters: { type: ['fire'] }, resultCount: 5 },
   },
   {
     title: 'Nearest',
     when: (
       <>
-        Results, but none reached the coverage bar: every one is a pattern match. Coverage on, a text query,
-        and <code>truncationIndex === -1</code>
+        Results, but none holds every query word, exactly or within a typo: the list is the fallback, the
+        most words and then pattern matches. A text query and <code>isFallback</code>
       </>
     ),
-    mock: { initialQuery: 'pikachoo electrik', resultCount: 18, truncationIndex: -1, enableCoverage: true },
+    mock: { initialQuery: 'pikachoo electrik', resultCount: 18, isFallback: true },
   },
   {
     title: 'No results',
     when: <>A query and nothing back. With pattern matches off, this is also what no coverage hits looks like.</>,
-    mock: { initialQuery: 'xyzzy', resultCount: 0, truncationIndex: -1, enableCoverage: true },
+    mock: { initialQuery: 'xyzzy', resultCount: 0, isFallback: true },
   },
 ];
 
