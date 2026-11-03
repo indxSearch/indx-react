@@ -21,6 +21,8 @@ import TruncatePage from './truncate/page';
 import TooltipPage from './tooltip/page';
 import IconsPage from './icons/page';
 import SearchInputPage from './search-input/page';
+import SearchResultsStatesPage from './search-results-states/page';
+import FilterPanelStatesPage from './filter-panel-states/page';
 import ValueFilterPanelPage from './value-filter-panel/page';
 import RangeFilterPanelPage from './range-filter-panel/page';
 import BucketFilterPanelPage from './bucket-filter-panel/page';
@@ -40,10 +42,21 @@ import PatternsPage from './patterns/page';
 import ChartPage from './chart/page';
 import SparklinePage from './sparkline/page';
 import DatasetCardPage from './dataset-card/page';
+import QuestionSuggestionsPage from './question-suggestions/page';
 import TextareaPage from './textarea/page';
 import ModalPage from './modal/page';
 import DatePickerPage from './date-picker/page';
 import ChatPage from './chat/page';
+import SearchResultsMessagePage from './search-results-message/page';
+import SearchSettingsPanelPage from './search-settings-panel/page';
+import SearchErrorBoundaryPage from './search-error-boundary/page';
+import CodeCopyPage from './code-copy/page';
+import SearchOrAskPage from './search-or-ask/page';
+import SkeletonPage from './skeleton/page';
+import StatPage from './stat/page';
+import DatasetPageMockup from './dataset-page/page';
+import ConsoleShellMockup from './console-shell/page';
+import AskPanelPage from './ask-panel/page';
 import AnalyticsDashboardPage from './analytics-dashboard/page';
 
 export default function App() {
@@ -76,6 +89,8 @@ export default function App() {
         <Route path="/spinners" element={<SpinnersPage />} />
         <Route path="/icons" element={<IconsPage />} />
         <Route path="/search-input" element={<SearchInputPage />} />
+        <Route path="/search-results-states" element={<SearchResultsStatesPage />} />
+        <Route path="/filter-panel-states" element={<FilterPanelStatesPage />} />
         <Route path="/value-filter-panel" element={<ValueFilterPanelPage />} />
         <Route path="/range-filter-panel" element={<RangeFilterPanelPage />} />
         <Route path="/bucket-filter-panel" element={<BucketFilterPanelPage />} />
@@ -88,10 +103,21 @@ export default function App() {
         <Route path="/chart" element={<ChartPage />} />
         <Route path="/sparkline" element={<SparklinePage />} />
         <Route path="/dataset-card" element={<DatasetCardPage />} />
+        <Route path="/question-suggestions" element={<QuestionSuggestionsPage />} />
         <Route path="/textarea" element={<TextareaPage />} />
         <Route path="/modal" element={<ModalPage />} />
         <Route path="/date-picker" element={<DatePickerPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/search-results-message" element={<SearchResultsMessagePage />} />
+        <Route path="/search-settings-panel" element={<SearchSettingsPanelPage />} />
+        <Route path="/search-error-boundary" element={<SearchErrorBoundaryPage />} />
+        <Route path="/code-copy" element={<CodeCopyPage />} />
+        <Route path="/search-or-ask" element={<SearchOrAskPage />} />
+        <Route path="/skeleton" element={<SkeletonPage />} />
+        <Route path="/stat" element={<StatPage />} />
+        <Route path="/dataset-page" element={<DatasetPageMockup />} />
+        <Route path="/console-shell" element={<ConsoleShellMockup />} />
+        <Route path="/ask-panel" element={<AskPanelPage />} />
         <Route path="/analytics-dashboard" element={<AnalyticsDashboardPage />} />
       </Routes>
     </Layout>

@@ -1,12 +1,16 @@
 // SearchResults.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './SearchResults.module.css';
+import { SearchResultsMessage } from './SearchResultsMessage';
+import type { SearchErrorInfo } from '../context/searchError';
 import { useSearchContext } from '../context/SearchContext';
 import type { SearchResult as SearchResultData } from '../context/SearchContext';
 import { SearchResult } from './SearchResult';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Indx } from '@indxsearch/pixl';
 import { Button } from '@indxsearch/systm';
+import type { SearchOrAskState } from '../hooks/useSearchOrAsk';
+import { visibleResults } from '../utils/searchOrAsk';
 
 export interface SearchResultsProps {
   fields?: string[];
@@ -24,6 +28,12 @@ export interface SearchResultsProps {
    * result, so the dataset's statistics get click-through and click position.
    */
   children: (item: Record<string, any>, meta: SearchResultMeta) => React.ReactNode;
+  /**
+   * The offer, when the page runs `useSearchOrAsk`: while it is strong and the dataset has the
+   * rule on, the list shows coverage hits only (up to the truncation point), and nothing when
+   * nothing is confirmed, so the offer stands alone. Without it the list is never cut.
+   */
+  searchOrAsk?: SearchOrAskState;
 }
 
 export interface SearchResultMeta {
@@ -52,11 +62,13 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, children }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, countedTotal, query, error },
+    state: { results, resultsSuppressed, searchSettings, countedTotal, query, error, errorInfo },
     isFetchingInitial,
     authError,
+    authErrorInfo,
+    retry,
     allowEmptySearch,
     fetchMoreResults,
     selectResult,
@@ -76,7 +88,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     previousQuery.current = query;
   }, [results, pageSize, query]);
 
-  const canLoadMore = results && results.length > visibleCount;
+  // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
+  const shown = results ? visibleResults(results, truncationIndex, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
+  const canLoadMore = results && shown.length > visibleCount;
 
   const handleLoadMore = () => {
     const newVisibleCount = visibleCount + pageSize;
@@ -97,27 +111,27 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   // Initialisation failures (bad token, unknown dataset) and failed searches are
   // stored in context rather than thrown, so show them here instead of the idle logo.
+  // A context built by hand may carry only the message; it shows as an unknown failure.
   const errorMessage = authError ?? error;
   if (errorMessage) {
-    return (
-      <div className={styles.invalid} role="alert">
-        <p>{errorMessage}</p>
-      </div>
-    );
+    const info: SearchErrorInfo = (authError ? authErrorInfo : errorInfo) ??
+      { kind: 'unknown', message: errorMessage, technical: errorMessage, retryable: false };
+    return <SearchResultsMessage error={info} onRetry={retry} />;
   }
 
   if (resultsSuppressed || results === null) {
     return <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
   }
 
-  if (results.length === 0) {
-    return <div className={styles.invalid}><p>No results found.</p></div>;
+  // Nothing to show: SearchInput's No results chip says so; under the rule, the offer stands alone.
+  if (shown.length === 0) {
+    return null;
   }
 
   return (
     <>
       <div>
-        {(results ?? []).slice(0, visibleCount).map((result, idx) => {
+        {shown.slice(0, visibleCount).map((result, idx) => {
           const rawItem = result.document;
           const score = result.score;
           let parsed: Record<string, any>;

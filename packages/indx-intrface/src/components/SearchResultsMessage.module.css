@@ -1,0 +1,35 @@
+.message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 80px 24px;
+}
+
+.icon {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.title {
+    font: var(--text-lg);
+    color: var(--lv7);
+}
+
+.detail {
+    font: var(--text-sm);
+    color: var(--lv5);
+}
+
+.technical {
+    margin-top: 4px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--lv4);
+    max-width: 60ch;
+}
+
+.button {
+    margin-top: 10px;
+}

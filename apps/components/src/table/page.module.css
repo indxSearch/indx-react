@@ -87,6 +87,6 @@
   background-color: var(--lv2);
   padding: 2px 6px;
   border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
 }

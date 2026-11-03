@@ -1,0 +1,38 @@
+/* SearchInput with askOffer="below": the offer to ask in a row of its own under the field. */
+.withOffer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Always this tall while Search or ask is on, so an offer appearing moves nothing under it. */
+.offerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  min-width: 0;
+}
+
+.offerHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font: var(--text-xs);
+  color: var(--lv4);
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font: var(--text-2xs);
+  color: var(--lv5);
+  background: var(--lv2);
+  border-radius: 3px;
+}

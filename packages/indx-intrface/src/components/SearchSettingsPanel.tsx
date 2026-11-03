@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import type { CoverageSetup } from '@indxsearch/indx-types';
 import styles from './SearchSettingsPanel.module.css';
 import { useSearchContext } from '../context/SearchContext';
 import { FilterPanelBase } from '@indxsearch/systm';
@@ -20,10 +21,37 @@ const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
 const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true, rest: false };
 const RANKING_DEFAULTS = { rerank: true, share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
 
+// The engine's own coverage values: what a value shows when neither this page nor the dataset
+// sets it, and what the panel falls back to on a server without query parameters.
+const ENGINE_DEFAULTS: Required<CoverageSetup> & { coverageDepth: number } = {
+  coverageDepth: 500,
+  coverWholeQuery: true,
+  coverWholeWords: true,
+  coverFuzzyWords: true,
+  coverJoinedWords: true,
+  coverPrefixSuffix: true,
+  truncate: true,
+  includePatternMatches: true,
+  minWordSize: 2,
+  levenshteinMaxWordSize: 20,
+  truncateWordHitLimit: 1,
+  truncateWordHitTolerance: 0,
+  truncationScore: 65024,
+};
+
+interface QueryParameters {
+  coverageDepth?: number | null;
+  coverageSetup?: CoverageSetup | null;
+}
+
 export function SearchSettingsPanel() {
   const {
     state: { searchSettings },
-    setSearchSettings
+    setSearchSettings,
+    url,
+    team,
+    dataset,
+    authenticatedFetch,
   } = useSearchContext();
 
   const [showParts, setShowParts] = useState(false);
@@ -32,6 +60,34 @@ export function SearchSettingsPanel() {
   // The reranker (ranking.rerank) in either mode; the bound wherever there are candidates to rank.
   const reranked = ranking.rerank ?? RANKING_DEFAULTS.rerank;
   const unbounded = isBm25f && !reranked;
+
+  // What a search that leaves a coverage value out gets on this dataset. Shown for every value this
+  // page does not set itself. Best effort: an older server, or a key that may not read it, leaves
+  // the engine defaults showing.
+  const [datasetValues, setDatasetValues] = useState<QueryParameters | null>(null);
+  useEffect(() => {
+    let live = true;
+    try {
+      authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/query-parameters`)
+        .then(r => (r.ok ? r.json() : null))
+        .then(j => { if (live && j?.effective) setDatasetValues(j.effective); })
+        .catch(() => {});
+    } catch {
+      // No token yet: the defaults keep showing.
+    }
+    return () => { live = false; };
+  }, [url, team, dataset, authenticatedFetch]);
+
+  type CoverageKey = keyof CoverageSetup;
+  const own = searchSettings.coverageSetup;
+  const isOwn = (field: CoverageKey) => own[field] !== undefined && own[field] !== null;
+  const shownValue = <K extends CoverageKey>(field: K) =>
+    (own[field] ?? datasetValues?.coverageSetup?.[field] ?? ENGINE_DEFAULTS[field]) as Required<CoverageSetup>[K];
+  const shownDepth = searchSettings.coverageDepth ?? datasetValues?.coverageDepth ?? ENGINE_DEFAULTS.coverageDepth;
+  const from = datasetValues ? 'dataset' : 'default';
+  // A value this page has not set says where it comes from.
+  const label = (text: string, set: boolean) => (set ? text : `${text} (${from})`);
+  const anyOwn = searchSettings.coverageDepth !== undefined || Object.keys(own).some(k => isOwn(k as CoverageKey));
 
   // Number field handler for top-level searchSettings fields
   const handleNumberChange = (field: keyof typeof searchSettings, value: string) => {
@@ -276,6 +332,13 @@ export function SearchSettingsPanel() {
                 onChange={(value: boolean) => setRanking({ wholeQueryFloor: value })}
               />
             </li>
+            {anyOwn && (
+              <li>
+                <Button variant="ghost" size="micro" onClick={() => setSearchSettings({ coverageSetup: undefined, coverageDepth: undefined })}>
+                  Use the dataset's values
+                </Button>
+              </li>
+            )}
           </>
         )}
       </ul>

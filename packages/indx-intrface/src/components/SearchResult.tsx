@@ -1,4 +1,5 @@
 import React from 'react';
+import { Skeleton } from '@indxsearch/systm';
 import styles from './SearchResult.module.css';
 
 export interface SearchResultProps {
@@ -30,14 +31,8 @@ export const SearchResult: React.FC<SearchResultProps> = ({
       <div className={styles.content}>
         {skeleton ? (
           <div className={styles.skeletonBars}>
-            <div
-              className={styles.skeletonBarLg}
-              style={{ width: `${skeletonWidths[0]}%`, animationDelay: `${skeletonDelay}s` }}
-            />
-            <div
-              className={styles.skeletonBarSm}
-              style={{ width: `${skeletonWidths[1]}%`, animationDelay: `${skeletonDelay + 0.05}s` }}
-            />
+            <Skeleton level={3} height={12} width={`${skeletonWidths[0]}%`} delay={skeletonDelay} appear={false} />
+            <Skeleton level={3} height={8} width={`${skeletonWidths[1]}%`} delay={skeletonDelay + 0.05} appear={false} />
           </div>
         ) : (
           children

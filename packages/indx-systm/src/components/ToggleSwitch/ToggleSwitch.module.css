@@ -67,6 +67,16 @@
   transform: translateX(10px);
 }
 
+/* Positive: on is --CPositive, green on light and teal on dark. Both are light enough that the
+   handle stays dark in both themes to keep its contrast. */
+.positive input:checked + .slider {
+  background-color: var(--CPositive);
+}
+
+.positive input:checked + .slider::before {
+  background-color: #080809;
+}
+
 /* Disabled styling */
 .switch input:disabled + .slider {
   opacity: 0.5;

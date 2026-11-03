@@ -1,7 +1,7 @@
 
 import React, { useState, ReactNode } from 'react';
 import { SearchContext } from '@indxsearch/intrface';
-import type { SearchContextType, NumericRange } from '@indxsearch/intrface';
+import type { SearchContextType, NumericRange, SearchErrorInfo } from '@indxsearch/intrface';
 import { SearchMode } from '@indxsearch/indx-types';
 
 // Numeric facets for range filter / histogram demos
@@ -50,14 +50,67 @@ const rangeBounds = {
 const noop = () => {};
 const noopFetch = () => Promise.resolve(new Response());
 
-/** `facetStats` narrows a field's live (reachable) range, as another active filter would. */
-export function MockSearchProvider({ children, isFetchingInitial = false, facetStats: facetStatsOverride = {} }: { children: ReactNode; isFetchingInitial?: boolean; facetStats?: Record<string, { min: number; max: number }> }) {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
-  const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>({});
+export interface MockSearchProviderProps {
+  children: ReactNode;
+  isFetchingInitial?: boolean;
+  /** Narrows a field's live (reachable) range, as another active filter would. */
+  facetStats?: Record<string, { min: number; max: number }>;
+  /** Start in a given state, for pages that show one state per demo. */
+  initialQuery?: string;
+  initialFilters?: Record<string, string[]>;
+  initialRangeFilters?: Record<string, { min: number; max: number }>;
+  /** Number of results the last search returned; null for no search yet. */
+  resultCount?: number | null;
+  /** As the server reports it: with coverage on and a text query, -1 means no result reached the coverage bar. */
+  truncationIndex?: number;
+  enableCoverage?: boolean;
+  /** A failed search, classified as intrface does it (describeSearchError). */
+  errorInfo?: SearchErrorInfo;
+  /** A failed initialisation (token, dataset, server), classified. */
+  authErrorInfo?: SearchErrorInfo;
+  /** Results held back, as when the query is empty and empty searches are not allowed. */
+  resultsSuppressed?: boolean;
+  allowEmptySearch?: boolean;
+  /** Override the field roles, to show a panel on a field that lacks one. */
+  filterableFields?: string[];
+  facetableFields?: string[];
+  /** The page's placeholder. intrface's own default is 'Type to search', which SearchInput turns
+   *  into 'Search or ask' while asking is on. */
+  placeholderText?: string;
+  /** The page sets no coverage values of its own, so each is the dataset's (SearchSettingsPanel). */
+  pageSetsNothing?: boolean;
+  /** Answers the requests a component sends itself (Search or ask's settings, intent and ask). */
+  authenticatedFetch?: SearchContextType['authenticatedFetch'];
+}
+
+export function MockSearchProvider({
+  children,
+  isFetchingInitial = false,
+  facetStats: facetStatsOverride = {},
+  initialQuery = '',
+  initialFilters = {},
+  initialRangeFilters = {},
+  resultCount = null,
+  truncationIndex,
+  enableCoverage = false,
+  errorInfo,
+  authErrorInfo,
+  resultsSuppressed,
+  allowEmptySearch = true,
+  filterableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+  facetableFields = ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+  authenticatedFetch = noopFetch,
+  pageSetsNothing = false,
+  placeholderText = 'Search…',
+}: MockSearchProviderProps) {
+  const [query, setQuery] = useState(initialQuery);
+  const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
+  const [rangeFilters, setRangeFiltersState] = useState<Record<string, { min: number; max: number }>>(initialRangeFilters);
   const [bucketFilters, setBucketFilters] = useState<Record<string, NumericRange[]>>({});
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAscending, setSortAscending] = useState(true);
+  // Kept, so a panel that changes them (SearchSettingsPanel) shows its own changes.
+  const [settings, setSettings] = useState<Partial<SearchContextType['state']['searchSettings']>>({});
 
   const toggleFilter = (field: string, value: string, exclusive = false) => {
     setFilters(prev => {
@@ -98,7 +151,11 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
   const value: SearchContextType = {
     state: {
       query,
-      results: null,
+      results: resultCount === null ? null : Array.from({ length: resultCount }, (_, i) => ({ documentKey: i, score: 100 - i, position: i + 1, document: {} })),
+      truncationIndex,
+      error: errorInfo?.message,
+      errorInfo,
+      resultsSuppressed,
       isLoading: false,
       filters,
       valueMatch: {},
@@ -120,8 +177,8 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
         ...facetStatsOverride,
       },
       facetDebounceDelayMillis: 300,
-      filterableFields: ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
-      facetableFields:  ['type', 'rarity', 'is_legendary', 'hp', 'attack', 'defense', 'speed'],
+      filterableFields,
+      facetableFields,
       sortableFields:   ['name', 'hp', 'attack', 'defense', 'speed'],
       sortBy: sortBy ?? undefined,
       sortAscending,
@@ -134,15 +191,19 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
         removeDuplicates: false,
         minimumScore: 0,
         showScore: false,
-        placeholderText: 'Search…',
-      },
+        placeholderText,
+        ...settings,
+      } as SearchContextType['state']['searchSettings'],
     },
     isFetchingInitial,
-    allowEmptySearch: true,
+    authError: authErrorInfo?.message,
+    authErrorInfo,
+    retry: () => {},
+    allowEmptySearch,
     url: '',
     team: 'mock',
     dataset: 'mock',
-    authenticatedFetch: noopFetch,
+    authenticatedFetch,
     setQuery,
     toggleFilter,
     setValueMatch: () => {},
@@ -156,7 +217,10 @@ export function MockSearchProvider({ children, isFetchingInitial = false, facetS
       else resetRangeFilter(field);
     },
     setSort: (field, ascending) => { setSortBy(field); setSortAscending(ascending); },
-    setSearchSettings: noop,
+    setSearchSettings: next => setSettings(prev => ({
+      ...prev, ...next,
+      coverageSetup: { ...(prev.coverageSetup ?? {}), ...(next.coverageSetup ?? {}) } as never,
+    })),
     fetchMoreResults: noop,
   };
 

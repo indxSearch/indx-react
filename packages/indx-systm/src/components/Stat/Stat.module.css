@@ -1,0 +1,66 @@
+/* One number with its label, on the Base surface tone (lv2, lv1 in the dark theme). */
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: calc(var(--spacing) * 2);
+  background: var(--lv2);
+  border-radius: var(--radius);
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat { background: var(--lv1); }
+}
+
+.label {
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+/* A label with a hint says so: a dotted underline and the help cursor. */
+.hinted {
+  cursor: help;
+  border-bottom: 1px dotted var(--lv3);
+}
+
+/* Light (300) rather than the token's Book (350): in FunktionalGrotesk, Book reads heavy at 24px,
+   and the number is the one large thing on the stat. Same as the Blazor Stat. */
+.value {
+  max-width: 100%;
+  font: var(--text-2xl);
+  font-weight: 300;
+  color: var(--lv8);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+/* The group: as many as fit, or a set number that steps down on narrower screens. */
+.group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.fixed {
+  grid-template-columns: repeat(var(--stat-columns), minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .many { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pairs > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}

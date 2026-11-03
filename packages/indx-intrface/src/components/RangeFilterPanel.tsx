@@ -5,6 +5,7 @@ import type { StepMarks } from '@indxsearch/systm';
 import styles from './RangeFilterPanel.module.css';
 import { decimalsOf, roundTo } from '../utils/numeric';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
+import { FilterPanelNotice } from './FilterPanelNotice';
 
 export interface RangeFilterPanelProps {
   field: string;
@@ -60,6 +61,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     setRangeFilter,
     resetRangeFilter,
     allowEmptySearch,
+    authError,
     isFetchingInitial
   } = useSearchContext();
 
@@ -406,6 +408,11 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
     console.warn(`RangeFilterPanel: showHistogram=true but field "${field}" is not facetable. Add .Facetable = true to this field.`);
   }
 
+  // Startup failed: no search will run, so the facets never arrive and the field lists are empty.
+  // Neither a skeleton that waits forever nor a 'field is misconfigured' message is true; SearchResults
+  // explains the failure, once.
+  if (authError) return null;
+
   // Don't show until data is loaded
   // (Must come after all hooks to follow Rules of Hooks)
   if (isFetchingInitial) {
@@ -428,13 +435,7 @@ export const RangeFilterPanel: React.FC<RangeFilterPanelProps> = ({
   // Field validation: /filters/range rejects a non-filterable field with 400, so
   // say so here instead of showing a slider whose filter can never apply.
   if (!filterableFields?.includes(field)) {
-    return (
-      <FilterPanelBase collapsible={false}>
-        <div style={{ color: 'red', fontSize: '12px' }}>
-          Cannot render filter for "{field}": missing filterable.
-        </div>
-      </FilterPanelBase>
-    );
+    return <FilterPanelNotice label={label} field={field} missing={['filterable']} />;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

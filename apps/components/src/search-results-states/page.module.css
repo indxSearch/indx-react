@@ -1,0 +1,64 @@
+.main {
+  padding: 2rem;
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font: var(--text-2xl);
+  margin-bottom: 0.5rem;
+}
+
+.desc {
+  font: var(--text-base);
+  color: var(--lv5);
+  max-width: 70ch;
+}
+
+/* label, component */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 3fr;
+  gap: 1px;
+  background: var(--lv2);
+  border: 1px solid var(--lv2);
+}
+
+.grid > * {
+  background: var(--lv1);
+}
+
+.label {
+  padding: 16px;
+}
+
+.labelTitle {
+  font: var(--text-sm);
+  color: var(--lv8);
+}
+
+.labelWhen {
+  margin-top: 4px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+/* SearchResults' idle and loading states are tall; keep the rows comparable. */
+.cell {
+  padding: 16px;
+  height: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

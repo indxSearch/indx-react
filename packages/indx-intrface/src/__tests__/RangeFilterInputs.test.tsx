@@ -8,6 +8,7 @@ import { server } from './mocks/server';
 
 // Real-enough InputField: forwards value/onChange/onBlur/onKeyDown so typing can be exercised.
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => <div data-testid="filter-panel">{children}</div>,
   Slider: ({ min, max, step }: { min: number; max: number; step?: number }) => <div role="slider" data-min={min} data-max={max} data-step={step} />,
   InputField: ({ label, ...props }: any) => <input aria-label={label} {...props} />,
@@ -59,7 +60,7 @@ describe('field validation', () => {
       http.get('http://localhost/api/teams/team/datasets/test/fields/filterable', () => HttpResponse.json(['category'])),
     );
     renderPanel({ control: 'slider' });
-    await screen.findByText(/Cannot render filter for "price": missing filterable/);
+    await screen.findByText('price: not Filterable');
     expect(screen.queryByRole('slider')).toBeNull();
   });
 });

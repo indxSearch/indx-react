@@ -1,0 +1,5 @@
+# FunktionalGrotesk is a paid font that may not be distributed. Its files sit in public/fonts/ on
+# design machines only (gitignored at the repository root); keep them out of a deploy run with the
+# Vercel CLI from such a machine too. The site then renders the fallback.
+public/fonts/FunktionalGrotesk-*.woff2
+dist

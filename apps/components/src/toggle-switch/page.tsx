@@ -53,6 +53,15 @@ export default function ToggleSwitchPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Positive</h2>
+        <p className={styles.desc}>On is green (teal in dark mode), for settings where it matters at a glance whether something is on.</p>
+        <div className={styles.column}>
+          <ToggleSwitch variant="positive" label="Coverage truncation" checked={toggle2} onChange={setToggle2} />
+          <ToggleSwitch variant="positive" label="Affix matching" checked={toggle3} onChange={setToggle3} />
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>Disabled State</h2>
         <div className={styles.column}>
           <ToggleSwitch

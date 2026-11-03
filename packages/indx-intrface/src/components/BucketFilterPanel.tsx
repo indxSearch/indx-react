@@ -4,6 +4,7 @@ import { useSearchContext } from '../context/SearchContext';
 import type { NumericRange } from '../context/SearchContext';
 import { Checkbox, Button, RadioButton, FilterPanelBase } from '@indxsearch/systm';
 import { FilterPanelSkeleton } from './FilterPanelSkeleton';
+import { FilterPanelNotice } from './FilterPanelNotice';
 import { precisionOf, roundTo } from '../utils/numeric';
 
 /** A bucket the caller spells out. Leave `min` or `max` off for an open end. */
@@ -88,6 +89,7 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   const {
     state: { facets, filterableFields, facetableFields, bucketFilters, rangeBounds, facetStats, query },
     toggleBucketFilter,
+    authError,
     isFetchingInitial,
     allowEmptySearch,
   } = useSearchContext();
@@ -148,6 +150,11 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   // selection out. useSearchExecution does that for any field with selected
   // buckets, so there is nothing to register here.
 
+  // Startup failed: no search will run, so the facets never arrive and the field lists are empty.
+  // Neither a skeleton that waits forever nor a 'field is misconfigured' message is true; SearchResults
+  // explains the failure, once.
+  if (authError) return null;
+
   if (isFetchingInitial || !facets) {
     return (
       <FilterPanelSkeleton
@@ -162,13 +169,7 @@ export const BucketFilterPanel: React.FC<BucketFilterPanelProps> = ({
   if (!allowEmptySearch && !query) return null;
 
   if (!filterableFields?.includes(field)) {
-    return (
-      <FilterPanelBase collapsible={false}>
-        <div className={styles.error}>
-          Cannot render buckets for "{field}": field is not filterable.
-        </div>
-      </FilterPanelBase>
-    );
+    return <FilterPanelNotice label={label} field={field} missing={['filterable']} />;
   }
   const countable = facetableFields?.includes(field) && Array.isArray(facetValues);
 

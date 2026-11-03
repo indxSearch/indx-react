@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { SearchMode } from '@indxsearch/indx-types';
 import type { MatchSetup, CandidateSetup, RankingProxy } from '@indxsearch/indx-types';
+import type { SearchErrorInfo } from './searchError';
 import { useIndxAuth } from './useIndxAuth';
 import { useSearchExecution } from './useSearchExecution';
 import type { ValueMatch, NumericRange } from './buildFilterProxy';
@@ -52,6 +53,7 @@ export interface SearchState {
   resultsSuppressed?: boolean; // Whether results should be hidden (e.g. when query is empty and allowEmptySearch is false)
   facetDebounceDelayMillis?: number; // The delay in milliseconds before performing a faceted search after typing stops
   error?: string; // Any error message that occurred during the last search
+  errorInfo?: SearchErrorInfo; // The same failure, classified: its kind, whether retrying can help, and a technical line
   facets?: any | null; // The current facet counts and values for each facetable field
   filterableFields: string[]; // List of fields that can be used for filtering
   facetableFields: string[]; // List of fields that can be used for faceting
@@ -78,7 +80,11 @@ export interface SearchContextType {
   state: SearchState; // The current search state containing all search-related data
   isFetchingInitial: boolean; // Whether the initial data (fields, facets) is still being loaded
   authError?: string; // Set when initialization failed (bad token, unknown dataset, unreachable server)
+  authErrorInfo?: SearchErrorInfo; // The same failure, classified
+  retry?: () => void; // Tries again after a failure: initialisation when that failed, otherwise the last search. Optional so a hand-built context stays valid
   allowEmptySearch: boolean; // Whether empty searches are allowed
+  facetsEnabled: boolean; // Whether this page fetches facets (the debounced facet search)
+  datasetBounds: Record<string, { min: number; max: number }>; // Min and max per numeric field over the whole dataset; rangeBounds follows the query
   url: string;
   team: string;
   dataset: string;
@@ -100,7 +106,13 @@ export interface SearchContextType {
   // SearchProvider always supplies both.
   selectResult?: (result: SearchResult) => Promise<void>; // Reports that the visitor chose this result (events/select). Never throws
   sessionId?: string; // This page load's session id, sent with every search
+  source?: string; // The provider's source, sent with every search and with what belongs to it
+  count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
 }
+
+/** The field's placeholder unless the page sets one. SearchInput says "Search or ask" instead
+ *  while asking is on, so it must know this one from a page's own. */
+export const DEFAULT_PLACEHOLDER = 'Type to search';
 
 // Create the search context
 export const SearchContext = createContext<SearchContextType | undefined>(undefined);
@@ -177,7 +189,7 @@ export const SearchProvider: React.FC<{
       removeDuplicates,
       minimumScore: 0,
       showScore: true,
-      placeholderText: 'Type to search',
+      placeholderText: DEFAULT_PLACEHOLDER,
     },
   });
 
@@ -212,7 +224,7 @@ export const SearchProvider: React.FC<{
     });
   }, [auth.token]);
 
-  useSearchExecution({
+  const { retrySearch } = useSearchExecution({
     state,
     setState,
     authenticatedFetch,
@@ -434,7 +446,11 @@ export const SearchProvider: React.FC<{
         state,
         isFetchingInitial: auth.isFetchingInitial || !state.fieldsSeeded,
         authError: auth.authError ?? undefined,
+        authErrorInfo: auth.authErrorInfo ?? undefined,
+        retry: auth.authError ? auth.retry : retrySearch,
         allowEmptySearch,
+        facetsEnabled,
+        datasetBounds: auth.initialFacetStats,
         url,
         team,
         dataset,
@@ -454,6 +470,8 @@ export const SearchProvider: React.FC<{
         fetchMoreResults,
         selectResult,
         sessionId,
+        source,
+        count,
       }}
     >
       {children}

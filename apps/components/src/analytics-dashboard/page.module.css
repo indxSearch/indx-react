@@ -18,22 +18,7 @@
 .sub { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; font: var(--text-sm); color: var(--lv5); }
 .period { min-width: 160px; }
 
-/* ── KPI tiles: six across, then three, then two ── */
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-}
-.tile {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 14px 12px;
-  min-width: 0;
-}
-.tileLabel { font: var(--text-xs); color: var(--lv5); cursor: help; align-self: flex-start; border-bottom: 1px dotted var(--lv3); }
-.tileValue { font: var(--text-2xl); color: var(--lv8); font-variant-numeric: tabular-nums; }
-.tileFoot { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font: var(--text-xs); }
+/* ── KPI tiles: systm StatGroup and Stat; the foot's "vs previous period" ── */
 .tileVs { color: var(--lv4); }
 
 .delta { display: inline-flex; align-items: center; gap: 2px; font: var(--text-xs); font-weight: var(--med); font-variant-numeric: tabular-nums; }
@@ -71,9 +56,7 @@
 .footer p { font: var(--text-xs); color: var(--lv5); margin: 0; max-width: 90ch; }
 .footer strong { color: var(--lv7); font-weight: var(--med); }
 
-@media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) {
   .main { padding: 1rem; }
   .split { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

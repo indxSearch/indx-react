@@ -1,6 +1,7 @@
 /* Chat family — ChatPanel, Message, Composer, Citation, StreamStatus, Suggestions, AnswerActions.
-   One surface, no strokes: the parts are told apart by tone and by spacing, never by borders
-   or shadows. The panel's own edge is its host's business (a modal, a page). */
+   One surface: the parts are told apart by tone and by spacing, never by shadows. The one stroke is
+   the composer's, drawn like Textarea's, because it is the field. The panel's own edge is its host's
+   business (a modal, a page). */
 
 /* ── ChatPanel ─────────────────────────────────────────────────────────── */
 .panel {
@@ -22,6 +23,8 @@
   overflow: auto;
 }
 .footer { flex-shrink: 0; padding: 4px 12px 0; }
+/* The hints row gives the composer its space below; without it the footer keeps its own, as on its sides. */
+.footer:last-child { padding-bottom: 12px; }
 .hints {
   display: flex;
   gap: 18px;
@@ -69,16 +72,21 @@
 .assistantBody > p { margin: 0; }
 
 /* ── Composer ──────────────────────────────────────────────────────────── */
-/* The field is its own quiet surface — one tone down from the panel — so it needs no rule
-   above it to read as "type here". */
+/* The field is drawn like Textarea: an outline on the panel's own tone, lv3, lv5 on hover and focus.
+   The padding puts 9px of space on three sides of the send button: 1px border + 5px padding + the
+   3px under it below and above, and 1px + 8px on the right. */
 .composer {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 6px 6px 6px 12px;
-  background: var(--lv0);
+  padding: 5px 8px 5px 11px;
+  background: transparent;
+  border: 1px solid var(--lv3);
   border-radius: var(--radius);
+  transition: border-color 0.2s;
 }
+.composer:hover,
+.composer:focus-within { border-color: var(--lv5); }
 .composerField {
   flex: 1;
   min-width: 0;
@@ -99,6 +107,10 @@
   flex: 1;
   min-width: 0;
   margin: 0;
+  /* The field sets its own height from scrollHeight, which includes the padding: border-box keeps
+     that height whole on a page that does not make border-box the rule, which grew the field
+     by its padding and pushed the send button down. */
+  box-sizing: border-box;
   padding: 6px 0;
   min-height: 30px;
   max-height: 160px;
@@ -115,7 +127,10 @@
 .composerInput:focus { outline: none; }
 .composerInput::placeholder { color: var(--lv4); }
 .composerInput:disabled { opacity: 0.6; cursor: not-allowed; }
+/* Send and Stop are a 24px square around the 14px arrow. 3px under it centres it on the last line:
+   a line of the 30px field is centred 15px up from its bottom, and 3 + 24 / 2 = 15. */
 .composerButton { flex-shrink: 0; padding-bottom: 3px; }
+.composerButton > button { height: 24px; width: 24px; padding: 0; justify-content: center; }
 
 /* ── Citation ──────────────────────────────────────────────────────────── */
 .ref {

@@ -25,7 +25,7 @@
 
 .variableCode {
   font: var(--text-sm);
-  font-family: monospace;
+  font-family: var(--font-mono);
   color: var(--lv4);
   margin-bottom: 1rem;
 }
@@ -134,7 +134,7 @@
 
 .codeBlock {
   font: var(--text-sm);
-  font-family: monospace;
+  font-family: var(--font-mono);
   background-color: var(--lv2);
   border: 1px solid var(--lv3);
   border-radius: 4px;

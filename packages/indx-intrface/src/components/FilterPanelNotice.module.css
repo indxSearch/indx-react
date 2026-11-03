@@ -1,0 +1,13 @@
+.notice {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font: var(--text-xs);
+    color: var(--lv5);
+}
+
+.technical {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--lv4);
+}

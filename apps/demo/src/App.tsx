@@ -3,7 +3,7 @@ import '@indxsearch/intrface/styles.css';
 import './globals.css';
 import { SearchClient } from './SearchClient';
 import {
-  ActiveFiltersPanel,
+  // ActiveFiltersPanel,
   ValueFilterPanel,
   BucketFilterPanel,
   RangeFilterPanel,
@@ -20,7 +20,7 @@ const fields = ['name', 'is_legendary', 'type1', 'type2', 'hp', 'speed', 'attack
 
 const filters = (
   <>
-    <ActiveFiltersPanel />
+    {/* <ActiveFiltersPanel /> */}
     <SortByPanel control="radio" />
     <SortByPanel startCollapsed={true} />
     <ValueFilterPanel label="Primary type" layout="grid" field="type1" preserveBlankFacetState={true} preserveBlankFacetStateOrder={false} control="button" limit={30} />
@@ -38,7 +38,7 @@ const filters = (
       layout="grid"
     />
     <ValueFilterPanel label="Legendary" field="is_legendary" preserveBlankFacetState={true} control="toggle" />
-    <RangeFilterPanel label="Speed" field="speed" control="slider" expectedMin={5} expectedMax={180} />
+    <RangeFilterPanel label="Speed" field="speed" control="slider" expectedMin={5} expectedMax={180} showHistogram />
     <RangeFilterPanel label="Attack" field="attack" control="slider" startCollapsed={true} showHistogram />
     <RangeFilterPanel label="HP" field="hp" control="slider" startCollapsed={true} />
     {/* speed grouped into ranges; several buckets OR together */}

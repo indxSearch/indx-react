@@ -3,6 +3,9 @@
     border-bottom: 1px solid var(--lv0);
     font: var(--text-xs);
     position: relative;
+    /* A stacking context of its own, so a layer the app stretches over the row (a hover, a whole-row
+       click target) can sit behind the row's text with z-index: -1 and still above what the row sits on. */
+    isolation: isolate;
     color: var(--lv5);
 }
 
@@ -23,8 +26,10 @@
     line-height: 1.8;
 }
 
-/* Chips inside a result row sit on a Base (lv2) surface — override to lv0 so they read as elevated pills */
-.content span {
+/* Chips inside a result row sit on a Base (lv2) surface: lv0 makes them read as raised pills.
+   Chips only, by systm's stable class: this was every span, so any text an app put in a span
+   (an item number, a category trail) got a pill's background without a pill's shape. */
+.content :global(.indx-chip) {
     background-color: var(--lv0);
 }
 
@@ -44,28 +49,10 @@
     color: var(--lv4);
 }
 
-@keyframes fade {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-
-/* Skeleton bars — on Base (lv2), use lv3 so they're visibly darker than the surface */
+/* Skeleton bars (systm Skeleton, level 3): on Base (lv2), lv3 stays visibly darker than the surface */
 .skeletonBars {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.skeletonBarLg {
-    height: 12px;
-    border-radius: 1px;
-    background: var(--lv3);
-    animation: fade 2.4s ease-in-out infinite;
-}
-
-.skeletonBarSm {
-    height: 8px;
-    border-radius: 1px;
-    background: var(--lv3);
-    animation: fade 2.4s ease-in-out infinite;
-}

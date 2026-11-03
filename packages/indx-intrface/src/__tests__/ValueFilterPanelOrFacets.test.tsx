@@ -7,6 +7,7 @@ import { ValueFilterPanel } from '../components/ValueFilterPanel';
 import { server } from './mocks/server';
 
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => <div data-testid="filter-panel">{children}</div>,
   ToggleSwitch: ({ label, checked, disabled, onChange }: any) => (
     <input type="checkbox" role="switch" aria-label={label} checked={checked} disabled={disabled} onChange={() => onChange(!checked)} />

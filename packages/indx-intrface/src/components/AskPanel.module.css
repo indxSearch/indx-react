@@ -1,0 +1,21 @@
+.panel { display: flex; flex-direction: column; gap: 20px; }
+.answer { display: flex; flex-direction: column; gap: 10px; }
+.paragraph { margin: 0; font: var(--text-sm); line-height: 1.55; color: var(--lv8); }
+.action { margin-top: 10px; }
+.turn { display: flex; flex-direction: column; gap: 20px; }
+
+/* The answer's markdown (utils/answerMarkdown). */
+.heading { margin: 4px 0 0; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.list { margin: 0; padding-left: 20px; font: var(--text-sm); line-height: 1.55; color: var(--lv8); display: flex; flex-direction: column; gap: 4px; }
+.inlineCode { font-family: var(--font-mono); font-size: 0.92em; background: var(--lv1); border-radius: 4px; padding: 1px 5px; }
+.codeBlock { margin: 0; padding: 12px 14px; background: var(--lv1); border-radius: var(--radius); overflow-x: auto;
+  font: var(--text-xs); font-family: var(--font-mono); line-height: 1.6; color: var(--lv8); }
+.codeBlock code { font: inherit; white-space: pre; }
+
+/* On a catalogue: what a description was searched with, above the answer. */
+.searched { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.searchedLabel { font: var(--text-xs); color: var(--lv5); }
+
+/* An agent's steps while it works: the done ones quiet, the current one with the stream status. */
+.steps { display: flex; flex-direction: column; gap: 4px; }
+.stepDone { font: var(--text-xs); color: var(--lv5); }

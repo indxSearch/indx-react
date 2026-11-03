@@ -43,3 +43,60 @@
   font: var(--text-sm);
   color: var(--lv4);
 }
+
+/* States grid: label, field */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2fr;
+  gap: 1px;
+  background: var(--lv2);
+  border: 1px solid var(--lv2);
+}
+
+.grid > * {
+  background: var(--lv1);
+}
+
+.colHead {
+  padding: 8px 16px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+.stateLabel {
+  padding: 16px;
+}
+
+.stateTitle {
+  font: var(--text-sm);
+  color: var(--lv8);
+}
+
+.stateWhen {
+  margin-top: 4px;
+  font: var(--text-xs);
+  color: var(--lv5);
+}
+
+.stateWhen code {
+  font-family: var(--font-mono);
+}
+
+.cell {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.cell > * {
+  flex: 1;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .colHead {
+    display: none;
+  }
+}

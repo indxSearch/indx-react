@@ -7,6 +7,7 @@ import { SortByPanel } from '../components/SortByPanel';
 // systm pulls in pixl, whose "Object" icon shadows the global in this environment (see
 // RangeFilterPanel.test.tsx). Stubs that show the options as text and let a test choose one.
 vi.mock('@indxsearch/systm', () => ({
+  Skeleton: () => <div data-testid="skeleton" />,
   FilterPanelBase: ({ children }: { children: React.ReactNode }) => <div data-testid="panel">{children}</div>,
   Select: ({ options, onValueChange }: { options: { label: string; value: string }[]; onValueChange: (v: string) => void }) => (
     <ul>

@@ -67,7 +67,7 @@ function Thread({ stage, phone, onPick }: { stage: Stage; phone: boolean; onPick
           <UserMessage>Why did my Coverage scores drop after I added synonyms?</UserMessage>
           <Assistant>
             <p>That is by design. Coverage is <code>totalSum / q × 65535</code>, and synonym expansion appends terms to the query text the engine scores against, so a longer <em>q</em> scales every</p>
-            <StreamStatus>Writing…</StreamStatus>
+            <StreamStatus spinner="grow">Writing…</StreamStatus>
           </Assistant>
         </>
       );
@@ -126,7 +126,7 @@ function Panel({ stage, phone, mode, onMode }: { stage: Stage; phone: boolean; m
       className={phone ? styles.panelPhone : styles.panelDesktop}
       header={<Tabs items={modes} value={mode} onValueChange={onMode} size="micro" />}
       composer={<Composer value={draft} onChange={setDraft} onSend={() => setDraft('')} onStop={() => {}} streaming={streaming} placeholder={placeholder} />}
-      hints={phone ? false : undefined}
+      hints={false}
     >
       <Thread stage={stage} phone={phone} onPick={setDraft} />
     </ChatPanel>
@@ -232,7 +232,7 @@ export default function ChatPage() {
           <Demo label="StreamStatus — what the assistant is doing right now">
             <div className={styles.stackTight}>
               <StreamStatus>Searching the docs…</StreamStatus>
-              <StreamStatus>Writing…</StreamStatus>
+              <StreamStatus spinner="grow">Writing…</StreamStatus>
             </div>
           </Demo>
           <Demo label="Suggestions — questions to start from, shown while the thread is empty">
@@ -271,7 +271,7 @@ export default function ChatPage() {
           text in view while streaming. <code>Composer</code> is controlled: <code>onSend</code> gets the trimmed text,
           and while <code>streaming</code> the button is Stop and Enter is ignored. Citations are numbers into the
           list you render; the host decides what a click does. Hints default to Enter / Shift+Enter / Esc and
-          take <code>false</code> to hide the row, which the phone frame does.
+          take <code>false</code> to hide the row, as this page does.
         </p>
       </div>
     </main>
