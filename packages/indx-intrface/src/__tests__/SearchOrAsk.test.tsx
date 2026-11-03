@@ -269,7 +269,7 @@ describe('statistics', () => {
     const urls: URL[] = [];
     server.use(
       http.post('http://localhost/api/teams/team/datasets/test/search', () =>
-        HttpResponse.json({ records: [], facets: {}, truncationIndex: -1 }, { headers: { 'Indx-Query-Id': 'q-42' } })),
+        HttpResponse.json({ records: [], facets: {}, count: 0, isFallback: false }, { headers: { 'Indx-Query-Id': 'q-42' } })),
       http.post(`${SOA}/intent`, async ({ request }) => {
         if (!(await request.clone().json() as { prefetch?: boolean }).prefetch) urls.push(new URL(request.url));
         return HttpResponse.json({ p: 0.8, answerable: null, offer: 'strong', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1 });

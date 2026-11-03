@@ -21,7 +21,7 @@ function serve() {
   server.use(http.post(`${DS}/search`, async ({ request }) => {
     typedParams.push(new URL(request.url).searchParams.get('typed'));
     texts.push(((await request.json()) as { text: string }).text);
-    return HttpResponse.json({ records: [], facets: {}, truncationIndex: -1 });
+    return HttpResponse.json({ records: [], facets: {}, count: 0, isFallback: false });
   }));
   return texts;
 }
