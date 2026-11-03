@@ -32,6 +32,6 @@ export interface FieldProxy {
   /** The most a word may differ by in the field: Exact, OneEdit (the default), TwoEdits; a search's match.tolerance caps it. Until 6.0 coverageStrictness. */
   tolerance?: Tolerance | null;
   /** The field's weight in Coverage against the heaviest field; 0 leaves it out of Coverage (until 6.0 coverageStrictness None). */
-  coverageWeight?: number | null;
+  rerankWeight?: number | null;
   caseSensitive?: boolean | null;
 }
