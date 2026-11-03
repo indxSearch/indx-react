@@ -6,12 +6,13 @@
 The 6.0 wire: a query in three parts. `QueryProxy` takes `mode` (`SearchMode`: `EditDistance`,
 the default, or `Bm25f`; whether the records are reranked by Coverage is `ranking.rerank`, on by
 default) and three parts, `match` (`MatchSetup`: tolerance, rungs, the word being
-typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fallback`) and
+typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fallback`, `rest`) and
 `ranking` (`RankingProxy`: the blend, field weights and boosts, `boosts` and `buries`).
 `enableCoverage`, `coverageDepth`, `coverageSetup` and the `CoverageSetup` and `CloudQuery` types are
 gone. Enums are strings, by name, as the server now sends and reads them (`BoostStrength.Med`, was
 `Medium`). `Result` loses `truncationIndex` and `truncationScore` and has `toleranceCounts`,
-`countedTolerance`, `overflow`, `isFallback`, `reason` and `systemState`. `FieldProxy` follows the
+`countedTolerance`, `overflow`, `isFallback`, `reason` and `systemState` (`toleranceCounts.rest`
+with `candidates.rest`). `FieldProxy` follows the
 server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
 `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `coverageWeight` of 0; the
 `CoverageStrictness` enum is gone.

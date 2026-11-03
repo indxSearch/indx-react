@@ -30,6 +30,9 @@ export interface CandidateSetup {
   indexTerms?: IndexTerms;
   /** When no record holds every word: the most words, then pattern matches (isFallback). Default true. */
   fallback?: boolean;
+  /** In EditDistance, BM25F's best not counted below the counted set, counted (toleranceCounts.rest)
+   * and in the facets. Default false. */
+  rest?: boolean;
 }
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */

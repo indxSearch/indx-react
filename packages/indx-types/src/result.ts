@@ -38,6 +38,8 @@ export interface ToleranceCounts {
   exact: number;
   oneEdit?: number | null;
   twoEdits?: number | null;
+  /** With candidates.rest: the counted rung and the rest taken below it, up to the bound. */
+  rest?: number | null;
 }
 
 export interface Result {

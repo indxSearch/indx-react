@@ -17,7 +17,7 @@ const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
   typingPrefixOneEditFrom: 6,
   joinedWords: true,
 };
-const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true };
+const CANDIDATE_DEFAULTS = { candidatesPerRow: 4, fallback: true, rest: false };
 const RANKING_DEFAULTS = { rerank: true, share: 0.2, typingShift: 0.5, wholeQueryFloor: true };
 
 export function SearchSettingsPanel() {
@@ -238,6 +238,14 @@ export function SearchSettingsPanel() {
                 disabled={isBm25f}
                 checked={candidates.fallback ?? CANDIDATE_DEFAULTS.fallback}
                 onChange={(value: boolean) => setCandidates({ fallback: value })}
+              />
+            </li>
+            <li>
+              <ToggleSwitch
+                label="Rest (BM25F below the counted set)"
+                disabled={isBm25f}
+                checked={candidates.rest ?? CANDIDATE_DEFAULTS.rest}
+                onChange={(value: boolean) => setCandidates({ rest: value })}
               />
             </li>
 
