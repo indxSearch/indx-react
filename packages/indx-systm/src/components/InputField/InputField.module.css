@@ -78,6 +78,16 @@
   color: var(--CSignal);
 }
 
+/* Ghost: reads as its text until it is pointed at or edited, for a value that sits inline (a
+   number beside its slider). The border comes on hover and focus, as the box's does. */
+.ghost {
+  border-color: transparent;
+}
+
+.ghost.error {
+  border-color: var(--CSignal);
+}
+
 /* Border Bottom Variant */
 .borderBottom {
   padding: 0;

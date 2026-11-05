@@ -1,5 +1,5 @@
 import React from 'react';
-import { InputField } from '@indxsearch/systm';
+import { InputField, Slider } from '@indxsearch/systm';
 import styles from './page.module.css';
 
 const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 8 };
@@ -53,6 +53,12 @@ export default function InputFieldPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.heading}>Ghost</h2>
+        <p>No border until hovered or focused: a value that sits inline and can still be typed. Beside a slider, the slider moves in steps and the field takes any value (a field's weight in the console).</p>
+        <GhostWeight />
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.heading}>In a narrow layout</h2>
         <p>An inspector panel with labelled rows, two of them side by side in a grid. Drag the panel's right edge narrower: the inputs shrink within their columns instead of forcing the layout wider.</p>
         <div style={{ resize: 'horizontal', overflow: 'auto', width: 360, minWidth: 160, maxWidth: 720, padding: 12, background: 'var(--lv1)', border: '1px solid var(--lv3)', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -81,5 +87,17 @@ export default function InputFieldPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function GhostWeight() {
+  const [weight, setWeight] = React.useState(1.3);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: 220 }}>
+      <Slider min={0.5} max={3} step={0.25} value={Math.min(3, Math.max(0.5, weight))} onChange={v => setWeight(v as number)} aria-label="Weight" />
+      <InputField variant="ghost" type="number" step={0.1} min={0} value={weight}
+        onChange={e => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) setWeight(v); }}
+        style={{ width: 56, textAlign: 'right', padding: '0 6px' }} aria-label="Weight value" />
+    </div>
   );
 }
