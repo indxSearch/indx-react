@@ -6,7 +6,8 @@ export interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElem
   error?: string;
   className?: string;
   isValid?: boolean;
-  variant?: 'default' | 'borderBottom';
+  /** `ghost`: no border until hovered or focused, for a value that sits inline. */
+  variant?: 'default' | 'borderBottom' | 'ghost';
 }
 
 export function InputField({ label, error, className = '', isValid = true, variant = 'default', id: providedId, ...props }: InputFieldProps) {
@@ -25,7 +26,7 @@ export function InputField({ label, error, className = '', isValid = true, varia
       )}
       <input
         id={inputId}
-        className={`${styles.input} ${variant === 'borderBottom' ? styles.borderBottom : ''} ${hasError ? styles.error : ''}`}
+        className={`${styles.input} ${variant === 'borderBottom' ? styles.borderBottom : variant === 'ghost' ? styles.ghost : ''} ${hasError ? styles.error : ''}`}
         aria-invalid={hasError ? 'true' : 'false'}
         aria-describedby={error ? errorId : undefined}
         {...props}
