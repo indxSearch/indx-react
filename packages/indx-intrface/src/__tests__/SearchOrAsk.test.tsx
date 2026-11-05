@@ -175,6 +175,18 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.offer).toBe('invite');
   });
 
+  it('holds the full offer until the judge reads the question as whole, then keeps it as it grows', async () => {
+    settings(true);
+    judge({ 'which school is': 0.9, 'which school is biggest': 0.9, 'which school is biggest in narvik': 0.9 }, [], [], 0, ['which school is', 'which school is biggest in narvik']);
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('which school is'));
+    await waitFor(() => expect(result.current.sor.p).toBe(0.9));
+    expect(result.current.sor.offer).toBe('invite');
+    act(() => result.current.ctx.setQuery('which school is biggest'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+  });
+
   it('asks only after the pause, for the text the visitor stopped at', async () => {
     settings(true);
     const asked = judge({});

@@ -291,9 +291,15 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const offer = nextOffer(s.offer, p, thresholds.current);
           const c = criteria ?? null;
           const describes = c != null && c >= thresholds.current.strong;
-          // On a catalogue a description is answered too (what it finds), so it gets the full offer.
-          const asked = offer === 'strong' && !canAnswer(text) ? 'invite' : offer;
-          const chosen = describes ? 'strong' : asked;
+          // The full offer waits for a whole question: one word holds nothing to answer, and the
+          // judge's "finished" reads the rest ("hvilken skole er" is sure but stops on a word still
+          // waiting). Until then the invitation. Entering only: a sure question typed on stays sure.
+          const typedOn = s.offer === 'strong' && !!s.text && text.startsWith(s.text);
+          const whole = typedOn || (canAnswer(text) && (fin == null || isFinished(fin)));
+          const asked = offer === 'strong' && !whole ? 'invite' : offer;
+          // On a catalogue a description is answered too (what it finds), so it gets the full offer,
+          // once it is whole as well: "barneskoler i" has no place yet.
+          const chosen = describes && whole ? 'strong' : describes ? 'invite' : asked;
           const final = mode.current === 'strict' && chosen === 'invite' ? 'none' : chosen;
           // Both can be high ("what is the largest": question 0.79, description 0.67). The larger
           // decides: a description becomes filters, which replace the list; a question cuts it.
