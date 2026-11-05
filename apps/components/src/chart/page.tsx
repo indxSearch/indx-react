@@ -24,6 +24,15 @@ const monthChanges: ChartMarker[] = [
   { index: 20, label: 'Fields changed: author' },
   { index: 25, label: '1 240 documents updated by filter' },
   { index: 27, label: 'Reindexed' },
+  // A busy day: the same change many times is one row with its count, and more kinds than the
+  // frame holds end in "and N more".
+  ...Array.from({ length: 14 }, () => ({ index: 15, label: 'Woken by a search' })),
+  { index: 15, label: 'Put to sleep' },
+  { index: 15, label: 'Put to sleep' },
+  { index: 15, label: 'Synonyms: 5 → 6 entries' },
+  { index: 15, label: 'Boost rules: 4 → 5 rules, 4 enabled' },
+  { index: 15, label: 'Fields changed: title' },
+  { index: 15, label: 'Reindexed' },
 ];
 // Latency over the month: a median with its p5 to p95 spread, the spread widest on the busy days.
 const p50 = DAYS_30.map((_, i) => Math.round(24 + 4 * Math.sin(i / 4) + ((i * 7) % 5)));
@@ -53,7 +62,9 @@ export default function ChartPage() {
           The dataset Statistics tab in IndxServer: searches in the default grey, selects in{' '}
           <code>var(--CTeal)</code>, and <code>markers</code> for the changes made to the dataset. A
           marker is a small blue square on the baseline under its point, and the change is listed in
-          that point's tooltip. Several markers may share a point.
+          that point's tooltip. Several markers may share a point: the same label is one row with how
+          many times it happened, and when there are more rows than the chart's height holds the last
+          says how many were left out (the sixteenth point).
         </p>
         <Chart
           type="line"
