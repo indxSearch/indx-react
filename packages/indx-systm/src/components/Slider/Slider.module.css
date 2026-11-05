@@ -86,8 +86,13 @@
   outline-offset: 2px;
 }
 
+/* Disabled as the rest of the system shows it (Button, Checkbox, BarSlider): the whole slider
+   at half opacity, not allowed. The thumb keeps its own colour; in the fill's colour it vanished
+   into the fill, which read as broken rather than off. */
+.rootDisabled {
+  opacity: 0.5;
+}
 .thumbs.disabled {
-  background-color: var(--lv5);
   cursor: not-allowed;
 }
 /* Step marks: 2x8 bars, one per step, under the thumbs */

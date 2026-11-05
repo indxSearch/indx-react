@@ -107,7 +107,7 @@ export const Slider: React.FC<SliderProps> = (props) => {
     const [v0, v1] = valuePair;
 
     return (
-      <div className={className}>
+      <div className={`${className ?? ''} ${disabled ? styles.rootDisabled : ''}`.trim() || undefined}>
         {label && (
           <label htmlFor={sliderId} className={styles.label}>
             {label}
@@ -211,7 +211,7 @@ export const Slider: React.FC<SliderProps> = (props) => {
     const singleValue = props.value as SingleValue;
 
     return (
-      <div className={className}>
+      <div className={`${className ?? ''} ${disabled ? styles.rootDisabled : ''}`.trim() || undefined}>
         {label && (
           <label htmlFor={sliderId} className={styles.label}>
             {label}
