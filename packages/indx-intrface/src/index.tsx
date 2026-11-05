@@ -45,5 +45,3 @@ export type { QuickAnswerProps } from './components/QuickAnswer';
 export type { AskPanelProps } from './components/AskPanel';
 export { nextOffer, triggers, isIdentifier, visibleResults, DEFAULT_THRESHOLDS, DEFAULT_CUT, SCORE_SCALE, STRICT_MATCH } from './utils/searchOrAsk';
 export type { Offer, OfferThresholds, CutRule } from './utils/searchOrAsk';
-export { stripAskPhrases } from './utils/askPhrases';
-export type { AskPhrases } from './utils/askPhrases';

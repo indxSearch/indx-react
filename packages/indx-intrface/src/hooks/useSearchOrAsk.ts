@@ -4,7 +4,6 @@ import {
   DEFAULT_CUT, DEFAULT_THRESHOLDS, STRICT_MATCH, canAnswer, isIdentifier, nextOffer, pageMode, sentence, statisticsParams, triggers,
   type CutRule, type Offer, type OfferThresholds, type SearchOrAskMode,
 } from '../utils/searchOrAsk';
-import { stripAskPhrases, type AskPhrases } from '../utils/askPhrases';
 
 export interface UseSearchOrAskOptions {
   /** false keeps the hook quiet: no settings read, no judgement. Default true. */
@@ -130,12 +129,6 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const chosenModeRef = useRef(chosenMode);
   chosenModeRef.current = chosenMode;
   const mode = { get current() { return pageMode(datasetMode.current, chosenModeRef.current); } };
-  // The dataset's Ask phrases: registered on the search context, so the list searches what a
-  // question is about ("green ogre") while the field shows the question.
-  const phrases = useRef<AskPhrases | null>(null);
-  // The dataset's two rules for them: refocus the list, and invite on a question's shape.
-  const refocus = useRef(true);
-  const inviteOnPhrase = useRef(true);
   // The coverage values the strict setup replaced, to put back when the offer drops.
   const relaxed = useRef<Record<string, unknown> | null>(null);
   const offerRef = useRef<Offer>('none');
@@ -172,11 +165,8 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; mode?: SearchOrAskMode; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; refocusWhileTyping?: boolean; inviteOnAskPhrase?: boolean }; effective?: { askPhrases?: AskPhrases }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; mode?: SearchOrAskMode; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
-        phrases.current = body.effective?.askPhrases ?? null;
-        refocus.current = body.settings.refocusWhileTyping ?? true;
-        inviteOnPhrase.current = body.settings.inviteOnAskPhrase ?? true;
         filtersWhileTyping.current = body.settings.filtersWhileTyping ?? 'off';
         datasetMode.current = body.settings.mode ?? 'soft';
         thresholds.current = withDefaults(body.settings.thresholds);
@@ -224,15 +214,6 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     });
   };
 
-  // The Ask phrases on the search context while Search or ask is on here, off with it.
-  useEffect(() => {
-    const { setSearchRewrite } = ctxRef.current;
-    const p = phrases.current;
-    if (!available || !p || !refocus.current || !setSearchRewrite) return;
-    setSearchRewrite(typed => stripAskPhrases(typed, p).text);
-    return () => setSearchRewrite(null);
-  }, [available]);
-
   useEffect(() => {
     if (!available) { setState(IDLE); return; }
     if (!text) {
@@ -244,11 +225,6 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       if (isIdentifier(text)) setState(s => ({ ...s, available, offer: 'none', text }));
       return;
     }
-    // A question's shape, on the keystroke it takes: the quiet offer at once, the judge's word on
-    // the pause. It never forces the strong offer, and a judgement that says otherwise takes it back.
-    // Strict has no quiet offer.
-    if (mode.current !== 'strict' && inviteOnPhrase.current && phrases.current && stripAskPhrases(text, phrases.current).taken.length > 0)
-      setState(s => (s.offer === 'none' ? { ...s, available, offer: 'invite', text } : s));
     ahead.current(text);
     let gone = false;
     const timer = setTimeout(async () => {
