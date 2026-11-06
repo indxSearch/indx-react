@@ -57,6 +57,7 @@ export const navGroups: NavGroup[] = [
       { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
       { label: 'SliderField', path: '/slider-field' },
+      { label: 'HistogramRange', path: '/histogram-range' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },
       { label: 'Select', path: '/select' },
