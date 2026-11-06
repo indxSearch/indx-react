@@ -24,8 +24,8 @@ export interface RecordMatch {
   words: QueryWordMatch[];
 }
 
-/** What Coverage found in the returned records (query.enableRerankReport). */
-export interface RerankReport {
+/** How each query word was met in the returned records (query.enableMatchReport). */
+export interface MatchReport {
   /** Per record, in the order of `records`. */
   matches?: RecordMatch[] | null;
   /** Per field: how many query words were met each way, over the returned records. */
@@ -61,8 +61,10 @@ export interface Result {
   ranked?: number;
   /** Nothing was counted: the records holding the most of the words, then pattern matches. */
   isFallback?: boolean;
-  /** Null unless the query asked for it and the search was reranked. */
-  rerankReport?: RerankReport | null;
+  /** Null unless the query asked for it. */
+  matchReport?: MatchReport | null;
+  /** Whether the reranker ordered the list (ranking.rerank as the search ran it). */
+  reranked?: boolean;
 }
 
 /** A {@link Result} of a search with `measureFit`: how well the results explain the text. */

@@ -66,8 +66,8 @@ export interface QueryProxy {
   match?: MatchSetup | null;
   candidates?: CandidateSetup | null;
   ranking?: RankingProxy | null;
-  /** Reranked, return `rerankReport`: how each query word was met in each record. */
-  enableRerankReport?: boolean;
+  /** Return `matchReport`, in any mode: how each query word was met in each record. */
+  enableMatchReport?: boolean;
   enableFacets?: boolean;
   removeDuplicates?: boolean;
   sortAscending?: boolean;

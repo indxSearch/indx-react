@@ -15,8 +15,8 @@ gone. Enums are strings, by name, as the server now sends and reads them (`Boost
 with `candidates.rest`). The provider's `countedTotal` is the result's `count`. `FieldProxy` follows the
 server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
 `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `rerankWeight` of 0; the
-`CoverageStrictness` enum is gone. Coverage is called reranking: `enableRerankReport`,
-`rerankReport` (`RerankReport`) and a field's `rerankWeight` in place of `enableCoverageReport`,
+`CoverageStrictness` enum is gone. Coverage is called reranking: `enableMatchReport`,
+`matchReport` (`MatchReport`) and a field's `rerankWeight` in place of `enableCoverageReport`,
 `coverageReport` and `coverageWeight`.
 
 The settings panel shows the mode and a rerank switch. The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
