@@ -117,6 +117,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Dataset page', path: '/dataset-page' },
       { label: 'Field profiles', path: '/field-profiles' },
+      { label: 'Preview number filters', path: '/preview-ranges' },
       { label: 'Console shell', path: '/console-shell' },
       { label: 'Console with Sidebar', path: '/console-sidebar' },
       { label: 'Get started', path: '/get-started' },

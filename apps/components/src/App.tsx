@@ -74,6 +74,7 @@ import SearchSettingsPanelPage from './search-settings-panel/page';
 import SearchErrorBoundaryPage from './search-error-boundary/page';
 import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
+import PreviewRangesPage from './preview-ranges/page';
 import SkeletonPage from './skeleton/page';
 import ShimmerTextPage from './shimmer-text/page';
 import ScoreMeterPage from './score-meter/page';
@@ -165,6 +166,7 @@ export default function App() {
         <Route path="/search-error-boundary" element={<SearchErrorBoundaryPage />} />
         <Route path="/code-copy" element={<CodeCopyPage />} />
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
+        <Route path="/preview-ranges" element={<PreviewRangesPage />} />
         <Route path="/skeleton" element={<SkeletonPage />} />
         <Route path="/shimmer-text" element={<ShimmerTextPage />} />
         <Route path="/score-meter" element={<ScoreMeterPage />} />

@@ -1,4 +1,5 @@
 import { Chip } from '@indxsearch/systm';
+import { useState } from 'react';
 import { Flag, Trolley, Hour_glass, Warning, Empty, Hibernate } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
@@ -20,6 +21,12 @@ export default function ChipPage() {
             <Chip>grass</Chip>
             <Chip>electric</Chip>
           </div>
+        </div>
+
+        <div className={styles.demo}>
+          <h2 className={styles.heading}>Toggle</h2>
+          <p className={styles.desc}>With <code>onClick</code> a chip is a button that can be picked, as a facet's values are in the console's search preview.</p>
+          <ToggleChips />
         </div>
 
         <div className={styles.demo}>
@@ -56,5 +63,19 @@ export default function ChipPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function ToggleChips() {
+  const [picked, setPicked] = useState<string[]>(['Drama']);
+  const toggle = (v: string) => setPicked(p => (p.includes(v) ? p.filter(x => x !== v) : [...p, v]));
+  return (
+    <div className={styles.row}>
+      {[['Drama', 10447], ['Comedy', 8429], ['Thriller', 5574], ['Action', 4572]].map(([v, n]) => (
+        <Chip key={v} selected={picked.includes(v as string)} onClick={() => toggle(v as string)}>
+          {v}<span style={{ marginLeft: 6, opacity: 0.6 }}>{(n as number).toLocaleString('en')}</span>
+        </Chip>
+      ))}
+    </div>
   );
 }
