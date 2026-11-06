@@ -34,6 +34,12 @@ export interface MatchReport {
 
 /** How many records hold every query word on each rung, each with those before it; a rung not
  * worked out is null. */
+/** How many listed records fill a short page, and from where (result.fill). */
+export interface PageFill {
+  nextRungs: number;
+  mostWords: number;
+}
+
 export interface ToleranceCounts {
   exact: number;
   oneEdit?: number | null;
@@ -65,6 +71,10 @@ export interface Result {
   matchReport?: MatchReport | null;
   /** Whether the reranker ordered the list (ranking.rerank as the search ran it). */
   reranked?: boolean;
+  /** How many listed records fill a short page, not counted: from the next typo levels (every
+   * word), then holding the most of the words. In that order after the counted records. Null
+   * without the word lookup (Bm25f mode). */
+  fill?: PageFill | null;
 }
 
 /** A {@link Result} of a search with `measureFit`: how well the results explain the text. */
