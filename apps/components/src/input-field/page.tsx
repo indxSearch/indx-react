@@ -54,8 +54,8 @@ export default function InputFieldPage() {
 
       <div className={styles.section}>
         <h2 className={styles.heading}>Ghost</h2>
-        <p>No border until hovered or focused: a value that sits inline and can still be typed. Beside a slider, the slider moves in steps and the field takes any value (a field's weight in the console).</p>
-        <GhostWeight />
+        <p>No stroke until it is edited, a ghost button's tint when pointed at: a value that sits inline and can still be typed. Beside a slider it is the SliderField.</p>
+        <div style={{ width: 56 }}><InputField variant="ghost" type="number" defaultValue={1.3} aria-label="Ghost" style={{ textAlign: 'right' }} /></div>
       </div>
 
       <div className={styles.section}>
@@ -87,17 +87,5 @@ export default function InputFieldPage() {
         </div>
       </div>
     </main>
-  );
-}
-
-function GhostWeight() {
-  const [weight, setWeight] = React.useState(1.3);
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: 220 }}>
-      <Slider min={0.5} max={3} step={0.25} value={Math.min(3, Math.max(0.5, weight))} onChange={v => setWeight(v as number)} aria-label="Weight" />
-      <InputField variant="ghost" type="number" step={0.1} min={0} value={weight}
-        onChange={e => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) setWeight(v); }}
-        style={{ width: 56, textAlign: 'right', padding: '0 6px' }} aria-label="Weight value" />
-    </div>
   );
 }

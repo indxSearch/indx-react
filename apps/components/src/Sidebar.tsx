@@ -56,6 +56,7 @@ export const navGroups: NavGroup[] = [
       { label: 'ScoreMeter', path: '/score-meter' },
       { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
+      { label: 'SliderField', path: '/slider-field' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },
       { label: 'Select', path: '/select' },
@@ -116,6 +117,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Dataset page', path: '/dataset-page' },
       { label: 'Field profiles', path: '/field-profiles' },
+      { label: 'Preview number filters', path: '/preview-ranges' },
       { label: 'Console shell', path: '/console-shell' },
       { label: 'Console with Sidebar', path: '/console-sidebar' },
       { label: 'Get started', path: '/get-started' },

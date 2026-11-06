@@ -78,13 +78,30 @@
   color: var(--CSignal);
 }
 
-/* Ghost: reads as its text until it is pointed at or edited, for a value that sits inline (a
-   number beside its slider). The border comes on hover and focus, as the box's does. */
+/* Ghost: reads as its text until it is edited, for a value that sits inline (the number in a
+   SliderField). Pointed at, it takes a ghost button's tint; the stroke comes only while it is being
+   edited. Each rule has the specificity of the box's own, so it wins by coming after. */
 .ghost {
   border-color: transparent;
 }
 
-.ghost.error {
+.ghost:not(:disabled):hover {
+  border-color: transparent;
+  background: var(--lv2);
+}
+
+.ghost:not(:disabled):active {
+  border-color: transparent;
+}
+
+.ghost:not(:disabled):focus {
+  border-color: var(--lv5);
+  background: transparent;
+}
+
+.ghost.error,
+.ghost.error:not(:disabled):hover,
+.ghost.error:not(:disabled):focus {
   border-color: var(--CSignal);
 }
 

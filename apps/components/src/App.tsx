@@ -12,6 +12,7 @@ import SelectPage from './select/page';
 import SliderPage from './slider/page';
 import BarSliderPage from './bar-slider/page';
 import ScrubSliderPage from './scrub-slider/page';
+import SliderFieldPage from './slider-field/page';
 import BarMeterPage from './bar-meter/page';
 import WafflePage from './waffle/page';
 import HeatmapPage from './heatmap/page';
@@ -73,6 +74,7 @@ import SearchSettingsPanelPage from './search-settings-panel/page';
 import SearchErrorBoundaryPage from './search-error-boundary/page';
 import CodeCopyPage from './code-copy/page';
 import SearchOrAskPage from './search-or-ask/page';
+import PreviewRangesPage from './preview-ranges/page';
 import SkeletonPage from './skeleton/page';
 import ShimmerTextPage from './shimmer-text/page';
 import ScoreMeterPage from './score-meter/page';
@@ -102,6 +104,7 @@ export default function App() {
         <Route path="/slider" element={<SliderPage />} />
         <Route path="/bar-slider" element={<BarSliderPage />} />
         <Route path="/scrub-slider" element={<ScrubSliderPage />} />
+        <Route path="/slider-field" element={<SliderFieldPage />} />
         <Route path="/bar-meter" element={<BarMeterPage />} />
         <Route path="/waffle" element={<WafflePage />} />
         <Route path="/heatmap" element={<HeatmapPage />} />
@@ -163,6 +166,7 @@ export default function App() {
         <Route path="/search-error-boundary" element={<SearchErrorBoundaryPage />} />
         <Route path="/code-copy" element={<CodeCopyPage />} />
         <Route path="/search-or-ask" element={<SearchOrAskPage />} />
+        <Route path="/preview-ranges" element={<PreviewRangesPage />} />
         <Route path="/skeleton" element={<SkeletonPage />} />
         <Route path="/shimmer-text" element={<ShimmerTextPage />} />
         <Route path="/score-meter" element={<ScoreMeterPage />} />
