@@ -12,6 +12,7 @@ import SelectPage from './select/page';
 import SliderPage from './slider/page';
 import BarSliderPage from './bar-slider/page';
 import ScrubSliderPage from './scrub-slider/page';
+import SliderFieldPage from './slider-field/page';
 import BarMeterPage from './bar-meter/page';
 import WafflePage from './waffle/page';
 import HeatmapPage from './heatmap/page';
@@ -102,6 +103,7 @@ export default function App() {
         <Route path="/slider" element={<SliderPage />} />
         <Route path="/bar-slider" element={<BarSliderPage />} />
         <Route path="/scrub-slider" element={<ScrubSliderPage />} />
+        <Route path="/slider-field" element={<SliderFieldPage />} />
         <Route path="/bar-meter" element={<BarMeterPage />} />
         <Route path="/waffle" element={<WafflePage />} />
         <Route path="/heatmap" element={<HeatmapPage />} />

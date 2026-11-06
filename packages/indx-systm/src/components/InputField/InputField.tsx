@@ -6,7 +6,7 @@ export interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElem
   error?: string;
   className?: string;
   isValid?: boolean;
-  /** `ghost`: no border until hovered or focused, for a value that sits inline. */
+  /** `ghost`: no border until it is edited, a ghost button's tint when hovered, for a value that sits inline. */
   variant?: 'default' | 'borderBottom' | 'ghost';
 }
 

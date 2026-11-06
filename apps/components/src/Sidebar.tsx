@@ -56,6 +56,7 @@ export const navGroups: NavGroup[] = [
       { label: 'ScoreMeter', path: '/score-meter' },
       { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
+      { label: 'SliderField', path: '/slider-field' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },
       { label: 'Select', path: '/select' },
