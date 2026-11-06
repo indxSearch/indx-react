@@ -105,40 +105,60 @@ function RangeSlider({ field, histogram, step }: { field: string; histogram: His
   );
 }
 
-// ── C: the histogram, dragged across ───────────────────────────────────────
+// ── C: the histogram, with from and to under it ────────────────────────────
 
-function HistogramRange({ field, histogram, buckets }: { field: string; histogram: Histogram; buckets: number }) {
+function HistogramRange({ field, histogram, buckets, step }: { field: string; histogram: Histogram; buckets: number; step: number }) {
   // The facet's values gathered into a few bars, so a long list of numbers reads as its shape.
+  const lo = histogram[0][0], hi = histogram[histogram.length - 1][0];
   const bars = useMemo(() => {
-    const lo = histogram[0][0], hi = histogram[histogram.length - 1][0];
     const width = (hi - lo) / buckets;
     return Array.from({ length: buckets }, (_, i) => {
       const from = lo + i * width, to = i === buckets - 1 ? hi : lo + (i + 1) * width;
       const inBar = histogram.filter(([v]) => v >= from && (i === buckets - 1 ? v <= to : v < to));
       return { from: inBar[0]?.[0] ?? from, to: inBar[inBar.length - 1]?.[0] ?? to, n: inBar.reduce((s, [, n]) => s + n, 0) };
     });
-  }, [histogram, buckets]);
+  }, [histogram, buckets, lo, hi]);
   const max = Math.max(...bars.map(b => b.n));
-  const [sel, setSel] = useState<[number, number] | null>(null);
+
+  // One range, two ways in: dragging across the bars writes the numbers, typing a number lights
+  // the bars it reaches. Empty means open at that end.
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [anchor, setAnchor] = useState<number | null>(null);
-  const inSel = (i: number) => sel != null && i >= Math.min(...sel) && i <= Math.max(...sel);
-  const a = sel ? bars[Math.min(...sel)] : null, b = sel ? bars[Math.max(...sel)] : null;
+  const f = from === '' ? undefined : Number(from), t = to === '' ? undefined : Number(to);
+  const picked = f != null || t != null;
+  const inRange = (bar: { from: number; to: number }) => (f == null || bar.to >= f) && (t == null || bar.from <= t);
+  const pickBars = (a: number, b: number) => {
+    const first = bars[Math.min(a, b)], last = bars[Math.max(a, b)];
+    setFrom(String(first.from));
+    setTo(String(last.to));
+  };
+
   return (
     <div className={styles.row}>
       <span className={styles.field}>
         {field}
-        {a && b && <span className={styles.count}>{a.from} to {b.to} · {fmt(bars.filter((_, i) => inSel(i)).reduce((s, x) => s + x.n, 0))}</span>}
+        {picked && <span className={styles.count}>{fmt(sumIn(histogram, f, t))}</span>}
       </span>
       <div className={styles.histogram} onPointerLeave={() => setAnchor(null)} onPointerUp={() => setAnchor(null)}>
         {bars.map((bar, i) => (
-          <div key={i} className={`${styles.bar} ${sel == null || inSel(i) ? styles.barIn : ''}`}
-            style={{ height: `${Math.max(4, (bar.n / max) * 100)}%`, opacity: sel == null ? 0.35 : 1 }}
+          <div key={i} className={`${styles.bar} ${picked && inRange(bar) ? styles.barIn : ''}`}
+            style={{ height: `${Math.max(4, (bar.n / max) * 100)}%` }}
             title={`${bar.from} to ${bar.to}: ${fmt(bar.n)}`}
-            onPointerDown={() => { setAnchor(i); setSel(sel && sel[0] === i && sel[1] === i ? null : [i, i]); }}
-            onPointerEnter={() => anchor != null && setSel([anchor, i])} />
+            onPointerDown={() => {
+              setAnchor(i);
+              if (picked && f === bar.from && t === bar.to) { setFrom(''); setTo(''); } else pickBars(i, i);
+            }}
+            onPointerEnter={() => anchor != null && pickBars(anchor, i)} />
         ))}
       </div>
-      <div className={styles.histogramAxis}><span>{bars[0].from}</span><span>{bars[bars.length - 1].to}</span></div>
+      <span className={`${styles.fromTo} ${styles.fromToUnder}`}>
+        <InputField variant="ghost" type="number" step={step} placeholder={String(lo)} value={from} aria-label={`${field} from`}
+          onChange={e => setFrom(e.target.value)} />
+        <span className={styles.dash}>to</span>
+        <InputField variant="ghost" type="number" step={step} placeholder={String(hi)} value={to} aria-label={`${field} to`}
+          onChange={e => setTo(e.target.value)} />
+      </span>
     </div>
   );
 }
@@ -199,11 +219,11 @@ export default function PreviewRangesPage() {
         </div>
 
         <div>
-          <h2 className={styles.heading}>C · Histogram</h2>
-          <p className={styles.desc}>The facet's counts as bars; click a bar, or drag across bars, to pick a range. Shows the shape of the data. A new component.</p>
+          <h2 className={styles.heading}>C · Histogram with from and to</h2>
+          <p className={styles.desc}>A and the facet's counts as bars, one range: drag across the bars and the numbers follow, type a number and the bars light up to it. Shows the shape of the data. A new component.</p>
           <Panel picked onClear={clear}>
-            <HistogramRange field="release_year" histogram={YEARS} buckets={36} />
-            <HistogramRange field="vote_average" histogram={VOTES} buckets={30} />
+            <HistogramRange field="release_year" histogram={YEARS} buckets={36} step={1} />
+            <HistogramRange field="vote_average" histogram={VOTES} buckets={30} step={0.1} />
           </Panel>
         </div>
 
@@ -222,7 +242,7 @@ export default function PreviewRangesPage() {
       <div className={styles.section} style={{ marginTop: '3rem' }}>
         <p className={styles.verdict}>
           <strong>Cheapest:</strong> A and D reuse what is there. <strong>Clearest for any number:</strong> A, typed or stepped.
-          <strong> Most telling:</strong> C, which shows where the records are before anything is picked.
+          <strong> Most telling:</strong> C, which shows where the records are before anything is picked, and takes an exact number too.
         </p>
       </div>
     </main>
