@@ -9,7 +9,7 @@ export interface ScoreEntry {
 
 /** How Coverage met a query word in a record. */
 export type WordMatch =
-  | 'NotFound' | 'Whole' | 'Prefix' | 'Suffix' | 'Joined' | 'RunTogether' | 'OneEdit' | 'TwoEdits' | number;
+  | 'NotFound' | 'Whole' | 'Prefix' | 'Suffix' | 'Joined' | 'RunTogether' | 'OneEdit' | 'TwoEdits' | 'Synonym' | number;
 
 export interface QueryWordMatch {
   word: string;
@@ -32,20 +32,22 @@ export interface MatchReport {
   matchesByField?: { [field: string]: { [how: string]: number } } | null;
 }
 
-/** How many records hold every query word on each rung, each with those before it; a rung not
- * worked out is null. */
 /** How many listed records fill a short page, and from where (result.fill). */
 export interface PageFill {
   nextRungs: number;
   mostWords: number;
 }
 
+/** How many records hold every query word on each rung, each with those before it; a rung not
+ * worked out is null. */
 export interface ToleranceCounts {
   exact: number;
   oneEdit?: number | null;
   twoEdits?: number | null;
   /** With candidates.rest: the counted rung and the rest taken below it, up to the bound. */
   rest?: number | null;
+  /** Of the counted, those holding a run of words only through a synonym; null when none fired. */
+  throughSynonym?: number | null;
 }
 
 export interface Result {
