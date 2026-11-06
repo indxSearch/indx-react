@@ -33,6 +33,9 @@ export interface CandidateSetup {
   /** In EditDistance, BM25F's best not counted below the counted set, counted (toleranceCounts.rest)
    * and in the facets. Default false. */
   rest?: boolean;
+  /** A page short of the rows filled, below the counted and not counted, with the records holding
+   * the most of the words (result.fill.mostWords). Default false. */
+  fillWithMostWords?: boolean;
 }
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
