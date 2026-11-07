@@ -8,9 +8,10 @@ export interface MatchSetup {
   tolerance?: Tolerance;
   /** Fewest (the default): the first rung with hits. All: every rung up to the tolerance. */
   rungs?: Rungs;
-  /** The shortest word given one edit (3) and two (6); 0 is never. */
+  /** The shortest word given one edit (3), two (6) and three (9, where the tolerance is ThreeEdits); 0 is never. */
   oneEditFrom?: number;
   twoEditsFrom?: number;
+  threeEditsFrom?: number;
   /** Where the cursor is in the text: the word it is in is the one being typed. Null: the last word. */
   cursorAt?: number | null;
   /** The word being typed also as the start of a longer word from this many letters (3), and within one edit from (6). */
@@ -36,6 +37,9 @@ export interface CandidateSetup {
   /** A page short of the rows filled, below the counted and not counted, with the records holding
    * the most of the words (result.fill.mostWords). Default false. */
   fillWithMostWords?: boolean;
+  /** How many typo levels past the counted one fill a short page, below it and not counted: 0 no
+   * fill (default), 1 the next level, 2 up to two typos. */
+  fillReach?: number;
 }
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
