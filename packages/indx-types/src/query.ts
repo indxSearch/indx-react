@@ -36,6 +36,9 @@ export interface CandidateSetup {
   /** A page short of the rows filled, below the counted and not counted, with the records holding
    * the most of the words (result.fill.mostWords). Default false. */
   fillWithMostWords?: boolean;
+  /** How many typo levels past the counted one fill a short page, below it and not counted: 0 no
+   * fill (default), 1 the next level, 2 up to two typos. */
+  fillReach?: number;
 }
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
