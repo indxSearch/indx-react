@@ -8,9 +8,10 @@ export interface MatchSetup {
   tolerance?: Tolerance;
   /** Fewest (the default): the first rung with hits. All: every rung up to the tolerance. */
   rungs?: Rungs;
-  /** The shortest word given one edit (3) and two (6); 0 is never. */
+  /** The shortest word given one edit (3), two (6) and three (9, where the tolerance is ThreeEdits); 0 is never. */
   oneEditFrom?: number;
   twoEditsFrom?: number;
+  threeEditsFrom?: number;
   /** Where the cursor is in the text: the word it is in is the one being typed. Null: the last word. */
   cursorAt?: number | null;
   /** The word being typed also as the start of a longer word from this many letters (3), and within one edit from (6). */

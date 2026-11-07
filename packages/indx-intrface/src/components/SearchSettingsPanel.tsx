@@ -13,6 +13,7 @@ const MATCH_DEFAULTS: Required<Omit<MatchSetup, 'cursorAt'>> = {
   rungs: Rungs.Fewest,
   oneEditFrom: 3,
   twoEditsFrom: 6,
+  threeEditsFrom: 9,
   typingPrefixFrom: 3,
   typingPrefixOneEditFrom: 6,
   joinedWords: true,
@@ -204,6 +205,7 @@ export function SearchSettingsPanel() {
                   { label: 'Exact', value: Tolerance.Exact },
                   { label: 'One edit', value: Tolerance.OneEdit },
                   { label: 'Two edits', value: Tolerance.TwoEdits },
+                  { label: 'Three edits', value: Tolerance.ThreeEdits },
                 ]}
               />
             </li>
@@ -231,6 +233,15 @@ export function SearchSettingsPanel() {
                 disabled={isBm25f}
                 value={(match.twoEditsFrom ?? MATCH_SHOWN.twoEditsFrom).toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ twoEditsFrom: n }))}
+              />
+            </li>
+            <li>
+              <InputField
+                label="Three edits from"
+                type="number"
+                disabled={isBm25f}
+                value={(match.threeEditsFrom ?? MATCH_SHOWN.threeEditsFrom).toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => parseIntOr(e.target.value, n => setMatch({ threeEditsFrom: n }))}
               />
             </li>
             <li>

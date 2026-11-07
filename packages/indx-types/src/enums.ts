@@ -45,11 +45,12 @@ export enum SearchMode {
   EditDistance = 'EditDistance'
 }
 
-/** The rungs a query word is met on: as typed, within one edit, within two. */
+/** The rungs a query word is met on: as typed, within one edit, within two, within three. */
 export enum Tolerance {
   Exact = 'Exact',
   OneEdit = 'OneEdit',
-  TwoEdits = 'TwoEdits'
+  TwoEdits = 'TwoEdits',
+  ThreeEdits = 'ThreeEdits'
 }
 
 /** Which rungs a search counts (MatchSetup.rungs). */
