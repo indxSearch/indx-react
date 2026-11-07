@@ -83,6 +83,7 @@ import StepProgressPage from './step-progress/page';
 import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
+import RecordsBrowserMockup from './records-browser/page';
 import SupportMockup from './support/page';
 import ObservrAgentMockup from './observr-agent/page';
 import FieldProfilesMockup from './field-profiles/page';
@@ -176,6 +177,7 @@ export default function App() {
         <Route path="/icicle" element={<IciclePage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
+        <Route path="/records-browser" element={<RecordsBrowserMockup />} />
         <Route path="/support" element={<SupportMockup />} />
         <Route path="/observr-agent" element={<ObservrAgentMockup />} />
         <Route path="/field-profiles" element={<FieldProfilesMockup />} />

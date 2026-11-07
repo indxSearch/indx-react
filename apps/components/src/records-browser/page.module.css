@@ -1,0 +1,132 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1400px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+.faint { font: var(--text-xs); color: var(--lv5); margin: 0; }
+.spacer { flex: 1; }
+.mono { font-family: var(--font-mono); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.cellEmpty { color: var(--lv4); font-style: italic; }
+.notice { margin: 0; font: var(--text-xs); color: var(--lv6); }
+.pager { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.pager .faint { margin-right: 8px; }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+/* A systm Popover used as a menu or a small form: a column of rows. */
+.menu { min-width: 240px; padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* How much of the dataset holds a field: a hairline track, the ink filled. */
+.fillBar { display: block; height: 3px; background: var(--lv2); overflow: hidden; }
+.fillBar > span { display: block; height: 100%; background: var(--lv6); }
+
+/* The record by field role, the Search preview's document panel. */
+.docSection { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 0.5px solid var(--lv3); }
+.docSectionTitle { font: var(--text-xs); font-weight: var(--med); color: var(--lv7); display: flex; gap: 8px; align-items: baseline; }
+.docSectionNote { font-weight: var(--reg); color: var(--lv5); }
+.docField { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.docFieldHead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.docFieldName { font: var(--text-xs); color: var(--lv6); overflow-wrap: anywhere; }
+.docTag { font: var(--text-xs); color: var(--lv5); background: var(--lv2); padding: 0 5px; white-space: nowrap; }
+.docValue { font: var(--text-xs); color: var(--lv8); white-space: pre-wrap; overflow-wrap: anywhere; }
+.docEmpty { font: var(--text-xs); color: var(--lv4); font-style: italic; }
+.json { margin: 0; font: var(--text-xs); font-family: var(--font-mono); color: var(--lv7); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* ── A: like the others ───────────────────────────────────────────────────────────────────── */
+.discover { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.queryBar { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; align-items: start; }
+@media (max-width: 900px) { .queryBar { grid-template-columns: minmax(0, 1fr); } }
+.queryText { width: 100%; }
+.queryFilter { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+.queryFilter > :first-child { flex: 1; min-width: 0; }
+.discoverBody { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 800px) { .discoverBody { grid-template-columns: minmax(0, 1fr); } }
+
+.fieldList { display: flex; flex-direction: column; gap: 1px; padding: 8px; background: var(--lv1); border-radius: var(--radius); }
+.fieldListTitle { font: var(--text-xs); font-weight: var(--med); color: var(--lv7); padding: 2px 4px 6px; }
+.fieldItem { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.fieldItemName {
+  display: inline-flex; align-items: center; gap: 6px; flex: 1; min-width: 0; height: 26px; padding: 0 4px;
+  font: var(--text-xs); color: var(--lv7); background: none; border: none; border-radius: var(--radius); cursor: pointer; text-align: left;
+}
+.fieldItemName:hover { background: var(--lv2); }
+.fieldType { display: inline-flex; color: var(--lv5); }
+.fieldPop { width: 280px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.fieldPopHead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.topValue { display: flex; align-items: center; gap: 8px; font: var(--text-xs); }
+.topValueText { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--lv7); }
+
+.hits { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.hitsHead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hitsCount { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); font-variant-numeric: tabular-nums; }
+.expandCol { width: 36px; }
+.expanded > td { background: var(--lv1); }
+.expandedBody { display: flex; flex-direction: column; gap: 10px; padding: 6px 4px 10px; }
+.expandedFields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
+
+/* ── B: our layout, the Search preview's style ────────────────────────────────────────────── */
+.pvGrid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 8px; align-items: stretch; min-height: 640px; }
+@media (max-width: 1000px) { .pvGrid { grid-template-columns: minmax(0, 1fr); } }
+.pvPanel { display: flex; flex-direction: column; background: var(--lv0); border: 0.5px solid var(--lv3); padding: 5px; box-sizing: border-box; min-width: 0; }
+.pvField { position: relative; display: flex; align-items: center; height: 40px; flex: 0 0 40px; border: 1px solid transparent; box-sizing: border-box; }
+.pvFieldIcon { position: absolute; left: 7px; display: flex; align-items: center; height: 100%; color: var(--lv4); pointer-events: none; }
+.pvField:focus-within .pvFieldIcon { color: var(--lv7); }
+.pvFieldInput {
+  flex: 1; min-width: 0; height: 100%; padding: 0 12px 0 35px; font: var(--text-base); color: var(--lv8); caret-color: var(--lv7);
+  background: none; border: none; outline: none; box-sizing: border-box;
+}
+.pvFieldInput::placeholder { color: var(--lv4); }
+.pvCount { flex: none; padding-right: 8px; font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pvEmpty { margin: 4px 8px 0; font: var(--text-sm); color: var(--lv4); }
+.pvTools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 2px; border-bottom: 0.5px solid var(--lv3); }
+.pvNote { margin: 8px 5px 0; font: var(--text-xs); color: var(--lv5); }
+
+.pvList { display: flex; flex-direction: column; margin-top: 4px; min-width: 0; overflow-x: auto; }
+.pvRow {
+  display: grid; align-items: baseline; gap: 12px; padding: 8px 5px; border-bottom: 1px solid var(--lv3);
+  font: var(--text-xs); color: var(--lv6); cursor: pointer; min-width: 560px;
+}
+.pvRow:hover, .pvRow:focus-visible { background: var(--lv1); outline: none; }
+.pvRowOpen, .pvRowOpen:hover { background: var(--lv2); }
+.pvHead { color: var(--lv5); cursor: default; padding-top: 6px; padding-bottom: 6px; }
+.pvHead:hover { background: none; }
+.pvKey { color: var(--lv4); font-variant-numeric: tabular-nums; }
+.pvCell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pvRow .cellEmpty { color: var(--lv4); }
+.pvList + .pager { margin-top: auto; padding-top: 6px; }
+
+.pvBase { display: flex; flex-direction: column; background: var(--lv1); border: 0.5px solid var(--lv3); padding: 5px; box-sizing: border-box; min-width: 0; color: var(--lv7); }
+.pvCaption { position: relative; display: flex; align-items: center; height: 40px; flex: 0 0 40px; border: 1px solid transparent; box-sizing: border-box; }
+.pvCaption .pvFieldIcon { color: var(--lv7); }
+.pvCaptionText { padding-left: 35px; font: var(--text-base); color: var(--lv7); }
+.pvCaptionEnd { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
+.pvBaseBody { flex: 1; min-height: 0; overflow-y: auto; padding: 2px 8px 8px; display: flex; flex-direction: column; gap: 10px; max-height: 720px; }
+.pvFieldStat {
+  display: flex; flex-direction: column; gap: 4px; padding: 6px; margin: 0 -6px; text-align: left;
+  background: none; border: none; border-radius: var(--radius); cursor: pointer; color: inherit; font: inherit;
+}
+.pvFieldStat:hover { background: var(--lv2); }
+.pvFieldStat[aria-pressed='true'] .docFieldName { color: var(--lv8); font-weight: var(--med); }
+.pvWarn { font: var(--text-xs); color: var(--lv8); font-weight: var(--med); margin: 0; }
+
+/* ── C: what the data lacks ───────────────────────────────────────────────────────────────── */
+.health { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.healthBar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hHead { vertical-align: top; min-width: 130px; }
+.hKeyHead { vertical-align: top; }
+.hHeadButton {
+  display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 2px 4px; margin: -2px -4px;
+  background: none; border: none; border-radius: var(--radius); cursor: pointer; text-align: left; font: inherit; color: inherit;
+}
+.hHeadButton:hover { background: var(--lv2); }
+.hHeadName { display: inline-flex; align-items: center; gap: 4px; }
+
+.split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.split.withDetail { grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); }
+@media (max-width: 1100px) { .split.withDetail { grid-template-columns: minmax(0, 1fr); } }
+.listCol { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.keyButton.keyButton { font-family: var(--font-mono); padding: 0 6px; }
+.keyButton.keyOpen { background: var(--lv7); color: var(--lv1); }
+.detail { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--lv1); border-radius: var(--radius); position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.detailHead { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
