@@ -26,6 +26,8 @@ export const FIELDS: FieldDef[] = [
   { name: 'updated', type: 'String', roles: ['sort'] },
   { name: 'sku', type: 'String', roles: [] },
   { name: 'image_url', type: 'String', roles: [] },
+  // Thousands of values, as an actors field: a value filter has to search them, not list them.
+  { name: 'designers', type: 'Array', roles: ['filter', 'facet'] },
 ];
 
 export const isSearched = (f: FieldDef) => f.roles.includes('word') || f.roles.includes('pattern');
@@ -41,6 +43,15 @@ const BRANDS = ['Nordform', 'Hus & Hem', 'Lysverk', 'Tre', 'Oslo Living', 'Fjord
 const NOUN: Record<string, string> = { Sofas: 'sofa', Chairs: 'chair', Tables: 'table', Lamps: 'lamp', Rugs: 'rug', Shelving: 'shelf' };
 const ADJ = ['Oslo', 'Bergen', 'Fjord', 'Linn', 'Vik', 'Ask', 'Bris', 'Sol', 'Hav', 'Lun'];
 const TAGS = ['oak', 'linen', 'outdoor', 'kids', 'sale', 'new', 'recycled', 'wool'];
+const FIRST = ['Ada', 'Bo', 'Cato', 'Dina', 'Eli', 'Frida', 'Gard', 'Hedda', 'Iver', 'Juni', 'Kai', 'Liv', 'Mads', 'Nora', 'Odd', 'Pia',
+  'Rune', 'Siri', 'Tor', 'Una', 'Vilde', 'Walter', 'Ylva', 'Åse', 'Arne', 'Berit', 'Conrad', 'Dag', 'Ebba', 'Finn', 'Grete', 'Hans',
+  'Ingrid', 'Jon', 'Kari', 'Leif', 'Marit', 'Nils', 'Olga', 'Per', 'Ragna', 'Sverre', 'Tove', 'Ulf', 'Vera', 'Wenche', 'Yngve', 'Øystein'];
+const LAST = ['Aas', 'Berg', 'Dahl', 'Eide', 'Foss', 'Gran', 'Haug', 'Holm', 'Iversen', 'Johansen', 'Krog', 'Lie', 'Moe', 'Nygaard',
+  'Ødegaard', 'Pettersen', 'Rød', 'Strand', 'Sæther', 'Tangen', 'Ulvik', 'Vik', 'Wold', 'Aune', 'Bakke', 'Brekke', 'Dale', 'Engen',
+  'Fjeld', 'Glad', 'Hagen', 'Hauge', 'Jensen', 'Karlsen', 'Lund', 'Myhre', 'Næss', 'Olsen', 'Paulsen', 'Ruud', 'Sand', 'Solberg',
+  'Thoresen', 'Ueland', 'Vold', 'Wang', 'Aasen', 'Bjerke', 'Dybdahl', 'Ekeberg'];
+/** 2,400 names; a few of them on many records, most on one or two. */
+const designer = (n: number) => `${FIRST[n % FIRST.length]} ${LAST[Math.floor(n / FIRST.length) % LAST.length]}`;
 
 /** Records in a dataset of this many; the mock holds them all, a real page reads 50. */
 export const TOTAL = 2400;
@@ -66,6 +77,8 @@ export const RECORDS: Rec[] = Array.from({ length: TOTAL }, (_, i) => {
     updated: `2026-${String(1 + (i % 10)).padStart(2, '0')}-${String(1 + (i % 27)).padStart(2, '0')}`,
     sku: i % 61 === 11 ? undefined : `SKU-${80000 + i}`,
     image_url: i % 29 === 4 ? undefined : `https://cdn.example.com/p/${100000 + i * 3}.jpg`,
+    designers: i % 23 === 2 ? [] : [designer(i % 7), designer((i * 131 + 17) % 2400), ...(i % 3 === 0 ? [designer((i * 977 + 5) % 2400)] : [])]
+      .filter((d, k, all) => all.indexOf(d) === k),
   };
 });
 

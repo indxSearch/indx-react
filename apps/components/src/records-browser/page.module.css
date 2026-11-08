@@ -130,3 +130,46 @@
 .keyButton.keyOpen { background: var(--lv7); color: var(--lv1); }
 .detail { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--lv1); border-radius: var(--radius); position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
 .detailHead { display: flex; align-items: center; gap: 8px; font: var(--text-sm); color: var(--lv8); }
+
+/* ── D: together ──────────────────────────────────────────────────────────────────────────── */
+.dToolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.dOrder { display: inline-flex; align-items: center; gap: 6px; }
+.dSearch { flex: 1 1 200px; max-width: 320px; }
+.dCount { margin-left: auto; font: var(--text-xs); color: var(--lv5); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.dHeadButton {
+  display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 4px 6px; margin: 0 -6px;
+  background: none; border: none; border-radius: var(--radius); cursor: pointer; text-align: left; font: inherit; color: inherit;
+}
+.dNum.dNum { text-align: right; font-variant-numeric: tabular-nums; }
+.dNum .dHeadButton { align-items: flex-end; }
+.dHeadButton:hover { background: var(--lv3); }
+.dHeadNote { font: var(--text-xs); font-weight: var(--reg); color: var(--lv5); white-space: nowrap; }
+/* Something a search treats badly: the ink, medium, with the warning icon. Never a colour. */
+.dIssue { display: inline-flex; align-items: center; gap: 4px; font: var(--text-xs); font-weight: var(--med); color: var(--lv8); white-space: nowrap; }
+.dIssue > svg, .dKey > svg { flex: none; }
+
+/* The whole row opens its record, as a Search preview hit does. */
+.dRow { cursor: pointer; }
+.dRow:hover > td, .dRow:focus-visible > td { background: var(--lv1); }
+.dRow:focus-visible { outline: none; }
+.dRowOpen > td, .dRowOpen:hover > td { background: var(--lv2); }
+.dKey { display: inline-flex; align-items: center; gap: 4px; font: var(--text-xs); font-family: var(--font-mono); color: var(--lv5); white-space: nowrap; }
+.dCell { white-space: nowrap; }
+.dExpanded > td { background: var(--lv1); padding: 8px 15px; }
+/* A long value's tooltip: more of it than the standard measure takes. */
+.cellTip.cellTip { max-width: min(420px, calc(100vw - 32px)); font-weight: var(--reg); white-space: pre-wrap; }
+
+.dValueList { display: flex; flex-direction: column; gap: 1px; max-height: 260px; overflow-y: auto; }
+.dValue.dValue { justify-content: space-between; width: 100%; gap: 12px; text-align: left; }
+
+/* The data check's modal. */
+.checkModal.checkModal { max-width: 520px; }
+.checkText { margin: 0; font: var(--text-sm); color: var(--lv7); }
+.checkActions { display: flex; gap: 8px; margin-top: 4px; }
+.checkProgress { display: flex; flex-direction: column; gap: 10px; }
+.checkProgressLine { display: flex; justify-content: space-between; font: var(--text-sm); color: var(--lv7); font-variant-numeric: tabular-nums; }
+.checkPct { color: var(--lv8); font-weight: var(--med); }
+.checkFinding { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 10px; border-bottom: 0.5px solid var(--lv3); }
+.checkFindingText { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.checkFindingHead { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
