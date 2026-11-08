@@ -432,7 +432,8 @@ export default function TablePage() {
           <code>resizableColumns</code> gives each header a handle at its right edge: drag it, or focus it and use the
           arrow keys (Shift for bigger steps); a double click or Delete gives the column its first width back. Every
           column has a fixed width from the start, so new rows never move the columns: try <em>Other rows</em>.
-          Name a column with <code>data-column</code> and give its first width as <code>data-width</code>;{' '}
+          A cell stays on one line, unless it says <code>data-wrap</code>. The last column fills what is left,
+          never narrower than its own width. Name a column with <code>data-column</code> and give its first width as <code>data-width</code>;{' '}
           <code>columnStorageKey</code> keeps the reader's widths. The Records section of the console uses it.
         </p>
         <div>

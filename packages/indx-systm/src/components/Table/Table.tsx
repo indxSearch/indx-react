@@ -32,7 +32,9 @@ interface TableProps {
    * column gets a fixed width from the start, so the rows a page shows never move the columns:
    * a longer value is cut instead. Name a column by its header's `data-column`, and give its first
    * width as `data-width` (px); without them a column is named by its place and keeps the width it
-   * first had. Header cells must be plain `th`s, as TableHeader renders them.
+   * first had. The column whose header says `data-fill` (else the last) takes what the frame has
+   * left. A cell stays on one line unless it says `data-wrap`. Header cells must be plain `th`s, as
+   * TableHeader renders them.
    */
   resizableColumns?: boolean
   /** With `resizableColumns`: where the reader's widths are kept (localStorage). Left out, they last

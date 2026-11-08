@@ -170,18 +170,25 @@
 }
 
 /* A width is the column's whole width, padding and all, as the reader dragged it. */
-.resizable th {
+.resizable > thead > tr > th {
     position: relative;
     box-sizing: border-box;
 }
 
 /* One line per cell, as data grids do: a narrow column cuts its text instead of making its row
-   tall. A cell that should wrap (an opened row's detail) says white-space: normal itself. */
-.resizable th,
-.resizable td {
+   tall. A table nested in a cell (an opened row's detail) is its own; a cell
+   that should wrap says data-wrap, as data grids let a column wrap its text: give it room, as the
+   last column has. */
+.resizable > thead > tr > th,
+.resizable > tbody > tr > td {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.resizable > tbody > tr > td[data-wrap] {
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .columnHandle {
