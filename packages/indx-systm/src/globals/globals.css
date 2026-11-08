@@ -120,37 +120,6 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 
-/* The terminal themes, dark only: a page with data-tint also says data-theme="dark".
-   Blue is the TUIs' (IndxWorkbench's settings dialogue): a ground from the brand sheet made into
-   nine levels that keep the dark levels' lightness, the hue strong in the surfaces and a trace in
-   the text. Amber and green are the 70s consoles': monochrome phosphor, the text itself glowing
-   in the hue (lv6 the body, lv8 the brightest, near #FFB000 and #4AF626) on a ground nearly black.
-   Every level keeps a contrast the console relies on (lv5 on lv0 at least 4.5:1). The data-viz
-   hues lean a little toward the theme's own. After the dark tokens, so these win. Indx.Systm.Blazor's indx-systm.css has the same. */
-:root[data-tint="blue"] {
-  --lv0: #101B22; --lv1: #18232B; --lv2: #202C33; --lv3: #313C43; --lv4: #4F5960;
-  --lv5: #899197; --lv6: #CAE6F8; --lv7: #F8FCFE; --lv8: #FFFFFF;
-  --CPositive: #88CEFA;
-  --CPositiveHandle: #101B22;
-  --viz1: #72A4DD; --viz2: #E5C37A; --viz3: #6CCFE9; --viz4: #9089CD;
-  --viz5: #83E7D1; --viz6: #C899D6; --viz7: #7DAB6E;
-}
-:root[data-tint="amber"] {
-  --lv0: #160D04; --lv1: #201507; --lv2: #2A1C0C; --lv3: #402C12; --lv4: #674519;
-  --lv5: #B17000; --lv6: #FAA106; --lv7: #FFB75E; --lv8: #FFCD94;
-  --CPositive: #FFB000;
-  --CPositiveHandle: #160D04;
-  --viz1: #8393D5; --viz2: #EDB07A; --viz3: #5CCAC9; --viz4: #9B79B9;
-  --viz5: #91DBAB; --viz6: #CE8BB9; --viz7: #909A4F;
-}
-:root[data-tint="green"] {
-  --lv0: #091208; --lv1: #0F1B0E; --lv2: #152314; --lv3: #21371F; --lv4: #345730;
-  --lv5: #4E9347; --lv6: #71D268; --lv7: #82E278; --lv8: #97F28D;
-  --CPositive: #4AF626;
-  --CPositiveHandle: #091208;
-  --viz1: #68A7DB; --viz2: #ECC07C; --viz3: #68D1E2; --viz4: #878CD0;
-  --viz5: #8AE7C7; --viz6: #C29BDC; --viz7: #87A965;
-}
 
 body {
   -webkit-font-smoothing: antialiased;
