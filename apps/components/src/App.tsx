@@ -61,6 +61,7 @@ import ProgressBarPage from './progress-bar/page';
 import SpinnersPage from './spinners/page';
 import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
+import ColorsPage from './colors/page';
 import ChartPage from './chart/page';
 import SparklinePage from './sparkline/page';
 import DatasetCardPage from './dataset-card/page';
@@ -155,6 +156,7 @@ export default function App() {
         <Route path="/search-result" element={<SearchResultPage />} />
         <Route path="/cursors" element={<CursorsPage />} />
         <Route path="/patterns" element={<PatternsPage />} />
+        <Route path="/colors" element={<ColorsPage />} />
         <Route path="/chart" element={<ChartPage />} />
         <Route path="/sparkline" element={<SparklinePage />} />
         <Route path="/dataset-card" element={<DatasetCardPage />} />
