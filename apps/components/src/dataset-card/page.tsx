@@ -34,7 +34,7 @@ function ActivityCard({ name, values, state, color, count, fade }:
       <Head name={name} />
       <span className={styles.activity}>
         <span className={styles.activityLabel}>Search activity <span style={{ color: 'var(--lv5)' }}>· {today} today</span></span>
-        <Sparkline values={values} height={22} color="var(--viz1)" fill baseline lastIsPartial
+        <Sparkline values={values} height={22} color="var(--lv5)" fill baseline lastIsPartial
                    idleColor={fade ? 'var(--lv3)' : undefined} ariaLabel={`Searches over the last fourteen days for ${name}`} />
       </span>
       <Foot state={state} color={color} count={count} />
@@ -52,22 +52,20 @@ function Head({ name }: { name: string }) {
 }
 
 // The Fields row: its chips sit in the value column, on the label's own line, with no total.
-// Each chip keeps its own count. Same four roles as the product card. Each role has its data-viz
-// colour on a mark before the label (Nov 2026), the text staying in the levels; the activity line
-// has the first, blue, so one colour means one thing on the page.
+// Each chip keeps its own count. Same four roles as the product card.
 function Fields({ searchable, filterable, facetable, preloaded }:
   { searchable: number; filterable: number; facetable: number; preloaded: number }) {
-  const chip = (label: string, n: number, viz: number) => (
-    <Chip color="var(--lv2)" textColor="var(--lv7)"><span className={styles.roleMark} style={{ background: `var(--viz${viz})` }} />{label}<span className={styles.count}>{n}</span></Chip>
+  const chip = (label: string, n: number) => (
+    <Chip color="var(--lv2)" textColor="var(--lv7)">{label}<span className={styles.count}>{n}</span></Chip>
   );
   return (
     <>
       <span className={styles.term}>Fields</span>
       <span className={styles.chips}>
-        {chip('searchable', searchable, 2)}
-        {chip('filterable', filterable, 3)}
-        {chip('facetable', facetable, 4)}
-        {chip('preloaded', preloaded, 5)}
+        {chip('searchable', searchable)}
+        {chip('filterable', filterable)}
+        {chip('facetable', facetable)}
+        {chip('preloaded', preloaded)}
       </span>
     </>
   );

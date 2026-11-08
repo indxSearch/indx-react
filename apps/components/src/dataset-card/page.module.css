@@ -57,7 +57,6 @@
   overflow: hidden;
   margin-left: -6px;
 }
-.roleMark { display: inline-block; width: 7px; height: 7px; margin-right: 6px; flex-shrink: 0; }
 .count { margin-left: 6px; color: var(--lv5); font-variant-numeric: tabular-nums; }
 
 .foot {
