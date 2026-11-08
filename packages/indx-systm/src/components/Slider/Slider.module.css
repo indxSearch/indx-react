@@ -29,9 +29,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .basetrack::before {
+    :where(:root:not([data-theme="light"])) .basetrack::before {
         background-image: var(--pattern-checkerboard-dark);
     }
+}
+:where(:root[data-theme="dark"]) .basetrack::before {
+    background-image: var(--pattern-checkerboard-dark);
 }
 .selectedtrack {
     position: absolute;

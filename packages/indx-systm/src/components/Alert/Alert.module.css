@@ -25,6 +25,5 @@
 .warning     { --alert-accent: var(--CWarning); }
 .destructive { --alert-accent: var(--CSignal); --alert-title: var(--CSignal); }
 
-@media (prefers-color-scheme: dark) {
-  .root { background: var(--lv1); }
-}
+@media (prefers-color-scheme: dark) { :where(:root:not([data-theme="light"])) .root { background: var(--lv1); } }
+:where(:root[data-theme="dark"]) .root { background: var(--lv1); }

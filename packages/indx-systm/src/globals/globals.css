@@ -46,6 +46,19 @@
   --text-3xl: 350 30px/1.2 var(--font-family);
   --text-4xl: 350 36px/1.15 var(--font-family);
 
+  /* DATA VIZ (Nov 2026): seven soft hues for series, parts and categories, taken in order and never
+     skipped; an eighth and beyond go under Other, in lv4. Each hue sits at its own lightness, which
+     keeps neighbours apart for colourblind readers. Light on white (about 2:1), so a chart here
+     always has a legend and labels. Text stays in the levels: the colour goes on the marks.
+     The mockup and the checks behind them: apps/components, /colors. */
+  --viz1: #5F96DC; /* blue */
+  --viz2: #F0AB64; /* apricot */
+  --viz3: #3CC5E2; /* cyan */
+  --viz4: #8D77C8; /* violet */
+  --viz5: #68DDB8; /* mint */
+  --viz6: #CB84C4; /* orchid */
+  --viz7: #7F9C45; /* moss */
+
   --light: 300;
   --book: 350;
   --reg: 400;
@@ -56,7 +69,7 @@
 
 /* Dark mode via system preference (automatic) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --lv0: #080809;
     --lv1: #121215;
     --lv2: #1A1A21;
@@ -69,7 +82,72 @@
 
     --CPositive: var(--CTeal);
     --CPositiveHandle: #080809;
+
+    --viz1: #6DA0E0;
+    --viz2: #F6B676;
+    --viz3: #59CEE8;
+    --viz4: #9582CC;
+    --viz5: #7DE5C3;
+    --viz6: #D290CB;
+    --viz7: #89A556;
   }
+}
+:root[data-theme="dark"] {
+  --lv0: #080809;
+  --lv1: #121215;
+  --lv2: #1A1A21;
+  --lv3: #393941;
+  --lv4: #565661;
+  --lv5: #8F8F97;
+  --lv6: #EFEFEF;
+  --lv7: #FBFBFB;
+  --lv8: #FFFFFF;
+
+  --CPositive: var(--CTeal);
+  --CPositiveHandle: #080809;
+
+  --viz1: #6DA0E0;
+  --viz2: #F6B676;
+  --viz3: #59CEE8;
+  --viz4: #9582CC;
+  --viz5: #7DE5C3;
+  --viz6: #D290CB;
+  --viz7: #89A556;
+}
+
+/* A fixed theme (data-theme="light" or "dark" on <html>) also sets color-scheme, so scrollbars and
+   native controls follow it. Without data-theme the system decides, as above. */
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* The terminal themes, dark only: a page with data-tint also says data-theme="dark". Each is a
+   ground from the brand sheet made into nine levels: lv0 is the ground, lv1 and lv2 step up from
+   it, lv3 to lv8 keep the dark levels' lightness (so every contrast holds) and carry the ground's
+   hue. Its bright colour is the positive; the data-viz hues lean a little toward its own. After
+   the dark tokens, so these win. Indx.Systm.Blazor's indx-systm.css has the same. */
+:root[data-tint="blue"] {
+  --lv0: #101B22; --lv1: #18232B; --lv2: #202C33; --lv3: #313C43; --lv4: #4F5960;
+  --lv5: #899197; --lv6: #CAE6F8; --lv7: #F8FCFE; --lv8: #FFFFFF;
+  --CPositive: #88CEFA;
+  --CPositiveHandle: #101B22;
+  --viz1: #72A4DD; --viz2: #E5C37A; --viz3: #6CCFE9; --viz4: #9089CD;
+  --viz5: #83E7D1; --viz6: #C899D6; --viz7: #7DAB6E;
+}
+:root[data-tint="rust"] {
+  --lv0: #221714; --lv1: #2B1F1C; --lv2: #332824; --lv3: #423734; --lv4: #5F5451;
+  --lv5: #978E8B; --lv6: #F5EDEB; --lv7: #FEFAF9; --lv8: #FFFFFF;
+  --CPositive: #C84817;
+  --CPositiveHandle: #221714;
+  --viz1: #8393D5; --viz2: #EDB07A; --viz3: #5CCAC9; --viz4: #9B79B9;
+  --viz5: #91DBAB; --viz6: #CE8BB9; --viz7: #909A4F;
+}
+:root[data-tint="green"] {
+  --lv0: #0C1D1A; --lv1: #142522; --lv2: #1D2E2B; --lv3: #2E3E3B; --lv4: #4C5B58;
+  --lv5: #879390; --lv6: #E7F2F0; --lv7: #F7FCFB; --lv8: #FFFFFF;
+  --CPositive: #5DD1A4;
+  --CPositiveHandle: #0C1D1A;
+  --viz1: #68A7DB; --viz2: #ECC07C; --viz3: #68D1E2; --viz4: #878CD0;
+  --viz5: #8AE7C7; --viz6: #C29BDC; --viz7: #87A965;
 }
 
 body {
