@@ -42,7 +42,6 @@
   --viz5s: color-mix(in oklab, var(--viz5) var(--accent-strength), var(--lv0));
   --viz6s: color-mix(in oklab, var(--viz6) var(--accent-strength), var(--lv0));
   --viz7s: color-mix(in oklab, var(--viz7) var(--accent-strength), var(--lv0));
-  --viz8s: color-mix(in oklab, var(--viz8) var(--accent-strength), var(--lv0));
   --CPositiveS: color-mix(in oklab, var(--CPositive) var(--accent-strength), var(--lv0));
   --CLightBlueS: color-mix(in oklab, var(--CLightBlue) var(--accent-strength), var(--lv0));
 }

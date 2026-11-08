@@ -2,16 +2,11 @@ import { createContext, useContext, useState, type CSSProperties, type ReactNode
 import { Table, SliderField, SegmentedControl, ToggleSwitch, Button } from '@indxsearch/systm';
 import styles from './page.module.css';
 
-// Colours (Nov 2026 mockup). The levels and the accents as they are, and a proposed set of eight
-// data-viz colours for the places where greys run out of nuance: a dataset's memory, its field
-// roles, a chart with more than two series. Every accent here is drawn at --accent-strength:
-// color-mix toward the theme's lv0, so a whole page can dim its accents in one place.
-//
-// The eight were picked by the dataviz validator (OKLCH lightness band per theme, chroma floor,
-// colourblind separation between neighbours, contrast against lv0), in the one order that also
-// keeps the first three apart in every pairing, for charts where any two can meet (scatter).
-// Light: worst neighbours ΔE 14.5 colourblind, 16.2 normal; gold is 2.7:1 on white, so a gold
-// mark needs a visible label. Dark: 14.0 / 15.8, all at least 3:1 on lv0.
+// Colours (Nov 2026 mockup). The levels and the accents as they are, a proposed set of seven
+// data-viz colours for the places where greys run out of nuance (a dataset's memory, its field
+// roles, a chart with more than two series), and the three terminal themes as tinted levels. Every
+// accent here is drawn at --accent-strength: color-mix toward the theme's lv0, so a whole page can
+// dim its accents in one place.
 
 type Theme = 'light' | 'dark';
 
@@ -53,11 +48,12 @@ type ThemeKey = 'light' | 'dark' | 'blue' | 'rust' | 'green';
 interface Viz { token: string; name: string; values: Record<ThemeKey, string> }
 
 // Soft and light (8 Nov 2026, second round): each hue at its own natural lightness (violet and blue
-// a step darker, lime and mint a step lighter), which is what keeps neighbours apart for colourblind
-// readers at this softness. The tinted themes take the same hues leaned a little toward their own.
-// Validator, adjacent pairs, worst colourblind / normal ΔE: light 11.5 / 20.9, dark 11.3 / 20.0,
-// blue 11.7 / 18.3, rust 10.4 / 18.5, green 9.6 / 18.3. All are lighter than the validator's band by
-// choice. On white every mark is about 2:1, so a chart there carries a legend and labels or a table.
+// a step darker, mint a step lighter), which is what keeps neighbours apart for colourblind readers
+// at this softness. The tinted themes take the same hues leaned a little toward their own.
+// Validator, the seven with moss, adjacent pairs, worst colourblind / normal ΔE: light 12.9 / 20.9,
+// dark 12.6 / 20.0, blue 12.8 / 18.3, rust 10.4 / 18.5, green 13.6 / 18.3. All are lighter than the
+// validator's band by choice. On white most marks are about 2:1, so a chart there carries a legend
+// and labels or a table.
 const VIZ_ORDER = ['Blue', 'Apricot', 'Cyan', 'Violet', 'Mint', 'Orchid'];
 const VIZ_VALUES: Record<ThemeKey, string[]> = {
   light: ['#5F96DC', '#F0AB64', '#3CC5E2', '#8D77C8', '#68DDB8', '#CB84C4'],
@@ -67,30 +63,17 @@ const VIZ_VALUES: Record<ThemeKey, string[]> = {
   green: ['#68A7DB', '#ECC07C', '#68D1E2', '#878CD0', '#8AE7C7', '#C29BDC'],
 };
 
-// Slot 7 is Moss (8 Nov 2026, after lime and rose, then lilac, did not land). Slot 8 is a dark red:
-// beside a green, a red stays apart for colourblind readers only by being darker, so these sit well
-// below the others' lightness, which also keeps them clear of Signal. Made the same way as the six,
-// in the order light, dark, blue, rust, green.
-const HUE: Record<string, string[]> = {
-  Moss: ['#7F9C45', '#89A556', '#7DAB6E', '#909A4F', '#87A965'],
-  Maroon: ['#9B414C', '#A14E56', '#9C546E', '#964C4F', '#A05747'],
-  Wine: ['#A54D6C', '#AB5A75', '#A46188', '#A25769', '#AE6161'],
-  Brick: ['#A94E4E', '#AF5B5A', '#AB6073', '#A45954', '#AC654C'],
-};
+// Seven, not eight (8 Nov 2026). Moss is the seventh, after lime and rose, lilac and three dark reds
+// did not land. An eighth series and beyond go under Other, in lv4. Moss, light, dark, blue, rust, green:
+const MOSS = ['#7F9C45', '#89A556', '#7DAB6E', '#909A4F', '#87A965'];
 const THEME_KEYS: ThemeKey[] = ['light', 'dark', 'blue', 'rust', 'green'];
 
-// Each passes on all five themes: colourblind neighbours at least 10.4 (target 8), normal at least
-// 18.0 (floor 15), the worst of any two colours in the set 7.5.
-const PAIRS: [string, string][] = [['Moss', 'Maroon'], ['Moss', 'Wine'], ['Moss', 'Brick']];
-const pairKey = (p: [string, string]) => p.join('+');
-
 type VizSet = Record<ThemeKey, string[]>;
-const vizSetOf = ([a, b]: [string, string]): VizSet =>
-  Object.fromEntries(THEME_KEYS.map((k, i) => [k, [...VIZ_VALUES[k], HUE[a][i], HUE[b][i]]])) as VizSet;
-const vizOf = (pair: [string, string], set: VizSet): Viz[] => [...VIZ_ORDER, ...pair].map((name, i) => ({
-  token: `--viz${i + 1}`, name, values: Object.fromEntries(THEME_KEYS.map(k => [k, set[k][i]])) as Record<ThemeKey, string>,
+const VIZ_SET = Object.fromEntries(THEME_KEYS.map((k, i) => [k, [...VIZ_VALUES[k], MOSS[i]]])) as VizSet;
+const VIZ: Viz[] = [...VIZ_ORDER, 'Moss'].map((name, i) => ({
+  token: `--viz${i + 1}`, name, values: Object.fromEntries(THEME_KEYS.map(k => [k, VIZ_SET[k][i]])) as Record<ThemeKey, string>,
 }));
-const VizContext = createContext<VizSet>(vizSetOf(PAIRS[0]));
+const VizContext = createContext<VizSet>(VIZ_SET);
 const vizVars = (set: VizSet, k: ThemeKey) => Object.fromEntries(set[k].map((hex, i) => [`--viz${i + 1}`, hex]));
 
 // The terminal themes (8 Nov 2026 sheet), each a dark ground with a bright and a dim accent, made
@@ -199,13 +182,12 @@ const ROLES = [
   { name: 'searchable', n: 6 },
   { name: 'filterable', n: 9 },
   { name: 'facetable', n: 4 },
-  { name: 'preloaded', n: 2 },
 ];
 
 type Look = 'grey' | 'colour';
 
 /** Fill for part i: greys by level, or the data-viz slots in order from `first`. One page, one
- *  meaning per colour: memory's parts take slots 1 to 4, field roles 5 to 8. */
+ *  meaning per colour: memory's parts take slots 1 to 4, field roles 5 to 7. */
 const fillOf = (look: Look, i: number, first = 1) => (look === 'grey' ? `var(--lv${[6, 5, 4, 3][i]})` : `var(--viz${first + i}s)`);
 
 const STATE_DOT: Record<string, string> = { Ready: 'var(--CPositiveS)', Hibernated: 'var(--lv4)', Rebuilding: 'var(--CLightBlueS)' };
@@ -311,10 +293,7 @@ function ThemeSample({ t }: { t: Tint }) {
 export default function ColorsPage() {
   const [strength, setStrength] = useState(100);
   const [look, setLook] = useState<Look>('colour');
-  const [pick, setPick] = useState(pairKey(PAIRS[0]));
-  const pair = PAIRS.find(p => pairKey(p) === pick) ?? PAIRS[0];
-  const set = vizSetOf(pair);
-  const VIZ = vizOf(pair, set);
+  const set = VIZ_SET;
 
   return (
     <VizContext.Provider value={set}>
@@ -388,17 +367,13 @@ export default function ColorsPage() {
       </section>
 
       <section className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h2>Proposed: data viz</h2>
-          <SegmentedControl<string> size="micro" aria-label="Slot 8" value={pick} onChange={setPick}
-            items={PAIRS.map(p => ({ value: pairKey(p), label: p[1] }))} />
-        </div>
+        <h2>Proposed: data viz</h2>
         <p className={styles.note}>
-          Eight soft hues in a fixed order, the first series always blue, the second always apricot. A chart takes them
-          in order and never skips one, and a colour follows its series when a filter removes others. Past eight, the
-          rest go under Other. Slot 7 is moss; the switch tries the dark reds for slot 8. Each hue sits at its own lightness, which is what keeps neighbours apart for colourblind
+          Seven soft hues in a fixed order, the first series always blue, the second always apricot. A chart takes them
+          in order and never skips one, and a colour follows its series when a filter removes others. Past seven, the
+          rest go under Other, in lv4. Each hue sits at its own lightness, which is what keeps neighbours apart for colourblind
           readers at this softness. On white they are light, about 2:1, so a chart there always has a legend and
-          labels. Each terminal theme has its own eight, leaned toward its hue (below).
+          labels. Each terminal theme has its own seven, leaned toward its hue (below).
         </p>
         <ThemePair>
           {t => (
@@ -441,7 +416,7 @@ export default function ColorsPage() {
         <p className={styles.note}>
           The three from the sheet, each made into nine levels: the sheet's ground is lv0, the rest keep today's dark
           lightness and take the ground's hue, so every contrast holds. Bright is the theme's positive, dim the fill
-          behind a selected row. Signal and Warning stay as they are; each theme has its own eight data-viz colours. In IndxServer a theme would be
+          behind a selected row. Signal and Warning stay as they are; each theme has its own seven data-viz colours. In IndxServer a theme would be
           one attribute beside dark mode, <code>data-tint="blue"</code>, setting only these tokens.
         </p>
         <div className={styles.tints}>
@@ -492,7 +467,7 @@ export default function ColorsPage() {
         <p className={styles.note}>
           Four parts of memory in greys need the legend to be told apart; in colour they read at a glance. Text stays in
           the levels: the colour is on the marks beside it. A colour means one thing on a page, so memory's parts take
-          the first four slots and the field roles the last four.
+          the first four slots and the field roles the last three.
         </p>
         <ThemePair>{() => <DatasetsExample look={look} />}</ThemePair>
       </section>
