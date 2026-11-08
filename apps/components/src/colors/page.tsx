@@ -1,5 +1,5 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Table, SliderField, SegmentedControl } from '@indxsearch/systm';
+import { Table, SliderField, SegmentedControl, ToggleSwitch, Button } from '@indxsearch/systm';
 import styles from './page.module.css';
 
 // Colours (Nov 2026 mockup). The levels and the accents as they are, and a proposed set of eight
@@ -20,17 +20,31 @@ const LEVELS: Record<Theme, string[]> = {
   dark: ['#080809', '#121215', '#1A1A21', '#393941', '#565661', '#8F8F97', '#EFEFEF', '#FBFBFB', '#FFFFFF'],
 };
 
-interface Accent { token: string; light: string; dark: string; use: string }
+type Group = 'brand' | 'semantic';
+interface Accent { token: string; light: string; dark: string; use: string; group: Group }
 
+// The brand sheet (8 Nov 2026) groups them: branding, and semantic (Signal, Warning). Pink, violet and
+// the two lavenders are new there and have no token yet; their hex is read off the sheet. Light blue is
+// not on the sheet; it is the semantic information colour. --CSuccess (#00D575) is a proposed semantic green.
 const ACCENTS: Accent[] = [
-  { token: '--CSignal', light: '#FF4238', dark: '#FF4238', use: 'Errors, destructive actions, the notifications bell' },
-  { token: '--CWarning', light: '#FFC107', dark: '#FFC107', use: 'Warning alerts, warning marks on a slider' },
-  { token: '--CLightBlue', light: '#6B9EFF', dark: '#6B9EFF', use: 'Info alerts, info badges on tabs (Observr), chart markers' },
-  { token: '--CPureBlue', light: '#0000FF', dark: '#0000FF', use: 'A full progress bar; positive and confirmed on light' },
-  { token: '--CTeal', light: '#72F5C6', dark: '#72F5C6', use: 'Success alerts, chat; positive and confirmed on dark' },
+  { token: '--CPureBlue', light: '#0000FF', dark: '#0000FF', use: 'A full progress bar; positive and confirmed on light', group: 'brand' },
+  { token: '--CTeal', light: '#72F5C6', dark: '#72F5C6', use: 'Success alerts, chat; positive and confirmed on dark', group: 'brand' },
+  { token: '--CPink', light: '#EB4367', dark: '#EB4367', use: 'New on the brand sheet, not in use', group: 'brand' },
+  { token: '--CViolet', light: '#5B02EA', dark: '#5B02EA', use: 'New on the brand sheet, not in use', group: 'brand' },
+  { token: '--CLavender', light: '#AAAAFF', dark: '#AAAAFF', use: 'New on the brand sheet, not in use', group: 'brand' },
+  { token: '--CLavenderLight', light: '#EAEAFF', dark: '#EAEAFF', use: 'New on the brand sheet, not in use', group: 'brand' },
+  { token: '--CSignal', light: '#FF4238', dark: '#FF4238', use: 'Errors, destructive actions, the notifications bell', group: 'semantic' },
+  { token: '--CWarning', light: '#FFC107', dark: '#FFC107', use: 'Warning alerts, warning marks on a slider. The sheet shows #FFC941', group: 'semantic' },
+  { token: '--CSuccess', light: '#00D575', dark: '#00D575', use: 'Proposed: success and good states, on marks and icons, never on text', group: 'semantic' },
+  { token: '--CLightBlue', light: '#6B9EFF', dark: '#6B9EFF', use: 'Information: info alerts, info badges on tabs (Observr), chart markers', group: 'semantic' },
 ];
 
-const SEMANTIC: Accent[] = [
+const GROUPS: { group: Group; name: string }[] = [
+  { group: 'brand', name: 'Branding' },
+  { group: 'semantic', name: 'Semantic' },
+];
+
+const SEMANTIC: Omit<Accent, 'group'>[] = [
   { token: '--CPositive', light: '#0000FF', dark: '#72F5C6', use: 'On / enabled: ToggleSwitch. Pure blue on light, teal on dark' },
   { token: '--CConfirmed', light: '#0000FF', dark: '#72F5C6', use: 'Confirmed / success (Blazor only so far)' },
 ];
@@ -47,6 +61,26 @@ const VIZ: Viz[] = [
   { token: '--viz7', name: 'Violet', light: '#7A42CA', dark: '#915CE5' },
   { token: '--viz8', name: 'Jade', light: '#019D7E', dark: '#0DAB89' },
 ];
+
+// The terminal themes (8 Nov 2026 sheet), each a dark ground with a bright and a dim accent, made
+// into a full set of levels. lv0 is the sheet's ground; lv1 and lv2 step up from it; lv3 to lv8 keep
+// the dark levels' OKLab lightness, so every contrast the console relies on holds, and carry the
+// ground's hue, strong in the surfaces and fading to a trace in the text. Blue's third colour, the
+// pale one, is its lv6. Bright is the theme's positive (toggle, focus, a ready dataset); dim is a
+// fill behind lv8 text (the selected row, the open menu item).
+interface Tint { key: string; name: string; lv: string[]; bright: string; dim: string }
+
+const TINTS: Tint[] = [
+  { key: 'dark', name: 'Dark, today', lv: LEVELS.dark, bright: '#72F5C6', dim: '#393941' },
+  { key: 'blue', name: 'Blue', lv: ['#101B22', '#18232B', '#202C33', '#313C43', '#4F5960', '#899197', '#CAE6F8', '#F8FCFE', '#FFFFFF'], bright: '#88CEFA', dim: '#064D7B' },
+  { key: 'rust', name: 'Rust', lv: ['#221714', '#2B1F1C', '#332824', '#423734', '#5F5451', '#978E8B', '#F5EDEB', '#FEFAF9', '#FFFFFF'], bright: '#C84817', dim: '#644439' },
+  { key: 'green', name: 'Green', lv: ['#0C1D1A', '#142522', '#1D2E2B', '#2E3E3B', '#4C5B58', '#879390', '#E7F2F0', '#F7FCFB', '#FFFFFF'], bright: '#5DD1A4', dim: '#3D6C58' },
+];
+
+const tintStyle = (t: Tint) => ({
+  ...Object.fromEntries(t.lv.map((hex, i) => [`--lv${i}`, hex])),
+  '--CPositive': t.bright, '--CPositiveHandle': t.lv[0], '--CThemeBright': t.bright, '--CThemeDim': t.dim,
+}) as CSSProperties;
 
 // ---- colour arithmetic, for the hex and contrast shown under a dimmed swatch ----
 
@@ -98,8 +132,7 @@ function ThemePair({ children }: { children: (theme: Theme) => ReactNode }) {
   );
 }
 
-function Swatch({ color, theme, strength, label, sub }: { color: string; theme: Theme; strength: number; label: string; sub?: string }) {
-  const surface = LEVELS[theme][0];
+function Swatch({ color, theme, surface = LEVELS[theme ?? 'dark'][0], strength, label, sub }: { color: string; theme?: Theme; surface?: string; strength: number; label: string; sub?: string }) {
   const shown = mix(color, surface, strength / 100);
   const ratio = contrast(shown, surface);
   return (
@@ -198,6 +231,41 @@ function DatasetsExample({ look }: { look: Look }) {
   );
 }
 
+// ---- a theme, worn ----
+
+function ThemeSample({ t }: { t: Tint }) {
+  const [on, setOn] = useState(true);
+  const rows = [['ecom', '412,880', 'Ready'], ['tmdb23k', '23,439', 'Ready'], ['pokedex', '801', 'Rebuilding']];
+  return (
+    <div className={styles.sample}>
+      <div className={styles.sampleMenu}>
+        {['Overview', 'Records', 'Fields', 'Search'].map((m, i) => (
+          <span key={m} className={i === 1 ? styles.sampleItemOn : styles.sampleItem}>{m}</span>
+        ))}
+      </div>
+      <div className={styles.sampleMain}>
+        <span className={styles.cardName}>Datasets</span>
+        <span className={styles.sampleSub}>3 in memory, 1 on disk</span>
+        <div className={styles.sampleRows}>
+          {rows.map(([n, r, st], i) => (
+            <div key={n} className={i === 0 ? styles.sampleRowOn : styles.sampleRow}>
+              <span>{n}</span><span className={styles.sampleMuted}>{r}</span>
+              <span className={styles.state}><span className={styles.stateDot} style={{ background: st === 'Ready' ? 'var(--CPositive)' : 'var(--lv4)' }} />{st}</span>
+            </div>
+          ))}
+        </div>
+        <div className={styles.stackThin}>
+          {[380, 210, 64, 140].map((v, i) => <span key={i} className={styles.segment} style={{ flexGrow: v, background: `var(--viz${i + 1}s)` }} />)}
+        </div>
+        <div className={styles.sampleFoot}>
+          <ToggleSwitch checked={on} onChange={setOn} variant="positive" label="Keep in memory" />
+          <Button size="micro">Save</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---- page ----
 
 export default function ColorsPage() {
@@ -245,9 +313,16 @@ export default function ColorsPage() {
         <h2>Accents in use</h2>
         <ThemePair>
           {t => (
-            <div className={styles.swatches}>
-              {ACCENTS.map(a => <Swatch key={a.token} color={a[t]} theme={t} strength={strength} label={a.token} />)}
-            </div>
+            <>
+              {GROUPS.map(g => (
+                <div key={g.group} className={styles.group}>
+                  <span className={styles.groupName}>{g.name}</span>
+                  <div className={styles.swatches}>
+                    {ACCENTS.filter(a => a.group === g.group).map(a => <Swatch key={a.token} color={a[t]} theme={t} strength={strength} label={a.token} />)}
+                  </div>
+                </div>
+              ))}
+            </>
           )}
         </ThemePair>
         <Table aria-label="Accent tokens">
@@ -282,6 +357,31 @@ export default function ColorsPage() {
             </div>
           )}
         </ThemePair>
+      </section>
+
+      <section className={styles.section}>
+        <h2>Terminal themes</h2>
+        <p className={styles.note}>
+          The three from the sheet, each made into nine levels: the sheet's ground is lv0, the rest keep today's dark
+          lightness and take the ground's hue, so every contrast holds. Bright is the theme's positive, dim the fill
+          behind a selected row. Signal, Warning and the data-viz colours stay as they are. In IndxServer a theme would be
+          one attribute beside dark mode, <code>data-tint="blue"</code>, setting only these tokens.
+        </p>
+        <div className={styles.tints}>
+          {TINTS.map(t => (
+            <div key={t.key} className={`${styles.panel} ${styles.dark}`} style={tintStyle(t)}>
+              <span className={styles.panelName}>{t.name}</span>
+              <div className={styles.tintLevels}>
+                {t.lv.map((hex, i) => <span key={i} className={styles.levelChip} style={{ background: hex }} title={`lv${i} ${hex}`} />)}
+              </div>
+              <div className={styles.swatches}>
+                <Swatch color={t.bright} surface={t.lv[0]} strength={strength} label="Bright" />
+                <Swatch color={t.dim} surface={t.lv[0]} strength={100} label="Dim" sub={`lv8 ${contrast(t.lv[8], t.dim).toFixed(1)}:1`} />
+              </div>
+              <ThemeSample t={t} />
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className={styles.section}>

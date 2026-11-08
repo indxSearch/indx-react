@@ -104,3 +104,26 @@
 .state { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv6); }
 .stateDot { width: 6px; height: 6px; border-radius: 50%; }
 .cardFacts { display: flex; gap: 16px; font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; }
+
+/* Accent groups, as on the brand sheet */
+.group { display: flex; flex-direction: column; gap: 8px; }
+.groupName { font: var(--text-2xs); color: var(--lv5); }
+
+/* Terminal themes: one panel each, its levels set inline */
+.tints { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .tints { grid-template-columns: 1fr; } }
+.tintLevels { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
+.tintLevels .levelChip { height: 28px; }
+
+.sample { display: grid; grid-template-columns: 96px 1fr; border: 0.5px solid var(--lv2); min-height: 200px; }
+.sampleMenu { background: var(--lv1); padding: 8px 6px; display: flex; flex-direction: column; gap: 2px; font: var(--text-xs); }
+.sampleItem { padding: 4px 6px; color: var(--lv5); }
+.sampleItemOn { padding: 4px 6px; color: var(--lv8); background: var(--CThemeDim); }
+.sampleMain { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sampleSub { font: var(--text-xs); color: var(--lv5); margin-top: -6px; }
+.sampleRows { display: flex; flex-direction: column; font: var(--text-xs); color: var(--lv7); }
+.sampleRow, .sampleRowOn { display: grid; grid-template-columns: 1fr 70px 90px; gap: 8px; padding: 5px 6px; border-bottom: 0.5px solid var(--lv2); font-variant-numeric: tabular-nums; }
+.sampleRowOn { background: var(--CThemeDim); color: var(--lv8); }
+.sampleMuted { color: var(--lv5); }
+.sampleRowOn .sampleMuted, .sampleRowOn .state { color: var(--lv7); }
+.sampleFoot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
