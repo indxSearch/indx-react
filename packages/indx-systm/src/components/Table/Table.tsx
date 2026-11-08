@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import styles from './Table.module.css'
+import { enableColumnResize } from './columnResize'
 
 interface TableProps {
   children: React.ReactNode
@@ -25,9 +26,27 @@ interface TableProps {
    * first column stays where it is. Set it to the width of the gutter beside the table.
    */
   bleedEnd?: string | number
+  /**
+   * Let the reader set each column's width by dragging a handle at its header's right edge, or
+   * with the arrow keys once it has focus; a double click (or Delete) gives the width back. Every
+   * column gets a fixed width from the start, so the rows a page shows never move the columns:
+   * a longer value is cut instead. Name a column by its header's `data-column`, and give its first
+   * width as `data-width` (px); without them a column is named by its place and keeps the width it
+   * first had. Header cells must be plain `th`s, as TableHeader renders them.
+   */
+  resizableColumns?: boolean
+  /** With `resizableColumns`: where the reader's widths are kept (localStorage). Left out, they last
+   *  as long as the page. */
+  columnStorageKey?: string
 }
 
-export function Table({ children, caption, 'aria-label': ariaLabel, scrollable = false, stickyFirstColumn = false, bleedEnd }: TableProps) {
+export function Table({ children, caption, 'aria-label': ariaLabel, scrollable = false, stickyFirstColumn = false, bleedEnd, resizableColumns = false, columnStorageKey }: TableProps) {
+  const ref = useRef<HTMLTableElement>(null)
+  useEffect(() => {
+    if (!resizableColumns || !ref.current) return
+    return enableColumnResize(ref.current, { table: styles.resizable, handle: styles.columnHandle }, columnStorageKey)
+  }, [resizableColumns, columnStorageKey])
+
   // Warn in development if there's no caption or aria-label
   if (import.meta.env.DEV) {
     if (!caption && !ariaLabel) {
@@ -36,7 +55,7 @@ export function Table({ children, caption, 'aria-label': ariaLabel, scrollable =
   }
 
   const table = (
-    <table className={`${styles.table} ${scrollable && stickyFirstColumn ? styles.stickyFirst : ''}`} aria-label={ariaLabel}>
+    <table ref={ref} className={`${styles.table} ${scrollable && stickyFirstColumn ? styles.stickyFirst : ''}`} aria-label={ariaLabel}>
       {caption && <caption className={styles.caption}>{caption}</caption>}
       {children}
     </table>
