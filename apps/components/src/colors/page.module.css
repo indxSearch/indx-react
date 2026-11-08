@@ -51,16 +51,12 @@
   --lv0: #FFFFFF; --lv1: #FBFBFB; --lv2: #EFEFEF; --lv3: #CFCFCF; --lv4: #757575;
   --lv5: #4A4A50; --lv6: #1A1A21; --lv7: #121215; --lv8: #080809;
   --CPositive: #0000FF;
-  --viz1: #2C6BE7; --viz2: #E15F0A; --viz3: #D14186; --viz4: #C79608;
-  --viz5: #078EAD; --viz6: #699700; --viz7: #7A42CA; --viz8: #019D7E;
 }
 
 .dark {
   --lv0: #080809; --lv1: #121215; --lv2: #1A1A21; --lv3: #393941; --lv4: #565661;
   --lv5: #8F8F97; --lv6: #EFEFEF; --lv7: #FBFBFB; --lv8: #FFFFFF;
   --CPositive: #72F5C6;
-  --viz1: #3D7EFC; --viz2: #E15F0A; --viz3: #D8488C; --viz4: #BB8D07;
-  --viz5: #049CBD; --viz6: #73A40A; --viz7: #915CE5; --viz8: #0DAB89;
 }
 
 .panelName { font: var(--text-xs); font-weight: var(--med); color: var(--lv5); }

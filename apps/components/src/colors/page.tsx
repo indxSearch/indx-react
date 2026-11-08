@@ -49,18 +49,28 @@ const SEMANTIC: Omit<Accent, 'group'>[] = [
   { token: '--CConfirmed', light: '#0000FF', dark: '#72F5C6', use: 'Confirmed / success (Blazor only so far)' },
 ];
 
-interface Viz { token: string; name: string; light: string; dark: string }
+type ThemeKey = 'light' | 'dark' | 'blue' | 'rust' | 'green';
+interface Viz { token: string; name: string; values: Record<ThemeKey, string> }
 
-const VIZ: Viz[] = [
-  { token: '--viz1', name: 'Blue', light: '#2C6BE7', dark: '#3D7EFC' },
-  { token: '--viz2', name: 'Orange', light: '#E15F0A', dark: '#E15F0A' },
-  { token: '--viz3', name: 'Pink', light: '#D14186', dark: '#D8488C' },
-  { token: '--viz4', name: 'Gold', light: '#C79608', dark: '#BB8D07' },
-  { token: '--viz5', name: 'Cyan', light: '#078EAD', dark: '#049CBD' },
-  { token: '--viz6', name: 'Lime', light: '#699700', dark: '#73A40A' },
-  { token: '--viz7', name: 'Violet', light: '#7A42CA', dark: '#915CE5' },
-  { token: '--viz8', name: 'Jade', light: '#019D7E', dark: '#0DAB89' },
-];
+// Soft and light (8 Nov 2026, second round): each hue at its own natural lightness (violet and blue
+// a step darker, lime and mint a step lighter), which is what keeps neighbours apart for colourblind
+// readers at this softness. The tinted themes take the same hues leaned a little toward their own.
+// Validator, adjacent pairs, worst colourblind / normal ΔE: light 11.5 / 20.9, dark 11.3 / 20.0,
+// blue 11.7 / 18.3, rust 10.4 / 18.5, green 9.6 / 18.3. All are lighter than the validator's band by
+// choice. On white every mark is about 2:1, so a chart there carries a legend and labels or a table.
+const VIZ_ORDER = ['Blue', 'Apricot', 'Cyan', 'Violet', 'Mint', 'Orchid', 'Lime', 'Rose'];
+const VIZ_VALUES: Record<ThemeKey, string[]> = {
+  light: ['#5F96DC', '#F0AB64', '#3CC5E2', '#8D77C8', '#68DDB8', '#CB84C4', '#AFD884', '#E9889F'],
+  dark: ['#6DA0E0', '#F6B676', '#59CEE8', '#9582CC', '#7DE5C3', '#D290CB', '#BAE194', '#EE95A9'],
+  blue: ['#72A4DD', '#E5C37A', '#6CCFE9', '#9089CD', '#83E7D1', '#C899D6', '#AFE7AA', '#E79CC0'],
+  rust: ['#8393D5', '#EDB07A', '#5CCAC9', '#9B79B9', '#91DBAB', '#CE8BB9', '#C3D68B', '#E4929E'],
+  green: ['#68A7DB', '#ECC07C', '#68D1E2', '#878CD0', '#8AE7C7', '#C29BDC', '#BAE5A2', '#EF9D96'],
+};
+const VIZ: Viz[] = VIZ_ORDER.map((name, i) => ({
+  token: `--viz${i + 1}`, name,
+  values: Object.fromEntries(Object.entries(VIZ_VALUES).map(([k, v]) => [k, v[i]])) as Record<ThemeKey, string>,
+}));
+const vizVars = (k: ThemeKey) => Object.fromEntries(VIZ_VALUES[k].map((hex, i) => [`--viz${i + 1}`, hex]));
 
 // The terminal themes (8 Nov 2026 sheet), each a dark ground with a bright and a dim accent, made
 // into a full set of levels. lv0 is the sheet's ground; lv1 and lv2 step up from it; lv3 to lv8 keep
@@ -68,7 +78,7 @@ const VIZ: Viz[] = [
 // ground's hue, strong in the surfaces and fading to a trace in the text. Blue's third colour, the
 // pale one, is its lv6. Bright is the theme's positive (toggle, focus, a ready dataset); dim is a
 // fill behind lv8 text (the selected row, the open menu item).
-interface Tint { key: string; name: string; lv: string[]; bright: string; dim: string }
+interface Tint { key: ThemeKey; name: string; lv: string[]; bright: string; dim: string }
 
 const TINTS: Tint[] = [
   { key: 'dark', name: 'Dark, today', lv: LEVELS.dark, bright: '#72F5C6', dim: '#393941' },
@@ -79,6 +89,7 @@ const TINTS: Tint[] = [
 
 const tintStyle = (t: Tint) => ({
   ...Object.fromEntries(t.lv.map((hex, i) => [`--lv${i}`, hex])),
+  ...vizVars(t.key),
   '--CPositive': t.bright, '--CPositiveHandle': t.lv[0], '--CThemeBright': t.bright, '--CThemeDim': t.dim,
 }) as CSSProperties;
 
@@ -116,6 +127,13 @@ function contrast(a: string, b: string) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/** n greys, evenly in OKLab lightness, from the strongest text level to the faintest that still reads as
+ *  a mark on lv0 (lv3 on light, lv4 on dark). */
+function greys(t: Theme, n: number) {
+  const [from, to] = t === 'light' ? [LEVELS.light[7], LEVELS.light[3]] : [LEVELS.dark[7], LEVELS.dark[4]];
+  return Array.from({ length: n }, (_, i) => mix(to, from, i / (n - 1)));
+}
+
 // ---- pieces ----
 
 /** The same content twice, in a light and a dark panel, each with its own levels and accents. */
@@ -123,7 +141,7 @@ function ThemePair({ children }: { children: (theme: Theme) => ReactNode }) {
   return (
     <div className={styles.pair}>
       {(['light', 'dark'] as const).map(t => (
-        <div key={t} className={`${styles.panel} ${styles[t]}`}>
+        <div key={t} className={`${styles.panel} ${styles[t]}`} style={vizVars(t) as CSSProperties}>
           <span className={styles.panelName}>{t === 'light' ? 'Light' : 'Dark'}</span>
           {children(t)}
         </div>
@@ -345,15 +363,43 @@ export default function ColorsPage() {
       <section className={styles.section}>
         <h2>Proposed: data viz</h2>
         <p className={styles.note}>
-          Eight hues in a fixed order, the first series always blue, the second always orange. A chart takes them in
-          order and never skips one, and a colour follows its series when a filter removes others. Past eight, the rest
-          go under Other. Red and yellow stay with Signal and Warning, so a series never reads as an error. Each hue
-          has a light and a dark step; the dark ones are a little lighter where lv0 is near black.
+          Eight soft hues in a fixed order, the first series always blue, the second always apricot. A chart takes them
+          in order and never skips one, and a colour follows its series when a filter removes others. Past eight, the
+          rest go under Other. Each hue sits at its own lightness, which is what keeps neighbours apart for colourblind
+          readers at this softness. On white they are light, about 2:1, so a chart there always has a legend and
+          labels. Each terminal theme has its own eight, leaned toward its hue (below).
         </p>
         <ThemePair>
           {t => (
             <div className={styles.swatches}>
-              {VIZ.map(v => <Swatch key={v.token} color={v[t]} theme={t} strength={strength} label={`${v.token} ${v.name}`} />)}
+              {VIZ.map(v => <Swatch key={v.token} color={v.values[t]} theme={t} strength={strength} label={`${v.token} ${v.name}`} />)}
+            </div>
+          )}
+        </ThemePair>
+      </section>
+
+      <section className={styles.section}>
+        <h2>How many greys</h2>
+        <p className={styles.note}>
+          Greys from the levels, evenly spaced in lightness. Neighbours stay apart up to eight steps on dark and on light.
+          Matching a grey to its legend is the hard part: four is easy, six needs a careful look, at eight a reader can
+          no longer tell which grey is which.
+        </p>
+        <ThemePair>
+          {t => (
+            <div className={styles.example}>
+              {[4, 6, 8].map(n => {
+                const g = greys(t, n);
+                return (
+                  <div key={n} className={styles.exampleBlock}>
+                    <span className={styles.exampleTitle}>{n} parts</span>
+                    <div className={styles.stack}>{g.map((c, i) => <span key={i} className={styles.segment} style={{ flexGrow: 1, background: c }} />)}</div>
+                    <div className={styles.legend}>
+                      {g.map((c, i) => <span key={i} className={styles.legendItem}><span className={styles.legendMark} style={{ background: c }} />{String.fromCharCode(65 + i)}</span>)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </ThemePair>
@@ -364,7 +410,7 @@ export default function ColorsPage() {
         <p className={styles.note}>
           The three from the sheet, each made into nine levels: the sheet's ground is lv0, the rest keep today's dark
           lightness and take the ground's hue, so every contrast holds. Bright is the theme's positive, dim the fill
-          behind a selected row. Signal, Warning and the data-viz colours stay as they are. In IndxServer a theme would be
+          behind a selected row. Signal and Warning stay as they are; each theme has its own eight data-viz colours. In IndxServer a theme would be
           one attribute beside dark mode, <code>data-tint="blue"</code>, setting only these tokens.
         </p>
         <div className={styles.tints}>
@@ -389,7 +435,7 @@ export default function ColorsPage() {
         <ThemePair>
           {t => (
             <div className={styles.steps}>
-              {[...ACCENTS, ...VIZ].map(a => (
+              {[...ACCENTS, ...VIZ.map(v => ({ token: v.token, light: v.values.light, dark: v.values.dark }))].map(a => (
                 <div key={a.token} className={styles.stepRow}>
                   <span className={styles.stepName}>{a.token}</span>
                   {[100, 85, 70, 55, 40].map(p => (
