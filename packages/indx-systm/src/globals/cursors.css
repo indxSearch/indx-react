@@ -220,3 +220,26 @@ select:disabled,
 :where(:root[data-theme="dark"]) input:disabled, :where(:root[data-theme="dark"]) textarea:disabled, :where(:root[data-theme="dark"]) button:disabled, :where(:root[data-theme="dark"]) select:disabled, :where(:root[data-theme="dark"]) .disabled, :where(:root[data-theme="dark"]) .disabled * {
   cursor: url('data:image/svg+xml,<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6H18V15H15V18H6V15H3V6H6V3H15V6ZM6 12H15V9H6V12Z" fill="%23EFEFEF"/></svg>') 10 10, not-allowed !important;
 }
+
+/* A switch, a checkbox or a radio inside its label (ToggleSwitch, Checkbox, RadioButton): the whole
+   label is the target, so it takes the pointer, which the catch-all above would deny it. */
+label:has(> input[type="checkbox"]),
+label:has(> input[type="checkbox"]) *,
+label:has(> input[type="radio"]),
+label:has(> input[type="radio"]) * {
+  cursor: url('data:image/svg+xml,<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 0V3V6V9V12H6V9H3V12H6V15H9H12H15H18V12V9V6H15H12V3V0H9Z" fill="%231A1A21"/></svg>') 6 0, pointer !important;
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="light"])) label:has(> input[type="checkbox"]),
+  :where(:root:not([data-theme="light"])) label:has(> input[type="checkbox"]) *,
+  :where(:root:not([data-theme="light"])) label:has(> input[type="radio"]),
+  :where(:root:not([data-theme="light"])) label:has(> input[type="radio"]) * {
+    cursor: url('data:image/svg+xml,<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 0V3V6V9V12H6V9H3V12H6V15H9H12H15H18V12V9V6H15H12V3V0H9Z" fill="%23EFEFEF"/></svg>') 6 0, pointer !important;
+  }
+}
+:where(:root[data-theme="dark"]) label:has(> input[type="checkbox"]),
+:where(:root[data-theme="dark"]) label:has(> input[type="checkbox"]) *,
+:where(:root[data-theme="dark"]) label:has(> input[type="radio"]),
+:where(:root[data-theme="dark"]) label:has(> input[type="radio"]) * {
+  cursor: url('data:image/svg+xml,<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 0V3V6V9V12H6V9H3V12H6V15H9H12H15H18V12V9V6H15H12V3V0H9Z" fill="%23EFEFEF"/></svg>') 6 0, pointer !important;
+}

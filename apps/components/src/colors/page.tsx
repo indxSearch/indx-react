@@ -80,7 +80,9 @@ const vizVars = (set: VizSet, k: ThemeKey) => Object.fromEntries(set[k].map((hex
 // into a full set of levels. lv0 is the sheet's ground; lv1 and lv2 step up from it; lv3 to lv8 keep
 // the dark levels' OKLab lightness, so every contrast the console relies on holds, and carry the
 // ground's hue, strong in the surfaces and fading to a trace in the text. Blue's third colour, the
-// pale one, is its lv6. Bright is the theme's positive (toggle, focus, a ready dataset); dim is a
+// pale one, is its lv6. Amber and green became the 70s consoles' instead (8 Nov 2026): monochrome
+// phosphor, the text itself glowing in the hue on a ground nearly black, the brightest near the
+// classic #FFB000 and #4AF626. Blue stays the TUIs' (IndxWorkbench's settings dialogue). Bright is the theme's positive (toggle, focus, a ready dataset); dim is a
 // fill behind lv8 text (the selected row, the open menu item). Dark only (8 Nov 2026: turned over for
 // light mode they did not work); the default theme alone switches between light and dark.
 interface Tint { key: ThemeKey; name: string; lv: string[]; bright: string; dim: string }
@@ -88,8 +90,8 @@ interface Tint { key: ThemeKey; name: string; lv: string[]; bright: string; dim:
 const TINTS: Tint[] = [
   { key: 'dark', name: 'Dark, today', lv: LEVELS.dark, bright: '#72F5C6', dim: '#393941' },
   { key: 'blue', name: 'Blue', lv: ['#101B22', '#18232B', '#202C33', '#313C43', '#4F5960', '#899197', '#CAE6F8', '#F8FCFE', '#FFFFFF'], bright: '#88CEFA', dim: '#064D7B' },
-  { key: 'rust', name: 'Rust', lv: ['#221714', '#2B1F1C', '#332824', '#423734', '#5F5451', '#978E8B', '#F5EDEB', '#FEFAF9', '#FFFFFF'], bright: '#C84817', dim: '#644439' },
-  { key: 'green', name: 'Green', lv: ['#0C1D1A', '#142522', '#1D2E2B', '#2E3E3B', '#4C5B58', '#879390', '#E7F2F0', '#F7FCFB', '#FFFFFF'], bright: '#5DD1A4', dim: '#3D6C58' },
+  { key: 'rust', name: 'Amber', lv: ['#160D04', '#201507', '#2A1C0C', '#402C12', '#674519', '#B17000', '#FAA106', '#FFB75E', '#FFCD94'], bright: '#FFB000', dim: '#402C12' },
+  { key: 'green', name: 'Green', lv: ['#091208', '#0F1B0E', '#152314', '#21371F', '#345730', '#4E9347', '#71D268', '#82E278', '#97F28D'], bright: '#4AF626', dim: '#21371F' },
 ];
 
 const tintStyle = (t: Tint, set: VizSet) => ({
