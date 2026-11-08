@@ -80,21 +80,34 @@ const vizVars = (set: VizSet, k: ThemeKey) => Object.fromEntries(set[k].map((hex
 // into a full set of levels. lv0 is the sheet's ground; lv1 and lv2 step up from it; lv3 to lv8 keep
 // the dark levels' OKLab lightness, so every contrast the console relies on holds, and carry the
 // ground's hue, strong in the surfaces and fading to a trace in the text. Blue's third colour, the
-// pale one, is its lv6. Bright is the theme's positive (toggle, focus, a ready dataset); dim is a
-// fill behind lv8 text (the selected row, the open menu item).
-interface Tint { key: ThemeKey; name: string; lv: string[]; bright: string; dim: string }
+// pale one, is its dark lv6. Positive is the toggle, focus, a ready dataset; fill sits behind lv8
+// text (the selected row, the open menu item).
+//
+// Each also turns over for light mode, as the levels do today: the light levels' lightness, the
+// ground's hue, a whisper of it in the surfaces and all of it in the ink. lv8 is the ground itself,
+// and lv7, lv6, lv2 and lv1 are the dark set's lv1, lv2, lv6 and lv7 mirrored. On light the accents
+// swap: the dim one is the positive (rust keeps its bright, 4.8:1 on white), and the fill is the
+// bright one mixed 28% into white.
+interface Tint { key: string; name: string; mode: Theme; lv: string[]; positive: string; fill: string; viz: string[] }
 
 const TINTS: Tint[] = [
-  { key: 'dark', name: 'Dark, today', lv: LEVELS.dark, bright: '#72F5C6', dim: '#393941' },
-  { key: 'blue', name: 'Blue', lv: ['#101B22', '#18232B', '#202C33', '#313C43', '#4F5960', '#899197', '#CAE6F8', '#F8FCFE', '#FFFFFF'], bright: '#88CEFA', dim: '#064D7B' },
-  { key: 'rust', name: 'Rust', lv: ['#221714', '#2B1F1C', '#332824', '#423734', '#5F5451', '#978E8B', '#F5EDEB', '#FEFAF9', '#FFFFFF'], bright: '#C84817', dim: '#644439' },
-  { key: 'green', name: 'Green', lv: ['#0C1D1A', '#142522', '#1D2E2B', '#2E3E3B', '#4C5B58', '#879390', '#E7F2F0', '#F7FCFB', '#FFFFFF'], bright: '#5DD1A4', dim: '#3D6C58' },
+  { key: 'dark', name: 'Today, dark', mode: 'dark', lv: LEVELS.dark, positive: '#72F5C6', fill: '#393941', viz: VIZ_SET.dark },
+  { key: 'light', name: 'Today, light', mode: 'light', lv: LEVELS.light, positive: '#0000FF', fill: '#EFEFEF', viz: VIZ_SET.light },
+  { key: 'blue', name: 'Blue, dark', mode: 'dark', lv: ['#101B22', '#18232B', '#202C33', '#313C43', '#4F5960', '#899197', '#CAE6F8', '#F8FCFE', '#FFFFFF'], positive: '#88CEFA', fill: '#064D7B', viz: VIZ_SET.blue },
+  { key: 'blueLight', name: 'Blue, light', mode: 'light', lv: ['#FFFFFF', '#F8FCFE', '#E9F0F5', '#C5D1D9', '#677883', '#3B4D59', '#202C33', '#18232B', '#101B22'], positive: '#064D7B', fill: '#DFF2FE',
+    viz: ['#6197D6', '#DBB664', '#50C3E0', '#847CC6', '#6ADCC4', '#BE8ACD', '#6DA05C'] },
+  { key: 'rust', name: 'Rust, dark', mode: 'dark', lv: ['#221714', '#2B1F1C', '#332824', '#423734', '#5F5451', '#978E8B', '#F5EDEB', '#FEFAF9', '#FFFFFF'], positive: '#C84817', fill: '#644439', viz: VIZ_SET.rust },
+  { key: 'rustLight', name: 'Rust, light', mode: 'light', lv: ['#FFFFFF', '#FEFAF9', '#F5EDEB', '#D9CCC8', '#83706C', '#584641', '#332824', '#2B1F1C', '#221714'], positive: '#C84817', fill: '#F5CDC1',
+    viz: ['#7E8FD8', '#EEAB6E', '#49C8C7', '#9A74BA', '#88D9A5', '#CE85B8', '#8D9843'] },
+  { key: 'green', name: 'Green, dark', mode: 'dark', lv: ['#0C1D1A', '#142522', '#1D2E2B', '#2E3E3B', '#4C5B58', '#879390', '#E7F2F0', '#F7FCFB', '#FFFFFF'], positive: '#5DD1A4', fill: '#3D6C58', viz: VIZ_SET.green },
+  { key: 'greenLight', name: 'Green, light', mode: 'light', lv: ['#FFFFFF', '#F7FCFB', '#E7F2EF', '#C3D4D0', '#627B76', '#36514C', '#1D2E2B', '#142522', '#0C1D1A'], positive: '#3D6C58', fill: '#D6F3E5',
+    viz: ['#559BD3', '#E2B266', '#4AC5D8', '#7B7FC8', '#73DBB9', '#B78DD4', '#799D53'] },
 ];
 
-const tintStyle = (t: Tint, set: VizSet) => ({
+const tintStyle = (t: Tint) => ({
   ...Object.fromEntries(t.lv.map((hex, i) => [`--lv${i}`, hex])),
-  ...vizVars(set, t.key),
-  '--CPositive': t.bright, '--CPositiveHandle': t.lv[0], '--CThemeBright': t.bright, '--CThemeDim': t.dim,
+  ...Object.fromEntries(t.viz.map((hex, i) => [`--viz${i + 1}`, hex])),
+  '--CPositive': t.positive, '--CPositiveHandle': t.lv[0], '--CThemeDim': t.fill,
 }) as CSSProperties;
 
 // ---- colour arithmetic, for the hex and contrast shown under a dimmed swatch ----
@@ -415,20 +428,21 @@ export default function ColorsPage() {
         <h2>Terminal themes</h2>
         <p className={styles.note}>
           The three from the sheet, each made into nine levels: the sheet's ground is lv0, the rest keep today's dark
-          lightness and take the ground's hue, so every contrast holds. Bright is the theme's positive, dim the fill
-          behind a selected row. Signal and Warning stay as they are; each theme has its own seven data-viz colours. In IndxServer a theme would be
+          lightness and take the ground's hue, so every contrast holds. Each turns over for light mode as the levels do
+          today: the ground becomes lv8, the ink, and the surfaces keep a whisper of its hue. Positive is the toggle and
+          a ready dataset, fill sits behind a selected row; on light the theme's dim colour becomes the positive. Signal and Warning stay as they are; each theme has its own seven data-viz colours. In IndxServer a theme would be
           one attribute beside dark mode, <code>data-tint="blue"</code>, setting only these tokens.
         </p>
         <div className={styles.tints}>
           {TINTS.map(t => (
-            <div key={t.key} className={`${styles.panel} ${styles.dark}`} style={tintStyle(t, set)}>
+            <div key={t.key} className={`${styles.panel} ${styles[t.mode]}`} style={tintStyle(t)}>
               <span className={styles.panelName}>{t.name}</span>
               <div className={styles.tintLevels}>
                 {t.lv.map((hex, i) => <span key={i} className={styles.levelChip} style={{ background: hex }} title={`lv${i} ${hex}`} />)}
               </div>
               <div className={styles.swatches}>
-                <Swatch color={t.bright} surface={t.lv[0]} strength={strength} label="Bright" />
-                <Swatch color={t.dim} surface={t.lv[0]} strength={100} label="Dim" sub={`lv8 ${contrast(t.lv[8], t.dim).toFixed(1)}:1`} />
+                <Swatch color={t.positive} surface={t.lv[0]} strength={strength} label="Positive" />
+                <Swatch color={t.fill} surface={t.lv[0]} strength={100} label="Fill" sub={`lv8 ${contrast(t.lv[8], t.fill).toFixed(1)}:1`} />
               </div>
               <ThemeSample t={t} />
             </div>
