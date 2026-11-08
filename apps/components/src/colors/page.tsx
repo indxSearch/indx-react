@@ -67,27 +67,21 @@ const VIZ_VALUES: Record<ThemeKey, string[]> = {
   green: ['#68A7DB', '#ECC07C', '#68D1E2', '#878CD0', '#8AE7C7', '#C29BDC'],
 };
 
-// Slots 7 and 8 are open (8 Nov 2026: lime and rose did not land). Each hue below, made the same way
-// as the six (its own lightness, leaned per theme), in the order light, dark, blue, rust, green.
+// Slot 7 is Moss (8 Nov 2026, after lime and rose, then lilac, did not land). Slot 8 is a dark red:
+// beside a green, a red stays apart for colourblind readers only by being darker, so these sit well
+// below the others' lightness, which also keeps them clear of Signal. Made the same way as the six,
+// in the order light, dark, blue, rust, green.
 const HUE: Record<string, string[]> = {
-  Lime: ['#AFD884', '#BAE194', '#AFE7AA', '#C3D68B', '#BAE5A2'],
-  Rose: ['#E9889F', '#EE95A9', '#E79CC0', '#E4929E', '#EF9D96'],
   Moss: ['#7F9C45', '#89A556', '#7DAB6E', '#909A4F', '#87A965'],
-  Gold: ['#DBCA69', '#E3D47D', '#D2DE91', '#E2CB7E', '#DBDB8D'],
-  Sage: ['#8DCA7F', '#9AD28E', '#92D6A3', '#A7C781', '#9CD59A'],
-  Denim: ['#387ABA', '#4884BF', '#4F87BC', '#6177B5', '#448AB9'],
-  Teal: ['#0CAFA8', '#34B7B1', '#48B8B8', '#4FB095', '#4CB9B0'],
-  Lilac: ['#D3A5F5', '#DBB1FA', '#D3B9FF', '#DDA9E5', '#CABDFF'],
-  Plum: ['#BA6898', '#C074A0', '#B77CAF', '#B97090', '#B27EB6'],
-  Terracotta: ['#BD6A42', '#C37552', '#C57670', '#B87252', '#BC804D'],
-  Blush: ['#FFA9AF', '#FFB8BC', '#FEBBD0', '#FFAFB0', '#FFC0B1'],
+  Maroon: ['#9B414C', '#A14E56', '#9C546E', '#964C4F', '#A05747'],
+  Wine: ['#A54D6C', '#AB5A75', '#A46188', '#A25769', '#AE6161'],
+  Brick: ['#A94E4E', '#AF5B5A', '#AB6073', '#A45954', '#AC654C'],
 };
 const THEME_KEYS: ThemeKey[] = ['light', 'dark', 'blue', 'rust', 'green'];
 
-// Every pair here passes on all five themes after orchid: colourblind neighbours at least 8.6 (target
-// 8), normal at least 18.1 (floor 15). Moss and Denim also lift the worst of any two colours in the
-// set, which matters in a scatter, from 6.1 to 7.5.
-const PAIRS: [string, string][] = [['Moss', 'Lilac'], ['Gold', 'Plum'], ['Sage', 'Terracotta'], ['Denim', 'Blush'], ['Gold', 'Teal'], ['Lime', 'Rose']];
+// Each passes on all five themes: colourblind neighbours at least 10.4 (target 8), normal at least
+// 18.0 (floor 15), the worst of any two colours in the set 7.5.
+const PAIRS: [string, string][] = [['Moss', 'Maroon'], ['Moss', 'Wine'], ['Moss', 'Brick']];
 const pairKey = (p: [string, string]) => p.join('+');
 
 type VizSet = Record<ThemeKey, string[]>;
@@ -396,13 +390,13 @@ export default function ColorsPage() {
       <section className={styles.section}>
         <div className={styles.sectionHead}>
           <h2>Proposed: data viz</h2>
-          <SegmentedControl<string> size="micro" aria-label="Slots 7 and 8" value={pick} onChange={setPick}
-            items={PAIRS.map(p => ({ value: pairKey(p), label: p.join(' + ') }))} />
+          <SegmentedControl<string> size="micro" aria-label="Slot 8" value={pick} onChange={setPick}
+            items={PAIRS.map(p => ({ value: pairKey(p), label: p[1] }))} />
         </div>
         <p className={styles.note}>
           Eight soft hues in a fixed order, the first series always blue, the second always apricot. A chart takes them
           in order and never skips one, and a colour follows its series when a filter removes others. Past eight, the
-          rest go under Other. The last two slots are open: the switch tries the pairs that pass beside the first six. Each hue sits at its own lightness, which is what keeps neighbours apart for colourblind
+          rest go under Other. Slot 7 is moss; the switch tries the dark reds for slot 8. Each hue sits at its own lightness, which is what keeps neighbours apart for colourblind
           readers at this softness. On white they are light, about 2:1, so a chart there always has a legend and
           labels. Each terminal theme has its own eight, leaned toward its hue (below).
         </p>
