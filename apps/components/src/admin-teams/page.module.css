@@ -62,3 +62,4 @@
 .role { width: 110px; flex: none; }
 .form { display: flex; flex-direction: column; gap: 20px; }
 .actions { display: flex; gap: 8px; }
+.count { color: var(--lv5); font-variant-numeric: tabular-nums; margin-left: 4px; font-weight: var(--reg); }

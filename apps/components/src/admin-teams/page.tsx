@@ -48,10 +48,10 @@ export default function AdminTeamsMockup() {
         </p>
       </div>
       <Tabs value={variant} onValueChange={choose} items={[
-        { label: 'A · Like the others', value: 'list' },
-        { label: 'B · Our layout', value: 'ours' },
-        { label: 'C · What needs a look', value: 'attention' },
-        { label: 'D · Together', value: 'together' },
+        { label: 'A: Like the others', value: 'list' },
+        { label: 'B: Our layout', value: 'ours' },
+        { label: 'C: What needs a look', value: 'attention' },
+        { label: 'D: Together', value: 'together' },
       ]} />
       <p className={styles.note}>{ABOUT[variant]}</p>
 
@@ -339,7 +339,7 @@ function WorthALook() {
   const found = findings(TEAMS);
   if (found.length === 0) return null;
   return (
-    <Disclosure summary={<span className={styles.findingsSummary}><Warning size={14} color="var(--CWarning)" /> Worth a look · {found.length}</span>}>
+    <Disclosure summary={<span className={styles.findingsSummary}><Warning size={14} color="var(--CWarning)" /> Worth a look <span className={styles.count}>{found.length}</span></span>}>
       <div className={`${styles.block} ${styles.findings}`}>
         {found.map((f, i) => (
           <div key={i} className={styles.finding}>
