@@ -132,7 +132,7 @@ function useSteps(path: Path, connected: boolean): Step[] {
             <CodeCopy code="cd Indx" />
             <CodeCopy code="dotnet run" />
           </div>
-          <p className={styles.stepText}>Open https://localhost:5001 and the first visit sets up your admin account and team. It runs without a license up to 100,000 documents.</p>
+          <p className={styles.stepText}>Open https://localhost:5001 and the first visit sets up your admin account and team. It runs without a license, with up to 100,000 documents in each dataset.</p>
         </>
       ),
     },
@@ -165,7 +165,7 @@ function useSteps(path: Path, connected: boolean): Step[] {
       body: (
         <>
           <div><Button variant="primary" size="micro" iconLeft={<Download />}>Download {FILE}</Button></div>
-          <p className={styles.stepText}>Put it next to your application and give the engine its path. Without it the library searches up to 100,000 documents.</p>
+          <p className={styles.stepText}>Put it next to your application and give the engine its path. Without it each engine takes up to 100,000 documents.</p>
           <CodeCopy code={`var engine = new SearchEngine("${FILE}");`} />
         </>
       ),
