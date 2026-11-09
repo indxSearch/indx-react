@@ -14,6 +14,7 @@ vi.mock('@indxsearch/systm', () => ({
 vi.mock('@indxsearch/pixl', () => {
   const icon = () => <span />;
   return {
+    Ai_agent: icon,
     Indx: () => <div data-testid="idle-logo" />,
     Cloud: icon, Key: icon, Lock: icon, Search: icon, Hour_glass: icon, Speedometer: icon, Warning: icon,
   };
@@ -209,5 +210,51 @@ describe('under a Search or ask offer', () => {
     act(() => setQueryRef('which shoe won the race'));
     await screen.findByText('These results may not hold what you are asking about');
     expect(screen.getAllByTestId('result').length).toBe(2);
+  });
+});
+
+describe('the assistant\'s picks', () => {
+  const picks = { askId: 'a1', search: null, picks: [
+    { n: 1, documentKey: 2, title: 'Shoe B', why: 'The lighter one' },
+    { n: 2, documentKey: 1, title: 'Shoe A', why: 'For trails' },
+  ] };
+
+  it('lists the picks in their order, each with why, in place of the search', async () => {
+    const asked: number[][] = [];
+    server.use(http.post(`${DS}/documents/lookup`, async ({ request }) => {
+      const keys = await request.json() as number[];
+      asked.push(keys);
+      return HttpResponse.json(keys.map(k => ({ id: k, title: k === 1 ? 'Shoe A' : 'Shoe B' })));
+    }));
+    let shown = 0;
+    renderResults({ picks, onShowSearch: () => { shown++; } });
+    await waitFor(() => expect(screen.getAllByTestId('title').map(t => t.textContent)).toEqual(['Shoe B', 'Shoe A']));
+    expect(asked).toContainEqual([2, 1]);
+    expect(screen.getByText('Picked by the assistant')).toBeTruthy();
+    expect(screen.getByText('The lighter one')).toBeTruthy();
+    screen.getByText('Show the search instead').click();
+    expect(shown).toBe(1);
+  });
+
+  it('offers all a search found when the picks came with one', async () => {
+    server.use(http.post(`${DS}/documents/lookup`, async ({ request }) =>
+      HttpResponse.json((await request.json() as number[]).map(k => ({ id: k, title: `Shoe ${k}` })))));
+    renderResults({ picks: { ...picks, search: { filters: [], text: '', found: 45, more: false } }, onShowSearch: () => {} });
+    await screen.findByText('Show all 45 found');
+  });
+
+  it('reports a pick opened against the answer, at its number', async () => {
+    server.use(http.post(`${DS}/documents/lookup`, async ({ request }) =>
+      HttpResponse.json((await request.json() as number[]).map(k => ({ id: k, title: `Shoe ${k}` })))));
+    const selects: unknown[] = [];
+    server.use(http.post(`${DS}/events/select`, async ({ request }) => { selects.push(await request.json()); return new HttpResponse(null, { status: 204 }); }));
+    render(
+      <SearchProvider url="http://localhost" team="team" dataset="test" preAuthenticatedToken="test-token" enableFacets={false}>
+        <SearchResults picks={picks}>{(item, { select }) => <button data-testid="pick" onClick={() => void select()}>{String(item.title)}</button>}</SearchResults>
+      </SearchProvider>
+    );
+    const rows = await screen.findAllByTestId('pick');
+    rows[1]!.click();
+    await waitFor(() => expect(selects).toEqual([{ queryId: 'a1', documentKey: 1, position: 2 }]));
   });
 });

@@ -13,8 +13,28 @@ export interface AskSource {
 export interface AskTurn {
   question: string;
   answer: string;
-  /** On a catalogue, the list that turn put on the page: a follow-up is about it. */
-  shown?: { filters: AskFilters['filters']; text: string; sort?: AskFilters['sort'] };
+  /** On a catalogue, the list that turn put on the page, a search or the assistant's picks: a
+   *  follow-up is about it. */
+  shown?: { filters?: AskFilters['filters']; text?: string; sort?: AskFilters['sort']; picks?: { documentKey: number; title: string }[] };
+}
+
+/** A record the assistant picked for the page's list, numbered as the answer cites it ([n]), with
+ *  why it was picked. */
+export interface AskPick {
+  n: number;
+  documentKey: number;
+  title: string;
+  why: string;
+}
+
+/** On a catalogue, the records the assistant picked by reading them: the page's list while the
+ *  conversation is open. `search` is the search behind them when the visitor asked for all of
+ *  something (every private school in a town), so the page can offer all it found. `askId` names
+ *  the answer, for reporting a pick that is opened. */
+export interface AskPicks {
+  picks: AskPick[];
+  search?: AskFilters | null;
+  askId?: string;
 }
 
 export type AskStatus = 'idle' | 'searching' | 'writing' | 'answered' | 'error' | 'limited';
@@ -39,6 +59,8 @@ export interface AskState {
   askId?: string;
   /** On a catalogue, a description's filters, as the server searched with them, and what it found. */
   filters?: AskFilters;
+  /** On a catalogue, the records the assistant picked for the list (its several searches). */
+  picks?: AskPicks;
   /** What the agent has done so far ("Searching: Folkehøyskole, by Elevtall"), while it works. */
   steps: string[];
 }
@@ -134,6 +156,9 @@ export function useAsk() {
           }
           case 'filters':
             setState(s => ({ ...s, filters: data as AskFilters }));
+            break;
+          case 'picks':
+            setState(s => ({ ...s, picks: { ...(data as AskPicks), askId: s.askId } }));
             break;
           case 'sources':
             setState(s => ({ ...s, status: 'writing', sources: data as AskSource[] }));

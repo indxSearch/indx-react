@@ -35,7 +35,17 @@ const FOLLOW_UP =
   '```\n\n' +
   'The console\'s Synonyms tab saves through the same route.';
 
-export type AskBehaviour = 'answer' | 'nothingFound' | 'limited' | 'budget' | 'unavailable' | 'failed';
+export type AskBehaviour = 'answer' | 'nothingFound' | 'limited' | 'budget' | 'unavailable' | 'failed' | 'picks';
+
+/** A catalogue's picks (AskBehaviour 'picks'): the films the assistant chose for "find queer movies". */
+const PICKS = [
+  { n: 1, documentKey: 258480, title: 'Carol', why: 'Two women fall in love in 1950s New York.', year: 2015 },
+  { n: 2, documentKey: 376867, title: 'Moonlight', why: 'A young man in Miami comes to terms with who he loves.', year: 2016 },
+  { n: 3, documentKey: 531428, title: 'Portrait of a Lady on Fire', why: 'A painter and the woman she paints fall in love.', year: 2019 },
+  { n: 4, documentKey: 234200, title: 'Pride', why: 'A comedy about gay and lesbian activists in 1984.', year: 2014 },
+];
+const PICKS_ANSWER = 'Four films with queer lives at their heart. Carol [1] and Portrait of a Lady on Fire [3] are love stories between women, ' +
+  'Moonlight [2] is about growing up, and Pride [4] is a warm comedy. The catalogue has no genre for this, so I chose them by what they are about.';
 
 /** How the judge answers: `judge` scores the text; `paused`, the provider refuses answers, so
  *  every text is p 0 with the reason; `spent`, the dataset's calls for today are spent (429). */
@@ -65,6 +75,10 @@ export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: b
       // The mock reads a request as finished from four words, as the mock is sure of a question.
       return json({ p, answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120, mode, finished: words >= 4 ? 0.9 : 0.2, found });
     }
+    if (url.endsWith('/documents/lookup')) {
+      const keys = JSON.parse(String(init.body)) as number[];
+      return json(keys.map(k => { const p = PICKS.find(x => x.documentKey === k); return { id: k, title: p?.title ?? `Record ${k}`, year: p?.year }; }));
+    }
     if (url.endsWith('/ask')) {
       const followUp = (JSON.parse(String(init.body ?? '{}')).history ?? []).length > 0;
       if (ask === 'limited')
@@ -86,8 +100,12 @@ export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: b
             send('error', { code: 'nothingFound', message: 'The search found nothing to answer from.' });
             return controller.close();
           }
-          send('sources', SOURCES);
-          const words = (followUp ? FOLLOW_UP : ANSWER).split(/(?<= )/);
+          if (ask === 'picks') {
+            send('status', { step: 'Picked 4' });
+            send('picks', { picks: PICKS.map(({ year: _, ...p }) => p), search: null });
+            send('sources', PICKS.map(p => ({ n: p.n, documentKey: p.documentKey, title: p.title })));
+          } else send('sources', SOURCES);
+          const words = (ask === 'picks' && !followUp ? PICKS_ANSWER : followUp ? FOLLOW_UP : ANSWER).split(/(?<= )/);
           for (let i = 0; i < words.length; i++) {
             if (signal?.aborted) return controller.close();
             if (ask === 'failed' && i === 18) {

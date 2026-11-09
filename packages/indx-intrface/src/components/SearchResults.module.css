@@ -20,3 +20,11 @@
 /* Search or ask: under the full offer, the judge reads what is asked about as not in the list. */
 .notFound { margin: 0 0 8px; font: var(--text-sm); color: var(--lv5); }
 .dimmed { opacity: 0.45; }
+
+/* The assistant's picks as the list: a head with the way back, and why each was picked. */
+.picksHead { display: flex; align-items: center; gap: 8px; padding: 6px 25px 8px 30px; }
+.picksTitle { display: inline-flex; align-items: center; gap: 6px; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.picksCount { font: var(--text-sm); color: var(--lv5); font-variant-numeric: tabular-nums; }
+.picksSpacer { flex: 1; }
+.why { display: flex; align-items: center; gap: 6px; font: var(--text-sm); color: var(--lv8); line-height: 1.4; }
+.why svg { flex: none; color: var(--lv5); }

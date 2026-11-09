@@ -38,7 +38,7 @@ export type { UseSearchOrAskOptions, SearchOrAskState, QuickState } from './hook
 export { useFilterSuggestion } from './hooks/useFilterSuggestion';
 export type { FilterSuggestion, FilterSuggestionResult } from './hooks/useFilterSuggestion';
 export { useAsk } from './hooks/useAsk';
-export type { AskSource, AskStatus, AskState, AskTurn, AskFilters } from './hooks/useAsk';
+export type { AskSource, AskStatus, AskState, AskTurn, AskFilters, AskPick, AskPicks } from './hooks/useAsk';
 export { AskPanel } from './components/AskPanel';
 export { QuickAnswer } from './components/QuickAnswer';
 export type { QuickAnswerProps } from './components/QuickAnswer';

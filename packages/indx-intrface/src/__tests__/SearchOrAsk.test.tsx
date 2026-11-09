@@ -521,6 +521,42 @@ describe('AskPanel', () => {
     expect(got.length).toBe(1);
   });
 
+  it('on a catalogue, hands the page the assistant\'s picks and names them all', async () => {
+    server.use(http.post(`${SOA}/ask`, () => new HttpResponse(
+      ['event: picks\ndata: ' + JSON.stringify({ picks: [{ n: 1, documentKey: 11, title: 'Carol', why: 'Two women in love' }, { n: 2, documentKey: 12, title: 'Moonlight', why: 'Growing up' }], search: null }),
+       'event: sources\ndata: ' + JSON.stringify([{ n: 1, documentKey: 11, title: 'Carol' }, { n: 2, documentKey: 12, title: 'Moonlight' }]),
+       'event: text\ndata: ' + JSON.stringify({ delta: 'Carol [1] is a love story.' }),
+       'event: done\ndata: {}'].join('\n\n') + '\n\n',
+      { headers: { 'Content-Type': 'text/event-stream', 'Indx-Ask-Id': 'a1' } })));
+    const got: unknown[] = [];
+    render(<AskPanel question="find queer movies" onPicks={p => got.push(p)} />, { wrapper });
+    await screen.findByText(/is a love story/);
+    expect(got).toEqual([{ picks: [{ n: 1, documentKey: 11, title: 'Carol', why: 'Two women in love' }, { n: 2, documentKey: 12, title: 'Moonlight', why: 'Growing up' }], search: null, askId: 'a1' }]);
+    // Every pick is in the list, not only the one the text cites.
+    expect(screen.getByText('Picked')).toBeTruthy();
+    expect(screen.getByText('Moonlight')).toBeTruthy();
+  });
+
+  it('sends the picks with a follow-up, as what the last turn put on the page', async () => {
+    const bodies: { history?: unknown[] }[] = [];
+    server.use(http.post(`${SOA}/ask`, async ({ request }) => {
+      bodies.push(await request.json() as { history?: unknown[] });
+      return sse([
+        ...(bodies.length === 1 ? [['picks', { picks: [{ n: 1, documentKey: 11, title: 'Carol', why: 'Love' }] }] as [string, unknown]] : []),
+        ['text', { delta: bodies.length === 1 ? 'Carol [1].' : 'From 2015.' }],
+        ['done', {}],
+      ]);
+    }));
+    globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+    render(<AskPanel question="find queer movies" followUps />, { wrapper });
+    await waitFor(() => expect(screen.getByText('Copy')).toBeTruthy());
+    const field = screen.getByLabelText('Ask a follow-up');
+    fireEvent.change(field, { target: { value: 'which is newest?' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    await screen.findByText(/From 2015/);
+    expect(bodies[1]!.history).toEqual([{ question: 'find queer movies', answer: 'Carol [1].', shown: { picks: [{ documentKey: 11, title: 'Carol' }] } }]);
+  });
+
   it('says when the records hold nothing to answer from', async () => {
     server.use(http.post(`${SOA}/ask`, () => sse([
       ['error', { code: 'nothingFound', message: 'The search found nothing to answer from.' }],
@@ -697,7 +733,7 @@ describe('modes', () => {
   it('QuickAnswer draws each state, and asks on a click', () => {
     const asked: string[] = [];
     const base = { available: true, text: 'how do I add synonyms', stands: true } as const;
-    const draw = (quick: 'hint' | 'ready' | 'thinking' | 'invite' | 'none') =>
+    const draw = (quick: 'hint' | 'ready' | 'thinking' | 'invite' | 'none' | 'ask') =>
       render(<QuickAnswer searchOrAsk={{ ...base, quick } as never} onAsk={t => asked.push(t)} />);
     const hint = draw('hint');
     fireEvent.click(screen.getByText('For a quick answer, type a bit more'));

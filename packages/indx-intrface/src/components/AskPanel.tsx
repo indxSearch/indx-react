@@ -5,7 +5,7 @@ import {
 } from '@indxsearch/systm';
 import type { ComposerHandle } from '@indxsearch/systm';
 import { Refresh } from '@indxsearch/pixl';
-import { useAsk, type AskSource, type AskStatus, type AskTurn, type AskFilters } from '../hooks/useAsk';
+import { useAsk, type AskSource, type AskStatus, type AskTurn, type AskFilters, type AskPicks } from '../hooks/useAsk';
 import { answerMarkdown } from '../utils/answerMarkdown';
 import styles from './AskPanel.module.css';
 
@@ -35,6 +35,9 @@ export interface AskPanelProps {
   /** On a catalogue, called with the filters a description was searched with, as soon as they are
    *  known: give them to `useFilterSuggestion().apply` so the page's list shows the same set. */
   onFilters?: (filters: AskFilters) => void;
+  /** On a catalogue, called with the records the assistant picked, as soon as they are known: show
+   *  them as the page's list with `SearchResults`' `picks`, while the conversation is open. */
+  onPicks?: (picks: AskPicks) => void;
   /** How a filter reads on its chip. Default: a text value as itself, a yes/no by its field's
    *  name, a range by its bounds. */
   filterLabel?: (filter: AskFilters['filters'][number]) => string;
@@ -60,6 +63,7 @@ interface PastTurn {
   sources: AskSource[];
   askId?: string;
   filters?: AskFilters;
+  picks?: AskPicks;
 }
 
 function defaultFilterLabel(f: AskFilters['filters'][number]): string {
@@ -79,7 +83,7 @@ function defaultFilterLabel(f: AskFilters['filters'][number]): string {
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
   question, proactive = false, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
-  onFilters, filterLabel = defaultFilterLabel, fill = false, className = '',
+  onFilters, onPicks, filterLabel = defaultFilterLabel, fill = false, className = '',
 }) => {
   const asked = useAsk();
   const { ask, reset, stop, status, openSource } = asked;
@@ -111,6 +115,15 @@ export const AskPanel: React.FC<AskPanelProps> = ({
       onFilters?.(asked.filters);
     }
   }, [asked.filters, onFilters]);
+
+  // And the picks, once, when they arrive.
+  const sentPicks = useRef<AskPicks | undefined>(undefined);
+  useEffect(() => {
+    if (asked.picks && asked.picks !== sentPicks.current) {
+      sentPicks.current = asked.picks;
+      onPicks?.({ ...asked.picks, askId: asked.picks.askId ?? asked.askId });
+    }
+  }, [asked.picks, asked.askId, onPicks]);
 
   // With fill, keep the end in view as the answer grows and as turns are added.
   useEffect(() => {
@@ -146,10 +159,12 @@ export const AskPanel: React.FC<AskPanelProps> = ({
     const cited = new Set([...answer.matchAll(CITE)].map(m => Number(m[1])));
     return done && cited.size > 0 ? sources.filter(s => cited.has(s.n)) : sources.slice(0, 3);
   };
-  const sourceList = (answer: string, sources: AskSource[], done: boolean, askId?: string) => {
-    const listed = citedSources(answer, sources, done);
+  // The picks are the page's list, so the answer names them all, numbered as the list is.
+  const sourceList = (answer: string, sources: AskSource[], done: boolean, askId?: string, picked = false) => {
+    const listed = picked ? sources : citedSources(answer, sources, done);
     return listed.length > 0 && (
-      <CitationList items={listed.map(s => ({ n: s.n, title: s.title, onClick: onSourceClick ? pick(s, askId) : undefined }))} />
+      <CitationList label={picked ? 'Picked' : undefined}
+                    items={listed.map(s => ({ n: s.n, title: s.title, onClick: onSourceClick ? pick(s, askId) : undefined }))} />
     );
   };
 
@@ -163,11 +178,12 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   const sendFollowUp = (text: string) => {
     if (asked.busy || !text.trim()) return;
     if (status === 'answered' && asked.answer) {
-      const turn = { question: asked.question, answer: asked.answer, sources: asked.sources, askId: asked.askId, filters: asked.filters };
+      const turn = { question: asked.question, answer: asked.answer, sources: asked.sources, askId: asked.askId, filters: asked.filters, picks: asked.picks };
       setPast(p => [...p, turn]);
       history.current = [...history.current, {
         question: turn.question, answer: turn.answer,
-        ...(turn.filters ? { shown: { filters: turn.filters.filters, text: turn.filters.text, sort: turn.filters.sort ?? null } } : {}),
+        ...(turn.picks ? { shown: { picks: turn.picks.picks.map(x => ({ documentKey: x.documentKey, title: x.title })) } }
+          : turn.filters ? { shown: { filters: turn.filters.filters, text: turn.filters.text, sort: turn.filters.sort ?? null } } : {}),
       }];
     }
     setDraft('');
@@ -185,7 +201,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
           <AssistantMessage label={label}>
             {searched(t.filters)}
             <div className={styles.answer}>{renderAnswer(t.answer, citeFrom(t.sources, t.askId))}</div>
-            {sourceList(t.answer, t.sources, true, t.askId)}
+            {sourceList(t.answer, t.sources, true, t.askId, !!t.picks)}
           </AssistantMessage>
         </div>
       ))}
@@ -234,7 +250,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
                 </AlertDescription>
               </Alert>
             )}
-            {status !== 'error' && status !== 'limited' && sourceList(asked.answer, asked.sources, status === 'answered')}
+            {status !== 'error' && status !== 'limited' && sourceList(asked.answer, asked.sources, status === 'answered', undefined, !!asked.picks)}
             {status === 'answered' && <AnswerActions onCopy={copy} copied={copied} onFollowUp={followUpAction} />}
           </AssistantMessage>
         </div>

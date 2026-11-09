@@ -7,9 +7,10 @@ import { useSearchContext } from '../context/SearchContext';
 import type { SearchResult as SearchResultData } from '../context/SearchContext';
 import { SearchResult } from './SearchResult';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
-import { Indx } from '@indxsearch/pixl';
+import { Ai_agent, Indx } from '@indxsearch/pixl';
 import { Button } from '@indxsearch/systm';
 import type { SearchOrAskState } from '../hooks/useSearchOrAsk';
+import type { AskPicks } from '../hooks/useAsk';
 
 export interface SearchResultsProps {
   fields?: string[];
@@ -35,6 +36,19 @@ export interface SearchResultsProps {
   searchOrAsk?: SearchOrAskState;
   /** The line above a dimmed list, for a page in another language. */
   notFoundLabel?: string;
+  /**
+   * The records the assistant picked (`AskPanel`'s `onPicks`): while given, the list is those, in
+   * the assistant's order and numbered as its answer cites them, each with why it was picked, in
+   * place of the search. Clear it to show the search again: when the visitor types, starts a new
+   * conversation, or `onShowSearch`.
+   */
+  picks?: AskPicks | null;
+  /** Shown over the picks as the way back to the search: "Show all 45 found" when the picks came
+   *  with a search, "Show the search instead" otherwise. The page clears `picks`, and applies
+   *  `picks.search` (`useFilterSuggestion().apply`) when it is there. */
+  onShowSearch?: () => void;
+  /** The heading over the picks. Default "Picked by the assistant". */
+  picksLabel?: string;
   /**
    * Shows each result's score beside it. Given, it wins over the `showScore` search setting (the
    * toggle in SearchSettingsPanel); left out, that setting decides, and it is on by default.
@@ -68,7 +82,112 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, notFoundLabel = 'These results may not hold what you are asking about', showScore, children }) => {
+/** A document as a result row's render prop gets it: parsed, cut to `fields`, lists read. Null
+ *  when it is not JSON. */
+function displayOf(rawItem: unknown, fields: string[] | undefined, parseArrayStrings: boolean): Record<string, any> | null {
+  let parsed: Record<string, any>;
+  try {
+    parsed = typeof rawItem === 'string' ? JSON.parse(rawItem) : (rawItem as Record<string, any>);
+  } catch {
+    return null;
+  }
+  let displayData: Record<string, any>;
+  if (fields && fields.length > 0) {
+    displayData = {};
+    for (const key of fields) {
+      if (key in parsed) displayData[key] = parsed[key];
+    }
+  } else {
+    displayData = { ...parsed };
+  }
+  if (parseArrayStrings) {
+    for (const key in displayData) {
+      const val = displayData[key];
+      if (typeof val === 'string') {
+        const list = parseArrayString(val);
+        if (list) displayData[key] = list;
+      }
+    }
+  }
+  return displayData;
+}
+
+/** The assistant's picks as the list: looked up by key, each row with why it was picked. */
+const PickedResults: React.FC<{
+  picks: AskPicks; fields?: string[]; parseArrayStrings: boolean; label: string; onShowSearch?: () => void;
+  children: SearchResultsProps['children'];
+}> = ({ picks, fields, parseArrayStrings, label, onShowSearch, children }) => {
+  const { url, team, dataset, authenticatedFetch, count } = useSearchContext();
+  const [docs, setDocs] = useState<Map<number, unknown> | null>(null);
+
+  useEffect(() => {
+    let gone = false;
+    setDocs(null);
+    const keys = picks.picks.map(p => p.documentKey);
+    (async () => {
+      try {
+        const res = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(keys),
+        });
+        const list = res.ok ? await res.json() as unknown[] : [];
+        if (!gone) setDocs(new Map(keys.map((k, i) => [k, list[i]])));
+      } catch {
+        if (!gone) setDocs(new Map());
+      }
+    })();
+    return () => { gone = true; };
+  }, [picks, url, team, dataset, authenticatedFetch]);
+
+  // A pick opened is a cited source opened: a select naming the answer, at the pick's number.
+  const select = (documentKey: number, n: number) => async () => {
+    if (!picks.askId) return;
+    try {
+      await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/events/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ queryId: picks.askId, documentKey, position: n, ...(count === false ? { count: false } : {}) }),
+      });
+    } catch {
+      // Not recorded; nothing else changes.
+    }
+  };
+
+  const search = picks.search;
+  return (
+    <>
+      <div className={styles.picksHead}>
+        <span className={styles.picksTitle}><Ai_agent size={14} color="currentColor" />{label}</span>
+        <span className={styles.picksCount}>{picks.picks.length}</span>
+        <span className={styles.picksSpacer} />
+        {onShowSearch && (
+          <Button variant="ghost" size="micro" onClick={onShowSearch}>
+            {search ? `Show all ${search.found}${search.more ? '+' : ''} found` : 'Show the search instead'}
+          </Button>
+        )}
+      </div>
+      {docs === null ? <SearchResultsSkeleton rows={Math.max(1, picks.picks.length)} /> : (
+        <div>
+          {picks.picks.map(p => {
+            const doc = docs.get(p.documentKey);
+            const display = doc == null ? null : displayOf(doc, fields, parseArrayStrings);
+            if (!display) return null;
+            return (
+              <SearchResult key={p.documentKey} index={p.n} showScore={false}>
+                {children(display, { result: { document: doc, documentKey: p.documentKey, score: 0, position: p.n }, select: select(p.documentKey, p.n) })}
+                {p.why && <div className={styles.why}><Ai_agent size={12} color="currentColor" /><span>{p.why}</span></div>}
+              </SearchResult>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, notFoundLabel = 'These results may not hold what you are asking about',
+  picks, onShowSearch, picksLabel = 'Picked by the assistant', showScore, children }) => {
   const {
     state: { results, resultsSuppressed, searchSettings, countedTotal, query, error, errorInfo },
     isFetchingInitial,
@@ -119,6 +238,11 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     }
   };
 
+  if (picks && !isFetchingInitial && !authError) {
+    return <PickedResults picks={picks} fields={fields} parseArrayStrings={parseArrayStrings} label={picksLabel}
+                          onShowSearch={onShowSearch}>{children}</PickedResults>;
+  }
+
   if (isFetchingInitial) {
     return allowEmptySearch
       ? <SearchResultsSkeleton rows={pageSize} />
@@ -155,39 +279,14 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
       {dimmed && <p className={styles.notFound} aria-live="polite">{notFoundLabel}</p>}
       <div className={dimmed ? styles.dimmed : undefined}>
         {shown.slice(0, visibleCount).map((result, idx) => {
-          const rawItem = result.document;
           const score = result.score;
-          let parsed: Record<string, any>;
-          try {
-            parsed = typeof rawItem === 'string' ? JSON.parse(rawItem) : rawItem;
-          } catch {
+          const displayData = displayOf(result.document, fields, parseArrayStrings);
+          if (!displayData) {
             return (
               <div key={idx} className={styles.invalid}>
                 <p>Invalid JSON</p>
               </div>
             );
-          }
-
-          let displayData: Record<string, any>;
-          if (fields && fields.length > 0) {
-            displayData = {};
-            for (const key of fields) {
-              if (key in parsed) {
-                displayData[key] = parsed[key];
-              }
-            }
-          } else {
-            displayData = { ...parsed };
-          }
-
-          if (parseArrayStrings) {
-            for (const key in displayData) {
-              const val = displayData[key];
-              if (typeof val === 'string') {
-                const list = parseArrayString(val);
-                if (list) displayData[key] = list;
-              }
-            }
           }
 
           return (
