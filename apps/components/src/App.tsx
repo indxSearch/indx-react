@@ -13,6 +13,7 @@ import SliderPage from './slider/page';
 import BarSliderPage from './bar-slider/page';
 import ScrubSliderPage from './scrub-slider/page';
 import SliderFieldPage from './slider-field/page';
+import HistogramRangePage from './histogram-range/page';
 import BarMeterPage from './bar-meter/page';
 import WafflePage from './waffle/page';
 import HeatmapPage from './heatmap/page';
@@ -60,6 +61,7 @@ import ProgressBarPage from './progress-bar/page';
 import SpinnersPage from './spinners/page';
 import CursorsPage from './cursors/page';
 import PatternsPage from './patterns/page';
+import ColorsPage from './colors/page';
 import ChartPage from './chart/page';
 import SparklinePage from './sparkline/page';
 import DatasetCardPage from './dataset-card/page';
@@ -82,6 +84,11 @@ import StepProgressPage from './step-progress/page';
 import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
+import RecordsBrowserMockup from './records-browser/page';
+import AdminTeamsMockup from './admin-teams/page';
+import PortalOnboardingMockup from './portal-onboarding/page';
+import PortalSupportMockup from './portal-support/page';
+import AdminLicenseMockup from './admin-license/page';
 import SupportMockup from './support/page';
 import ObservrAgentMockup from './observr-agent/page';
 import FieldProfilesMockup from './field-profiles/page';
@@ -105,6 +112,7 @@ export default function App() {
         <Route path="/bar-slider" element={<BarSliderPage />} />
         <Route path="/scrub-slider" element={<ScrubSliderPage />} />
         <Route path="/slider-field" element={<SliderFieldPage />} />
+        <Route path="/histogram-range" element={<HistogramRangePage />} />
         <Route path="/bar-meter" element={<BarMeterPage />} />
         <Route path="/waffle" element={<WafflePage />} />
         <Route path="/heatmap" element={<HeatmapPage />} />
@@ -152,6 +160,7 @@ export default function App() {
         <Route path="/search-result" element={<SearchResultPage />} />
         <Route path="/cursors" element={<CursorsPage />} />
         <Route path="/patterns" element={<PatternsPage />} />
+        <Route path="/colors" element={<ColorsPage />} />
         <Route path="/chart" element={<ChartPage />} />
         <Route path="/sparkline" element={<SparklinePage />} />
         <Route path="/dataset-card" element={<DatasetCardPage />} />
@@ -174,6 +183,11 @@ export default function App() {
         <Route path="/icicle" element={<IciclePage />} />
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
+        <Route path="/records-browser" element={<RecordsBrowserMockup />} />
+        <Route path="/admin-teams" element={<AdminTeamsMockup />} />
+        <Route path="/portal-onboarding" element={<PortalOnboardingMockup />} />
+        <Route path="/portal-support" element={<PortalSupportMockup />} />
+        <Route path="/admin-license" element={<AdminLicenseMockup />} />
         <Route path="/support" element={<SupportMockup />} />
         <Route path="/observr-agent" element={<ObservrAgentMockup />} />
         <Route path="/field-profiles" element={<FieldProfilesMockup />} />

@@ -10,9 +10,8 @@
   border-radius: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  .stat { background: var(--lv1); }
-}
+@media (prefers-color-scheme: dark) { :where(:root:not([data-theme="light"])) .stat { background: var(--lv1); } }
+:where(:root[data-theme="dark"]) .stat { background: var(--lv1); }
 
 .label {
   display: inline-flex;

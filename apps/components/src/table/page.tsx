@@ -3,11 +3,23 @@ import { Table, TableHeader, TableRow, TableCell, TableValue, TableIcon, Button,
 import { Check, Compose, Delete, External_link } from '@indxsearch/pixl';
 import styles from './page.module.css';
 
+const SHORT_ROWS = [
+  ['100000', 'Oslo sofa', 'A sofa, made to last.', '2,990'],
+  ['100003', 'Bergen chair', 'A chair.', '687'],
+  ['100006', 'Fjord table', 'A table from Lysverk.', '1,084'],
+];
+const LONG_ROWS = [
+  ['104512', 'Oslo sofa XL with chaise longue and storage', 'A three seat sofa in recycled wool, with a chaise longue on either side and storage under the seat.', '24,990'],
+  ['104515', 'Linn lamp', 'A reading lamp in brushed brass, its arm turned by hand in the workshop in Bergen.', '1,481'],
+  ['104518', 'Vik rug', 'A flat woven rug.', '12,878'],
+];
+
 export default function TablePage() {
   const [selectedRow, setSelectedRow] = useState<string>('row2');
   const [volume, setVolume] = useState(75);
   const [brightness, setBrightness] = useState(50);
   const [contrast, setContrast] = useState(60);
+  const [longRows, setLongRows] = useState(false);
 
   return (
     <main className={styles.main}>
@@ -412,6 +424,36 @@ export default function TablePage() {
             </tbody>
           </Table>
         </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Resizable columns</h2>
+        <p className={styles.desc}>
+          <code>resizableColumns</code> gives each header a handle at its right edge: drag it, or focus it and use the
+          arrow keys (Shift for bigger steps); a double click or Delete gives the column its first width back. Every
+          column has a fixed width from the start, so new rows never move the columns: try <em>Other rows</em>.
+          A cell stays on one line, unless it says <code>data-wrap</code>. The last column fills what is left,
+          never narrower than its own width. Name a column with <code>data-column</code> and give its first width as <code>data-width</code>;{' '}
+          <code>columnStorageKey</code> keeps the reader's widths. The Records section of the console uses it.
+        </p>
+        <div>
+          <Button variant="secondary" size="micro" onClick={() => setLongRows(l => !l)}>Other rows</Button>
+        </div>
+        <Table aria-label="Resizable columns example" scrollable stickyFirstColumn resizableColumns columnStorageKey="showcase-table-resizable">
+          <TableHeader>
+            <th scope="col" data-column="key" data-width="110">Key</th>
+            <th scope="col" data-column="title" data-width="240">title</th>
+            <th scope="col" data-column="description" data-width="320">description</th>
+            <th scope="col" data-column="price" data-width="110">price</th>
+          </TableHeader>
+          <tbody>
+            {(longRows ? LONG_ROWS : SHORT_ROWS).map(r => (
+              <TableRow key={r[0]}>
+                <td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td>
+              </TableRow>
+            ))}
+          </tbody>
+        </Table>
       </div>
 
       <div className={styles.section}>

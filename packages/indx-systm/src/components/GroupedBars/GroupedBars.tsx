@@ -100,7 +100,7 @@ export function GroupedBars({ groups, labels, height = 120, max, gap = 2, format
     const h = top > 0 && Number.isFinite(g.values[i]) ? (Math.max(0, g.values[i]) / top) * height : 0;
     return (
       <div className={`${styles.tooltip} ${left ? styles.tooltipLeft : ''}`} style={{ left: left ? tx - 8 : tx + 8, top: Math.max(barsTop + 12, barsBottom - h) }}>
-        <span className={styles.tooltipLabel}>{g.label}{labels?.[i] != null ? ` · ${labels[i]}` : ''}</span>
+        <span className={styles.tooltipLabel}>{g.label}{labels?.[i] != null ? `, ${labels[i]}` : ''}</span>
         <span className={styles.tooltipValue}>{format(g.values[i], gi, i)}</span>
       </div>
     );

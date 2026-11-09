@@ -1,0 +1,85 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1200px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+.h2 { font: var(--text-xl); margin: 16px 0 0; }
+.h3 { font: var(--text-lg); margin: 0; color: var(--lv8); }
+.h4 { font: var(--text-sm); font-weight: var(--med); margin: 0; color: var(--lv7); }
+.faint { font: var(--text-xs); color: var(--lv5); margin: 0; }
+.mono { font-family: var(--font-mono); }
+.attention { color: var(--lv8); font-weight: var(--med); }
+.controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.inline { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* The portal page as drawn in the mockup: its own frame, the portal's page width. */
+.portal { border: 0.5px solid var(--lv3); padding: 32px; background: var(--lv0); min-width: 0; }
+@media (max-width: 700px) { .portal { padding: 16px; } }
+
+/* The wizard step, in the right column of the split-screen layout. */
+.wizardFrame { border: 0.5px solid var(--lv3); background: var(--lv0); padding: 40px 16px; display: flex; justify-content: center; }
+.wizard { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+.wizardTitle { font: var(--text-xl); margin: 0; color: var(--lv8); }
+.wizardLead { font: var(--text-sm); color: var(--lv5); margin: 0; }
+.wizardActions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--lv3); border-radius: var(--radius); cursor: pointer; }
+.choice:hover { border-color: var(--lv5); }
+.choice:focus-within { outline: 2px solid var(--lv5); outline-offset: 2px; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choiceOn { border-color: var(--lv7); outline: 1px solid var(--lv7); outline-offset: -2px; }
+.choiceHead { display: inline-flex; align-items: center; gap: 8px; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.choiceDesc { font: var(--text-xs); color: var(--lv5); line-height: 1.5; }
+
+.column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.twoColumns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 760px) { .twoColumns { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+
+.card { background: var(--lv1); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cardText { font: var(--text-sm); color: var(--lv5); margin: 0; }
+.divider { border-top: 1px solid var(--lv2); margin: 6px 0; }
+
+.facts { display: grid; grid-template-columns: 90px 1fr; gap: 8px 16px; align-items: center; font: var(--text-sm); color: var(--lv7); }
+
+.resources { display: flex; flex-direction: column; }
+.resource { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--lv2); color: var(--lv7); font: var(--text-sm); text-decoration: none; }
+.resource span { flex: 1; }
+.resource:hover { color: var(--lv8); }
+
+.stepText { font: var(--text-sm); color: var(--lv6); margin: 0; line-height: 1.5; }
+.stepText code { font-family: var(--font-mono); font-size: 0.95em; color: var(--lv8); }
+.stepText a { color: var(--lv8); }
+
+/* The number or tick of a step. */
+.checkMark { flex: none; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--lv3); border-radius: 50%; font: var(--text-xs); color: var(--lv6); font-variant-numeric: tabular-nums; }
+.checkDone { background: var(--lv8); border-color: var(--lv8); color: var(--lv0); }
+.checkTitle { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+
+/* A: the checklist across the page, the license beside it. */
+.checklistGrid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 40px; align-items: start; }
+@media (max-width: 860px) { .checklistGrid { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+.checklist { list-style: none; margin: 0; padding: 0; border: 0.5px solid var(--lv3); border-radius: var(--radius); }
+.checkItem + .checkItem { border-top: 0.5px solid var(--lv3); }
+.checkHead { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; }
+.checkHead:hover { background: var(--lv1); }
+.checkHead:focus-visible { outline: 1px solid var(--lv6); outline-offset: -1px; }
+.checkBody { padding: 0 16px 16px 50px; display: flex; flex-direction: column; gap: 10px; }
+.side { display: flex; flex-direction: column; gap: 16px; }
+
+/* B: the steps as a numbered column. */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; }
+.step { display: flex; gap: 12px; }
+.stepMain { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1; padding-top: 2px; }
+
+/* C: the steps as three cards in a row until a server has connected. */
+.cardsRow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .cardsRow { grid-template-columns: minmax(0, 1fr); } }
+.stepLabel { font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; }
+.commands { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+/* B, once done: the steps fold into one line. */
+.doneSummary { display: inline-flex; align-items: center; gap: 10px; }
+.doneBody { padding: 4px 12px 16px; display: flex; flex-direction: column; gap: 16px; }
+.newToken { display: flex; flex-direction: column; gap: 10px; }
+.actionsCell { text-align: right; width: 1%; white-space: nowrap; }

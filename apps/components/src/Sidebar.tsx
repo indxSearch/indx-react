@@ -57,6 +57,7 @@ export const navGroups: NavGroup[] = [
       { label: 'StepProgress', path: '/step-progress' },
       { label: 'ScrubSlider', path: '/scrub-slider' },
       { label: 'SliderField', path: '/slider-field' },
+      { label: 'HistogramRange', path: '/histogram-range' },
       { label: 'SearchField', path: '/search-field' },
       { label: 'SegmentedControl', path: '/segmented-control' },
       { label: 'Select', path: '/select' },
@@ -85,6 +86,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Spinners', path: '/spinners' },
       { label: 'Custom Cursors', path: '/cursors' },
       { label: 'Patterns', path: '/patterns' },
+      { label: 'Colours', path: '/colors' },
     ],
   },
   {
@@ -116,6 +118,11 @@ export const navGroups: NavGroup[] = [
     title: 'Mockups',
     items: [
       { label: 'Dataset page', path: '/dataset-page' },
+      { label: 'Records browser', path: '/records-browser' },
+      { label: 'Admin teams', path: '/admin-teams' },
+      { label: 'Admin license', path: '/admin-license' },
+      { label: 'Portal onboarding', path: '/portal-onboarding' },
+      { label: 'Portal support', path: '/portal-support' },
       { label: 'Field profiles', path: '/field-profiles' },
       { label: 'Preview number filters', path: '/preview-ranges' },
       { label: 'Console shell', path: '/console-shell' },

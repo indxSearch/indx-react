@@ -1,0 +1,41 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1200px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+.faint { font: var(--text-xs); color: var(--lv5); margin: 0; }
+.mono { font-family: var(--font-mono); }
+.controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.inline { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* The console page as drawn in the mockup. */
+.page { display: flex; flex-direction: column; gap: 24px; padding-top: 16px; border-top: 0.5px solid var(--lv3); min-width: 0; }
+.pageHead { display: flex; flex-direction: column; gap: 4px; }
+.h2 { font: var(--text-xl); margin: 0; }
+.lead { font: var(--text-sm); color: var(--lv5); margin: 0; }
+.h3 { font: var(--text-base); margin: 0; color: var(--lv8); }
+
+.twoColumns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 860px) { .twoColumns { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+.column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* A card as the portal draws one: a surface a step up, no border, no shadow. */
+.card { background: var(--lv1); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cardText { font: var(--text-sm); color: var(--lv5); margin: 0; line-height: 1.5; }
+.actions { text-align: right; width: 1%; white-space: nowrap; }
+
+.facts { display: grid; grid-template-columns: 110px 1fr; gap: 8px 16px; align-items: center; font: var(--text-sm); color: var(--lv7); }
+
+.connected { display: flex; align-items: flex-start; gap: 10px; font: var(--text-sm); color: var(--lv8); }
+.tick { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--lv8); color: var(--lv0); display: inline-flex; align-items: center; justify-content: center; }
+.connectedText { display: flex; flex-direction: column; gap: 2px; padding-top: 2px; }
+
+.links { display: flex; flex-direction: column; }
+.link { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--lv2); color: var(--lv7); font: var(--text-sm); text-decoration: none; }
+.link span { flex: 1; }
+.link:hover { color: var(--lv8); }
+
+/* The datasets a limit cuts: the name, then how much of it is searched. */
+.overList { display: flex; flex-direction: column; gap: 10px; }
+.overRow { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: center; font: var(--text-sm); color: var(--lv7); }
+.code { font-family: var(--font-mono); white-space: nowrap; }

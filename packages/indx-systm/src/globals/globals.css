@@ -28,7 +28,8 @@
   /* FONT FAMILY */
   --font-family: 'Inter', sans-serif;
   /* Code, commands, keys and file names. The app loads the Geist Mono face (for example
-     @fontsource/geist-mono); without it the system's monospace takes over.
+     @fontsource/geist-mono), with size-adjust: 93% so its x-height meets the brand font's;
+     without it the system's monospace takes over.
      Kept in sync with Indx.Systm.Blazor/wwwroot/indx-systm.css. */
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
@@ -46,6 +47,19 @@
   --text-3xl: 350 30px/1.2 var(--font-family);
   --text-4xl: 350 36px/1.15 var(--font-family);
 
+  /* DATA VIZ (Nov 2026): seven soft hues for series, parts and categories, taken in order and never
+     skipped; an eighth and beyond go under Other, in lv4. Each hue sits at its own lightness, which
+     keeps neighbours apart for colourblind readers. Light on white (about 2:1), so a chart here
+     always has a legend and labels. Text stays in the levels: the colour goes on the marks.
+     The mockup and the checks behind them: apps/components, /colors. */
+  --viz1: #5F96DC; /* blue */
+  --viz2: #F0AB64; /* apricot */
+  --viz3: #3CC5E2; /* cyan */
+  --viz4: #8D77C8; /* violet */
+  --viz5: #68DDB8; /* mint */
+  --viz6: #CB84C4; /* orchid */
+  --viz7: #7F9C45; /* moss */
+
   --light: 300;
   --book: 350;
   --reg: 400;
@@ -56,7 +70,7 @@
 
 /* Dark mode via system preference (automatic) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --lv0: #080809;
     --lv1: #121215;
     --lv2: #1A1A21;
@@ -69,8 +83,44 @@
 
     --CPositive: var(--CTeal);
     --CPositiveHandle: #080809;
+
+    --viz1: #6DA0E0;
+    --viz2: #F6B676;
+    --viz3: #59CEE8;
+    --viz4: #9582CC;
+    --viz5: #7DE5C3;
+    --viz6: #D290CB;
+    --viz7: #89A556;
   }
 }
+:root[data-theme="dark"] {
+  --lv0: #080809;
+  --lv1: #121215;
+  --lv2: #1A1A21;
+  --lv3: #393941;
+  --lv4: #565661;
+  --lv5: #8F8F97;
+  --lv6: #EFEFEF;
+  --lv7: #FBFBFB;
+  --lv8: #FFFFFF;
+
+  --CPositive: var(--CTeal);
+  --CPositiveHandle: #080809;
+
+  --viz1: #6DA0E0;
+  --viz2: #F6B676;
+  --viz3: #59CEE8;
+  --viz4: #9582CC;
+  --viz5: #7DE5C3;
+  --viz6: #D290CB;
+  --viz7: #89A556;
+}
+
+/* A fixed theme (data-theme="light" or "dark" on <html>) also sets color-scheme, so scrollbars and
+   native controls follow it. Without data-theme the system decides, as above. */
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
 
 body {
   -webkit-font-smoothing: antialiased;

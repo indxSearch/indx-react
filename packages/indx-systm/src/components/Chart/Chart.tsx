@@ -182,6 +182,8 @@ export function Chart({
 
   // Roughly the width of one --text-2xs character, and the gap kept between two labels.
   const LABEL_CHAR_WIDTH = 6, LABEL_GAP = 12, MIN_MARKER_SPACING = 12;
+  // A marker row in the tooltip is a series row with 4px above it (.tooltipMarker).
+  const MARKER_ROW_HEIGHT = 22;
 
   // The side paddings make room for the axis labels and the reference tags, which sit outside
   // the plot at the right. 20px is the margin a chart has without either.
@@ -499,16 +501,31 @@ export function Chart({
   const tooltipEl = tooltip ? (() => {
     const label = labels?.[tooltip.index] ?? String(tooltip.index + 1);
     // Kept inside the frame, which clips. The box's size is estimated from its rows and its
-    // longest name (a row is 20px, a character about 6.5px), since it is not measured before it
-    // is drawn. Beside the pointed column, never on it: to its right when it fits there, else to
-    // its left, at the pointer's height. Above or below the pointer it covered what it describes.
-    const rowCount = series.length
+    // longest name (a row is 20px, a marker's 22, a character about 6.5px), since it is not
+    // measured before it is drawn. Beside the pointed column, never on it: to its right when it
+    // fits there, else to its left, at the pointer's height. Above or below the pointer it
+    // covered what it describes.
+    const seriesRows = series.length
       + series.filter(s => s.low && s.high && s.low[tooltip.index] != null && s.high[tooltip.index] != null).length
-      + (isStacked && series.length > 1 ? 1 : 0)
-      + (markers?.filter(m => m.index === tooltip.index).length ?? 0);
-    const longest = Math.max(label.length, ...series.map(s => s.label.length + 8), ...(markers?.map(m => m.label.length) ?? [0]));
+      + (isStacked && series.length > 1 ? 1 : 0);
+    // The point's markers, one row per label with how many times it happened, in the order they
+    // came, and no more rows than the frame has room for, the last then saying how many were left
+    // out (a null label). Until Nov 2026 every marker was a row, and a dataset woken twenty times
+    // in a day ran the box out of the frame.
+    let tipMarkers: { label: string | null; count: number }[] = [];
+    for (const m of markers ?? []) {
+      if (m.index !== tooltip.index) continue;
+      const row = tipMarkers.find(r => r.label === m.label);
+      if (row) row.count++; else tipMarkers.push({ label: m.label, count: 1 });
+    }
+    const room = Math.max(1, Math.floor((height - 8 - 30 - seriesRows * 20) / MARKER_ROW_HEIGHT));
+    if (tipMarkers.length > room) {
+      const left = tipMarkers.slice(room - 1).reduce((n, r) => n + r.count, 0);
+      tipMarkers = [...tipMarkers.slice(0, room - 1), { label: null, count: left }];
+    }
+    const longest = Math.max(label.length, ...series.map(s => s.label.length + 8), ...tipMarkers.map(m => (m.label?.length ?? 12) + 6));
     const tipW = Math.min(Math.max(90, longest * 6.5 + 36), Math.max(120, containerWidth - 16));
-    const tipH = 30 + rowCount * 20;
+    const tipH = 30 + seriesRows * 20 + tipMarkers.length * MARKER_ROW_HEIGHT;
     // From the hovered bar's edge, or from the point on a line, rather than from the pointer.
     const gap = 12;
     const half = type === 'bar' && dataLen > 0 ? cw / dataLen / 2 : 0;
@@ -542,10 +559,11 @@ export function Chart({
             <span className={styles.tooltipValue}>{formatValue(totals[tooltip.index] ?? 0)}</span>
           </div>
         )}
-        {markers?.filter(m => m.index === tooltip.index).map((m, mi) => (
+        {tipMarkers.map((m, mi) => (
           <div key={`m${mi}`} className={`${styles.tooltipRow} ${styles.tooltipMarker}`}>
-            <span className={`${styles.tooltipDot} ${styles.markerDot}`} />
-            <span className={styles.tooltipName}>{m.label}</span>
+            <span className={`${styles.tooltipDot} ${styles.markerDot}`} style={m.label == null ? { visibility: 'hidden' } : undefined} />
+            <span className={styles.tooltipName}>{m.label ?? `and ${m.count} more`}</span>
+            {m.label != null && m.count > 1 && <span className={styles.tooltipValue}>×{m.count}</span>}
           </div>
         ))}
       </div>

@@ -1,0 +1,124 @@
+.container {
+  max-width: var(--maxWidth);
+  margin: 0 auto;
+  padding: 40px 20px;
+  --accent-strength: 100%;
+}
+
+.container h1 { font: var(--text-3xl); margin: 0 0 10px; }
+.lead { font: var(--text-base); color: var(--lv6); margin: 0 0 32px; max-width: 640px; }
+
+.controls { display: grid; grid-template-columns: minmax(220px, 320px) 1fr; gap: 12px 32px; align-items: start; margin-bottom: 48px; }
+@media (max-width: 720px) { .controls { grid-template-columns: 1fr; } }
+.strength { display: flex; flex-direction: column; gap: 6px; }
+.controlLabel { font: var(--text-xs); font-weight: var(--med); color: var(--lv6); }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0 0 16px; max-width: 720px; }
+.note code, .container td code { font-family: var(--font-mono); font-size: 12px; color: var(--lv7); }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+
+.section { margin-bottom: 56px; display: flex; flex-direction: column; gap: 12px; }
+.section h2 { font: var(--text-xl); margin: 0; color: var(--lv7); }
+.sectionHead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+/* Two panels, each its own theme: the levels, the accents and the proposed set are set on the panel,
+   and the dimmed (s) tokens are mixed there, against that panel's lv0. */
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .pair { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--lv0);
+  color: var(--lv8);
+  border: 0.5px solid var(--lv3);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+
+  --viz1s: color-mix(in oklab, var(--viz1) var(--accent-strength), var(--lv0));
+  --viz2s: color-mix(in oklab, var(--viz2) var(--accent-strength), var(--lv0));
+  --viz3s: color-mix(in oklab, var(--viz3) var(--accent-strength), var(--lv0));
+  --viz4s: color-mix(in oklab, var(--viz4) var(--accent-strength), var(--lv0));
+  --viz5s: color-mix(in oklab, var(--viz5) var(--accent-strength), var(--lv0));
+  --viz6s: color-mix(in oklab, var(--viz6) var(--accent-strength), var(--lv0));
+  --viz7s: color-mix(in oklab, var(--viz7) var(--accent-strength), var(--lv0));
+  --CPositiveS: color-mix(in oklab, var(--CPositive) var(--accent-strength), var(--lv0));
+  --CLightBlueS: color-mix(in oklab, var(--CLightBlue) var(--accent-strength), var(--lv0));
+}
+
+.light {
+  --lv0: #FFFFFF; --lv1: #FBFBFB; --lv2: #EFEFEF; --lv3: #CFCFCF; --lv4: #757575;
+  --lv5: #4A4A50; --lv6: #1A1A21; --lv7: #121215; --lv8: #080809;
+  --CPositive: #0000FF;
+}
+
+.dark {
+  --lv0: #080809; --lv1: #121215; --lv2: #1A1A21; --lv3: #393941; --lv4: #565661;
+  --lv5: #8F8F97; --lv6: #EFEFEF; --lv7: #FBFBFB; --lv8: #FFFFFF;
+  --CPositive: #72F5C6;
+}
+
+.panelName { font: var(--text-xs); font-weight: var(--med); color: var(--lv5); }
+
+/* Levels */
+.levels { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 560px) { .levels { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.level { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.levelChip { height: 44px; border: 0.5px solid var(--lv3); }
+
+/* Swatches */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px 10px; }
+.swatch { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.chip { height: 44px; background: color-mix(in oklab, var(--c) var(--accent-strength), var(--lv0)); }
+.swatchName { font: var(--text-xs); font-weight: var(--med); color: var(--lv7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.swatchHex { font-family: var(--font-mono); font-size: 11px; color: var(--lv5); white-space: nowrap; }
+
+/* Strength steps */
+.steps { display: flex; flex-direction: column; gap: 4px; }
+.stepRow { display: grid; grid-template-columns: 110px repeat(5, minmax(0, 1fr)); gap: 4px; align-items: center; }
+.stepName { font-family: var(--font-mono); font-size: 11px; color: var(--lv6); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.step { height: 18px; }
+.stepLabel { font: var(--text-2xs); color: var(--lv5); text-align: center; }
+
+/* The datasets example */
+.example { display: flex; flex-direction: column; gap: 12px; }
+.exampleBlock { display: flex; flex-direction: column; gap: 8px; }
+.exampleTitle { font: var(--text-xs); font-weight: var(--med); color: var(--lv7); }
+/* Parts side by side, a 2px gap of the surface between them. */
+.stack { display: flex; gap: 2px; height: 14px; }
+.stackThin { display: flex; gap: 2px; height: 6px; }
+.segment { min-width: 2px; }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font: var(--text-xs); color: var(--lv6); }
+.legendItem { display: inline-flex; align-items: center; gap: 6px; }
+.legendMark { width: 8px; height: 8px; }
+.legendEnd { margin-left: auto; color: var(--lv5); font-variant-numeric: tabular-nums; }
+
+.card { background: var(--lv1); border: 0.5px solid var(--lv2); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.cardHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cardName { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.state { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv6); }
+.stateDot { width: 6px; height: 6px; border-radius: 50%; }
+.cardFacts { display: flex; gap: 16px; font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; }
+
+/* Accent groups, as on the brand sheet */
+.group { display: flex; flex-direction: column; gap: 8px; }
+.groupName { font: var(--text-2xs); color: var(--lv5); }
+
+/* Terminal themes: one panel each, its levels set inline */
+.tints { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .tints { grid-template-columns: 1fr; } }
+.tintLevels { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
+.tintLevels .levelChip { height: 28px; }
+
+.sample { display: grid; grid-template-columns: 96px 1fr; border: 0.5px solid var(--lv2); min-height: 200px; }
+.sampleMenu { background: var(--lv1); padding: 8px 6px; display: flex; flex-direction: column; gap: 2px; font: var(--text-xs); }
+.sampleItem { padding: 4px 6px; color: var(--lv5); }
+.sampleItemOn { padding: 4px 6px; color: var(--lv8); background: var(--CThemeDim); }
+.sampleMain { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sampleSub { font: var(--text-xs); color: var(--lv5); margin-top: -6px; }
+.sampleRows { display: flex; flex-direction: column; font: var(--text-xs); color: var(--lv7); }
+.sampleRow, .sampleRowOn { display: grid; grid-template-columns: 1fr 70px 90px; gap: 8px; padding: 5px 6px; border-bottom: 0.5px solid var(--lv2); font-variant-numeric: tabular-nums; }
+.sampleRowOn { background: var(--CThemeDim); color: var(--lv8); }
+.sampleMuted { color: var(--lv5); }
+.sampleRowOn .sampleMuted, .sampleRowOn .state { color: var(--lv7); }
+.sampleFoot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }

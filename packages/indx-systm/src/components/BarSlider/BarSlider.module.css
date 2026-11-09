@@ -25,9 +25,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .row::before {
+  :where(:root:not([data-theme="light"])) .row::before {
     background-image: var(--pattern-checkerboard-dark);
   }
+}
+:where(:root[data-theme="dark"]) .row::before {
+  background-image: var(--pattern-checkerboard-dark);
 }
 
 /* Sizes match Button: the same heights, paddings and type. */

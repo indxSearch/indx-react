@@ -275,9 +275,12 @@
   background-position: 0 0, var(--tree-x, 0) var(--tree-y, 0);
 }
 @media (prefers-color-scheme: dark) {
-  .grid {
+  :where(:root:not([data-theme="light"])) .grid {
     background-image: var(--tree-wash), var(--tree-pattern-dark);
   }
+}
+:where(:root[data-theme="dark"]) .grid {
+  background-image: var(--tree-wash), var(--tree-pattern-dark);
 }
 
 /* The zoom controls: a column in the board's lower left corner, on the canvas tone with a hairline,
