@@ -1,0 +1,64 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1200px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+.faint { font: var(--text-xs); color: var(--lv5); margin: 0; }
+
+/* A portal page, greyed, and the widget in its lower right corner. */
+.frame { position: relative; height: 720px; border: 0.5px solid var(--lv3); background: var(--lv0); overflow: hidden; }
+.backdrop { position: absolute; inset: 0; padding: 32px; display: flex; flex-direction: column; gap: 24px; opacity: 0.5; }
+.fakeHead { height: 18px; width: 30%; background: var(--lv2); }
+.fakeCols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.fakeCol { display: flex; flex-direction: column; gap: 12px; }
+.fakeLine { height: 12px; width: 70%; background: var(--lv2); }
+.fakeLineShort { height: 12px; width: 40%; background: var(--lv2); }
+.fakeBlock { height: 160px; background: var(--lv1); }
+.fakeBlockLow { height: 100px; background: var(--lv1); }
+
+.launcher { position: absolute; right: 20px; bottom: 20px; }
+.unread { display: inline-block; margin-left: 6px; padding: 0 5px; font: var(--text-2xs); font-weight: var(--med); line-height: 14px; color: #080809; background: var(--CLightBlue); border-radius: var(--radius); font-variant-numeric: tabular-nums; }
+
+/* The panel: a surface a step up from the page, a hairline round it, no shadow. */
+.panel { position: absolute; right: 20px; bottom: 72px; width: min(380px, calc(100% - 40px)); height: min(580px, calc(100% - 92px)); background: var(--lv1); border: 0.5px solid var(--lv3); border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; }
+.head { display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 14px; border-bottom: 0.5px solid var(--lv3); }
+.headTitle { flex: 1; min-width: 0; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+.foot { border-top: 0.5px solid var(--lv3); padding: 10px; }
+.tabbar { border-top: 0.5px solid var(--lv3); padding: 8px; }
+.chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat > * { flex: 1; min-height: 0; }
+
+.hello { display: flex; flex-direction: column; gap: 6px; }
+.helloTitle { font: var(--text-lg); color: var(--lv8); }
+.helloRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sectionLabel { font: var(--text-xs); font-weight: var(--med); color: var(--lv6); margin-top: 4px; }
+
+.list { display: flex; flex-direction: column; }
+.ticket, .topic, .article { all: unset; box-sizing: border-box; display: flex; padding: 9px 8px; margin: 0 -8px; border-radius: var(--radius); cursor: pointer; color: var(--lv7); font: var(--text-sm); }
+.ticket { flex-direction: column; gap: 2px; }
+.topic, .article { align-items: center; gap: 10px; text-decoration: none; }
+.ticket:hover, .topic:hover, .article:hover { background: var(--lv2); }
+.ticket:focus-visible, .topic:focus-visible, .article:focus-visible { outline: 1px solid var(--lv6); }
+.ticketTop { display: flex; align-items: center; gap: 8px; }
+.ticketSubject { flex: 1; min-width: 0; color: var(--lv8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.notice { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--lv2); border-radius: var(--radius); font: var(--text-sm); color: var(--lv7); }
+.notice > svg { flex: none; margin-top: 3px; }
+.noticeText { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.thread { display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--lv2); border-radius: var(--radius); }
+.msg p { margin: 0; font: var(--text-sm); color: var(--lv7); line-height: 1.5; }
+.msgUs { background: var(--lv0); border: 0.5px solid var(--lv3); }
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+.facts { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 0.5px solid var(--lv3); border-radius: var(--radius); }
+.factsTitle { font: var(--text-xs); font-weight: var(--med); color: var(--lv6); }
+.fact { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.factText { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.factLabel { font: var(--text-sm); color: var(--lv8); }
+
+.answerFoot { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.sent { display: flex; flex-direction: column; gap: 8px; }
+.sentTitle { font: var(--text-base); color: var(--lv8); }
