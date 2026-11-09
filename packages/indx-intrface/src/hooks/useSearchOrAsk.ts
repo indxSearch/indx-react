@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../context/SearchContext';
 import {
-  DEFAULT_CUT, DEFAULT_THRESHOLDS, STRICT_MATCH, canAnswer, isIdentifier, nextOffer, pageMode, sentence, statisticsParams, triggers,
-  type CutRule, type Offer, type OfferThresholds, type SearchOrAskMode,
+  DEFAULT_THRESHOLDS, STRICT_MATCH, canAnswer, isIdentifier, nextOffer, pageMode, sentence, statisticsParams, triggers,
+  type Offer, type OfferThresholds, type SearchOrAskMode,
 } from '../utils/searchOrAsk';
 
 export interface UseSearchOrAskOptions {
@@ -19,7 +19,7 @@ export interface UseSearchOrAskOptions {
   /** The page's own mode in place of the dataset's: `strict` on a page where a wrong offer costs
    *  more, `open` where asking should always be there. `proactive` applies only where the dataset
    *  is proactive too, since the server starts no answer on its own for any other; elsewhere it is
-   *  `open`. Left out, the dataset's mode applies. */
+   *  `inviting`. Left out, the dataset's mode applies. */
   mode?: SearchOrAskMode;
   /** Proactive: how long the visitor must have been still before an answer starts on its own, at
    *  least the pause. Default 1000 ms: a typing pause is a breath, this is having stopped. */
@@ -42,13 +42,19 @@ export interface SearchOrAskState {
   criteria: number | null;
   /** On a catalogue: the text describes what to list, so it can become filters (useFilterSuggestion). */
   describes: boolean;
-  /** The list should show coverage hits only: the offer is strong and the dataset has the rule on
-   *  (`cutWhileAsking`). SearchResults applies it when handed this state; `visibleResults` is the rule. */
-  cutResults: boolean;
-  /** The cut's two lines, the dataset's, for `visibleResults`. */
-  cutRule: CutRule;
-  /** The page's searches run with whole-word coverage: the offer is strong and the dataset has
-   *  that rule on. The hook sets and clears it on the search context itself. */
+  /** The judge's reading of whether what is asked about is among the results; null when it did not
+   *  say (a judge not asked it). */
+  found: number | null;
+  /** Under the full offer to a question, the judge reads what is asked about as not in the results
+   *  (`found` below the dataset's `thresholds.found`): dim the list, with a line above it, so the
+   *  offer is what the visitor reads first. SearchResults does it when handed this state. */
+  notFound: boolean;
+  /** Asking is held: the model provider refuses answers for now (the judgement's reason `paused`),
+   *  or the dataset's calls for today are spent. Nothing is offered, in any mode, until it passes;
+   *  the search works as before. */
+  held: boolean;
+  /** The page's searches match whole words only: the offer is strong and the dataset has that rule
+   *  on (`strictCoverageWhileAsking`). The hook sets and clears it on the search context itself. */
   strictCoverage: boolean;
   /** On a catalogue, what to do with a description while typing (the dataset's `filtersWhileTyping`):
    *  'off' leaves the list until Ask, 'facets' applies typed facet values at once, 'model' also asks
@@ -85,13 +91,14 @@ export interface SearchOrAskState {
 
 export type QuickState = 'none' | 'invite' | 'hint' | 'ready' | 'thinking';
 
-/** Thresholds as sent, with the defaults where they say nothing (the settings' hint is null until a
- *  judgement resolves it for the dataset's kind). */
+/** Thresholds as sent, with the defaults where they say nothing. The server resolves every one, the
+ *  judge's own where the dataset sets none; the defaults are for a value it leaves out. */
 function withDefaults(t?: OfferThresholds): OfferThresholds {
-  return { ...DEFAULT_THRESHOLDS, ...t, hint: t?.hint ?? DEFAULT_THRESHOLDS.hint, finished: t?.finished ?? DEFAULT_THRESHOLDS.finished };
+  return { ...DEFAULT_THRESHOLDS, ...t, hint: t?.hint ?? DEFAULT_THRESHOLDS.hint, finished: t?.finished ?? DEFAULT_THRESHOLDS.finished,
+    found: t?.found ?? DEFAULT_THRESHOLDS.found };
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, cutResults: false, cutRule: DEFAULT_CUT, strictCoverage: false, filtersWhileTyping: 'off', mode: 'soft', askAnytime: false, finished: null, answerNow: null, quick: 'none', stands: false };
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, found: null, notFound: false, held: false, strictCoverage: false, filtersWhileTyping: 'off', mode: 'soft', askAnytime: false, finished: null, answerNow: null, quick: 'none', stands: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -120,8 +127,6 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   const [available, setAvailable] = useState(false);
   const [state, setState] = useState<SearchOrAskState>(IDLE);
   const thresholds = useRef<OfferThresholds>(DEFAULT_THRESHOLDS);
-  const cutWhileAsking = useRef(true);
-  const cutRule = useRef<CutRule>(DEFAULT_CUT);
   const strictWhileAsking = useRef(true);
   const filtersWhileTyping = useRef<'off' | 'facets' | 'model'>('off');
   // The dataset's mode, as the settings and each judgement say it; `modeNow` is what applies.
@@ -145,6 +150,13 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   latest.current = text;
   const availableRef = useRef(false);
   availableRef.current = available;
+  // The dataset's calls for today are spent (an intent's 429 searchOrAskBudgetSpent): held until then.
+  const [spentUntil, setSpentUntil] = useState(0);
+  useEffect(() => {
+    if (!spentUntil) return;
+    const timer = setTimeout(() => setSpentUntil(0), Math.max(0, spentUntil - Date.now()));
+    return () => clearTimeout(timer);
+  }, [spentUntil]);
 
   const base = `${url}/api/teams/${team}/datasets/${dataset}/search-or-ask`;
   // The inviting modes ask the judge from three characters, so "How" gets its hint.
@@ -165,14 +177,12 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
       try {
         const res = await authenticatedFetch(base);
         if (!res.ok) return;
-        const body = await res.json() as { settings?: { enabled?: boolean; mode?: SearchOrAskMode; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; }; available?: boolean };
+        const body = await res.json() as { settings?: { enabled?: boolean; mode?: SearchOrAskMode; thresholds?: OfferThresholds; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; }; available?: boolean };
         if (cancelled || !body.available || !body.settings?.enabled) return;
         filtersWhileTyping.current = body.settings.filtersWhileTyping ?? 'off';
         datasetMode.current = body.settings.mode ?? 'soft';
         thresholds.current = withDefaults(body.settings.thresholds);
-        cutWhileAsking.current = body.settings.cutWhileAsking ?? true;
         strictWhileAsking.current = body.settings.strictCoverageWhileAsking ?? true;
-        cutRule.current = { shareOfTop: body.settings.cutShareOfTop ?? DEFAULT_CUT.shareOfTop, topFloor: body.settings.cutTopFloor ?? DEFAULT_CUT.topFloor };
         setAvailable(true);
       } catch {
         // Off is the safe reading.
@@ -246,23 +256,28 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
         });
         if (res.status === 429) {
           // Too many from this address, or the dataset's budget for today: stay quiet until told.
+          // A spent budget also holds asking, since an ask would be refused the same way.
           const after = Number(res.headers.get('Retry-After'));
           quietUntil.current = Date.now() + (Number.isFinite(after) && after > 0 ? after : 60) * 1000;
+          const { code } = await res.json().catch(() => ({})) as { code?: string };
+          if (code === 'searchOrAskBudgetSpent' && mine === seq.current) {
+            setSpentUntil(quietUntil.current);
+            setState(s => ({ ...s, offer: 'none', answerNow: null, strictCoverage: false, notFound: false }));
+          }
           return;
         }
-        if (res.status === 409) { setAvailable(false); return; } // switched off since the settings were read
+        // Switched off since the settings were read (409), or not shown on the dataset (404).
+        if (res.status === 409 || res.status === 404) { setAvailable(false); return; }
         if (!res.ok) return;
-        const { p, answerable, criteria, finished: fin, thresholds: judged, cutWhileAsking: cut, cutShareOfTop, cutTopFloor, strictCoverageWhileAsking: strict, filtersWhileTyping: fwt, mode: m } = await res.json() as
-          { p: number; answerable?: number | null; criteria?: number | null; finished?: number | null; thresholds?: OfferThresholds; cutWhileAsking?: boolean; cutShareOfTop?: number; cutTopFloor?: number; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; mode?: SearchOrAskMode };
+        const { p, answerable, criteria, finished: fin, found: fnd, reason, thresholds: judged, strictCoverageWhileAsking: strict, filtersWhileTyping: fwt, mode: m } = await res.json() as
+          { p: number; answerable?: number | null; criteria?: number | null; finished?: number | null; found?: number | null; reason?: string | null; thresholds?: OfferThresholds; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; mode?: SearchOrAskMode };
         if (fwt != null) filtersWhileTyping.current = fwt;
         if (mine !== seq.current) return; // a newer pause has asked since
         // The rules travel with every judgement, so an editor's change applies on the next pause.
-        if (cut != null) cutWhileAsking.current = cut;
         if (strict != null) strictWhileAsking.current = strict;
         if (m != null) datasetMode.current = m;
         // The judgement's thresholds are the dataset's resolved: the kind's hint filled in.
         if (judged) thresholds.current = withDefaults(judged);
-        if (cutShareOfTop != null && cutTopFloor != null) cutRule.current = { shareOfTop: cutShareOfTop, topFloor: cutTopFloor };
         setState(s => {
           const offer = nextOffer(s.offer, p, thresholds.current);
           const c = criteria ?? null;
@@ -278,10 +293,16 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const chosen = describes && whole ? 'strong' : describes ? 'invite' : asked;
           const final = mode.current === 'strict' && chosen === 'invite' ? 'none' : chosen;
           // Both can be high ("what is the largest": question 0.79, description 0.67). The larger
-          // decides: a description becomes filters, which replace the list; a question cuts it.
+          // decides: a description becomes filters, which replace the list; a question is answered
+          // beside it.
           const asking = final === 'strong' && !(describes && c! > p);
+          const found = fnd ?? null;
+          const foundLine = thresholds.current.found ?? 0;
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
-            cutResults: cutWhileAsking.current && asking, cutRule: cutRule.current, strictCoverage: strictWhileAsking.current && asking,
+            found, notFound: asking && found != null && foundLine > 0 && found < foundLine,
+            // The provider refuses answers for now: the server answered p 0, and nothing is offered.
+            held: reason === 'paused',
+            strictCoverage: strictWhileAsking.current && asking,
             filtersWhileTyping: filtersWhileTyping.current, mode: mode.current, askAnytime: false, quick: 'none',
             finished: fin ?? null,
             answerNow: mode.current === 'proactive' && final === 'strong' && isFinished(fin) ? text : null, stands: true };
@@ -324,12 +345,15 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
   if (!available) return IDLE;
   const m = mode.current;
   const stands = !!state.text && text.startsWith(state.text);
+  const held = state.held || spentUntil > 0;
+  if (held) return { ...state, mode: m, held, offer: 'none', askAnytime: false, answerNow: null, quick: 'none', notFound: false, strictCoverage: false, stands };
   const sweeps = m === 'inviting' || m === 'proactive';
   // Proactive's sure offer on the text in the field: it answers on its own, so it thinks rather
   // than offering a button; on a text that stops on "is", it is still a hint to type on.
   // Inviting and proactive invite early, to teach that the field answers: from the low hint score
   // (Jev reads "How" and "Hvordan" as a question starting, a name or a place as a lookup), and on
-  // a sentence whatever the judge says of it. No word list: the judge reads any language.
+  // a sentence (a question mark, or three words) whatever the judge says of it, before the judge
+  // has answered for it too. No word list: the judge reads any language.
   const hinted = sweeps && !!text && ((stands && state.p != null && state.p >= (thresholds.current.hint ?? 1)) || sentence(text));
   const quick: QuickState = !text ? 'none'
     : stands && state.offer === 'strong' ? (m === 'proactive' ? (isFinished(state.finished) ? 'thinking' : 'hint') : 'ready')
@@ -340,5 +364,6 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     answerNow: ripe !== null && ripe === text && state.answerNow === text ? ripe : null,
     // A hint from the shape alone is about what is in the field, which no judgement has named yet.
     text: quick === 'hint' && !stands ? text : state.text,
+    notFound: stands && state.notFound,
     quick, stands };
 }

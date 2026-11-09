@@ -26,10 +26,15 @@ export interface AskState {
   answer: string;
   sources: AskSource[];
   /** Why it failed, when status is 'error': the server's code (nothingFound, upstreamBusy, failed,
-   *  or an HTTP problem code) and a sentence for the page. */
+   *  or an HTTP problem code: searchOrAskDisabled, searchOrAskUnavailable, http404 where the dataset
+   *  does not show it) and a sentence for the visitor. A refusal's own text is the owner's, so the
+   *  sentence for one is intrface's. */
   error?: { code: string; message: string };
   /** When status is 'limited': seconds until asking again may succeed. */
   retryAfterSeconds?: number;
+  /** When status is 'limited': `address`, too many questions from this visitor for now; `budget`,
+   *  the dataset's questions for today are spent, until midnight UTC. */
+  limit?: 'address' | 'budget';
   /** The server's id for this ask (Indx-Ask-Id). A source opened is reported against it. */
   askId?: string;
   /** On a catalogue, a description's filters, as the server searched with them, and what it found. */
@@ -67,7 +72,9 @@ export function useAsk() {
   stateRef.current = state;
   const abortRef = useRef<AbortController | null>(null);
 
-  // `proactive`: the page started this answer on its own (the proactive mode), not the visitor.
+  // `proactive`: the page started this answer on its own (the proactive mode), not the visitor. A
+  // refused proactive start (the day's proactive answers spent, a limit) goes back to idle: nobody
+  // asked, so there is nothing to tell.
   const ask = useCallback(async (question: string, history: AskTurn[] = [], options: { proactive?: boolean } = {}) => {
     const q = question.trim();
     if (!q) return;
@@ -99,16 +106,22 @@ export function useAsk() {
         signal: controller.signal,
       });
       if (res.status === 429) {
-        const body = await res.json().catch(() => ({})) as { retryAfterSeconds?: number };
+        const body = await res.json().catch(() => ({})) as { code?: string; retryAfterSeconds?: number };
+        if (options.proactive) { setState(IDLE); return; }
         const header = Number(res.headers.get('Retry-After'));
-        setState(s => ({ ...s, status: 'limited', retryAfterSeconds: body.retryAfterSeconds ?? (Number.isFinite(header) ? header : undefined) }));
+        setState(s => ({ ...s, status: 'limited', limit: body.code === 'searchOrAskBudgetSpent' ? 'budget' : 'address',
+          retryAfterSeconds: body.retryAfterSeconds ?? (Number.isFinite(header) ? header : undefined) }));
         return;
       }
       const askId = res.headers.get('Indx-Ask-Id') ?? undefined;
       if (askId) setState(s => ({ ...s, askId }));
       if (!res.ok || !res.body) {
-        const body = await res.json().catch(() => ({})) as { code?: string; detail?: string };
-        fail(body.code ?? `http${res.status}`, body.detail ?? 'The question could not be asked.');
+        const body = await res.json().catch(() => ({})) as { code?: string };
+        if (options.proactive) { setState(IDLE); return; }
+        // Not on here (409, 404): the problem's detail is written for the owner ("no model key
+        // configured"), so the visitor gets a sentence of intrface's.
+        const off = res.status === 409 || res.status === 404;
+        fail(body.code ?? `http${res.status}`, off ? 'Answers are not available here right now. Search still works.' : 'The question could not be asked.');
         return;
       }
 

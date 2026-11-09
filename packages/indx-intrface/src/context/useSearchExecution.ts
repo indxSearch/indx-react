@@ -64,7 +64,7 @@ export function useSearchExecution({
   // words back) searches again, and an unchanged one does not.
   const query = searchTextOf ? searchTextOf(state.query) : state.query;
   // What was typed, read when a search is sent: the statistics fold a visitor's keystrokes into one
-  // search by the typing, which the searched text leaves when Ask phrases start to match.
+  // search by the typing, which the searched text leaves when `searchTextOf` changes it.
   const typedRef = useRef(state.query);
   typedRef.current = state.query;
   const latestRequestId = useRef(0);

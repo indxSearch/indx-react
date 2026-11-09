@@ -27,8 +27,9 @@ export function pageMode(dataset: SearchOrAskMode, page?: SearchOrAskMode): Sear
 
 /** Entered at one probability, left only below a lower one. The dataset's settings carry them, and
  *  each judgement its own resolved: `hint` the inviting and proactive modes' "type a bit more",
- *  low (the dataset's kind decides it unless set), `finished` the score proactive needs to answer
- *  on its own. */
+ *  low (the judge and the dataset's kind decide it unless set), `finished` the score the full offer
+ *  waits for in every mode (and proactive answers on its own from), `found` the score below which
+ *  the list under the full offer is dimmed (0 is off). */
 export interface OfferThresholds {
   strong: number;
   strongHide: number;
@@ -36,9 +37,10 @@ export interface OfferThresholds {
   inviteHide: number;
   hint?: number | null;
   finished?: number;
+  found?: number;
 }
 
-export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5 };
+export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5, found: 0.3 };
 
 // Digits and separators (ISBN, SKU), a dotted member, camel or Pascal case, a code with a digit.
 // The server applies the same rule and answers p 0 without a call; checking here saves the request.
@@ -73,52 +75,16 @@ export function nextOffer(current: Offer, p: number, t: OfferThresholds = DEFAUL
   return 'none';
 }
 
-/** One word can show a question starting ("how" scores high) but holds nothing to answer yet, so
- *  it gets the invitation at most; the strong offer waits for a second word or a question mark. */
-/** The cut's two lines, the dataset's (`cutShareOfTop`, `cutTopFloor`), as the intent answer carries them. */
-export interface CutRule {
-  /** A result stays while it scores at least this share of the top result. */
-  shareOfTop: number;
-  /** The list shows at all only when the top result scores at least this share of the scale. */
-  topFloor: number;
-}
-
-export const DEFAULT_CUT: CutRule = { shareOfTop: 0.5, topFloor: 0.2 };
-
-/**
- * Coverage while asking (the dataset's `strictCoverageWhileAsking`, on by default): whole words
- * only, no typos, prefixes or joined words, words of three letters or more. The forgiving matching
- * that is right for a typed name confirms the wrong records under a question: "ullern
- * videregående" confirmed seven other schools by prefix and fuzzy matches of the second word.
- * The hook puts these on the page's searches while the offer is strong and takes them off after.
- */
 /** The strict matching a page's searches take while the offer to ask is strong: no typos, no starts
- * of longer words, no joined words (6.0; until then STRICT_COVERAGE, which also asked words of 3). */
+ *  of longer words, no joined words. The forgiving matching that is right for a typed name confirms
+ *  the wrong records under a question: "ullern videregående" confirmed seven other schools by prefix
+ *  and fuzzy matches of the second word (14 Oct 2026). The server's judge reads the list searched
+ *  the same way. The hook puts these on the page's searches while the offer is strong and takes
+ *  them off after. */
 export const STRICT_MATCH = { tolerance: Tolerance.Exact, typingPrefixFrom: 0, joinedWords: false } as const;
 
-/** The search score's scale: coverage scores run to 65535. */
-export const SCORE_SCALE = 65535;
-
-/**
- * The results a page shows under the "strong matches only while asking" rule (the dataset's
- * `cutWhileAsking`, on by default). While the offer is strong: nothing when the top result is
- * under the floor (a flat, weak list says the search has nothing for a question), else the
- * results scoring at least the share of the top, never past the truncation point. Otherwise the
- * list as it came. The truncation index alone was too lenient: coverage confirms a record on a
- * two-letter word, so "is" and "or" confirmed forty-four Pokémon (14 Oct 2026).
- */
-export function visibleResults<T extends { score: number }>(results: T[], counted: number | undefined, cut: boolean, rule: CutRule = DEFAULT_CUT): T[] {
-  if (!cut || results.length === 0) return results;
-  const top = results[0].score;
-  if (top < rule.topFloor * SCORE_SCALE) return [];
-  // The confirmed results are the counted ones, which come first: none for a fallback, all when
-  // the search counted nothing to tell apart (Bm25f). Until 6.0 read from the truncation index.
-  const confirmed = counted == null ? results : results.slice(0, counted);
-  const line = rule.shareOfTop * top;
-  const end = confirmed.findIndex(r => r.score < line);
-  return end < 0 ? confirmed : confirmed.slice(0, end);
-}
-
+/** One word can show a question starting ("how" scores high) but holds nothing to answer yet, so
+ *  it gets the invitation at most; the strong offer waits for a second word or a question mark. */
 export function canAnswer(text: string): boolean {
   const t = text.trim();
   return t.includes(' ') || t.endsWith('?');

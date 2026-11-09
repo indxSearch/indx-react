@@ -8,7 +8,7 @@ import { useFilterSuggestion, localFilters } from '../hooks/useFilterSuggestion'
 import { AskPanel } from '../components/AskPanel';
 import { QuickAnswer } from '../components/QuickAnswer';
 import { SearchInput } from '../components/SearchInput';
-import { nextOffer, triggers, visibleResults, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
+import { nextOffer, triggers, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
 import { server } from './mocks/server';
 
 // Search or ask from the page's side: the settings decide whether anything is sent, a typing pause
@@ -47,6 +47,11 @@ function judge(scores: Record<string, number>, asked: string[] = [], ahead: stri
   return asked;
 }
 
+/** The judge answers every text with this judgement (p, found, reason...). */
+function judgement(body: Record<string, unknown>) {
+  server.use(http.post(`${SOA}/intent`, () => HttpResponse.json({ answerable: null, offer: 'none', thresholds: DEFAULT_THRESHOLDS, cached: false, ms: 1, finished: 0.9, ...body })));
+}
+
 function sse(events: [string, unknown][]) {
   const body = events.map(([e, d]) => `event: ${e}\ndata: ${JSON.stringify(d)}\n\n`).join('');
   return new HttpResponse(body, { headers: { 'Content-Type': 'text/event-stream' } });
@@ -66,25 +71,6 @@ describe('the rules', () => {
     expect(nextOffer('strong', 0.4)).toBe('invite');
     expect(nextOffer('invite', 0.35)).toBe('invite');
     expect(nextOffer('none', 0.35)).toBe('none');
-  });
-
-  it('keeps the strong matches only while the offer is strong and the rule is on', () => {
-    // The pokedex, 14 Oct 2026: 45 records counted on "is" and "or", so the scores decide.
-    const pikachuOrBulbasaur = [{ score: 19843 }, { score: 15871 }, { score: 4527 }, { score: 4459 }, { score: 3744 }];
-    expect(visibleResults(pikachuOrBulbasaur, 45, true)).toEqual([{ score: 19843 }, { score: 15871 }]);
-    const whichIsStrongest = [{ score: 7029 }, { score: 6767 }, { score: 6633 }];
-    expect(visibleResults(whichIsStrongest, 61, true)).toEqual([]);
-    const whatTypeIsPikachu = [{ score: 22921 }, { score: 16367 }, { score: 9830 }];
-    expect(visibleResults(whatTypeIsPikachu, 3, true)).toEqual([{ score: 22921 }, { score: 16367 }]);
-    // The count of records counted, which come first: 1 is one confirmed, 0 none (a fallback),
-    // undefined all (nothing counted to tell apart, Bm25f).
-    expect(visibleResults(whatTypeIsPikachu, 1, true, { shareOfTop: 0, topFloor: 0 })).toEqual([{ score: 22921 }]);
-    expect(visibleResults(whatTypeIsPikachu, 0, true, { shareOfTop: 0, topFloor: 0 })).toEqual([]);
-    expect(visibleResults(whatTypeIsPikachu, undefined, true, { shareOfTop: 0, topFloor: 0 })).toEqual(whatTypeIsPikachu);
-    expect(visibleResults(pikachuOrBulbasaur, 45, false)).toEqual(pikachuOrBulbasaur);
-    expect(visibleResults(pikachuOrBulbasaur, 45, true, { shareOfTop: 0.9, topFloor: 0.2 })).toEqual([{ score: 19843 }]);
-    expect(visibleResults(pikachuOrBulbasaur, 45, true, { shareOfTop: 0.5, topFloor: 0.5 })).toEqual([]);
-    expect(visibleResults([], 0, true)).toEqual([]);
   });
 
   it('never judges an identifier', () => {
@@ -158,7 +144,7 @@ describe('useSearchOrAsk', () => {
     act(() => result.current.ctx.setQuery('how do I add synonyms'));
     await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
     await waitFor(() => expect(result.current.ctx.state.searchSettings.match).toMatchObject({ tolerance: 'Exact', typingPrefixFrom: 0, joinedWords: false }));
-    expect(result.current.sor).toMatchObject({ cutResults: true, strictCoverage: true });
+    expect(result.current.sor.strictCoverage).toBe(true);
     act(() => result.current.ctx.setQuery('synonyms'));
     await waitFor(() => expect(result.current.sor.offer).toBe('none'));
     await waitFor(() => expect(result.current.ctx.state.searchSettings.match.tolerance).toBeUndefined());
@@ -214,6 +200,40 @@ describe('useSearchOrAsk', () => {
     await new Promise(r => setTimeout(r, 60));
     expect(calls).toBe(1);
     expect(result.current.sor.offer).toBe('none');
+    expect(result.current.sor.held).toBe(true);
+  });
+
+  it('dims under the full offer when the judge reads the answer as not in the results', async () => {
+    settings(true);
+    judgement({ p: 0.9, found: 0.1 });
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('which pokemon is the fastest'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(result.current.sor).toMatchObject({ found: 0.1, notFound: true });
+  });
+
+  it('dims nothing when the answer is in the results, or the judge does not say', async () => {
+    settings(true);
+    judgement({ p: 0.9, found: 0.8 });
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('what type is pikachu'));
+    await waitFor(() => expect(result.current.sor.offer).toBe('strong'));
+    expect(result.current.sor.notFound).toBe(false);
+    judgement({ p: 0.9, found: null });
+    act(() => result.current.ctx.setQuery('what type is bulbasaur'));
+    await waitFor(() => expect(result.current.sor.text).toBe('what type is bulbasaur'));
+    expect(result.current.sor.notFound).toBe(false);
+  });
+
+  it('goes off when the intent says the dataset no longer has it (409, 404)', async () => {
+    settings(true);
+    server.use(http.post(`${SOA}/intent`, () => HttpResponse.json({ code: 'searchOrAskDisabled' }, { status: 409 })));
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    act(() => result.current.ctx.setQuery('how do I sort'));
+    await waitFor(() => expect(result.current.sor.available).toBe(false));
   });
 });
 
@@ -517,6 +537,35 @@ describe('AskPanel', () => {
     await screen.findByText('Too many questions for now');
     expect(screen.getByText(/5 minutes/)).toBeTruthy();
   });
+
+  it('says the day\'s answers are spent, not to wait 1440 minutes', async () => {
+    server.use(http.post(`${SOA}/ask`, () =>
+      HttpResponse.json({ code: 'searchOrAskBudgetSpent', retryAfterSeconds: 86000 }, { status: 429, headers: { 'Retry-After': '86000' } })));
+    render(<AskPanel question="how do I add synonyms" />, { wrapper });
+    await screen.findByText('No more answers today');
+    expect(screen.queryByText(/minutes/)).toBeNull();
+  });
+
+  it('shows nothing when a proactive start is refused: nobody asked', async () => {
+    let calls = 0;
+    server.use(http.post(`${SOA}/ask`, () => {
+      calls++;
+      return HttpResponse.json({ code: 'searchOrAskBudgetSpent', retryAfterSeconds: 600 }, { status: 429 });
+    }));
+    const { container } = render(<AskPanel question="how do I add synonyms" proactive />, { wrapper });
+    await waitFor(() => expect(calls).toBe(1));
+    await new Promise(r => setTimeout(r, 50));
+    expect(container.textContent).toBe('');
+  });
+
+  it('tells the visitor asking is not on here, in its own words, not the owner\'s', async () => {
+    server.use(http.post(`${SOA}/ask`, () => HttpResponse.json(
+      { code: 'searchOrAskUnavailable', detail: 'This instance has no model key configured (Indx:SearchOrAsk:ApiKey).' }, { status: 409 })));
+    render(<AskPanel question="how do I add synonyms" />, { wrapper });
+    await screen.findByText(/Answers are not available here right now/);
+    expect(screen.queryByText(/ApiKey/)).toBeNull();
+    expect(screen.queryByText('Try again')).toBeNull();
+  });
 });
 
 describe('modes', () => {
@@ -686,6 +735,78 @@ describe('modes', () => {
     render(<AskPanel question="how do I add synonyms" proactive />, { wrapper });
     await screen.findByText(/Yes\./);
     expect(bodies[0]).toEqual({ question: 'how do I add synonyms', proactive: true });
+  });
+
+  it('soft shows the quiet offer as "Ask about this", and Enter does not ask on it', async () => {
+    settings(true, true, 'soft');
+    judge({ 'how do I add synonyms': 0.5 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Ask about this');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(screen.getByTestId('asked').textContent).toBe('');
+    fireEvent.click(screen.getByText('Ask about this'));
+    expect(screen.getByTestId('asked').textContent).toBe('how do I add synonyms');
+  });
+
+  it('inviting lets Enter ask on the hint', async () => {
+    settings(true, true, 'inviting');
+    judge({ 'how do I add': 0.39 });
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'how do I add' } });
+    await screen.findByText('For a quick answer, type a bit more');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(screen.getByTestId('asked').textContent).toBe('how do I add');
+  });
+
+  for (const mode of ['open', 'inviting', 'proactive']) {
+    it(`${mode} offers nothing while the provider refuses answers: no Ask, no hint, Enter searches`, async () => {
+      settings(true, true, mode);
+      judgement({ p: 0, reason: 'paused', mode });
+      render(<Page />, { wrapper });
+      const input = await screen.findByRole('textbox');
+      await new Promise(r => setTimeout(r, 50));
+      fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+      await new Promise(r => setTimeout(r, 1300));
+      expect(screen.queryByText('Ask')).toBeNull();
+      expect(screen.queryByText('For a quick answer, type a bit more')).toBeNull();
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(screen.getByTestId('asked').textContent).toBe('');
+    });
+  }
+
+  it('open offers nothing once the day\'s calls are spent', async () => {
+    settings(true, true, 'open');
+    server.use(http.post(`${SOA}/intent`, () =>
+      HttpResponse.json({ code: 'searchOrAskBudgetSpent', retryAfterSeconds: 3600 }, { status: 429, headers: { 'Retry-After': '3600' } })));
+    render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'synonyms' } });
+    // Before the judgement, open's plain Ask is there; the refusal takes it away.
+    await waitFor(() => expect(screen.queryByText('Ask')).toBeNull());
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(screen.getByTestId('asked').textContent).toBe('');
+  });
+
+  it('askOffer below draws the offer under the field, and none draws nothing', async () => {
+    settings(true, true, 'soft');
+    judge({ 'how do I add synonyms': 0.9 });
+    const { unmount } = render(<SearchInput onAsk={() => {}} askOffer="below" />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    fireEvent.change(input, { target: { value: 'how do I add synonyms' } });
+    await screen.findByText('Ask the assistant');
+    unmount();
+    render(<SearchInput onAsk={() => {}} askOffer="none" />, { wrapper });
+    const again = await screen.findByRole('textbox');
+    fireEvent.change(again, { target: { value: 'how do I add synonyms' } });
+    await new Promise(r => setTimeout(r, 300));
+    expect(screen.queryByText('Ask the assistant')).toBeNull();
+    expect(screen.queryByText('Ask')).toBeNull();
   });
 });
 

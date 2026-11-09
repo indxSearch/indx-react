@@ -190,3 +190,24 @@ describe('load more', () => {
     expect(screen.queryByRole('button', { name: 'Load more' })).toBeNull();
   });
 });
+
+describe('under a Search or ask offer', () => {
+  const offer = (over: Record<string, unknown>) => ({ available: true, offer: 'strong', strictCoverage: true, notFound: false, ...over }) as never;
+
+  it('keeps the whole list, a fallback with nothing counted included', async () => {
+    server.use(http.post(`${DS}/search`, () => HttpResponse.json({ ...SEARCH_RESPONSE, isFallback: true, countedTotal: 0 })));
+    renderResults({ searchOrAsk: offer({}) });
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('which shoe is the lightest'));
+    await waitFor(() => expect(screen.getAllByTestId('result').length).toBe(2));
+    expect(screen.queryByText(/may not hold/)).toBeNull();
+  });
+
+  it('dims the list with a line above it when the judge reads the answer as not in it', async () => {
+    renderResults({ searchOrAsk: offer({ notFound: true }) });
+    await screen.findByTestId('idle-logo');
+    act(() => setQueryRef('which shoe won the race'));
+    await screen.findByText('These results may not hold what you are asking about');
+    expect(screen.getAllByTestId('result').length).toBe(2);
+  });
+});

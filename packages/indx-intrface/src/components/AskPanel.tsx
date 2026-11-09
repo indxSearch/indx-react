@@ -50,6 +50,9 @@ export interface AskPanelProps {
 
 const CITE = /\[(\d+)\]/g;
 
+/** Errors a Try again cannot change: nothing to answer from, or asking not on here. */
+const NOT_HERE = new Set(['nothingFound', 'searchOrAskDisabled', 'searchOrAskUnavailable', 'http404']);
+
 /** A finished turn of the conversation, kept on screen above the current one. */
 interface PastTurn {
   question: string;
@@ -208,14 +211,22 @@ export const AskPanel: React.FC<AskPanelProps> = ({
                     ? 'The search found no records about this. Try other words, or search instead.'
                     : asked.error?.message}
                 </AlertDescription>
-                {asked.error?.code !== 'nothingFound' && (
+                {!NOT_HERE.has(asked.error?.code ?? '') && (
                   <div className={styles.action}>
                     <Button variant="secondary" size="micro" iconLeft={<Refresh />} onClick={() => ask(asked.question, history.current)}>Try again</Button>
                   </div>
                 )}
               </Alert>
             )}
-            {status === 'limited' && (
+            {status === 'limited' && asked.limit === 'budget' && (
+              <Alert variant="default" icon={null}>
+                <AlertTitle>No more answers today</AlertTitle>
+                <AlertDescription>
+                  This site has answered all the questions it can for today. Search still works, and asking is back tomorrow.
+                </AlertDescription>
+              </Alert>
+            )}
+            {status === 'limited' && asked.limit !== 'budget' && (
               <Alert variant="default" icon={null}>
                 <AlertTitle>Too many questions for now</AlertTitle>
                 <AlertDescription>

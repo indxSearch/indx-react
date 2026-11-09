@@ -20,9 +20,11 @@ export interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputEle
   /** Search or ask: when given, and the dataset has it switched on, an offer to ask appears in
    *  the chip row while the visitor types something an answer would serve. A strong offer also
    *  makes Enter ask. Called with the text to ask; show the answer with `AskPanel`. The dataset's
-   *  mode decides how forward the offer is: in `open` and `proactive` an Ask button is there
-   *  whenever something is typed and Enter asks; in `proactive` the field also asks on its own
-   *  once the judge is sure, with `{ proactive: true }`, which the page passes to `AskPanel`. */
+   *  mode decides how forward the offer is: in `open`, `inviting` and `proactive` an Ask button is
+   *  there whenever something is typed and Enter asks; `inviting` and `proactive` also invite early
+   *  ("For a quick answer, type a bit more"); in `proactive` the field asks on its own once the
+   *  judge is sure, with `{ proactive: true }`, which the page passes to `AskPanel`. While asking is
+   *  held (the provider refusing answers, the day's calls spent) nothing is offered in any mode. */
   onAsk?: (text: string, how?: { proactive: boolean }) => void;
   /** The offer, when the page runs `useSearchOrAsk` itself (to show it elsewhere too, or to use
    *  `describes`): the field then shows this one and does not judge again. */

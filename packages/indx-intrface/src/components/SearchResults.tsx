@@ -10,7 +10,6 @@ import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Indx } from '@indxsearch/pixl';
 import { Button } from '@indxsearch/systm';
 import type { SearchOrAskState } from '../hooks/useSearchOrAsk';
-import { visibleResults } from '../utils/searchOrAsk';
 
 export interface SearchResultsProps {
   fields?: string[];
@@ -29,11 +28,13 @@ export interface SearchResultsProps {
    */
   children: (item: Record<string, any>, meta: SearchResultMeta) => React.ReactNode;
   /**
-   * The offer, when the page runs `useSearchOrAsk`: while it is strong and the dataset has the
-   * rule on, the list shows coverage hits only (up to the truncation point), and nothing when
-   * nothing is confirmed, so the offer stands alone. Without it the list is never cut.
+   * The offer, when the page runs `useSearchOrAsk`: under the full offer to a question whose
+   * answer the judge reads as not in the results (`notFound`), the list is dimmed with a line
+   * above it, so the offer is what the visitor reads first. The list itself is never cut.
    */
   searchOrAsk?: SearchOrAskState;
+  /** The line above a dimmed list, for a page in another language. */
+  notFoundLabel?: string;
   /**
    * Shows each result's score beside it. Given, it wins over the `showScore` search setting (the
    * toggle in SearchSettingsPanel); left out, that setting decides, and it is on by default.
@@ -67,9 +68,9 @@ export function parseArrayString(value: string): string[] | undefined {
   return items;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, showScore, children }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, notFoundLabel = 'These results may not hold what you are asking about', showScore, children }) => {
   const {
-    state: { results, resultsSuppressed, searchSettings, countedTotal, isFallback, query, error, errorInfo },
+    state: { results, resultsSuppressed, searchSettings, countedTotal, query, error, errorInfo },
     isFetchingInitial,
     authError,
     authErrorInfo,
@@ -95,15 +96,17 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     previousQuery.current = query;
   }, [results, pageSize, query]);
 
-  // Under a strong offer with the rule on, the list is the confirmed matches only (visibleResults).
-  const shown = results ? visibleResults(results, isFallback ? 0 : countedTotal, !!searchOrAsk?.cutResults, searchOrAsk?.cutRule) : [];
-  // The list searched something other than what was typed (Ask phrases): say so, with the way back.
+  const shown = results ?? [];
+  // Under the full offer, the judge reads what is asked about as not in this list.
+  const dimmed = !!searchOrAsk?.notFound;
+  // The list searched something other than what was typed (the provider's `searchTextOf`): say so,
+  // with the way back.
   const rewritten = searchText != null && searchText.trim() !== query.trim() ? searchText : null;
-  // The server may hold more than came back when the batch filled what was asked for and nothing
-  // cut the list: not the counted set's end inside it, nor Search or ask's rule. Until Nov 2026
-  // Load more showed only for hits already fetched beyond the page, so with the provider's 10 and
-  // this page's 30 the first batch never offered it.
-  const serverMayHaveMore = !!results && !searchOrAsk?.cutResults
+  // The server may hold more than came back when the batch filled what was asked for and the
+  // counted set does not end inside it. Until Nov 2026 Load more showed only for hits already
+  // fetched beyond the page, so with the provider's 10 and this page's 30 the first batch never
+  // offered it.
+  const serverMayHaveMore = !!results
     && results.length >= searchSettings.maxNumberOfRecordsToReturn
     && (countedTotal === undefined || countedTotal > results.length);
   const canLoadMore = !!results && (shown.length > visibleCount || serverMayHaveMore);
@@ -136,7 +139,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     return <div className={styles.placeholder}><Indx size={200} color="var(--lv5)"/></div>;
   }
 
-  // Nothing to show: SearchInput's No results chip says so; under the rule, the offer stands alone.
+  // Nothing to show: SearchInput's No results chip says so.
   if (shown.length === 0) {
     return null;
   }
@@ -149,7 +152,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
           {searchAsTyped && <Button variant="ghost" size="micro" onClick={searchAsTyped}>Search for your exact words</Button>}
         </div>
       )}
-      <div>
+      {dimmed && <p className={styles.notFound} aria-live="polite">{notFoundLabel}</p>}
+      <div className={dimmed ? styles.dimmed : undefined}>
         {shown.slice(0, visibleCount).map((result, idx) => {
           const rawItem = result.document;
           const score = result.score;

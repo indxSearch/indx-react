@@ -61,7 +61,12 @@ export default function AskPanelPage() {
         </State>
         <State title="Nothing found" ask="nothingFound" when={<>The search found no records to answer from. No retry: other words, or the search, will do better.</>} />
         <State title="Failed mid-answer" ask="failed" when={<>The model stopped. What arrived stays, with Try again.</>} />
-        <State title="Limited" ask="limited" when={<>Too many questions from this address, or the dataset's daily budget is spent. Says how long to wait.</>} />
+        <State title="Limited" ask="limited" when={<>Too many questions from this address for now. Says how long to wait.</>} />
+        <State title="Today's answers spent" ask="budget" when={<>The dataset's calls for today are spent: asking is back tomorrow, not "in 500 minutes".</>} />
+        <State title="Not available here" ask="unavailable" when={<>Asking is off for the dataset, or the instance has no model key. The visitor gets intrface's sentence, never the server's text for the owner, and no Try again.</>} />
+        <State title="A proactive start refused" ask="budget" when={<>The page started the answer on its own (<code>proactive</code>) and the server refused it, the day's proactive answers spent: nothing shows, since nobody asked.</>}>
+          <AskPanel question={QUESTION} proactive />
+        </State>
       </div>
     </main>
   );

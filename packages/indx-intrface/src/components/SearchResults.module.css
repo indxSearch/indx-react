@@ -13,6 +13,10 @@
     font: var(--text-base);
 }
 
-/* Ask phrases took a question's words off: what the list searched, and the way back. */
+/* The provider's searchTextOf searched other words than were typed: what the list searched, and the way back. */
 .searchedFor { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px; font: var(--text-sm); color: var(--lv5); }
 .searchedFor strong { color: var(--lv8); font-weight: var(--med); }
+
+/* Search or ask: under the full offer, the judge reads what is asked about as not in the list. */
+.notFound { margin: 0 0 8px; font: var(--text-sm); color: var(--lv5); }
+.dimmed { opacity: 0.45; }

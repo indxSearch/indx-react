@@ -43,5 +43,5 @@ export { AskPanel } from './components/AskPanel';
 export { QuickAnswer } from './components/QuickAnswer';
 export type { QuickAnswerProps } from './components/QuickAnswer';
 export type { AskPanelProps } from './components/AskPanel';
-export { nextOffer, triggers, isIdentifier, visibleResults, DEFAULT_THRESHOLDS, DEFAULT_CUT, SCORE_SCALE, STRICT_MATCH } from './utils/searchOrAsk';
-export type { Offer, OfferThresholds, CutRule } from './utils/searchOrAsk';
+export { nextOffer, triggers, isIdentifier, pageMode, DEFAULT_THRESHOLDS, STRICT_MATCH } from './utils/searchOrAsk';
+export type { Offer, OfferThresholds, SearchOrAskMode } from './utils/searchOrAsk';
