@@ -11,3 +11,4 @@ Search or ask follows each of its five modes as the 6.0 server defines them.
 - An intent answering 404 (the dataset does not show Search or ask) turns the hook off, as a 409 does.
 - `SearchOrAskMode` and `pageMode` are exported. The hook's `mode` doc now says what it does: a page's `proactive` is `inviting` where the dataset is not proactive.
 - `setSearchRewrite`, the Ask phrases' hook into the provider, is gone; the provider's `searchTextOf` stays.
+- `QuickAnswer` shows the plain Ask of open, inviting and proactive (a new `ask` quick state, `labels.ask`), so a page that puts the offer in a row of its own keeps the Ask that those modes always have. `SearchInput`'s chip reads the same state.

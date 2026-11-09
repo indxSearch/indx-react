@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, renderHook, screen, act, waitFor, fireEvent } from '@testing-library/react';
+import { render, renderHook, screen, act, waitFor, fireEvent, cleanup as cleanupAll } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { SearchProvider, useSearchContext } from '../context/SearchContext';
 import { useSearchOrAsk } from '../hooks/useSearchOrAsk';
@@ -611,6 +611,21 @@ describe('modes', () => {
     expect(forward.result.current.mode).toBe('inviting');
   });
 
+  it('open shows its plain Ask in QuickAnswer too, where the field shows no offer', async () => {
+    settings(true, true, 'open');
+    judge({ synonyms: 0.05 });
+    function Row() {
+      const sor = useSearchOrAsk({ pauseMs: 10 });
+      return <><SearchInput askOffer="none" searchOrAsk={sor} onAsk={() => {}} /><QuickAnswer searchOrAsk={sor} onAsk={() => {}} /></>;
+    }
+    render(<Row />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    await new Promise(r => setTimeout(r, 50));
+    fireEvent.change(input, { target: { value: 'synonyms' } });
+    await screen.findByText('to ask');
+    expect(screen.getByText('Ask')).toBeTruthy();
+  });
+
   it('open lets Enter ask whatever the judge says, with an Ask button there', async () => {
     settings(true, true, 'open');
     judge({ synonyms: 0.05 });
@@ -696,7 +711,11 @@ describe('modes', () => {
     expect(screen.queryByRole('button')).toBeNull();
     thinking.unmount();
     expect(draw('none').container.textContent).toBe('');
-    expect(asked).toEqual(['how do I add synonyms', 'how do I add synonyms']);
+    cleanupAll();
+    // Open's plain Ask, where the judge has nothing to say: the text, and a quiet button.
+    draw('ask');
+    fireEvent.click(screen.getByText('Ask'));
+    expect(asked).toEqual(['how do I add synonyms', 'how do I add synonyms', 'how do I add synonyms']);
   });
 
   it('inviting sweeps from the hint score, and answers only when asked', async () => {

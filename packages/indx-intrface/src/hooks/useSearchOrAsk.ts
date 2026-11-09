@@ -80,7 +80,8 @@ export interface SearchOrAskState {
    *  thresholds' low `hint` score, or a sentence; also proactive's sure offer on a question not yet
    *  finished); `ready`, the full offer, Enter asks
    *  (every mode but proactive); `thinking`, proactive about to answer on its own, sweeping, no
-   *  button; `none` otherwise. Only while the offer stands for what is in the field. */
+   *  button; `ask`, a plain Ask with nothing more to say (open, inviting and proactive, where
+   *  asking is always there); `none` otherwise. Only while the offer stands for what is in the field. */
   quick: QuickState;
   /** The offer is for what is in the field now: the field still extends the text it was judged on.
    *  Typing on from a question keeps it (the hook does not ask again while the text only grows);
@@ -89,7 +90,7 @@ export interface SearchOrAskState {
   stands: boolean;
 }
 
-export type QuickState = 'none' | 'invite' | 'hint' | 'ready' | 'thinking';
+export type QuickState = 'none' | 'invite' | 'hint' | 'ready' | 'thinking' | 'ask';
 
 /** Thresholds as sent, with the defaults where they say nothing. The server resolves every one, the
  *  judge's own where the dataset sets none; the defaults are for a value it leaves out. */
@@ -359,11 +360,12 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     : stands && state.offer === 'strong' ? (m === 'proactive' ? (isFinished(state.finished) ? 'thinking' : 'hint') : 'ready')
     : stands && state.offer === 'invite' ? (sweeps ? 'hint' : 'invite')
     : hinted ? 'hint'
+    : m === 'open' || sweeps ? 'ask'
     : 'none';
   return { ...state, mode: m, askAnytime: m === 'open' || sweeps,
     answerNow: ripe !== null && ripe === text && state.answerNow === text ? ripe : null,
     // A hint from the shape alone is about what is in the field, which no judgement has named yet.
-    text: quick === 'hint' && !stands ? text : state.text,
+    text: (quick === 'hint' || quick === 'ask') && !stands ? text : state.text,
     notFound: stands && state.notFound,
     quick, stands };
 }

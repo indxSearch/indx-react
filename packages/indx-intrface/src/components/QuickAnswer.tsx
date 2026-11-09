@@ -10,7 +10,7 @@ export interface QuickAnswerProps {
   /** Called with the text to ask, as SearchInput's `onAsk`. */
   onAsk: (text: string) => void;
   /** The words, for a page in another language. */
-  labels?: Partial<Record<'invite' | 'hint' | 'ready' | 'thinking', string>>;
+  labels?: Partial<Record<'invite' | 'hint' | 'ready' | 'thinking' | 'ask', string>>;
   className?: string;
 }
 
@@ -19,6 +19,7 @@ const LABELS = {
   hint: 'For a quick answer, type a bit more',
   ready: 'Ask the assistant',
   thinking: 'Thinking',
+  ask: 'Ask',
 };
 
 /**
@@ -27,7 +28,9 @@ const LABELS = {
  * hook's `quick` state. In inviting and proactive the invitation sweeps as soon as a question starts
  * ("For a quick answer, type a bit more"), meant to teach a visitor that the field answers too; in
  * proactive the sure offer is no button but "Thinking", sweeping, until the answer starts on its
- * own. Nothing shows when there is nothing to offer, and a click on any of it asks.
+ * own. In open, inviting and proactive, where asking is always there, a text the judge has nothing
+ * to say about still gets a quiet Ask. Nothing shows when there is nothing to offer, and a click on
+ * any of it asks.
  */
 export const QuickAnswer: React.FC<QuickAnswerProps> = ({ searchOrAsk: sor, onAsk, labels, className = '' }) => {
   const words = { ...LABELS, ...labels };
@@ -44,6 +47,15 @@ export const QuickAnswer: React.FC<QuickAnswerProps> = ({ searchOrAsk: sor, onAs
       )}
       {sor.quick === 'invite' && (
         <button type="button" className={styles.line} onClick={ask}>{words.invite}</button>
+      )}
+      {sor.quick === 'ask' && (
+        <>
+          <span className={styles.question}>{text}</span>
+          <span className={styles.actions}>
+            <span className={styles.enter}><Kbd>↵</Kbd> to ask</span>
+            <Button variant="ghost" size="micro" onClick={ask}>{words.ask}</Button>
+          </span>
+        </>
       )}
       {sor.quick === 'ready' && (
         <>

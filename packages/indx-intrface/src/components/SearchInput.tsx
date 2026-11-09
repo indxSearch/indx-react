@@ -85,11 +85,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   }, [sor.answerNow, query, onAsk]);
   // Once proactive has started the answer for what is in the field, the chip has nothing more to say.
   const started = answered.current !== null && answered.current === query.trim();
-  // What the chip shows: the hook's quick state (QuickAnswer draws the same), or open's plain Ask.
-  const chip = !onAsk || !hasQuery || started ? 'none'
-    : sor.quick !== 'none' ? sor.quick
-    : sor.askAnytime ? 'ask'
-    : 'none';
+  // What the chip shows: the hook's quick state, as QuickAnswer draws it.
+  const chip = !onAsk || !hasQuery || started ? 'none' : sor.quick;
 
   // While asking is on the field invites both, unless the page chose its own words (a placeholder
   // prop, or placeholderText in the search settings).

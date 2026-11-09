@@ -106,6 +106,9 @@ export default function SearchOrAskPage() {
         <Row title="Mode: open" when={<>Asking is always there: type "synonyms" and Ask is in the field, and Enter asks whatever the judge says.</>}>
           <Together mode="open" />
         </Row>
+        <Row title="Mode: open, QuickAnswer" when={<>The same as a row above the results: type "synonyms", which the judge has nothing to say about, and the row still offers a quiet Ask, with Enter.</>}>
+          <Together mode="open" askOffer="quick" />
+        </Row>
         <Row title="Mode: inviting, in the chip" when={<>Type "How": the hint sweeps in the chip row, and Ask is there for anything typed, as in open. Nothing is answered unasked.</>}>
           <Together mode="inviting" />
         </Row>
