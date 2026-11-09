@@ -101,3 +101,14 @@
   font-style: italic;
   font-display: swap;
 }
+
+/* Geist Mono, the face of --font-mono, as IndxServer serves it (SIL OFL, Geist-OFL.txt beside it,
+   so the file is tracked), at the same 93% that brings its x-height to the brand font's. */
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/Geist-Mono-Variable.woff2') format('woff2');
+  size-adjust: 93%;
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

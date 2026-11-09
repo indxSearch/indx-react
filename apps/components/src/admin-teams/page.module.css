@@ -1,0 +1,64 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1400px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+
+/* The console page as drawn inside the mockup: its own heading row, then the variant. */
+.page { display: flex; flex-direction: column; gap: 24px; padding-top: 16px; border-top: 0.5px solid var(--lv3); min-width: 0; }
+.pageHead { display: flex; align-items: center; gap: 16px; }
+.pageHead > div { flex: 1; }
+.h2 { font: var(--text-xl); margin: 0 0 4px; }
+.lead { font: var(--text-sm); color: var(--lv5); margin: 0; }
+
+.mono { font-family: var(--font-mono); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.faint { font: var(--text-xs); color: var(--lv5); white-space: nowrap; }
+
+/* A table row that opens: the whole row is the target. */
+.row { cursor: pointer; }
+.row:hover td { background: var(--lv1); }
+.row:focus-visible { outline: 1px solid var(--lv6); outline-offset: -1px; }
+.rowName { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); }
+.expanded td { background: var(--lv1); }
+.expandedBody { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr); gap: 24px; padding: 8px 4px 12px; white-space: normal; }
+@media (max-width: 900px) { .expandedBody { grid-template-columns: minmax(0, 1fr); } }
+
+.activity { display: inline-flex; align-items: center; gap: 10px; }
+.activity .num { min-width: 56px; font: var(--text-xs); color: var(--lv7); }
+
+/* Members, datasets and keys: a titled column of lines. */
+.block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.blockTitle { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); font-weight: var(--med); color: var(--lv7); margin-bottom: 4px; }
+.line { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-bottom: 0.5px solid var(--lv2); font: var(--text-xs); color: var(--lv7); }
+.line .num { color: var(--lv6); }
+.lineMain { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sheetBody { display: flex; flex-direction: column; gap: 24px; }
+
+/* B: the chart card, as on Admin > Datasets. */
+.chartCard { display: flex; flex-direction: column; gap: 10px; padding: calc(var(--spacing) * 2); background: var(--lv2); border-radius: var(--radius); }
+.chartHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.chartTitle { font: var(--text-xs); color: var(--lv5); }
+.chartTotal { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); font-variant-numeric: tabular-nums; }
+
+/* C: findings, then cards. */
+.finding { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid var(--lv2); font: var(--text-sm); color: var(--lv7); }
+.finding .mono { color: var(--lv8); }
+.findings { padding: 0 12px 8px; }
+.findings .finding:last-child { border-bottom: 0; }
+.findingsSummary { display: inline-flex; align-items: center; gap: 8px; }
+.findingText { color: var(--lv6); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: var(--lv1); border: 0.5px solid var(--lv3); cursor: pointer; min-width: 0; }
+.card:hover { border-color: var(--lv5); }
+.card:focus-visible { outline: 1px solid var(--lv6); }
+.cardHead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font: var(--text-sm); color: var(--lv8); }
+.cardFacts { display: flex; flex-wrap: wrap; gap: 4px 14px; font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; }
+.cardFacts strong { font-weight: var(--med); color: var(--lv8); }
+
+/* D: a server admin managing a team's members. */
+.add { margin-left: auto; }
+.role { width: 110px; flex: none; }
+.form { display: flex; flex-direction: column; gap: 20px; }
+.actions { display: flex; gap: 8px; }
