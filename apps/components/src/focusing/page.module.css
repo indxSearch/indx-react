@@ -1,0 +1,39 @@
+.main { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1100px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+
+.controls { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* The page a visitor sees: the field, what it says, the list. */
+.page { display: flex; flex-direction: column; gap: 12px; max-width: 720px; width: 100%; padding: 16px; background: var(--lv1); border-radius: var(--radius); }
+
+/* A: the input's text is transparent and the mirror under it draws it, word by word. The mirror
+   matches SearchField's default size: 40px high, 35px in for the icon, --text-base. */
+.inField { position: relative; }
+.inField input { color: transparent; }
+.mirror {
+  position: absolute; inset: 0; padding-left: 35px; display: flex; align-items: center;
+  font: var(--text-base); color: var(--lv8); white-space: pre; overflow: hidden; pointer-events: none;
+}
+.leftOut { color: var(--lv4); }
+
+/* B */
+.line { margin: 0; font: var(--text-sm); color: var(--lv7); }
+.line strong { font-weight: var(--med); color: var(--lv8); }
+.lineLeft { color: var(--lv5); }
+
+/* C */
+.wordChips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.results { display: flex; flex-direction: column; gap: 10px; }
+.count { margin: 0; font: var(--text-xs); color: var(--lv5); }
+.result { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 0.5px solid var(--lv3); }
+.resultHead { display: flex; align-items: baseline; gap: 8px; }
+.resultTitle { font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+.resultMeta { font: var(--text-xs); color: var(--lv5); }
+.resultText { font: var(--text-xs); color: var(--lv6); }
+
+@media (max-width: 600px) { .main { padding: 16px; } }

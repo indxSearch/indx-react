@@ -113,6 +113,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: 'Search or ask', path: '/search-or-ask' },
       { label: 'AI picks', path: '/ai-picks' },
+      { label: 'Focusing', path: '/focusing' },
     ],
   },
   {
