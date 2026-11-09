@@ -112,6 +112,7 @@ export const navGroups: NavGroup[] = [
     title: 'Intrface Compositions',
     items: [
       { label: 'Search or ask', path: '/search-or-ask' },
+      { label: 'AI picks', path: '/ai-picks' },
     ],
   },
   {

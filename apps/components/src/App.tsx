@@ -85,6 +85,7 @@ import IciclePage from './icicle/page';
 import StatPage from './stat/page';
 import DatasetPageMockup from './dataset-page/page';
 import RecordsBrowserMockup from './records-browser/page';
+import AiPicksMockup from './ai-picks/page';
 import AdminTeamsMockup from './admin-teams/page';
 import PortalOnboardingMockup from './portal-onboarding/page';
 import PortalSupportMockup from './portal-support/page';
@@ -184,6 +185,7 @@ export default function App() {
         <Route path="/stat" element={<StatPage />} />
         <Route path="/dataset-page" element={<DatasetPageMockup />} />
         <Route path="/records-browser" element={<RecordsBrowserMockup />} />
+        <Route path="/ai-picks" element={<AiPicksMockup />} />
         <Route path="/admin-teams" element={<AdminTeamsMockup />} />
         <Route path="/portal-onboarding" element={<PortalOnboardingMockup />} />
         <Route path="/portal-support" element={<PortalSupportMockup />} />

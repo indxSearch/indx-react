@@ -1,0 +1,38 @@
+.page { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 1400px; min-width: 0; }
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+.pageTitle { font: var(--text-2xl); margin: 0; }
+.desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 80ch; }
+.note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 80ch; }
+.muted { color: var(--lv5); font-variant-numeric: tabular-nums; }
+.spacer { flex: 1; }
+
+/* The search page: the field and the list on the left, the assistant beside them. */
+.frame { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .frame { grid-template-columns: minmax(0, 1fr); } }
+.main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.list { display: flex; flex-direction: column; min-width: 0; }
+
+.listHead { display: flex; align-items: center; gap: 8px; padding: 6px 0 8px; border-bottom: 0.5px solid var(--lv3); }
+.listTitle { display: inline-flex; align-items: center; gap: 6px; font: var(--text-sm); font-weight: var(--med); color: var(--lv8); }
+
+.row { display: grid; grid-template-columns: 20px 48px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--lv3); }
+.marked { background: var(--lv2); }
+.n { font: var(--text-xs); color: var(--lv5); font-variant-numeric: tabular-nums; text-align: right; padding-top: 2px; }
+.poster { width: 48px; height: 68px; background: var(--lv3); color: var(--lv5); display: flex; align-items: center; justify-content: center; font: var(--text-lg); }
+.film { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.titleLine { display: flex; align-items: baseline; gap: 8px; }
+.title { font: var(--text-base); color: var(--lv8); }
+.why { display: flex; align-items: center; gap: 6px; font: var(--text-sm); color: var(--lv8); }
+.why svg { flex: none; color: var(--lv5); }
+.overview { font: var(--text-sm); color: var(--lv5); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.leftOutWhy { font: var(--text-sm); color: var(--lv6); }
+.genres { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.after { margin-top: 20px; }
+.dimmed { opacity: 0.45; }
+.leftOut { margin-top: 12px; }
+
+/* The assistant's column. */
+.assistant { display: flex; flex-direction: column; gap: 12px; padding: 12px; min-width: 0; }
+.steps { display: flex; flex-direction: column; gap: 2px; font: var(--text-xs); color: var(--lv5); margin-bottom: 8px; }
+.answer { font: var(--text-sm); color: var(--lv8); margin: 0 0 8px; line-height: 1.55; }
