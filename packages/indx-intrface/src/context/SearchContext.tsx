@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { SearchMode } from '@indxsearch/indx-types';
-import type { MatchSetup, CandidateSetup, RankingProxy } from '@indxsearch/indx-types';
+import type { MatchSetup, CandidateSetup, RankingProxy, ToleranceCounts, PageFill, Tolerance } from '@indxsearch/indx-types';
 import type { SearchErrorInfo } from './searchError';
 import { useIndxAuth } from './useIndxAuth';
 import { useSearchExecution } from './useSearchExecution';
@@ -74,6 +74,11 @@ export interface SearchState {
   searchSettings: SearchSettings;
   countedTotal?: number; // The records the search counted, all of them, beyond the rows returned too; undefined when it counted nothing (the fallback) or in Bm25f mode. Until 6.0 truncationIndex
   isFallback?: boolean; // Nothing held every query word: the results are the most words, then pattern matches
+  toleranceCounts?: ToleranceCounts | null; // The counted records by typo level, each with those before it ("140 results, 45 with a typo"); null in Bm25f mode
+  countedTolerance?: Tolerance | null; // The typo level the list was taken from; null when nothing was counted
+  ranked?: number; // How many of the counted records were ranked; below countedTotal when the candidate bound was reached
+  reranked?: boolean; // Whether the reranker ordered the list
+  fill?: PageFill | null; // How many listed records fill a short page from further typo levels (nextRungs) and from the most words (mostWords), below the counted
   totalDocumentCount?: number; // Total number of documents in the dataset
   queryId?: string; // The Indx-Query-Id of the search behind `results`; selectResult sends it back
 }

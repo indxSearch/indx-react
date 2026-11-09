@@ -215,6 +215,12 @@ export function useSearchExecution({
         // index): the counted rung in EditDistance, every record scored in Bm25f. Undefined in a fallback.
         const countedTotal: number | undefined = searchData.isFallback ? undefined : searchData.count;
         const isFallback = searchData.isFallback === true;
+        // The rest of what the search says about itself (6.0): by typo level, the bound, the fill.
+        const toleranceCounts = searchData.toleranceCounts ?? null;
+        const countedTolerance = searchData.countedTolerance ?? null;
+        const ranked: number | undefined = searchData.ranked;
+        const reranked: boolean | undefined = searchData.reranked;
+        const fill = searchData.fill ?? null;
 
         // The OR fields' own panels read their counts from the excluded-field
         // responses; everything else, including facetStats and so the range
@@ -332,6 +338,11 @@ export function useSearchExecution({
           isLoading: false,
           countedTotal,
           isFallback,
+          toleranceCounts,
+          countedTolerance,
+          ranked,
+          reranked,
+          fill,
           queryId,
         }));
       } catch (error) {

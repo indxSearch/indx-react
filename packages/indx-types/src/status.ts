@@ -23,9 +23,14 @@ export interface SystemStatus {
   invalidDataSetName: boolean;
   invalidState: boolean;
   invalidArgument: boolean;
-  tooLongClientText: boolean;
+  /** A query's text was over the length a search takes, and the search was refused. */
   tooLongSearchText: boolean;
-  unknownConfigurationError: boolean;
+  /** A record's text was cut at the length the index takes (the record is stored whole). */
+  indexedTextTruncated: boolean;
+  /** A word longer than the configuration takes was cut to it. */
+  wordTokenSizeCapped: boolean;
+  /** A field's own k1 is set on a BM25F dataset, where the dataset's k1 is used instead. */
+  fieldK1Ignored: boolean;
   licenseInfo: LicenseInfo;
   recoverableErrors?: ProcessErrorCount[] | null;
   unrecoverableErrors?: ProcessError[] | null;

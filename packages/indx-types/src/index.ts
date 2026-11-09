@@ -17,9 +17,20 @@ export {
   RangeFilterProxy,
   ValueFilterProxy,
   CombinedFilterProxy,
+  InFilterProxy,
+  PositionFilterProxy,
+  FilterExpressionProxy,
+  FilterExpressionResultProxy,
+  FilterExpressionErrorDetail,
   UpdateFieldProxy,
   FilterFieldUpdateProxy
 } from './filters';
+
+// Saved rules, query parameters and field profiles
+export {
+  RuleCondition, BoostRule, BuryRule, DatasetQueryParameters, QueryParametersResponse,
+  FieldProfile, FieldProfileView, FieldProfilesResponse, FieldProfilesRequest
+} from './rules';
 
 // Boost
 export { BoostProxy, BuryProxy } from './boost';
@@ -31,7 +42,7 @@ export { SynonymList, SynonymEntry } from './synonyms';
 export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
 
 // Result
-export { Result, QueryFitResult, ScoreEntry, ToleranceCounts } from './result';
+export { Result, QueryFitResult, ScoreEntry, ToleranceCounts, PageFill, MatchReport, RecordMatch, QueryWordMatch, WordMatch } from './result';
 
 // Status
 export { SystemStatus, LicenseInfo } from './status';

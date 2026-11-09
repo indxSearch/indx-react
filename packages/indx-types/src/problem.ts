@@ -1,3 +1,5 @@
+import { FilterExpressionErrorDetail } from './filters';
+
 /**
  * Machine-readable error code carried by every Indx error response, as the `code`
  * extension of an RFC 9457 problem document. Switch on this, not on the HTTP status: a 400 can
@@ -16,6 +18,9 @@
  *   operator enabled per-key limits; or too many calls from this address carried no bearer token
  *   that validates (missing, expired or invalid). Carries `retryAfterSeconds` and a `Retry-After`
  *   header; wait that long and retry.
+ * - `invalidFilterExpression` (400): a filter expression makes no filter; `errors` holds each
+ *   error with its place. Fix the expression; never retry without it.
+ * - `insufficientKeyScope` (403): the API key's access level is below the call.
  */
 export type IndxProblemCode =
   | 'invalidArgument'
@@ -31,7 +36,20 @@ export type IndxProblemCode =
   | 'teamNotFound'
   | 'invalidState'
   | 'shadowBusy'
-  | 'rateLimited';
+  | 'rateLimited'
+  | 'invalidFilterExpression'
+  | 'insufficientKeyScope'
+  | 'userNotFound'
+  | 'passwordChangeFailed'
+  | 'statisticsDisabled'
+  | 'searchOrAskDisabled'
+  | 'searchOrAskUnavailable'
+  | 'searchOrAskBudgetSpent'
+  | 'webhookNotFound'
+  | 'heldBatchNotFound'
+  | 'datasetBusy'
+  | 'badSignature'
+  | 'internalError';
 
 /**
  * An Indx error response body (`application/problem+json`, RFC 9457) with the `code`
@@ -58,6 +76,9 @@ export interface IndxProblem {
   errorMessage?: string;
   /** `rateLimited` only: seconds until the window opens again (also the `Retry-After` header). */
   retryAfterSeconds?: number;
-  /** Registration / password endpoints: per-field validation messages. */
-  errors?: string[];
+  /** Registration / password endpoints: per-field validation messages; `invalidFilterExpression`:
+   * each error of the expression with its place. */
+  errors?: string[] | FilterExpressionErrorDetail[];
+  /** `invalidFilterExpression` only: the expression with a caret under the first error. */
+  pointer?: string;
 }

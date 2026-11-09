@@ -34,4 +34,7 @@ export interface FieldProxy {
   /** The field's weight in Coverage against the heaviest field; 0 leaves it out of Coverage (until 6.0 coverageStrictness None). */
   rerankWeight?: number | null;
   caseSensitive?: boolean | null;
+  /** From how many letters the word being typed matches the start of a longer word in this
+   * field; null takes the search's match.typingPrefixFrom. */
+  typingPrefixFrom?: number | null;
 }
