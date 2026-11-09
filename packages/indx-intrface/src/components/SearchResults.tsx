@@ -39,8 +39,9 @@ export interface SearchResultsProps {
   /**
    * The records the assistant picked (`AskPanel`'s `onPicks`): while given, the list is those, in
    * the assistant's order and numbered as its answer cites them, each with why it was picked, in
-   * place of the search. Clear it to show the search again: when the visitor types, starts a new
-   * conversation, or `onShowSearch`.
+   * place of the search. They stand for the field's text as it was when they came: once the visitor
+   * types or clears the field, the list is the search again. Clear them as well when the visitor
+   * starts a new conversation, or on `onShowSearch`.
    */
   picks?: AskPicks | null;
   /** Shown over the picks as the way back to the search: "Show all 45 found" when the picks came
@@ -201,6 +202,11 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     searchAsTyped,
   } = useSearchContext();
 
+  // The picks stand for the text in the field when they came; typing or Clear brings the search back.
+  const picksFor = useRef<{ picks: AskPicks; query: string } | null>(null);
+  if (picks && picksFor.current?.picks !== picks) picksFor.current = { picks, query };
+  const picksShown = !!picks && picksFor.current?.query === query;
+
   const pageSize = resultsPerPage ?? 30;
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const previousResultsLength = useRef<number>(0);
@@ -238,7 +244,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     }
   };
 
-  if (picks && !isFetchingInitial && !authError) {
+  if (picks && picksShown && !isFetchingInitial && !authError) {
     return <PickedResults picks={picks} fields={fields} parseArrayStrings={parseArrayStrings} label={picksLabel}
                           onShowSearch={onShowSearch}>{children}</PickedResults>;
   }

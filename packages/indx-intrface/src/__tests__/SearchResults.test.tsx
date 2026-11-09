@@ -236,6 +236,16 @@ describe('the assistant\'s picks', () => {
     expect(shown).toBe(1);
   });
 
+  it('gives the list back to the search once the field changes, Clear included', async () => {
+    server.use(http.post(`${DS}/documents/lookup`, async ({ request }) =>
+      HttpResponse.json((await request.json() as number[]).map(k => ({ id: k, title: k === 1 ? 'Shoe A' : 'Shoe B' })))));
+    renderResults({ picks });
+    await screen.findByText('Picked by the assistant');
+    // The picks came while the field was empty; any change to it (typing, or Clear after a question) is the search's.
+    act(() => setQueryRef('shoes'));
+    await waitFor(() => expect(screen.queryByText('Picked by the assistant')).toBeNull());
+  });
+
   it('offers all a search found when the picks came with one', async () => {
     server.use(http.post(`${DS}/documents/lookup`, async ({ request }) =>
       HttpResponse.json((await request.json() as number[]).map(k => ({ id: k, title: `Shoe ${k}` })))));
