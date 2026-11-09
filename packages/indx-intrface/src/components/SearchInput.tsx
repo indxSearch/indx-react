@@ -54,18 +54,22 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     state: { query, filters, rangeFilters, bucketFilters, results, isFallback, searchSettings },
     setQuery,
     resetFilters,
+    picks,
+    showPicks,
   } = useSearchContext();
+  // The assistant's picks are the list: the chips about the search have nothing to say.
+  const picked = !!picks;
 
   const filterCount =
     Object.values(filters).reduce((n, values) => n + values.length, 0) +
     Object.keys(rangeFilters).length +
     Object.values(bucketFilters ?? {}).reduce((n, ranges) => n + ranges.length, 0);
   const hasQuery = query.length > 0;
-  const noResults = hasQuery && results !== null && results.length === 0;
+  const noResults = hasQuery && !picked && results !== null && results.length === 0;
   // No record held every query word, exactly or within its edits: what is listed is the fallback,
   // the most words and then pattern matches (6.0; until then a truncationIndex of -1).
   const nearest =
-    hasQuery && results !== null && results.length > 0 && isFallback === true;
+    hasQuery && !picked && results !== null && results.length > 0 && isFallback === true;
 
   const own = useSearchOrAsk({ enabled: !!onAsk && !searchOrAsk });
   const sor = searchOrAsk ?? own;
@@ -106,6 +110,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   React.useEffect(() => { if (filterCount === 0) setFiltersOpen(false); }, [filterCount]);
 
   const clear = () => {
+    showPicks?.(null);
     setQuery('');
     if (filterCount > 0) resetFilters();
   };

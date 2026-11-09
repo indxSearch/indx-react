@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { AskPanel, QuickAnswer, SearchInput, SearchResults, useSearchOrAsk, type AskPicks } from '@indxsearch/intrface';
+import { AskPanel, QuickAnswer, SearchInput, SearchResults, useSearchOrAsk } from '@indxsearch/intrface';
 import { MockSearchProvider } from '../mock/MockSearchProvider';
 import { mockFetch, type AskBehaviour, type IntentBehaviour } from '../mock/searchOrAsk';
 import styles from '../search-input/page.module.css';
@@ -54,13 +54,12 @@ function WithResults({ onAsk }: { onAsk: (q: string, how?: { proactive: boolean 
 /** A catalogue's answer with its picks as the list: the field, the answer, and the picks under it. */
 function WithPicks() {
   const [question, setQuestion] = useState<string | null>(null);
-  const [picks, setPicks] = useState<AskPicks | null>(null);
   return (
-    <MockSearchProvider placeholderText="Type to search" resultCount={8} authenticatedFetch={mockFetch('picks', { mode: 'open' })}>
+    <MockSearchProvider placeholderText="Type to search" resultCount={8} isFallback authenticatedFetch={mockFetch('picks', { mode: 'open' })}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
-        <SearchInput onAsk={q => { setPicks(null); setQuestion(q); }} onKeyDown={e => { if (e.key !== 'Enter') setPicks(null); }} />
-        {question && <AskPanel question={question} onPicks={setPicks} />}
-        <SearchResults picks={picks} onShowSearch={() => setPicks(null)} resultsPerPage={4}>
+        <SearchInput onAsk={setQuestion} />
+        {question && <AskPanel question={question} />}
+        <SearchResults resultsPerPage={4}>
           {(item, { result }) => <div style={{ font: 'var(--text-sm)' }}>{item.title ?? `Result ${result.position}`}{item.year ? ` (${item.year})` : ''}</div>}
         </SearchResults>
       </div>
@@ -147,7 +146,7 @@ export default function SearchOrAskPage() {
         <Row title="Today's calls spent" when={<>Mode inviting, once the dataset's calls for today are spent (429 <code>searchOrAskBudgetSpent</code>): the offer goes until midnight UTC, the search works as before.</>}>
           <Together mode="inviting" intent="spent" />
         </Row>
-        <Row title="A catalogue's picks as the list" when={<>Type "find queer movies" and press Enter. A catalogue's answer with several searches chooses the records that answer by reading them, and <code>AskPanel</code>'s <code>onPicks</code> hands them to <code>SearchResults</code>' <code>picks</code>: the list is the picks, numbered as the answer cites them, each with why, until the visitor types again or asks for the search.</>}>
+        <Row title="A catalogue's picks as the list" when={<>Type "find queer movies" and press Enter. A catalogue's answer with several searches chooses the records that answer by reading them, and the panel makes them the list through the provider, with no wiring on the page: <code>SearchResults</code> lists them, numbered as the answer cites them, each with why, and the field drops its Nearest chip, until the visitor types, clears or asks for the search.</>}>
           <WithPicks />
         </Row>
         <Row title="Offer below the field" when={<><code>askOffer="below"</code>: the offer in a row of its own under the field, as on the Indx docs. A strong offer is a full-size button and an Enter hint; the row keeps its height, so nothing under it moves.</>}>

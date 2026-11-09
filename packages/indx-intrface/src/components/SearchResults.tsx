@@ -11,6 +11,7 @@ import { Ai_agent, Indx } from '@indxsearch/pixl';
 import { Button } from '@indxsearch/systm';
 import type { SearchOrAskState } from '../hooks/useSearchOrAsk';
 import type { AskPicks } from '../hooks/useAsk';
+import { useFilterSuggestion } from '../hooks/useFilterSuggestion';
 
 export interface SearchResultsProps {
   fields?: string[];
@@ -37,16 +38,16 @@ export interface SearchResultsProps {
   /** The line above a dimmed list, for a page in another language. */
   notFoundLabel?: string;
   /**
-   * The records the assistant picked (`AskPanel`'s `onPicks`): while given, the list is those, in
-   * the assistant's order and numbered as its answer cites them, each with why it was picked, in
-   * place of the search. They stand for the field's text as it was when they came: once the visitor
-   * types or clears the field, the list is the search again. Clear them as well when the visitor
-   * starts a new conversation, or on `onShowSearch`.
+   * The records the assistant picked. Left out, the provider's: `AskPanel` puts them there, and
+   * while they stand the list is those, in the assistant's order and numbered as its answer cites
+   * them, each with why it was picked, in place of the search. They stand for the field's text as it
+   * was when they came: once the visitor types or clears the field, the list is the search again.
+   * Given, these instead; null never lists picks.
    */
   picks?: AskPicks | null;
-  /** Shown over the picks as the way back to the search: "Show all 45 found" when the picks came
-   *  with a search, "Show the search instead" otherwise. The page clears `picks`, and applies
-   *  `picks.search` (`useFilterSuggestion().apply`) when it is there. */
+  /** The way back to the search over the picks: "Show all 45 found" when the picks came with a
+   *  search, "Show the search instead" otherwise. Left out, it does that itself: applies the
+   *  picks' search when there is one, and gives the list back. */
   onShowSearch?: () => void;
   /** The heading over the picks. Default "Picked by the assistant". */
   picksLabel?: string;
@@ -188,7 +189,7 @@ const PickedResults: React.FC<{
 };
 
 export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPerPage, parseArrayStrings = false, searchOrAsk, notFoundLabel = 'These results may not hold what you are asking about',
-  picks, onShowSearch, picksLabel = 'Picked by the assistant', showScore, children }) => {
+  picks: picksProp, onShowSearch, picksLabel = 'Picked by the assistant', showScore, children }) => {
   const {
     state: { results, resultsSuppressed, searchSettings, countedTotal, query, error, errorInfo },
     isFetchingInitial,
@@ -200,7 +201,15 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
     selectResult,
     searchText,
     searchAsTyped,
+    picks: providerPicks,
+    showPicks,
   } = useSearchContext();
+  const { apply } = useFilterSuggestion();
+  const picks = picksProp === undefined ? providerPicks : picksProp;
+  const showSearch = onShowSearch ?? (() => {
+    if (picks?.search) apply(picks.search);
+    showPicks?.(null);
+  });
 
   // The picks stand for the text in the field when they came; typing or Clear brings the search back.
   const picksFor = useRef<{ picks: AskPicks; query: string } | null>(null);
@@ -246,7 +255,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ fields, resultsPer
 
   if (picks && picksShown && !isFetchingInitial && !authError) {
     return <PickedResults picks={picks} fields={fields} parseArrayStrings={parseArrayStrings} label={picksLabel}
-                          onShowSearch={onShowSearch}>{children}</PickedResults>;
+                          onShowSearch={showSearch}>{children}</PickedResults>;
   }
 
   if (isFetchingInitial) {

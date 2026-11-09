@@ -7,6 +7,7 @@ import type { ComposerHandle } from '@indxsearch/systm';
 import { Refresh } from '@indxsearch/pixl';
 import { useAsk, type AskSource, type AskStatus, type AskTurn, type AskFilters, type AskPicks } from '../hooks/useAsk';
 import { answerMarkdown } from '../utils/answerMarkdown';
+import { useSearchContext } from '../context/SearchContext';
 import styles from './AskPanel.module.css';
 
 export interface AskPanelProps {
@@ -35,9 +36,13 @@ export interface AskPanelProps {
   /** On a catalogue, called with the filters a description was searched with, as soon as they are
    *  known: give them to `useFilterSuggestion().apply` so the page's list shows the same set. */
   onFilters?: (filters: AskFilters) => void;
-  /** On a catalogue, called with the records the assistant picked, as soon as they are known: show
-   *  them as the page's list with `SearchResults`' `picks`, while the conversation is open. */
+  /** On a catalogue, called with the records the assistant picked, as soon as they are known. The
+   *  panel also makes them the page's list itself (`SearchResults` shows them, `SearchInput` drops
+   *  its search chips), unless the answer was `proactive` or `listPicks` is false. */
   onPicks?: (picks: AskPicks) => void;
+  /** Make the assistant's picks the page's list. Default true; never for a proactive answer, which
+   *  leaves the page as the visitor has it. */
+  listPicks?: boolean;
   /** How a filter reads on its chip. Default: a text value as itself, a yes/no by its field's
    *  name, a range by its bounds. */
   filterLabel?: (filter: AskFilters['filters'][number]) => string;
@@ -83,9 +88,14 @@ function defaultFilterLabel(f: AskFilters['filters'][number]): string {
  */
 export const AskPanel: React.FC<AskPanelProps> = ({
   question, proactive = false, followUps = false, onSourceClick, label = 'Answer', renderAnswer = answerMarkdown, onFollowUp, onStatusChange,
-  onFilters, onPicks, filterLabel = defaultFilterLabel, fill = false, className = '',
+  onFilters, onPicks, listPicks = true, filterLabel = defaultFilterLabel, fill = false, className = '',
 }) => {
   const asked = useAsk();
+  const { showPicks } = useSearchContext();
+  // The list is this conversation's: a new one, or the panel going, gives it back to the search.
+  const showPicksRef = useRef(showPicks);
+  showPicksRef.current = showPicks;
+  useEffect(() => () => showPicksRef.current?.(null), []);
   const { ask, reset, stop, status, openSource } = asked;
   const [copied, setCopied] = useState(false);
   const [past, setPast] = useState<PastTurn[]>([]);
@@ -100,6 +110,7 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   useEffect(() => {
     setPast([]);
     history.current = [];
+    showPicksRef.current?.(null);
     if (question?.trim()) void ask(question, [], { proactive });
     else reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- a question is asked once, as whoever started it
@@ -121,9 +132,11 @@ export const AskPanel: React.FC<AskPanelProps> = ({
   useEffect(() => {
     if (asked.picks && asked.picks !== sentPicks.current) {
       sentPicks.current = asked.picks;
-      onPicks?.({ ...asked.picks, askId: asked.picks.askId ?? asked.askId });
+      const picks = { ...asked.picks, askId: asked.picks.askId ?? asked.askId };
+      onPicks?.(picks);
+      if (listPicks && !proactive) showPicks?.(picks);
     }
-  }, [asked.picks, asked.askId, onPicks]);
+  }, [asked.picks, asked.askId, onPicks, listPicks, proactive, showPicks]);
 
   // With fill, keep the end in view as the answer grows and as turns are added.
   useEffect(() => {

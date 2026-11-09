@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import type { AskPicks } from '../hooks/useAsk';
 import { SearchMode } from '@indxsearch/indx-types';
 import type { MatchSetup, CandidateSetup, RankingProxy, ToleranceCounts, PageFill, Tolerance } from '@indxsearch/indx-types';
 import type { SearchErrorInfo } from './searchError';
@@ -118,6 +119,13 @@ export interface SearchContextType {
   count?: boolean; // The provider's count; false leaves everything from this page out of the numbers
   /** What the search runs on: `state.query`, or what the provider's `searchTextOf` made of it. */
   searchText?: string;
+  /** The assistant's picks, while they are the list: `AskPanel` puts them here when they come, and
+   *  they stand for the text in the field then, so typing or Clear gives the list back to the
+   *  search. SearchResults lists them, and SearchInput drops its Nearest and No results chips,
+   *  which are about the search. */
+  picks?: AskPicks | null;
+  /** Makes picks the list, or null to give it back to the search. */
+  showPicks?: (picks: AskPicks | null) => void;
   /** Searches the typed text as it is, this once: the way back from a rewrite ("Search for your exact words"). */
   searchAsTyped?: () => void;
 }
@@ -181,6 +189,8 @@ export const SearchProvider: React.FC<{
   // What the search runs on: the prop's text, else the typed text; and the one typed text the
   // visitor asked to have searched as typed.
   const [asTyped, setAsTyped] = useState<string | null>(null);
+  // The assistant's picks, with the field's text they were for.
+  const [picked, setPicked] = useState<{ picks: AskPicks; query: string } | null>(null);
   const textOf = useCallback((typed: string) =>
     !searchTextOf || typed === asTyped ? typed : searchTextOf(typed), [searchTextOf, asTyped]);
   // The page size the user wants. Starts at the maxResults prop and follows
@@ -538,6 +548,8 @@ export const SearchProvider: React.FC<{
         source,
         count,
         searchText: textOf(state.query),
+        picks: picked && picked.query === state.query ? picked.picks : null,
+        showPicks: (p: AskPicks | null) => setPicked(p ? { picks: p, query: state.query } : null),
         searchAsTyped: () => setAsTyped(state.query),
       }}
     >

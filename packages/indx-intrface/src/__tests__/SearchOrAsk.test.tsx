@@ -8,6 +8,7 @@ import { useFilterSuggestion, localFilters } from '../hooks/useFilterSuggestion'
 import { AskPanel } from '../components/AskPanel';
 import { QuickAnswer } from '../components/QuickAnswer';
 import { SearchInput } from '../components/SearchInput';
+import { SearchResults } from '../components/SearchResults';
 import { nextOffer, triggers, DEFAULT_THRESHOLDS } from '../utils/searchOrAsk';
 import { server } from './mocks/server';
 
@@ -535,6 +536,50 @@ describe('AskPanel', () => {
     // Every pick is in the list, not only the one the text cites.
     expect(screen.getByText('Picked')).toBeTruthy();
     expect(screen.getByText('Moonlight')).toBeTruthy();
+  });
+
+  it('makes the picks the page\'s list on its own: SearchResults lists them, the field drops Nearest', async () => {
+    globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', () =>
+        HttpResponse.json({ records: [{ documentKey: 1, score: 9 }], facets: {}, isFallback: true })),
+      http.post('http://localhost/api/teams/team/datasets/test/documents/lookup', async ({ request }) =>
+        HttpResponse.json((await request.json() as number[]).map(k => ({ id: k, title: k === 11 ? 'Carol' : `Hit ${k}` })))),
+      http.post(`${SOA}/ask`, () => sse([
+        ['picks', { picks: [{ n: 1, documentKey: 11, title: 'Carol', why: 'Two women in love' }], search: null }],
+        ['text', { delta: 'Carol [1].' }], ['done', {}],
+      ])));
+    function Page({ proactive = false }) {
+      const [q, setQ] = useState<string | null>(null);
+      return (
+        <>
+          <SearchInput onAsk={setQ} />
+          <button onClick={() => setQ('find queer movies')}>ask</button>
+          {q && <AskPanel question={q} proactive={proactive} />}
+          <SearchResults>{item => <span data-testid="row">{String(item.title)}</span>}</SearchResults>
+        </>
+      );
+    }
+    const { unmount } = render(<Page />, { wrapper });
+    const input = await screen.findByRole('textbox');
+    fireEvent.change(input, { target: { value: 'find queer movies' } });
+    await screen.findByText('Nearest');
+    fireEvent.click(screen.getByText('ask'));
+    await screen.findByText('Picked by the assistant');
+    await waitFor(() => expect(screen.getAllByTestId('row').map(r => r.textContent)).toEqual(['Carol']));
+    expect(screen.queryByText('Nearest')).toBeNull();
+    // Clear: the field and the list are the search's again.
+    fireEvent.click(screen.getByText('Clear'));
+    await waitFor(() => expect(screen.queryByText('Picked by the assistant')).toBeNull());
+    unmount();
+
+    // A proactive answer leaves the page as the visitor has it.
+    render(<Page proactive />, { wrapper });
+    const again = await screen.findByRole('textbox');
+    fireEvent.change(again, { target: { value: 'find queer movies' } });
+    fireEvent.click(screen.getByText('ask'));
+    await waitFor(() => expect(screen.getByText('Copy')).toBeTruthy());
+    expect(screen.queryByText('Picked by the assistant')).toBeNull();
   });
 
   it('sends the picks with a follow-up, as what the last turn put on the page', async () => {

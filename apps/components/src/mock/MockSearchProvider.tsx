@@ -145,6 +145,8 @@ export function MockSearchProvider({
   };
 
   const resetFilters = () => { setFilters({}); setRangeFiltersState({}); setBucketFilters({}); };
+  // The assistant's picks, with the field's text they were for, as SearchProvider keeps them.
+  const [picked, setPicked] = useState<{ picks: NonNullable<SearchContextType['picks']>; query: string } | null>(null);
 
   const value: SearchContextType = {
     state: {
@@ -224,6 +226,8 @@ export function MockSearchProvider({
     facetsEnabled: false,
     datasetBounds: {},
     fetchMoreResults: noop,
+    picks: picked && picked.query === query ? picked.picks : null,
+    showPicks: p => setPicked(p ? { picks: p, query } : null),
   };
 
   return (
