@@ -85,7 +85,8 @@ function FieldVariant({ text, setText, outcome }: { text: string; setText: (t: s
   return (
     <div className={styles.inField}>
       <SearchField value={text} onChange={e => setText(e.target.value)} placeholder="Search or ask" clearable={false} />
-      <div className={styles.mirror} aria-hidden="true">{parts}</div>
+      {/* One span inside the flex box: a flex container drops text that is only spaces. */}
+      <div className={styles.mirror} aria-hidden="true"><span>{parts}</span></div>
     </div>
   );
 }
