@@ -88,6 +88,7 @@ import RecordsBrowserMockup from './records-browser/page';
 import AdminTeamsMockup from './admin-teams/page';
 import PortalOnboardingMockup from './portal-onboarding/page';
 import PortalSupportMockup from './portal-support/page';
+import AdminLicenseMockup from './admin-license/page';
 import SupportMockup from './support/page';
 import ObservrAgentMockup from './observr-agent/page';
 import FieldProfilesMockup from './field-profiles/page';
@@ -186,6 +187,7 @@ export default function App() {
         <Route path="/admin-teams" element={<AdminTeamsMockup />} />
         <Route path="/portal-onboarding" element={<PortalOnboardingMockup />} />
         <Route path="/portal-support" element={<PortalSupportMockup />} />
+        <Route path="/admin-license" element={<AdminLicenseMockup />} />
         <Route path="/support" element={<SupportMockup />} />
         <Route path="/observr-agent" element={<ObservrAgentMockup />} />
         <Route path="/field-profiles" element={<FieldProfilesMockup />} />

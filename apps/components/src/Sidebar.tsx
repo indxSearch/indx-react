@@ -120,6 +120,7 @@ export const navGroups: NavGroup[] = [
       { label: 'Dataset page', path: '/dataset-page' },
       { label: 'Records browser', path: '/records-browser' },
       { label: 'Admin teams', path: '/admin-teams' },
+      { label: 'Admin license', path: '/admin-license' },
       { label: 'Portal onboarding', path: '/portal-onboarding' },
       { label: 'Portal support', path: '/portal-support' },
       { label: 'Field profiles', path: '/field-profiles' },
