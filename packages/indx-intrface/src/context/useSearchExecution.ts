@@ -104,6 +104,7 @@ export function useSearchExecution({
   const settingsMaxResults = state.searchSettings.maxNumberOfRecordsToReturn;
   const settingsMode = state.searchSettings.mode;
   const settingsRemoveDuplicates = state.searchSettings.removeDuplicates;
+  const settingsRefocus = state.searchSettings.refocus;
   const settingsMatch = state.searchSettings.match;
   const settingsCandidates = state.searchSettings.candidates;
   const settingsRanking = state.searchSettings.ranking;
@@ -187,6 +188,7 @@ export function useSearchExecution({
         const lang = locale ?? pageLanguage();
         if (lang) searchParams.set('locale', lang);
         if (!count) searchParams.set('count', 'false');
+        if (settingsRefocus) searchParams.set('refocus', 'true');
         if (typedRef.current.trim() !== query.trim()) searchParams.set('typed', typedRef.current);
         const postSearch = (body: unknown) =>
           authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/search?${searchParams}`, {
@@ -386,6 +388,7 @@ export function useSearchExecution({
       settingsMaxResults,
       settingsMode,
       settingsRemoveDuplicates,
+      settingsRefocus,
       settingsMatch,
       settingsCandidates,
       settingsRanking,
@@ -528,6 +531,7 @@ export function useSearchExecution({
     settingsMaxResults,
     settingsMode,
     settingsRemoveDuplicates,
+    settingsRefocus,
     settingsMatch,
     settingsCandidates,
     settingsRanking,

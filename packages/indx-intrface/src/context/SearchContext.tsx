@@ -26,6 +26,9 @@ export interface SearchSettings {
   /** The order: the blend, field weights and boosts, boosts and buries. */
   ranking: RankingProxy;
   removeDuplicates: boolean;
+  /** Ask the server to order a search no record holds every word of by the rarest words the records
+   *  hold (`?refocus=true`). useSearchOrAsk sets it while the judge reads a question or a description. */
+  refocus?: boolean;
   minimumScore: number;
   showScore: boolean;
   placeholderText: string;

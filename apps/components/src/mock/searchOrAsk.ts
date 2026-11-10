@@ -3,7 +3,7 @@
  * pages. The judge is a few rules standing in for Jev: a question word or a question mark scores
  * 0.85, three or more words 0.5, anything else 0.2. The answer streams word by word.
  */
-const THRESHOLDS = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5, found: 0.3 };
+const THRESHOLDS = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5, found: 0.3, refocus: 0.4 };
 const QUESTION = /^(how|what|why|where|which|who|when|can|should|does|do|is|are|hvordan|hva|hvorfor|kan)\b/i;
 
 export function mockScore(text: string): number {
@@ -73,7 +73,7 @@ export function mockFetch(ask: AskBehaviour, opts: { enabled?: boolean; slow?: b
       const words = text.trim().split(/\s+/).length;
       const p = (mode === 'proactive' || mode === 'inviting') && words < 4 ? Math.min(mockScore(text), 0.5) : mockScore(text);
       // The mock reads a request as finished from four words, as the mock is sure of a question.
-      return json({ p, answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120, mode, finished: words >= 4 ? 0.9 : 0.2, found });
+      return json({ p, answerable: null, offer: 'none', thresholds: THRESHOLDS, cached: false, ms: 120, mode, finished: words >= 4 ? 0.9 : 0.2, found, refocus: p >= THRESHOLDS.refocus });
     }
     if (url.endsWith('/documents/lookup')) {
       const keys = JSON.parse(String(init.body)) as number[];

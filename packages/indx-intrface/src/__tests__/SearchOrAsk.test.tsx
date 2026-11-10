@@ -152,6 +152,38 @@ describe('useSearchOrAsk', () => {
     expect(result.current.sor.strictCoverage).toBe(false);
   });
 
+  it('refocuses the search on the judge\'s word, keeps it while the question is typed on, and lets go on a new text', async () => {
+    settings(true);
+    // The judge says refocus from 0.4 (thresholds.refocus); typing on keeps it; a new text the judge
+    // reads as a lookup lets go.
+    const scores: Record<string, number> = { 'what film has a rat in paris': 0.9, 'what film has a rat in paris and a chef': 0.35, 'ratatouille': 0.05 };
+    server.use(http.post(`${SOA}/intent`, async ({ request }) => {
+      const { text } = await request.json() as { text: string };
+      const p = scores[text] ?? 0;
+      return HttpResponse.json({ p, answerable: null, offer: 'none', thresholds: { ...DEFAULT_THRESHOLDS, refocus: 0.4 },
+        cached: false, ms: 1, finished: 0.9, refocus: p >= 0.4 });
+    }));
+    const { result } = renderHook(() => useBoth(), { wrapper });
+    await waitFor(() => expect(result.current.ctx.isFetchingInitial).toBe(false));
+    await waitFor(() => expect(result.current.sor.available).toBe(true));
+    expect(result.current.ctx.state.searchSettings.refocus).toBeFalsy();
+
+    act(() => result.current.ctx.setQuery('what film has a rat in paris'));
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.refocus).toBe(true));
+    expect(result.current.sor.refocus).toBe(true);
+
+    // Typed on: the same question, still refocused, every keystroke's search with it.
+    act(() => result.current.ctx.setQuery('what film has a rat in paris and a chef'));
+    await new Promise(r => setTimeout(r, 50));
+    expect(result.current.ctx.state.searchSettings.refocus).toBe(true);
+    expect(result.current.sor.refocus).toBe(true);
+
+    // Another text, judged a lookup: the page's own order again.
+    act(() => result.current.ctx.setQuery('ratatouille'));
+    await waitFor(() => expect(result.current.ctx.state.searchSettings.refocus).toBe(false));
+    expect(result.current.sor.refocus).toBe(false);
+  });
+
   it('gives one word the invitation at most', async () => {
     settings(true);
     judge({ synonyms: 0.9 });

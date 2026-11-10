@@ -38,9 +38,13 @@ export interface OfferThresholds {
   hint?: number | null;
   finished?: number;
   found?: number;
+  /** The list is refocused from this question or description score up (0, off, by default): the
+   *  page's searches ask for `?refocus=true`, a search no record holds every word of ordered by the
+   *  rarest words the records hold. The judgement's own `refocus` says when it is reached. */
+  refocus?: number;
 }
 
-export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5, found: 0.3 };
+export const DEFAULT_THRESHOLDS: OfferThresholds = { strong: 0.65, strongHide: 0.45, invite: 0.4, inviteHide: 0.3, hint: 0.31, finished: 0.5, found: 0.3, refocus: 0 };
 
 // Digits and separators (ISBN, SKU), a dotted member, camel or Pascal case, a code with a digit.
 // The server applies the same rule and answers p 0 without a call; checking here saves the request.

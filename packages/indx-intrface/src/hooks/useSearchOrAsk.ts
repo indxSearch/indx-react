@@ -56,6 +56,13 @@ export interface SearchOrAskState {
   /** The page's searches match whole words only: the offer is strong and the dataset has that rule
    *  on (`strictCoverageWhileAsking`). The hook sets and clears it on the search context itself. */
   strictCoverage: boolean;
+  /** The page's searches ask for `?refocus=true`: the judge read the text as a question or a
+   *  description (the dataset's `thresholds.refocus`), so a search no record holds every word of
+   *  comes back ordered by the rarest words the records hold. Sticky while the visitor types on:
+   *  it stays while the text extends the one judged and the next judgements stay near the line,
+   *  so the list does not flip at every pause. Silent: nothing on the page says so. The hook sets
+   *  and clears it on the search context itself. */
+  refocus: boolean;
   /** On a catalogue, what to do with a description while typing (the dataset's `filtersWhileTyping`):
    *  'off' leaves the list until Ask, 'facets' applies typed facet values at once, 'model' also asks
    *  the filters route for the rest. `useFilterSuggestion({ auto })` acts on it. */
@@ -96,10 +103,14 @@ export type QuickState = 'none' | 'invite' | 'hint' | 'ready' | 'thinking' | 'as
  *  judge's own where the dataset sets none; the defaults are for a value it leaves out. */
 function withDefaults(t?: OfferThresholds): OfferThresholds {
   return { ...DEFAULT_THRESHOLDS, ...t, hint: t?.hint ?? DEFAULT_THRESHOLDS.hint, finished: t?.finished ?? DEFAULT_THRESHOLDS.finished,
-    found: t?.found ?? DEFAULT_THRESHOLDS.found };
+    found: t?.found ?? DEFAULT_THRESHOLDS.found, refocus: t?.refocus ?? DEFAULT_THRESHOLDS.refocus };
 }
 
-const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, found: null, notFound: false, held: false, strictCoverage: false, filtersWhileTyping: 'off', mode: 'soft', askAnytime: false, finished: null, answerNow: null, quick: 'none', stands: false };
+/** How far below the refocus line a judgement may fall while the visitor types on and the list stays
+ *  refocused, as the offers have their hide lines: a question scoring 0.42 then 0.38 is one question. */
+const REFOCUS_HIDE = 0.1;
+
+const IDLE: SearchOrAskState = { available: false, offer: 'none', p: null, answerable: null, text: '', criteria: null, describes: false, found: null, notFound: false, held: false, strictCoverage: false, refocus: false, filtersWhileTyping: 'off', mode: 'soft', askAnytime: false, finished: null, answerNow: null, quick: 'none', stands: false };
 
 /**
  * Decides, while the visitor types, whether to offer an answer beside the results. Reads the
@@ -263,15 +274,15 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const { code } = await res.json().catch(() => ({})) as { code?: string };
           if (code === 'searchOrAskBudgetSpent' && mine === seq.current) {
             setSpentUntil(quietUntil.current);
-            setState(s => ({ ...s, offer: 'none', answerNow: null, strictCoverage: false, notFound: false }));
+            setState(s => ({ ...s, offer: 'none', answerNow: null, strictCoverage: false, refocus: false, notFound: false }));
           }
           return;
         }
         // Switched off since the settings were read (409), or not shown on the dataset (404).
         if (res.status === 409 || res.status === 404) { setAvailable(false); return; }
         if (!res.ok) return;
-        const { p, answerable, criteria, finished: fin, found: fnd, reason, thresholds: judged, strictCoverageWhileAsking: strict, filtersWhileTyping: fwt, mode: m } = await res.json() as
-          { p: number; answerable?: number | null; criteria?: number | null; finished?: number | null; found?: number | null; reason?: string | null; thresholds?: OfferThresholds; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; mode?: SearchOrAskMode };
+        const { p, answerable, criteria, finished: fin, found: fnd, reason, thresholds: judged, strictCoverageWhileAsking: strict, filtersWhileTyping: fwt, mode: m, refocus: rf } = await res.json() as
+          { p: number; answerable?: number | null; criteria?: number | null; finished?: number | null; found?: number | null; reason?: string | null; thresholds?: OfferThresholds; strictCoverageWhileAsking?: boolean; filtersWhileTyping?: 'off' | 'facets' | 'model'; mode?: SearchOrAskMode; refocus?: boolean };
         if (fwt != null) filtersWhileTyping.current = fwt;
         if (mine !== seq.current) return; // a newer pause has asked since
         // The rules travel with every judgement, so an editor's change applies on the next pause.
@@ -299,11 +310,17 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
           const asking = final === 'strong' && !(describes && c! > p);
           const found = fnd ?? null;
           const foundLine = thresholds.current.found ?? 0;
+          // Refocus enters on the judge's word, and stays while the visitor types on from the text
+          // it was given and the judgements stay near the line; a changed text waits for its own.
+          const refocusLine = thresholds.current.refocus ?? 0;
+          const keepsRefocus = s.refocus && refocusLine > 0 && !!s.text && text.startsWith(s.text)
+            && Math.max(p, c ?? 0) >= refocusLine - REFOCUS_HIDE;
           return { available: true, offer: final, p, answerable: answerable ?? null, text, criteria: c, describes,
             found, notFound: asking && found != null && foundLine > 0 && found < foundLine,
             // The provider refuses answers for now: the server answered p 0, and nothing is offered.
             held: reason === 'paused',
             strictCoverage: strictWhileAsking.current && asking,
+            refocus: !!rf || keepsRefocus,
             filtersWhileTyping: filtersWhileTyping.current, mode: mode.current, askAnytime: false, quick: 'none',
             finished: fin ?? null,
             answerNow: mode.current === 'proactive' && final === 'strong' && isFinished(fin) ? text : null, stands: true };
@@ -343,11 +360,19 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     }
   }, [strictOn]);
 
+  // Refocus goes on the page's own searches while the judgement holds for the text in the field, and
+  // comes off when it does not; each change is a search, so the list reorders once on the judge's
+  // word and keeps that order while the question is typed on.
+  const refocusOn = available && state.refocus && !state.held && spentUntil === 0 && !!state.text && text.startsWith(state.text);
+  useEffect(() => {
+    ctxRef.current.setSearchSettings({ refocus: refocusOn });
+  }, [refocusOn]);
+
   if (!available) return IDLE;
   const m = mode.current;
   const stands = !!state.text && text.startsWith(state.text);
   const held = state.held || spentUntil > 0;
-  if (held) return { ...state, mode: m, held, offer: 'none', askAnytime: false, answerNow: null, quick: 'none', notFound: false, strictCoverage: false, stands };
+  if (held) return { ...state, mode: m, held, offer: 'none', askAnytime: false, answerNow: null, quick: 'none', notFound: false, strictCoverage: false, refocus: false, stands };
   const sweeps = m === 'inviting' || m === 'proactive';
   // Proactive's sure offer on the text in the field: it answers on its own, so it thinks rather
   // than offering a button; on a text that stops on "is", it is still a hint to type on.
@@ -362,7 +387,7 @@ export function useSearchOrAsk(options: UseSearchOrAskOptions = {}): SearchOrAsk
     : hinted ? 'hint'
     : m === 'open' || sweeps ? 'ask'
     : 'none';
-  return { ...state, mode: m, askAnytime: m === 'open' || sweeps,
+  return { ...state, refocus: refocusOn, mode: m, askAnytime: m === 'open' || sweeps,
     answerNow: ripe !== null && ripe === text && state.answerNow === text ? ripe : null,
     // A hint from the shape alone is about what is in the field, which no judgement has named yet.
     text: (quick === 'hint' || quick === 'ask') && !stands ? text : state.text,

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { AskPanel, QuickAnswer, SearchInput, SearchResults, useSearchOrAsk } from '@indxsearch/intrface';
+import { AskPanel, QuickAnswer, SearchInput, SearchResults, useSearchContext, useSearchOrAsk } from '@indxsearch/intrface';
 import { MockSearchProvider } from '../mock/MockSearchProvider';
 import { mockFetch, type AskBehaviour, type IntentBehaviour } from '../mock/searchOrAsk';
 import styles from '../search-input/page.module.css';
@@ -22,6 +22,13 @@ function Row({ title, when, children }: { title: string; when: ReactNode; childr
       <div className={styles.cell}>{children}</div>
     </>
   );
+}
+
+/** Whether the page's searches ask for refocus (`?refocus=true`): set by useSearchOrAsk on the judge's
+ *  word, kept while the question is typed on. Silent on a visitor's page; shown here to watch it. */
+function RefocusState() {
+  const { state } = useSearchContext();
+  return <span style={{ font: 'var(--text-xs)', color: 'var(--lv5)' }}>Searches {state.searchSettings.refocus ? 'ask for refocus' : 'are not refocused'} (not shown to visitors)</span>;
 }
 
 /** A search field and the answer under it, as a page would put them. */
