@@ -2,14 +2,24 @@ import styles from './ScrubSlider.module.css';
 import React from 'react';
 import { InputField } from '../InputField/InputField';
 
-// A slider with no end. A ruler of ticks scrolls under a fixed handle in the middle: dragging it
-// left or right moves the value by one step per tick, as far as the drag goes, and the number
+// A slider with no end. A ruler of ticks scrolls under a fixed handle in the middle and moves with
+// the hand: dragging it right brings lower values under the handle, left higher ones, one step per
+// tick, as far as the drag goes, and the number
 // field at the right shows and takes the value. For a quantity with no natural range (a
 // threshold, an offset, a count), where a bar from min to max would have to invent one.
 
 // Pixels of drag per step. Every fifth tick is a major one.
 const TICK_SPACING = 8;
 const MAJOR_EVERY = 5;
+
+/** A value marked on the ruler: a line where it stands, scrolling with the ticks. A tone colours it,
+ *  for a value that changes what the setting does (0 switching a weight off). */
+export interface ScrubSliderMark {
+  value: number;
+  tone?: 'warning' | 'signal';
+  /** What the mark means, read by a screen reader with the slider's value text. */
+  label?: string;
+}
 
 export interface ScrubSliderProps {
   value: number;
@@ -31,6 +41,8 @@ export interface ScrubSliderProps {
   className?: string;
   'aria-label'?: string;
   id?: string;
+  /** Values marked on the ruler. */
+  marks?: ScrubSliderMark[];
 }
 
 export const ScrubSlider: React.FC<ScrubSliderProps> = ({
@@ -47,6 +59,7 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
   className,
   'aria-label': ariaLabel,
   id,
+  marks,
 }) => {
   const generatedId = React.useId();
   const fieldId = id || generatedId;
@@ -99,8 +112,11 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
       const d = drag.current;
       if (!d) return;
       const { value, onChange, clamp, step } = latest.current;
+      // The ruler moves with the hand, as a tape does: dragging right pulls the lower values in
+      // under the handle. Until Nov 2026 a drag right raised the value, which slid the ticks left,
+      // against the finger. The arrow keys keep Right for up, as on any slider.
       const ticks = Math.round((ev.clientX - d.x) / TICK_SPACING);
-      const next = clamp(d.value + ticks * step);
+      const next = clamp(d.value - ticks * step);
       if (ticks !== 0) d.moved = true;
       if (next !== value) onChange(next);
     };
@@ -189,6 +205,7 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
         tabIndex={disabled ? -1 : 0}
         aria-label={ariaLabel || label}
         aria-valuenow={value}
+        aria-valuetext={marks?.find((m) => m.value === value)?.label ? `${value}, ${marks.find((m) => m.value === value)!.label}` : undefined}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-disabled={disabled || undefined}
@@ -197,6 +214,14 @@ export const ScrubSlider: React.FC<ScrubSliderProps> = ({
         onBlur={() => setKeyboardFocus(false)}
       >
         <div className={styles.ticks} aria-hidden="true" />
+        {marks?.map((m) => (
+          <div
+            key={m.value}
+            className={`${styles.mark} ${m.tone === 'warning' ? styles.markWarning : m.tone === 'signal' ? styles.markSignal : ''}`}
+            style={{ left: `calc(50% + ${toPx(m.value)}px)` }}
+            aria-hidden="true"
+          />
+        ))}
         <div className={styles.handle} aria-hidden="true" />
       </div>
       <InputField

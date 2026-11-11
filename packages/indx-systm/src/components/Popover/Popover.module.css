@@ -7,7 +7,8 @@
   border-radius: var(--radius);
   background: var(--lv2);
   color: var(--lv8);
-  z-index: 1000;
+  /* Over a Modal (1000, its content 1001), so a menu opened inside a dialog shows. */
+  z-index: 1100;
   outline: none;
   animation-duration: 0s !important;
 }

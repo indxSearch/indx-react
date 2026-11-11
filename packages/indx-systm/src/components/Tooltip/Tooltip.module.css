@@ -3,11 +3,16 @@
   color: var(--lv6);
   font: var(--text-xs);
   font-weight: var(--med);
-  white-space: nowrap;
+  /* As wide as its words up to 240px, then it wraps: a tooltip that explains with an example
+     was one line across the screen. The Blazor Tooltip's measure (284b9e99). */
+  width: max-content;
+  max-width: min(240px, calc(100vw - 32px));
+  white-space: normal;
   padding: 4px 8px;
   border-radius: 0;
   pointer-events: none;
-  z-index: 100;
+  /* Over a Modal (1000, its content 1001): a label's tooltip inside a dialog drew behind it. */
+  z-index: 1100;
 }
 
 .arrow {

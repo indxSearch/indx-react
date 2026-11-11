@@ -101,7 +101,8 @@
   background: var(--lv2);
   border-radius: var(--radius);
   padding: 6px;
-  z-index: 1000;
+  /* Over a Modal (1000, its content 1001), so a menu opened inside a dialog shows. */
+  z-index: 1100;
 }
 
 .viewport {

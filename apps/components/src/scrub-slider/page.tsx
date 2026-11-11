@@ -9,14 +9,16 @@ export default function ScrubSliderPage() {
   const [offset, setOffset] = useState(0);
   const [gain, setGain] = useState(1.5);
   const [last, setLast] = useState<number | null>(null);
+  const [weight, setWeight] = useState(0.5);
 
   return (
     <main className={styles.main}>
       <div className={styles.section}>
         <h1 className={styles.title}>ScrubSlider</h1>
         <p className={styles.desc}>
-          A slider with no end. A ruler of ticks scrolls under a fixed handle: drag it as far as you like, one step
-          per tick, Shift and the arrow keys for ten. The number field at the right shows the value and takes one
+          A slider with no end. A ruler of ticks scrolls under a fixed handle and moves with your hand, as a tape
+          does: drag it right for lower values, left for higher, as far as you like, one step per tick. The arrow
+          keys step it, Shift for ten. The number field at the right shows the value and takes one
           typed. For quantities with no natural range, where a bar from min to max would have to invent one.
         </p>
       </div>
@@ -47,6 +49,18 @@ export default function ScrubSliderPage() {
           />
         </div>
         <p className={styles.valueDisplay}>Intensity last committed: {last ?? 'nothing yet'}</p>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.heading}>Marks</h2>
+        <p className={styles.desc}>
+          <code>marks</code> draws a line at a value, scrolling with the ruler. A tone colours one that changes what the
+          setting does: a rerank weight of 0 switches the field off, so 0 is marked as a warning.
+        </p>
+        <div className={styles.stack}>
+          <ScrubSlider labelWidth="80px" label="Weight" value={weight} onChange={setWeight} min={0} step={0.1}
+            marks={[{ value: 0, tone: 'warning', label: 'switched off' }]} />
+        </div>
       </div>
 
       <div className={styles.section}>

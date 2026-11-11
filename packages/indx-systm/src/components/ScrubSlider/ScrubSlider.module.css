@@ -55,14 +55,36 @@
   pointer-events: none;
 }
 
-/* The handle stays put in the middle: 2px, 60% of the height, in the ink. */
+/* A marked value: a line taller than a major tick, scrolling with the ruler, under the handle. In
+   the faint ink unless a tone says the value changes what the setting does. */
+.mark {
+  position: absolute;
+  top: 10%;
+  width: 2px;
+  height: 80%;
+  background-color: var(--lv5);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.markWarning {
+  background-color: var(--CWarning);
+}
+
+.markSignal {
+  background-color: var(--CSignal);
+}
+
+/* The handle stays put in the middle: 2px, 60% of the height, in --CPositive (pure blue on light,
+   teal on dark), so it reads as where the value is and a mark on the ruler does not. Until Nov 2026
+   it was the ink, and a coloured mark beside it looked like the cursor. */
 .handle {
   position: absolute;
   top: 20%;
   left: 50%;
   width: 2px;
   height: 60%;
-  background-color: var(--lv7);
+  background-color: var(--CPositive);
   border-radius: var(--radius);
   transform: translateX(-50%);
   pointer-events: none;

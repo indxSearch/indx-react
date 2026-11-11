@@ -13,7 +13,7 @@ export { ToggleSwitch } from './components/ToggleSwitch/ToggleSwitch';
 export { Slider } from './components/Slider/Slider';
 export type { StepMarks } from './components/Slider/Slider';
 export { BarSlider, type BarSliderProps, type BarSliderSize } from './components/BarSlider/BarSlider';
-export { ScrubSlider, type ScrubSliderProps } from './components/ScrubSlider/ScrubSlider';
+export { ScrubSlider, type ScrubSliderProps, type ScrubSliderMark } from './components/ScrubSlider/ScrubSlider';
 export { SliderField, type SliderFieldProps } from './components/SliderField/SliderField';
 export { HistogramRange, barsOf, type HistogramRangeProps, type HistogramRangeValue, type HistogramBar } from './components/HistogramRange/HistogramRange';
 export { Select, type SelectOption, type SelectProps } from './components/Select/Select';
