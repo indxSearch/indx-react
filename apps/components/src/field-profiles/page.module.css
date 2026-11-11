@@ -1,14 +1,15 @@
 .main { padding: 2rem; display: flex; flex-direction: column; gap: 2rem; max-width: 1100px; }
 .section { display: flex; flex-direction: column; gap: 0.75rem; }
 .pageTitle { font: var(--text-2xl); margin: 0; }
-.heading { font: var(--text-lg); margin: 0; }
+.heading { font: var(--text-lg); margin: 0; display: flex; align-items: center; gap: 10px; }
 .desc { font: var(--text-base); color: var(--lv5); margin: 0; max-width: 72ch; }
 .note { font: var(--text-sm); color: var(--lv5); margin: 0; max-width: 72ch; }
 .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
-.check { width: 84px; text-align: center !important; }
+.check { width: 120px; text-align: center !important; }
 .num { width: 84px; text-align: right !important; }
-.profileCol { width: 190px; }
+.profileCol { width: 230px; }
+.profileCell { display: flex; align-items: center; gap: 4px; }
 .editCol { width: 80px; text-align: right !important; }
 .fieldName { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 200px; }
 .type { display: inline-flex; align-items: center; gap: 6px; font: var(--text-xs); color: var(--lv5); }
@@ -43,3 +44,47 @@
   .main { padding: 1rem; }
   .row2 { grid-template-columns: 1fr; }
 }
+
+
+/* The profiles as the console's field cards on a phone (FieldConfigTable's .indx-field-card):
+   neighbours share a border, so the list reads as one surface. */
+.cards { display: flex; flex-direction: column; }
+.card { min-width: 0; border: 0.5px solid var(--lv3); background: var(--lv1); }
+.card + .card { margin-top: -0.5px; }
+.cardSummary { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 4px 0; }
+.cardTitle { display: flex; align-items: center; gap: 8px; font: var(--text-sm); font-weight: var(--med); }
+.cardState { font: var(--text-xs); font-weight: var(--book); color: var(--lv5); }
+/* An open card is its own editor, laid out as the modal's form but wider. */
+.cardForm { display: flex; flex-direction: column; gap: 20px; padding: 12px 15px 16px; max-width: 760px; }
+
+/* The mockup's own control, set apart from the page it switches. */
+.variantBar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border: 0.5px dashed var(--lv3); border-radius: var(--radius); }
+
+/* Variant D: the name and its description edited in the first cell, the description a step fainter. */
+.gridName { min-width: 220px; }
+.gridAbout { font: var(--text-xs); color: var(--lv5); }
+
+/* A label with a tooltip: dotted underline and the help cursor, as the console's
+   .indx-stat-label--hint. */
+.hinted { cursor: help; border-bottom: 1px dotted var(--lv3); }
+.hinted:focus-visible { outline: 2px solid var(--lv5); outline-offset: 2px; }
+/* The open Advanced section: the form's own rhythm, set in from the disclosure's edges. */
+.advanced { display: flex; flex-direction: column; gap: 20px; padding: 12px 16px 16px; }
+.legend { display: flex; align-items: center; }
+
+/* Tolerance as a step slider, the step names under the marks: first left, last right. */
+.steps { display: flex; flex-direction: column; gap: 6px; }
+/* Three equal columns, so the middle name sits under the middle mark whatever the names' widths:
+   space-between centred it between its neighbours, and "Exact" is shorter than "TwoEdits". */
+.stepLabels { display: grid; grid-template-columns: 1fr 1fr 1fr; font: var(--text-xs); color: var(--lv5); }
+.stepLabels > :nth-child(2) { text-align: center; }
+.stepLabels > :last-child { text-align: right; }
+.stepOn { color: var(--lv8); font-weight: var(--med); }
+
+/* What a setting at 0 does, said with the warning icon in its own colour; the text stays in the ink. */
+.warning { display: flex; align-items: flex-start; gap: 8px; margin: 0; font: var(--text-xs); color: var(--lv7); }
+.warning svg { flex: none; margin-top: 1px; }
+
+/* A row's note in place of its controls, as the console's .indx-group-note ("Not configurable",
+   "Configured on the nested fields below"): the same size, weight and tone. */
+.groupNote { font: var(--text-xs); font-weight: var(--book); color: var(--lv4); }
