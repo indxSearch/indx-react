@@ -130,6 +130,33 @@ describe('search', () => {
     expect(result.current.state.results![0].document).toEqual(DOCUMENTS[0]);
   });
 
+  it('asks for the records with the search, and looks them up only from a server that did not send them', async () => {
+    // 6.0 (11 Nov 2026): includeDocuments puts the records in the search's answer, one call per
+    // keystroke. The fixtures' plain search answer is an older server's, which the lookup serves.
+    const sent: unknown[] = [];
+    let lookups = 0;
+    server.use(
+      http.post('http://localhost/api/teams/team/datasets/test/search', async ({ request }) => {
+        const body = await request.json() as { includeDocuments?: boolean };
+        sent.push(body.includeDocuments);
+        return HttpResponse.json({ ...SEARCH_RESPONSE, documents: [{ id: 1, title: 'Sent along' }, DOCUMENTS[1]] });
+      }),
+      http.post('http://localhost/api/teams/team/datasets/test/documents/lookup', () => {
+        lookups++;
+        return HttpResponse.json(DOCUMENTS);
+      }),
+    );
+    const { result } = setup();
+    await waitForAuth(result);
+
+    act(() => result.current.setQuery('shoes'));
+
+    await waitFor(() => expect(result.current.state.results).toHaveLength(2));
+    expect(sent.at(-1)).toBe(true);
+    expect(result.current.state.results![0].document).toEqual({ id: 1, title: 'Sent along' });
+    expect(lookups).toBe(0);
+  });
+
   it('shows isLoading while a search is in flight', async () => {
     server.use(
       http.post('http://localhost/api/teams/team/datasets/test/search', async () => {

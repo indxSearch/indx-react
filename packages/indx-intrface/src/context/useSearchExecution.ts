@@ -168,6 +168,9 @@ export function useSearchExecution({
           ...commonBody,
           maxNumberOfRecordsToReturn: shouldFetchResults ? settingsMaxResults : 0,
           enableFacets,
+          // The records' JSON in the search's own answer (6.0, 11 Nov 2026): one call per
+          // keystroke instead of a search and a documents/lookup. An older server ignores it.
+          ...(shouldFetchResults ? { includeDocuments: true } : {}),
           ...(filterProxy ? { filter: filterProxy } : {}),
           ...(sortBy ? { sortBy } : {}),
           ...(sortAscending !== undefined ? { sortAscending } : {}),
@@ -248,15 +251,22 @@ export function useSearchExecution({
 
         let combinedResults: any[] = [];
         if (shouldFetchResults && keys.length > 0) {
-          const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(keys),
-          });
-          if (!jsonResponse.ok) {
-            throw await IndxApiError.fromResponse('Document lookup', jsonResponse);
+          // A server that sent the records with the search needs no lookup; one that did not
+          // (before 6.0) is asked for them as before.
+          let documentsData: any[];
+          if (Array.isArray(searchData.documents) && searchData.documents.length === keys.length) {
+            documentsData = searchData.documents;
+          } else {
+            const jsonResponse = await authenticatedFetch(`${url}/api/teams/${team}/datasets/${dataset}/documents/lookup`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(keys),
+            });
+            if (!jsonResponse.ok) {
+              throw await IndxApiError.fromResponse('Document lookup', jsonResponse);
+            }
+            documentsData = await jsonResponse.json();
           }
-          const documentsData = await jsonResponse.json();
           combinedResults = documentsData.map((doc: any, idx: number) => ({
             document: doc,
             documentKey: keys[idx],
