@@ -1,4 +1,4 @@
-import { FilterExpressionErrorDetail } from './filters';
+import { FilterExpressionErrorDetail } from './filters.js';
 
 /**
  * Machine-readable error code carried by every Indx error response, as the `code`

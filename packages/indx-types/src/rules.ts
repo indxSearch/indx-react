@@ -1,6 +1,6 @@
-import { BoostStrength, BuryStrength, SearchMode } from './enums';
-import { CandidateSetup, MatchSetup, RankingProxy } from './query';
-import { Tolerance } from './enums';
+import { BoostStrength, BuryStrength, SearchMode } from './enums.js';
+import { CandidateSetup, MatchSetup, RankingProxy } from './query.js';
+import { Tolerance } from './enums.js';
 
 /** A condition of a saved boost or bury rule: a value, or a range on a number field. */
 export interface RuleCondition {

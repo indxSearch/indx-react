@@ -1,4 +1,4 @@
-import { SynonymDirection } from './enums';
+import { SynonymDirection } from './enums.js';
 
 /**
  * One synonym rule: a set of terms plus the direction they expand in. Multi-word terms are

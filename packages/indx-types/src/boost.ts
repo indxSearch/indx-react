@@ -1,5 +1,5 @@
-import { BoostStrength, BuryStrength } from './enums';
-import { FilterProxy } from './filters';
+import { BoostStrength, BuryStrength } from './enums.js';
+import { FilterProxy } from './filters.js';
 
 export interface BoostProxy {
   boostStrength: BoostStrength;

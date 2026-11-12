@@ -1,5 +1,5 @@
-import { SystemState } from './enums';
-import { ProcessErrorCount, ProcessError } from './errors';
+import { SystemState } from './enums.js';
+import { ProcessErrorCount, ProcessError } from './errors.js';
 
 export interface LicenseInfo {
   licensed: boolean;

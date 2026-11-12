@@ -1,13 +1,14 @@
-import { StringInt32KeyValuePair } from './common';
-import { SystemState, Tolerance } from './enums';
-import { ProcessError } from './errors';
+import { StringInt32KeyValuePair } from './common.js';
+import { SystemState, Tolerance } from './enums.js';
+import { ProcessError } from './errors.js';
+import { IndxProblem } from './problem.js';
 
 export interface ScoreEntry {
   documentKey: number;
   score: number;
 }
 
-/** How Coverage met a query word in a record. */
+/** How a query word was met in a record. */
 export type WordMatch =
   | 'NotFound' | 'Whole' | 'Prefix' | 'Suffix' | 'Joined' | 'RunTogether' | 'OneEdit' | 'TwoEdits' | 'ThreeEdits' | 'Synonym' | number;
 
@@ -51,9 +52,27 @@ export interface ToleranceCounts {
   throughSynonym?: number | null;
 }
 
-export interface Result {
+/** A number field's values in the set the facets are counted over (result.facetStats): the lowest,
+ * the highest, and how many records hold one; `count` is null for an array field, whose records can
+ * hold several values. */
+export interface FacetStats {
+  min: number;
+  max: number;
+  count?: number | null;
+}
+
+export interface Result<TDocument = Record<string, unknown>> {
   records?: ScoreEntry[] | null;
   facets?: { [key: string]: StringInt32KeyValuePair[] } | null;
+  /** Per number field among the facets: its lowest and highest value and how many records hold one. */
+  facetStats?: { [field: string]: FacetStats } | null;
+  /** With query.includeDocuments: each record's JSON, as an object, in the order of `records`;
+   * null for a record deleted since. Type it with a generic when the shape is known:
+   * `Result<Book>`. */
+  documents?: Array<TDocument | null> | null;
+  /** The names of the cold storage each listed record holds, by record key, where any does and the
+   * caller's key may read it. Absent when none does. */
+  cold?: { [documentKey: string]: string[] } | null;
   didTimeOut: boolean;
   /** Set when the search was refused rather than finding nothing. */
   reason?: ProcessError | null;
@@ -81,7 +100,7 @@ export interface Result {
 }
 
 /** A {@link Result} of a search with `measureFit`: how well the results explain the text. */
-export interface QueryFitResult extends Result {
+export interface QueryFitResult<TDocument = Record<string, unknown>> extends Result<TDocument> {
   /** Share of the query's weight (its words' IDF) the best explaining result explains, 0 to 1. */
   explainedShare: number;
   /** Share carried by informative words no result explains, 0 to 1. */
@@ -89,3 +108,18 @@ export interface QueryFitResult extends Result {
   explainedWords: string[];
   unexplainedWords: string[];
 }
+
+/** One answer of `POST .../search/multi`, in the place of its search: a {@link Result} with the
+ * `queryId` a single search sends as the `Indx-Query-Id` header, or the failure of that search
+ * alone, with the status and problem a single search would have had. */
+export type MultiSearchAnswer<TDocument = Record<string, unknown>> =
+  | (Result<TDocument> & { queryId?: string | null })
+  | MultiSearchFailure;
+
+export interface MultiSearchFailure {
+  status: number;
+  error: IndxProblem;
+}
+
+/** The most searches one `search/multi` call takes. */
+export const MAX_SEARCHES_PER_MULTI = 20;

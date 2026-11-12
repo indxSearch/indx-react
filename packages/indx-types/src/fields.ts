@@ -1,4 +1,4 @@
-import { Tolerance } from './enums';
+import { Tolerance } from './enums.js';
 
 export interface FieldProxy {
   fieldName: string;
@@ -29,9 +29,10 @@ export interface FieldProxy {
   bM25b?: number | null;
   /** Per-field term-frequency saturation parameter k1. Typical 1.0–2.0. */
   bM25k1?: number | null;
-  /** The most a word may differ by in the field: Exact, OneEdit (the default), TwoEdits, ThreeEdits; a search's match.tolerance caps it. Until 6.0 coverageStrictness. */
+  /** The most a word may differ by in the field: Exact, OneEdit (the default), TwoEdits, ThreeEdits; a search's match.tolerance caps it. */
   tolerance?: Tolerance | null;
-  /** The field's weight in Coverage against the heaviest field; 0 leaves it out of Coverage (until 6.0 coverageStrictness None). */
+  /** The field's weight in the reranker (ranking.rerank) against the heaviest field; 0 leaves it
+   * out of the reranker and the word lookup. */
   rerankWeight?: number | null;
   caseSensitive?: boolean | null;
   /** From how many letters the word being typed matches the start of a longer word in this

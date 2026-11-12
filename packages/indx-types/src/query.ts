@@ -1,6 +1,6 @@
-import { FilterProxy } from './filters';
-import { BoostProxy, BuryProxy } from './boost';
-import { IndexTerms, Rungs, SearchMode, Tolerance } from './enums';
+import { FilterProxy } from './filters.js';
+import { BoostProxy, BuryProxy } from './boost.js';
+import { IndexTerms, Rungs, SearchMode, Tolerance } from './enums.js';
 
 /** What counts as a hit. Every member optional: a member left out is the server's default. */
 export interface MatchSetup {
@@ -44,17 +44,17 @@ export interface CandidateSetup {
 
 /** The order inside the rungs, with the boosts and buries as the tokens their endpoints give. */
 export interface RankingProxy {
-  /** Whether Coverage reranks the candidates, in either mode. Default true. */
+  /** Whether the reranker orders the candidates by how their words were met, in either mode. Default true. */
   rerank?: boolean;
-  /** Coverage's share of the score, 0 to 1. Default 0.2. */
+  /** The reranker's share of the score, 0 to 1. Default 0.2. */
   share?: number;
-  /** How far the share moves towards Coverage while the last word is typed. Default 0.5. */
+  /** How far the share moves towards the reranker while the last word is typed. Default 0.5. */
   typingShift?: number;
   longFieldFrom?: number;
   longFieldWeightFloor?: number;
   /** The whole query in a field floors the score. Default true. */
   wholeQueryFloor?: boolean;
-  /** Per field, its Coverage weight in this search. */
+  /** Per field, its reranker weight in this search. */
   fieldWeights?: Record<string, number> | null;
   /** Per field, a boost inside BM25F's saturation. */
   fieldBoosts?: Record<string, number> | null;
@@ -67,7 +67,10 @@ export interface RankingProxy {
 export interface QueryProxy {
   text?: string | null;
   maxNumberOfRecordsToReturn?: number;
-  /** Default Coverage. */
+  /** How many ranked records to pass over before the first returned: page while `offset` is below
+   * the result's `ranked`. Default 0. */
+  offset?: number;
+  /** EditDistance or Bm25f. Left out: the dataset's mode, else EditDistance. */
   mode?: SearchMode;
   /** Null or left out: the defaults. */
   match?: MatchSetup | null;
@@ -76,6 +79,14 @@ export interface QueryProxy {
   /** Return `matchReport`, in any mode: how each query word was met in each record. */
   enableMatchReport?: boolean;
   enableFacets?: boolean;
+  /** The facetable fields to count; empty or left out counts every one. */
+  facetFields?: string[] | null;
+  /** The most values per facet field, the commonest first; 0 or left out returns them all.
+   * `facetStats` is of every value counted either way. */
+  facetValueLimit?: number;
+  /** The records' JSON comes with the result, in `documents`, in the order of `records`: one call
+   * instead of a search and a lookup. Default false. */
+  includeDocuments?: boolean;
   removeDuplicates?: boolean;
   sortAscending?: boolean;
   sortBy?: string | null;

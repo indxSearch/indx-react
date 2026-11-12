@@ -2,14 +2,14 @@
 export {
   SystemState, BoostStrength, BuryStrength, SynonymDirection,
   SearchMode, Tolerance, Rungs, IndexTerms
-} from './enums';
-export { JsonErrorType } from './errors';
+} from './enums.js';
+export { JsonErrorType } from './errors.js';
 
 // Auth
-export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth';
+export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth.js';
 
 // Query
-export { QueryProxy, MatchSetup, CandidateSetup, RankingProxy } from './query';
+export { QueryProxy, MatchSetup, CandidateSetup, RankingProxy } from './query.js';
 
 // Filters
 export {
@@ -24,38 +24,44 @@ export {
   FilterExpressionErrorDetail,
   UpdateFieldProxy,
   FilterFieldUpdateProxy
-} from './filters';
+} from './filters.js';
 
 // Saved rules, query parameters and field profiles
 export {
   RuleCondition, BoostRule, BuryRule, DatasetQueryParameters, QueryParametersResponse,
   FieldProfile, FieldProfileView, FieldProfilesResponse, FieldProfilesRequest
-} from './rules';
+} from './rules.js';
 
 // Boost
-export { BoostProxy, BuryProxy } from './boost';
+export { BoostProxy, BuryProxy } from './boost.js';
 
 // Synonyms
-export { SynonymList, SynonymEntry } from './synonyms';
+export { SynonymList, SynonymEntry } from './synonyms.js';
 
 // Vector / Hybrid search
-export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector';
+export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vector.js';
 
 // Result
-export { Result, QueryFitResult, ScoreEntry, ToleranceCounts, PageFill, MatchReport, RecordMatch, QueryWordMatch, WordMatch } from './result';
+export {
+  Result, QueryFitResult, ScoreEntry, ToleranceCounts, PageFill, MatchReport, RecordMatch, QueryWordMatch, WordMatch,
+  FacetStats, MultiSearchAnswer, MultiSearchFailure, MAX_SEARCHES_PER_MULTI
+} from './result.js';
+
+// Cold storage
+export { ColdVisibility, ColdWrite, ColdBatchItem, ColdBatchOutcome, ColdView } from './cold.js';
 
 // Status
-export { SystemStatus, LicenseInfo } from './status';
+export { SystemStatus, LicenseInfo } from './status.js';
 
 // Errors
-export { ParseResult, ProcessError, ProcessErrorCount } from './errors';
-export { IndxProblem, IndxProblemCode } from './problem';
+export { ParseResult, ProcessError, ProcessErrorCount } from './errors.js';
+export { IndxProblem, IndxProblemCode } from './problem.js';
 
 // Fields
-export { FieldProxy } from './fields';
+export { FieldProxy } from './fields.js';
 
 // Datasets
-export { DataSetListDto } from './datasets';
+export { DataSetListDto } from './datasets.js';
 
 // Common
-export { StringInt32KeyValuePair, StringSingleValueTuple } from './common';
+export { StringInt32KeyValuePair, StringSingleValueTuple } from './common.js';

@@ -1,4 +1,4 @@
-import { FilterProxy } from './filters';
+import { FilterProxy } from './filters.js';
 
 export interface VectorQueryProxy {
   fieldName?: string | null;
