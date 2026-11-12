@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.25.0-beta.0
+
+### Minor Changes
+
+- c4f1ecb: Chip can be a toggle: with `onClick` it is a button, and `selected` shows it picked.
+- a880596: HistogramRange: a range over a number field's values, picked by dragging across their histogram
+  or typed in the from and to fields under it.
+- c3d895c: InputField has a `ghost` variant: no border until it is hovered or focused, for a value that sits
+  inline, such as a number beside its slider.
+- 1ba5cc7: Sidebar: `railFooter`, what the foot shows when the column is folded to a rail (the footer is hidden there), such as a small progress ring.
+- 9bd6669: SliderField: a slider and the number it holds, side by side. The slider moves in its steps; the
+  number takes any value, typed or stepped with the arrow keys. The InputField `ghost` variant now
+  shows its border only while it is edited, and a ghost button's tint when hovered.
+- 4829cc7: StepProgress: progress through steps in parts, a thin bar per part as wide as its share of the steps and filled by its own steps done, with optional labels. A part of one step is a plain stepper.
+
+### Patch Changes
+
+- c4ff027: A disabled `Slider` shows as the other disabled controls do: the whole slider dimmed, with its thumb still visible against the fill.
+
 ## 2.24.0
 
 ### Minor Changes

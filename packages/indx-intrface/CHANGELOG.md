@@ -1,5 +1,81 @@
 # Changelog
 
+## 4.0.0-beta.0
+
+### Major Changes
+
+- 1d26629: Search or ask searches what the visitor types. The Ask phrases are gone: the list is no longer rewritten while a question is typed, and the invitation comes from the judge, which reads a question from its first word in any language. `stripAskPhrases` and the `AskPhrases` type are no longer exported.
+- 14cca8a: A page sends only what it sets, so a dataset's query parameters decide the rest (6.0). The provider's
+  `mode` is left out unless the page sets it (the dataset's mode, else EditDistance), and
+  `setSearchSettings({ match: undefined })` (or `candidates`, `ranking`) hands a whole part back to the
+  dataset. The settings panel shows the dataset's values where the page sets none, from
+  `query-parameters`' `effective`. While the offer to ask is strong, the page's searches take
+  `STRICT_MATCH` (`tolerance: Exact`, `typingPrefixFrom: 0`, `joinedWords: false`; was
+  `STRICT_COVERAGE`), and `visibleResults` takes the count of records counted where it took the
+  truncation index.
+- a394c82: The 6.0 wire: a query in three parts. `QueryProxy` takes `mode` (`SearchMode`: `EditDistance`,
+  the default, or `Bm25f`; whether the records are reranked by Coverage is `ranking.rerank`, on by
+  default) and three parts, `match` (`MatchSetup`: tolerance, rungs, the word being
+  typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fallback`, `rest`) and
+  `ranking` (`RankingProxy`: the blend, field weights and boosts, `boosts` and `buries`).
+  `enableCoverage`, `coverageDepth`, `coverageSetup` and the `CoverageSetup` and `CloudQuery` types are
+  gone. Enums are strings, by name, as the server now sends and reads them (`BoostStrength.Med`, was
+  `Medium`). `Result` loses `truncationIndex` and `truncationScore` and has `toleranceCounts`,
+  `countedTolerance`, `count`, `ranked`, `isFallback`, `reason` and `systemState` (`toleranceCounts.rest`
+  with `candidates.rest`). The provider's `countedTotal` is the result's `count`. `FieldProxy` follows the
+  server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
+  `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `rerankWeight` of 0; the
+  `CoverageStrictness` enum is gone. Coverage is called reranking: `enableMatchReport`,
+  `matchReport` (`MatchReport`) and a field's `rerankWeight` in place of `enableCoverageReport`,
+  `coverageReport` and `coverageWeight`.
+
+  The settings panel shows the mode and a rerank switch. The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
+  `enableCoverage`, `coverageDepth` (now `candidates.maxCandidates`) and `initialCoverageSetup`;
+  `SearchSettings` holds the same, and `setSearchSettings` merges a part member by member. The state's
+  `truncationIndex` is `countedTotal`, the records the search counted, with `isFallback` beside it.
+  Needs a 6.0 server.
+
+- 3b0b1fd: Search or ask follows each of its five modes as the 6.0 server defines them.
+
+  - The list under an offer is never cut. With the server's "strong matches only" gone, the cut emptied the list under most questions. `cutResults`, `cutRule`, `visibleResults`, `DEFAULT_CUT`, `CutRule` and `SCORE_SCALE` are removed.
+  - `SearchResults` dims the list, with a line above it, when the judge reads what is asked about as not in the results (`found` below `thresholds.found`). The hook's state has `found` and `notFound`; `notFoundLabel` words the line.
+  - While asking is held, nothing is offered in any mode: no Ask button in open, no hint in inviting, no answer starting in proactive, and Enter searches. That is when the model provider refuses answers (reason `paused`) or the dataset's calls for today are spent. The state says so as `held`.
+  - `AskPanel` tells a refusal apart: a proactive start the server refuses shows nothing, a spent budget says asking is back tomorrow, and asking that is not on here gets a sentence for the visitor rather than the server's text for the owner.
+  - An intent answering 404 (the dataset does not show Search or ask) turns the hook off, as a 409 does.
+  - `SearchOrAskMode` and `pageMode` are exported. The hook's `mode` doc now says what it does: a page's `proactive` is `inviting` where the dataset is not proactive.
+  - `setSearchRewrite`, the Ask phrases' hook into the provider, is gone; the provider's `searchTextOf` stays.
+  - `QuickAnswer` shows the plain Ask of open, inviting and proactive (a new `ask` quick state, `labels.ask`), so a page that puts the offer in a row of its own keeps the Ask that those modes always have. `SearchInput`'s chip reads the same state.
+
+- 75714b7: On a catalogue, the assistant's picks are the result list while the conversation is open, with nothing for the page to wire. The answer chooses the records that answer the visitor by reading them, best first, each with why. `AskPanel` puts them on the `SearchProvider` (`picks`, `showPicks`); `SearchResults` lists them in place of the search, numbered as the answer cites them, with the reason under each row, and a way back ("Show the search instead", or "Show all 45 found" when the picks came with a search); `SearchInput` drops its Nearest and No results chips, which are about the search. Typing, Clear, a new conversation or the panel going gives the list back. A proactive answer leaves the list alone. `AskPanel`'s `onPicks` reports them and `listPicks={false}` keeps them in the panel; `SearchResults` takes `picks` and `onShowSearch` to override. A pick opened is reported against the answer, and a follow-up sends the picks as what the last turn showed (`AskTurn.shown.picks`). New types `AskPick`, `AskPicks`.
+
+### Minor Changes
+
+- 0b3925e: `filters/combine` takes a list. `CombinedFilterProxy` is `{ filters: FilterProxy[], useAndOperation }`
+  in place of `{ a, b, useAndOperation }`, and the server makes one filter of the whole list. The
+  intrface sends one combine per field and one for the whole selection, where it sent one per pair:
+  three values on one field were two requests and are one. Needs a server with the list form.
+- 496a2dc: The search state keeps the rest of what a 6.0 search says about itself: `toleranceCounts` (the
+  counted records by typo level, for "140 results, 45 with a typo"), `countedTolerance`, `ranked`,
+  `reranked` and `fill`, beside `countedTotal` and `isFallback`.
+
+### Patch Changes
+
+- 342e1a4: A search asks the server to send the records with its answer, so each search is one call instead of a search followed by a lookup. A server that does not send them yet is asked for them as before.
+- 2c89d15: Search or ask offers to answer once the question is whole. While a question is still being typed ("which school is"), the visitor sees the invitation, and the offer to answer follows when the rest is there.
+- Updated dependencies [c4f1ecb]
+- Updated dependencies [0b3925e]
+- Updated dependencies [a880596]
+- Updated dependencies [c3d895c]
+- Updated dependencies [9085f78]
+- Updated dependencies [a394c82]
+- Updated dependencies [1ba5cc7]
+- Updated dependencies [c4ff027]
+- Updated dependencies [9bd6669]
+- Updated dependencies [4829cc7]
+- Updated dependencies [496a2dc]
+  - @indxsearch/systm@2.25.0-beta.0
+  - @indxsearch/indx-types@4.0.0-beta.0
+
 ## 3.15.1
 
 ### Patch Changes

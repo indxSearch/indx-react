@@ -1,0 +1,31 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "components-viewer": "0.1.1",
+    "demo": "0.1.0",
+    "@indxsearch/intrface": "3.15.1",
+    "@indxsearch/systm": "2.24.0",
+    "@indxsearch/indx-types": "3.1.0"
+  },
+  "changesets": [
+    "ask-phrases-removed",
+    "chip-toggle",
+    "combine-takes-a-list",
+    "dataset-query-parameters",
+    "histogram-range",
+    "input-field-ghost",
+    "intrface-search-says-more",
+    "intrface-search-with-documents",
+    "query-fit-result",
+    "query-in-three-parts",
+    "search-or-ask-modes-aligned",
+    "search-or-ask-picks",
+    "sidebar-rail-footer",
+    "slider-disabled",
+    "slider-field",
+    "step-progress",
+    "types-v6-requests",
+    "whole-question-offer"
+  ]
+}

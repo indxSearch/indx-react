@@ -1,5 +1,53 @@
 # Changelog
 
+## 4.0.0-beta.0
+
+### Major Changes
+
+- 0b3925e: `filters/combine` takes a list. `CombinedFilterProxy` is `{ filters: FilterProxy[], useAndOperation }`
+  in place of `{ a, b, useAndOperation }`, and the server makes one filter of the whole list. The
+  intrface sends one combine per field and one for the whole selection, where it sent one per pair:
+  three values on one field were two requests and are one. Needs a server with the list form.
+- a394c82: The 6.0 wire: a query in three parts. `QueryProxy` takes `mode` (`SearchMode`: `EditDistance`,
+  the default, or `Bm25f`; whether the records are reranked by Coverage is `ranking.rerank`, on by
+  default) and three parts, `match` (`MatchSetup`: tolerance, rungs, the word being
+  typed), `candidates` (`CandidateSetup`: `candidatesPerRow`, `maxCandidates`, `fallback`, `rest`) and
+  `ranking` (`RankingProxy`: the blend, field weights and boosts, `boosts` and `buries`).
+  `enableCoverage`, `coverageDepth`, `coverageSetup` and the `CoverageSetup` and `CloudQuery` types are
+  gone. Enums are strings, by name, as the server now sends and reads them (`BoostStrength.Med`, was
+  `Medium`). `Result` loses `truncationIndex` and `truncationScore` and has `toleranceCounts`,
+  `countedTolerance`, `count`, `ranked`, `isFallback`, `reason` and `systemState` (`toleranceCounts.rest`
+  with `candidates.rest`). The provider's `countedTotal` is the result's `count`. `FieldProxy` follows the
+  server's: `wordMatching` in place of `searchable`, and `tolerance` (`Exact`, `OneEdit`,
+  `TwoEdits`) in place of `coverageStrictness`, whose `None` is a `rerankWeight` of 0; the
+  `CoverageStrictness` enum is gone. Coverage is called reranking: `enableMatchReport`,
+  `matchReport` (`MatchReport`) and a field's `rerankWeight` in place of `enableCoverageReport`,
+  `coverageReport` and `coverageWeight`.
+
+  The settings panel shows the mode and a rerank switch. The intrface provider takes `mode`, `match`, `candidates` and `ranking` in place of
+  `enableCoverage`, `coverageDepth` (now `candidates.maxCandidates`) and `initialCoverageSetup`;
+  `SearchSettings` holds the same, and `setSearchSettings` merges a part member by member. The state's
+  `truncationIndex` is `countedTotal`, the records the search counted, with `isFallback` beside it.
+  Needs a 6.0 server.
+
+- 496a2dc: The rest of the 6.0 server's requests and answers: `InFilterProxy`, `PositionFilterProxy`,
+  `FilterExpressionProxy` with `FilterExpressionResultProxy` and `FilterExpressionErrorDetail`, the
+  saved `BoostRule` and `BuryRule` (`RuleCondition`), a dataset's `DatasetQueryParameters` and
+  `QueryParametersResponse`, and field profiles (`FieldProfile`, `FieldProfileView`,
+  `FieldProfilesResponse`, `FieldProfilesRequest`). `FieldProxy.typingPrefixFrom` and
+  `ValueFilterProxy.isCaseSensitive` are added; `SystemStatus` has `indexedTextTruncated`,
+  `wordTokenSizeCapped` and `fieldK1Ignored`, and loses `tooLongClientText` and
+  `unknownConfigurationError`, which the server no longer sends. `IndxProblemCode` names every code
+  the server answers with, `invalidFilterExpression` among them, and `IndxProblem.errors` carries an
+  expression's errors. `PageFill`, `MatchReport`, `RecordMatch`, `QueryWordMatch` and `WordMatch` are
+  exported. Every type is checked against the server's OpenAPI document.
+
+### Minor Changes
+
+- 9085f78: `QueryProxy.measureFit` and `QueryFitResult`: a search can also say how well its results explain the
+  text (`explainedShare`, `unexplainedShare`, `explainedWords`, `unexplainedWords`), for telling a
+  search from a question.
+
 ## 3.1.0
 
 ### Minor Changes

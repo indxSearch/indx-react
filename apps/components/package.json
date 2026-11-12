@@ -1,6 +1,6 @@
 {
   "name": "components-viewer",
-  "version": "0.1.1",
+  "version": "0.1.2-beta.0",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@indxsearch/indx-types": "^3.0.0",
-    "@indxsearch/intrface": "^3.13.2",
+    "@indxsearch/indx-types": "^4.0.0-beta.0",
+    "@indxsearch/intrface": "^4.0.0-beta.0",
     "@indxsearch/pixl": "^1.6.0",
-    "@indxsearch/systm": "^2.22.0",
+    "@indxsearch/systm": "^2.25.0-beta.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1"
