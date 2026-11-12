@@ -88,7 +88,7 @@ export interface QueryProxy {
    * instead of a search and a lookup. Default false. */
   includeDocuments?: boolean;
   /** With includeDocuments: only these top-level fields of each record. Null or empty: the whole record. */
-  documentFields?: string[] | null;
+  includeFields?: string[] | null;
   removeDuplicates?: boolean;
   sortAscending?: boolean;
   sortBy?: string | null;
