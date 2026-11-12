@@ -9,7 +9,9 @@ export { JsonErrorType } from './errors.js';
 export { LoginInfo, LoginResponse, ChangePasswordRequest } from './auth.js';
 
 // Query
-export { QueryProxy, MatchSetup, CandidateSetup, RankingProxy } from './query.js';
+export {
+  QueryProxy, MatchSetup, CandidateSetup, RankingProxy, MultiSearchQuery, SearchGroup, GroupedSearchRequest
+} from './query.js';
 
 // Filters
 export {
@@ -44,7 +46,7 @@ export { VectorQueryProxy, HybridQueryProxy, EmbeddingResultEntry } from './vect
 // Result
 export {
   Result, QueryFitResult, ScoreEntry, ToleranceCounts, PageFill, MatchReport, RecordMatch, QueryWordMatch, WordMatch,
-  FacetStats, MultiSearchAnswer, MultiSearchFailure, MAX_SEARCHES_PER_MULTI
+  FacetStats, MultiSearchAnswer, MultiSearchFailure, MAX_SEARCHES_PER_MULTI, GroupedSearchResult
 } from './result.js';
 
 // Cold storage

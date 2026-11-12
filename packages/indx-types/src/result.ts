@@ -123,3 +123,10 @@ export interface MultiSearchFailure {
 
 /** The most searches one `search/multi` call takes. */
 export const MAX_SEARCHES_PER_MULTI = 20;
+
+/** The answer of `POST .../search/groups`: each section's result by its name, a failed one as its
+ * failure, and the one `queryId` a click in any section refers to. */
+export interface GroupedSearchResult<TDocument = Record<string, unknown>> {
+  groups: { [name: string]: Result<TDocument> | MultiSearchFailure };
+  queryId?: string | null;
+}

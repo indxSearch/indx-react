@@ -87,6 +87,8 @@ export interface QueryProxy {
   /** The records' JSON comes with the result, in `documents`, in the order of `records`: one call
    * instead of a search and a lookup. Default false. */
   includeDocuments?: boolean;
+  /** With includeDocuments: only these top-level fields of each record. Null or empty: the whole record. */
+  documentFields?: string[] | null;
   removeDuplicates?: boolean;
   sortAscending?: boolean;
   sortBy?: string | null;
@@ -98,4 +100,37 @@ export interface QueryProxy {
   logPrefix?: string | null;
   /** The result then also says how well it explains the text: a {@link QueryFitResult}. */
   measureFit?: boolean;
+}
+
+/** One search of `POST .../search/multi`: a search that may say for itself how it goes into the
+ * statistics, over the query string's `?count=`, `?source=` and `?session=`. */
+export interface MultiSearchQuery extends QueryProxy {
+  /** Whether this search is a visitor's; left out: the query string's. */
+  count?: boolean | null;
+  source?: string | null;
+  session?: string | null;
+}
+
+/** One section of a {@link GroupedSearchRequest}. */
+export interface SearchGroup {
+  /** The section's key in the answer's `groups`; unique in the request. */
+  name: string;
+  /** A filter expression for the section, ANDed with the search's own `filterExpression`. */
+  filter?: string | null;
+  /** How many records the section lists; 0 lists none and still counts. */
+  rows: number;
+  /** Count by this filter instead of `filter`: list the upcoming events, count them all. */
+  countFilter?: string | null;
+  /** The section's own candidates, ranking and match, each replacing the search's whole. */
+  candidates?: CandidateSetup | null;
+  ranking?: RankingProxy | null;
+  match?: MatchSetup | null;
+  /** The section that is the visitor's search, the one recorded in the statistics; none marked: the first. */
+  primary?: boolean;
+}
+
+/** The body of `POST .../search/groups`: one text answered in named sections. Everything but
+ * `groups` is every section's. At most 20 groups. */
+export interface GroupedSearchRequest extends QueryProxy {
+  groups: SearchGroup[];
 }
