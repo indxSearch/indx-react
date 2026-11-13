@@ -180,7 +180,6 @@ All routes below are relative to `/api/teams/{teamName}/datasets/{dataSetName}`.
   filter?: FilterProxy;
   sortBy?: string;
   sortAscending?: boolean;
-  removeDuplicates?: boolean;
   mode?: 'EditDistance' | 'Bm25f';   // default EditDistance; ranking.rerank (default true) reranks by Coverage
   match?: MatchSetup;          // what counts as a hit: tolerance, rungs, the word being typed
   candidates?: CandidateSetup; // who comes in: candidatesPerRow, maxCandidates, fallback

@@ -25,7 +25,6 @@ export interface SearchSettings {
   candidates: CandidateSetup;
   /** The order: the blend, field weights and boosts, boosts and buries. */
   ranking: RankingProxy;
-  removeDuplicates: boolean;
   /** Ask the server to order a search no record holds every word of by the rarest words the records
    *  hold (`?refocus=true`). useSearchOrAsk sets it while the judge reads a question or a description. */
   refocus?: boolean;
@@ -150,7 +149,6 @@ export const SearchProvider: React.FC<{
   maxResults?: number;
   facetDebounceDelayMillis?: number;
   enableFacets?: boolean;
-  removeDuplicates?: boolean;
   mode?: SearchMode; // Left out: the dataset's, else EditDistance. Until 6.0 enableCoverage (false was Bm25f)
   match?: MatchSetup; // Until 6.0 parts of initialCoverageSetup
   candidates?: CandidateSetup; // Until 6.0 coverageDepth (now maxCandidates) and includePatternMatches (now fallback)
@@ -175,7 +173,6 @@ export const SearchProvider: React.FC<{
   maxResults = 10,
   facetDebounceDelayMillis = 500, // debounce faceted searches only
   enableFacets = true,
-  removeDuplicates = true,
   mode,
   match = {},
   candidates = {},
@@ -225,7 +222,6 @@ export const SearchProvider: React.FC<{
       match,
       candidates,
       ranking,
-      removeDuplicates,
       minimumScore: 0,
       showScore: true,
       placeholderText: DEFAULT_PLACEHOLDER,

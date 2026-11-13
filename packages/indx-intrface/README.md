@@ -372,7 +372,6 @@ Two optional `SearchProvider` props shape what the statistics see:
 | `enableFacets` | `boolean` | ❌ | `true` | Enable faceted search |
 | `maxResults` | `number` | ❌ | `10` | Max results per search |
 | `facetDebounceDelayMillis` | `number` | ❌ | `500` | Debounce delay for facet updates (ms) |
-| `removeDuplicates` | `boolean` | ❌ | `true` | Remove duplicate results |
 | `mode` | `SearchMode` | ❌ | `Coverage` | `Coverage`, `EditDistance` or `Bm25f` (ranking alone, no word lookup) |
 | `match` | `MatchSetup` | ❌ | `{}` | What counts as a hit: `tolerance`, `rungs`, the word being typed. A member left out is the server's default |
 | `candidates` | `CandidateSetup` | ❌ | `{}` | Who comes in: `candidatesPerRow`, `maxCandidates`, `fallback` |

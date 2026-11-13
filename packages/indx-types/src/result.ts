@@ -64,6 +64,8 @@ export interface FacetStats {
 export interface Result<TDocument = Record<string, unknown>> {
   records?: ScoreEntry[] | null;
   facets?: { [key: string]: StringInt32KeyValuePair[] } | null;
+  /** For each name in query.counts, how many of the records `count` counts its filter lets through. */
+  counts?: Record<string, number> | null;
   /** Per number field among the facets: its lowest and highest value and how many records hold one. */
   facetStats?: { [field: string]: FacetStats } | null;
   /** With query.includeDocuments: each record's JSON, as an object, in the order of `records`;

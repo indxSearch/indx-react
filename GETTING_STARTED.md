@@ -208,7 +208,7 @@ Now that you have a basic search working:
 
 1. **Add filters** - See the [README](packages/indx-intrface/README.md#adding-filters) for filter examples
 2. **Customize styling** - Override the CSS or use custom render functions
-3. **Configure search behavior** - Adjust `mode`, `match`, `candidates`, `ranking`, `removeDuplicates`, etc.
+3. **Configure search behavior** - Adjust `mode`, `match`, `candidates`, `ranking`, etc.
 4. **Add multiple datasets** - Use different `dataset` names on different pages
 
 ## Need More Help?

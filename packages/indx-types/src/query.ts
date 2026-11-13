@@ -89,7 +89,21 @@ export interface QueryProxy {
   includeDocuments?: boolean;
   /** With includeDocuments: only these top-level fields of each record. Null or empty: the whole record. */
   includeFields?: string[] | null;
-  removeDuplicates?: boolean;
+  /** One record per value of these fields, in the ranking's order: the best-ranked kept, the next
+   * with a value not seen taking a duplicate's place; `offset` counts the records kept. Each field
+   * must have a role and not be an array. With includeFields, these fields must be among them. */
+  collapseBy?: string[] | null;
+  /** Named counts, each a filter expression: how many of the records `count` counts each lets
+   * through, in the result's `counts`. Counted over the same set as the facets, so no extra search;
+   * not the count a separate search with that filter would give where the typo levels differ. */
+  counts?: Record<string, string> | null;
+  /** The values ticked on facets, by Facetable field: the list holds records with one of a field's
+   * values (OR within a field, AND between fields and with the filter), and each selected field's
+   * facet is counted without its own selection. */
+  facetSelections?: Record<string, string[]> | null;
+  /** A range on a facet, by field: a filter expression on that field alone (`publishedYear >= 2010`),
+   * the field Facetable and Filterable. Its facet and facetStats are counted without it. */
+  facetRanges?: Record<string, string> | null;
   sortAscending?: boolean;
   sortBy?: string | null;
   timeOutLimitMilliseconds?: number;

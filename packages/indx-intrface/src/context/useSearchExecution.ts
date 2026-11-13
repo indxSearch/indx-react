@@ -103,7 +103,6 @@ export function useSearchExecution({
   // Extract primitives from state to keep the dep arrays stable
   const settingsMaxResults = state.searchSettings.maxNumberOfRecordsToReturn;
   const settingsMode = state.searchSettings.mode;
-  const settingsRemoveDuplicates = state.searchSettings.removeDuplicates;
   const settingsRefocus = state.searchSettings.refocus;
   const settingsMatch = state.searchSettings.match;
   const settingsCandidates = state.searchSettings.candidates;
@@ -159,7 +158,6 @@ export function useSearchExecution({
         const commonBody = {
           text: query,
           mode: settingsMode,
-          removeDuplicates: settingsRemoveDuplicates,
           match: settingsMatch,
           candidates: settingsCandidates,
           ranking: settingsRanking,
@@ -397,7 +395,6 @@ export function useSearchExecution({
       sortAscending,
       settingsMaxResults,
       settingsMode,
-      settingsRemoveDuplicates,
       settingsRefocus,
       settingsMatch,
       settingsCandidates,
@@ -540,7 +537,6 @@ export function useSearchExecution({
   }, [
     settingsMaxResults,
     settingsMode,
-    settingsRemoveDuplicates,
     settingsRefocus,
     settingsMatch,
     settingsCandidates,

@@ -187,7 +187,6 @@ export function MockSearchProvider({
         match: {},
         candidates: {},
         ranking: {},
-        removeDuplicates: false,
         minimumScore: 0,
         showScore: false,
         placeholderText,

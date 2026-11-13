@@ -177,13 +177,6 @@ export function SearchSettingsPanel() {
             onChange={(value: boolean) => handleToggle('showScore', value)}
           />
         </li>
-        <li>
-          <ToggleSwitch
-            label="Remove Duplicates"
-            checked={searchSettings.removeDuplicates}
-            onChange={(value: boolean) => handleToggle('removeDuplicates', value)}
-          />
-        </li>
 
         <li>
           <Button variant="ghost" size="micro" iconRight={ showParts ? <ArrowDown/> : <ArrowRight/>} onClick={() => setShowParts(prev => !prev)}>
