@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.0-beta.1
+
+### Major Changes
+
+- 867e6a3: `removeDuplicates` is gone from `SearchProvider` and the search settings, and searches no longer send it: the server never acted on it. To show one row per title or per work, use the server's `collapseBy`.
+
 ## 4.0.0-beta.0
 
 ### Major Changes
