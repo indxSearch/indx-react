@@ -63,6 +63,20 @@ export interface AskState {
   picks?: AskPicks;
   /** What the agent has done so far ("Searching: Folkehøyskole, by Elevtall"), while it works. */
   steps: string[];
+  /** The same steps as their parts, to say them in the page's own language and words. */
+  stepDetails: AskStep[];
+}
+
+/** A step of the agent's, as its sentence and its parts: `read` (reading the question), `search`
+ *  (what it searched with and how many it found) or `pick` (how many records it picked). */
+export interface AskStep {
+  step: string;
+  kind?: 'read' | 'search' | 'pick';
+  /** For `search`: the filters, a filter expression, the words and the order it searched with, and
+   *  how many it found (`more` when that is the cap). */
+  search?: AskFilters & { filter?: string | null };
+  /** For `pick`: how many records it picked. */
+  count?: number;
 }
 
 /** What a catalogue's description was searched with: filters, words no filter covers, and the count. */
@@ -76,7 +90,7 @@ export interface AskFilters {
   more: boolean;
 }
 
-const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [], steps: [] };
+const IDLE: AskState = { question: '', status: 'idle', answer: '', sources: [], steps: [], stepDetails: [] };
 
 /**
  * Asks the dataset a question (`search-or-ask/ask`) and follows the answer as it streams: the
@@ -103,7 +117,7 @@ export function useAsk() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    setState({ question: q, status: 'searching', answer: '', sources: [], steps: [] });
+    setState({ question: q, status: 'searching', answer: '', sources: [], steps: [], stepDetails: [] });
 
     // Text arrives faster than frames; one update per frame keeps the layout from re-flowing
     // several times between paints.
@@ -150,8 +164,8 @@ export function useAsk() {
       for await (const { event, data } of readSse(res.body)) {
         switch (event) {
           case 'status': {
-            const step = (data as { step?: string }).step;
-            if (step) setState(s => ({ ...s, steps: [...s.steps, step] }));
+            const detail = data as AskStep;
+            if (detail.step) setState(s => ({ ...s, steps: [...s.steps, detail.step], stepDetails: [...s.stepDetails, detail] }));
             break;
           }
           case 'filters':
